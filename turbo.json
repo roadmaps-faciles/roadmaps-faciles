@@ -1,0 +1,59 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [ "NODE_ENV", "CI" ],
+  "tasks": {
+    "build": {
+      "dependsOn": [ "^build" ],
+      "outputs": [ ".next/**", "!.next/cache/**", "dist/**" ],
+      "env": [ "NEXT_PUBLIC_*", "SENTRY_*", "DATABASE_URL", "ESPACE_MEMBRE_API_KEY" ]
+    },
+    "lint": {
+      "inputs": [
+        "src/**",
+        "tests/**",
+        ".storybook/**",
+        "eslint.config.ts",
+        "tsconfig.json",
+        "package.json"
+      ]
+    },
+    "typecheck": {
+      "inputs": [
+        "src/**",
+        "tests/**",
+        "tsconfig.json",
+        "package.json"
+      ]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "test": {
+      "inputs": [
+        "src/**",
+        "tests/**",
+        ".storybook/**",
+        "vitest.config.ts",
+        "vitest.config.*.ts",
+        "vitest.setup.ts",
+        "tsconfig.json",
+        "package.json"
+      ]
+    },
+    "storybook": {
+      "cache": false,
+      "persistent": true
+    },
+    "build-storybook": {
+      "inputs": [
+        "src/**",
+        ".storybook/**",
+        "postcss.config.js",
+        "tsconfig.json",
+        "package.json"
+      ],
+      "outputs": [ "storybook-static/**" ]
+    }
+  }
+}

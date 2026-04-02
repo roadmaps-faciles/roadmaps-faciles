@@ -1,0 +1,477 @@
+@use "sass:list";
+
+/* Anti-FOUC: hide body until DSFR CSS is loaded.
+   ThemeInjector adds `dsfr-pending` before first paint;
+   DsfrCssLoader removes it once DSFR CSS is ready. */
+html.dsfr-pending body {
+    visibility: hidden;
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--border);
+  }
+}
+
+/* ==============================
+   DSFR → shadcn CSS variable aliases
+   Maps DSFR token names to shadcn equivalents so existing .module.scss
+   files (Board.module.scss, CommentContent.module.scss) work in Default theme.
+   ============================== */
+[data-ui-theme="Default"] {
+    --background-lifted-grey: var(--card);
+    --border-default-grey: var(--border);
+    --background-alt-grey: var(--muted);
+    --text-mention-grey: var(--muted-foreground);
+    --shadow-color: var(--border);
+    --background-contrast-grey: var(--accent);
+    --text-default-grey: var(--foreground);
+    --text-label-grey: var(--muted-foreground);
+    --background-default-grey: var(--background);
+    --text-action-high-blue-france: var(--primary);
+    --background-action-high-blue-france: var(--primary);
+    --text-inverted-blue-france: var(--primary-foreground);
+    /* MarkdownEditor.module.scss aliases */
+    --text-action-high-grey: var(--foreground);
+    --background-default-grey-hover: var(--accent);
+    --background-default-grey-active: var(--accent);
+    --border-active-blue-france: var(--ring);
+    --background-alt-blue-france: oklch(0.95 0.03 265);
+    --text-default-error: var(--destructive);
+    /* Sticky offset — DSFR header sets this via JS, Default header is fixed 4rem */
+    --sticky-offset: 4rem;
+}
+
+/* ==============================
+   DSFR global resets for shadcn scope
+   DSFR injects base styles (link underlines, heading sizes, list resets)
+   that conflict with Tailwind/shadcn — we neutralize them here.
+   ============================== */
+[data-ui-theme="Default"] {
+    /* DSFR forces underline on all <a> — reset for shadcn buttons/links */
+    a {
+        text-decoration: none;
+        background-image: none;
+    }
+
+    /* DSFR overrides heading font-sizes — let Tailwind handle them */
+    h1, h2, h3, h4, h5, h6 {
+        font-size: revert-layer;
+        line-height: revert-layer;
+    }
+
+    /* DSFR strips list styles — restore for content */
+    ul, ol {
+        list-style: revert-layer;
+        padding: revert-layer;
+    }
+
+    /* Fallback for DSFR artwork SVGs used in shadcn context */
+    svg.dsfr-svg {
+        --color: oklch(0.386 0.146 263); /* French Blue primary */
+    }
+}
+
+.dark[data-ui-theme="Default"] {
+    svg.dsfr-svg {
+        --color: oklch(0.620 0.130 264); /* lighter blue for dark mode */
+    }
+}
+
+.field-sizing-content {
+    field-sizing: content;
+}
+
+.field-sizing-fixed {
+    field-sizing: fixed;
+}
+
+/* background */
+
+/* -- custom */
+.no-bg {
+    background: none;
+}
+
+/* Code styling — scoped per theme */
+[data-ui-theme="Default"] code {
+    background-color: var(--muted);
+    color: var(--muted-foreground);
+    padding: 0.2em 0.5em;
+    border-radius: 5px;
+    font-size: 0.95em;
+    box-shadow: inset 0 0 0 1px var(--border);
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+[data-ui-theme="Default"] code:hover {
+    background-color: var(--accent);
+    transition: background-color 0.3s ease;
+}
+
+[data-ui-theme="Dsfr"] code {
+    background-color: var(--background-lifted-grey);
+    color: var(--text-label-grey);
+    padding: 0.2em 0.5em;
+    border-radius: 5px;
+    font-size: 0.95em;
+    box-shadow: inset 0 0 0 1px var(--border-default-grey);
+    filter: drop-shadow(var(--raised-shadow));
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+[data-ui-theme="Dsfr"] code:hover {
+    background-color: var(--background-lifted-grey-hover);
+    transition: background-color 0.3s ease;
+}
+
+/* === */
+
+/* === based on dsfr === */
+
+
+/* Fix: DSFR toggle label ::before margins lost in Turbopack CSS cascade.
+   Turbopack chunks DSFR CSS into multiple @layer blocks, causing cascade conflicts
+   with Tailwind Preflight. The margin on ::before (toggle track spacing) gets
+   overridden. !important is required because the cascade layer ordering in dev
+   doesn't match production (where DSFR CSS loads as a single unlayered block). */
+.fr-toggle label::before {
+    margin-right: 2rem !important;
+}
+
+.fr-toggle--label-left .fr-toggle__label::before {
+    margin-left: 1rem !important;
+    margin-right: 0 !important;
+}
+
+/* Fix: DSFR collapse initial state with React.
+ * DSFR JS (window.dsfr.start()) may not have initialized yet when React renders
+ * aria-expanded="true". This CSS forces the collapse open until DSFR JS takes over
+ * (adds fr-collapse--expanded), then this rule stops matching. */
+.fr-sidemenu [aria-expanded="true"]+.fr-collapse:not(.fr-collapse--expanded):not(.fr-collapsing) {
+    --collapse-max-height: none;
+    visibility: visible;
+}
+
+/* typo */
+.text-dsfr-neutral {
+    color: var(--text-default-grey);
+}
+
+.text-dsfr-success {
+    color: var(--text-default-success);
+}
+
+.text-dsfr-warning {
+    color: var(--text-default-warning);
+}
+
+.text-dsfr-error {
+    color: var(--text-default-error);
+}
+
+.text-dsfr-action-high-blue-france {
+    color: var(--text-action-high-blue-france);
+}
+
+/* background */
+.bg-dsfr-alt-grey {
+    background-color: var(--background-alt-grey);
+}
+
+/* === */
+
+svg.dsfr-svg {
+    --color: var(--artwork-major-blue-france);
+}
+
+svg.dsfr-svg-hover:hover {
+    --color: var(--artwork-major-blue-france-hover);
+}
+
+svg.dsfr-svg-active:active {
+    --color: var(--artwork-major-blue-france-active);
+}
+
+
+/* === shine === */
+.shimmer {
+    mask: linear-gradient(-60deg, #000 30%, #0003, #000 70%) right/300% 100%;
+    background-repeat: no-repeat;
+    animation: 20s ease-out infinite shimmer;
+}
+
+@keyframes shimmer {
+
+    10%,
+    100% {
+        mask-position: left
+    }
+}
+
+// DSFR color name → (dsfr-token, fallback-text, fallback-bg)
+// Fallback values from DSFR light palette — used when DSFR CSS is not loaded (Default theme).
+$postStatusColor: (
+    grey:                  ("grey",                  #666666, #eeeeee),
+    blueFrance:            ("blue-france",            #000091, #e3e3fd),
+    redMarianne:           ("red-marianne",           #c9191e, #fce1e1),
+    greenTilleulVerveine:  ("green-tilleul-verveine", #b7a73f, #fcf3cf),
+    greenBourgeon:         ("green-bourgeon",         #447049, #c9e6c9),
+    greenEmeraude:         ("green-emeraude",         #00a95f, #c3fad5),
+    greenMenthe:           ("green-menthe",           #009081, #baf9f5),
+    greenArchipel:         ("green-archipel",         #009099, #c7f6fc),
+    blueEcume:             ("blue-ecume",             #465f9d, #e0e5f5),
+    blueCumulus:           ("blue-cumulus",            #417dc4, #d4e5f7),
+    purpleGlycine:         ("purple-glycine",         #a558a0, #f1dff0),
+    pinkMacaron:           ("pink-macaron",           #e18b76, #fddede),
+    pinkTuile:             ("pink-tuile",             #ce614a, #fdd4d4),
+    yellowTournesol:       ("yellow-tournesol",       #c8aa39, #fef0b9),
+    yellowMoutarde:        ("yellow-moutarde",        #c3992a, #fee9ac),
+    orangeTerreBattue:     ("orange-terre-battue",    #e4794a, #fdd5c0),
+    brownCafeCreme:        ("brown-cafe-creme",       #d1b781, #f4e3c7),
+    brownCaramel:          ("brown-caramel",          #c08c36, #f4e0b6),
+    brownOpera:            ("brown-opera",            #bd987a, #f4e0cf),
+    beigeGrisGalet:        ("beige-gris-galet",       #aea397, #e7ded7),
+    info:                  ("info",                   #0078f3, #e0f1ff),
+    success:               ("success",                #18753c, #b8fec9),
+    warning:               ("warning",                #b34000, #ffe8d7),
+    error:                 ("error",                  #ce0500, #ffe0e0),
+);
+
+@each $name, $tuple in $postStatusColor {
+    $dsfrColor: list.nth($tuple, 1);
+    $fallbackText: list.nth($tuple, 2);
+    $fallbackBg: list.nth($tuple, 3);
+
+    .fr-badge.fr-badge--color-#{""+$name},
+    .fr-roadmap-column--color-#{""+$name} {
+        color: var(--text-action-high-#{$dsfrColor}, #{$fallbackText});
+        background-color: var(--background-contrast-#{$dsfrColor}, #{$fallbackBg});
+        --idle: transparent;
+        --hover: var(--background-contrast-#{$dsfrColor}-hover, #{$fallbackBg});
+        --active: var(--background-contrast-#{$dsfrColor}-active, #{$fallbackBg});
+    }
+}
+
+.reseted-hr {
+    padding: initial;
+    margin: initial;
+    border: initial;
+    border-width: 1px;
+    border-color: var(--border-default-grey);
+    border-style: solid;
+    background: initial;
+    background-image: initial;
+}
+
+.scrollbar-thin {
+    scrollbar-width: thin;
+}
+
+
+/* ==============================
+   Menu utilisateur DSFR étendu
+   ============================== */
+.fr-user-menu {
+    --rows: 8;
+    position: relative;
+    text-align: initial;
+    margin-top: -1rem !important;
+
+    /* --- Bouton principal --- */
+    &__btn {
+        margin-bottom: 0 !important;
+
+        &[aria-expanded="true"] &-label:after {
+            transform: rotate(-180deg);
+        }
+
+        /* Icône droite (chevron) */
+        &-label:after {
+            transition: transform 0.3s;
+        }
+
+        &[aria-expanded="true"] {
+            color: var(--text-active-blue-france);
+            background-color: var(--background-open-blue-france) !important;
+            --idle: transparent;
+            --hover: var(--background-open-blue-france-hover);
+            --active: var(--background-open-blue-france-active);
+        }
+    }
+
+    /* --- Réinitialisations DSFR inutiles --- */
+    .fr-nav__item:before {
+        content: none;
+    }
+
+    .fr-menu__list {
+        background-color: var(--background-alt-grey);
+    }
+
+    /* --- En-tête utilisateur --- */
+    &__header {
+        padding: 1rem 1.25rem;
+    }
+
+    &__name {
+        font-weight: bold;
+        margin-bottom: 0.25rem;
+    }
+
+    &__email {
+        color: var(--text-mention-grey);
+    }
+
+    /* --- Liens du menu --- */
+    .fr-nav__link {
+        transition: background-color 0.2s ease, color 0.2s ease;
+        justify-content: start;
+
+        &>.fr-icon {
+            margin-right: 0.5rem;
+        }
+
+        &:hover,
+        &:focus {
+            background-color: var(--background-alt-grey-hover);
+            color: var(--text-action-high-blue-france);
+        }
+    }
+
+
+    /* --- Bouton de déconnexion --- */
+    &__logout {
+        display: flex;
+        justify-content: center;
+
+        &>button.fr-btn,
+        &>a.fr-btn {
+            flex: 1 !important;
+            margin: 1rem !important;
+            justify-content: center !important;
+        }
+    }
+
+    /* --- Responsive desktop --- */
+    @media (width >=62em) {
+        .fr-user-menu {
+            &__btn {
+                &-label:after {
+                    margin-left: 0.25rem;
+                    margin-right: -0.25rem;
+                }
+            }
+
+            /* --- Menu déroulant --- */
+            &__menu {
+                padding: 0 !important;
+                left: .25rem !important;
+                margin: 0 !important;
+            }
+        }
+
+        .fr-menu__list {
+            grid-template-rows: repeat(var(--rows), auto);
+            grid-auto-flow: column;
+            display: grid;
+        }
+    }
+
+    /* --- Accessibilité : réduit les animations --- */
+    @media (prefers-reduced-motion: reduce) {
+        .fr-user-menu {
+
+            &__btn-label:after,
+            &__menu {
+                transition: none;
+            }
+        }
+    }
+}
+
+/* ----- */
+
+/* Prisma Sudio */
+:root .ps {
+    --background: var(--background-default-grey);
+    --foreground: var(--text-default-grey);
+    --primary: var(--background-action-high-blue-france);
+    --primary-foreground: var(--text-inverted-blue-france);
+    --secondary: var(--background-lifted-grey);
+    --secondary-foreground: var(--text-action-high-blue-france);
+    --popover: var(--background-lifted-grey);
+    --popover-foreground: var(--text-default-grey);
+    --border: var(--border-default-grey);
+    --input: var(--border-action-high-blue-france);
+    --ring: 35.5 91.7% 32.9%;
+    --card: var(--background-alt-grey);
+    --card-foreground: var(--text-default-grey);
+    --muted: var(--background-disabled-grey);
+    --muted-foreground: var(--text-label-grey);
+    --accent: var(--background-action-high-blue-france);
+    --accent-foreground: var(--text-inverted-blue-france);
+    --destructive: var(--background-flat-error);
+    --destructive-foreground: var(--text-error);
+    --color-green-500: var(--background-flat-success);
+    --font-sans: 'Marianne', sans-serif;
+    --text-lg: 1rem;
+    --text-sm: 0.875rem;
+}
+
+.ps .data-\[active\=true\]\:text-foreground[data-active="true"] {
+    background-color: var(--background-action-high-blue-france) !important;
+    color: var(--text-inverted-blue-france) !important;
+}
+
+.ps .data-\[active\=true\]\:text-foreground[data-active="true"]:hover {
+    color: var(--text-blue-france) !important;
+    color: var(--text-inverted-blue-france) !important;
+}
+
+.ps button[class~="hover:text-accent-foreground"]:hover {
+    color: var(--text-blue-france) !important;
+}
+
+.ps tr {
+    --muted: var(--background-alt-grey) !important;
+}
+
+/* Consent management button — style as DSFR secondary button when outside footer */
+.consent-btn-wrapper {
+    display: inline-block;
+
+    .fr-footer__bottom-link {
+        all: unset;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        font-weight: 500;
+        cursor: pointer;
+        color: var(--text-action-high-blue-france);
+        background-color: transparent;
+        box-shadow: inset 0 0 0 1px var(--border-action-high-blue-france);
+
+        &:hover {
+            background-color: var(--background-action-high-blue-france-hover);
+        }
+
+        &:active {
+            background-color: var(--background-action-high-blue-france-active);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--border-action-high-blue-france);
+            outline-offset: 2px;
+        }
+    }
+}

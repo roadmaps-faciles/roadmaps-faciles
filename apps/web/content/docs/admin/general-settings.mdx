@@ -1,0 +1,66 @@
+---
+title: Paramètres généraux
+description: Configurez les options principales de votre espace de travail.
+---
+
+Les paramètres généraux contrôlent le comportement global de votre espace de travail. Accédez-y via **Administration > Général**.
+
+<ImageWithTheme srcLight="/doc/screenshots/admin-general-light.png" srcDark="/doc/screenshots/admin-general-dark.png" alt="Paramètres généraux" />
+
+## Identité
+
+| Paramètre | Description |
+|-----------|-------------|
+| **Nom de l'espace** | Le nom affiché dans l'en-tête et les métadonnées. |
+| **Sous-domaine** | L'identifiant unique utilisé dans l'URL. Non modifiable après création. |
+| **Domaine personnalisé** | Associez votre propre nom de domaine. Voir [Domaines personnalisés](/doc/admin/custom-domains). |
+| **Langue** | Langue par défaut de l'interface (français ou anglais). |
+
+## Visibilité et accès
+
+| Option | Description |
+|--------|-------------|
+| **Espace privé** | Seuls les membres invités peuvent accéder au contenu. Les visiteurs sont redirigés vers la page de connexion. |
+| **Feedback anonyme** | Les visiteurs non-connectés peuvent soumettre des contributions sans compte. |
+
+## Options de feedback
+
+Ces options permettent de contrôler finement les interactions sur votre espace :
+
+| Option | Description | Par défaut |
+|--------|-------------|:--------:|
+| **Votes** | Activer/désactiver le système de vote. | Activé |
+| **Commentaires** | Activer/désactiver les commentaires sur les contributions. | Activé |
+| **Vote anonyme** | Les visiteurs non-connectés peuvent voter. | Activé |
+| **Modification des contributions** | Les auteurs peuvent modifier leurs contributions après publication. | Désactivé |
+| **Suppression des contributions** | Les auteurs peuvent supprimer leurs propres contributions. | Désactivé |
+| **Modération préalable** | Les contributions doivent être approuvées par un modérateur avant publication. Voir [Approbation](/doc/moderation/post-approval). | Désactivé |
+
+## Intégration (iframe)
+
+| Option | Description | Par défaut |
+|--------|-------------|:--------:|
+| **Autoriser l'intégration** | Permet d'afficher les tableaux et la feuille de route dans un site externe via une iframe. Voir [Intégrer dans un site](/doc/guides/embed). | Désactivé |
+
+## Navigation
+
+- **Feuille de route dans l'en-tête** — Affiche un lien vers la feuille de route dans le menu principal de l'espace.
+
+## Données initiales
+
+Pour un espace fraîchement créé, vous pouvez **initialiser des données par défaut** en un clic. Cela crée :
+- Un tableau "Feature Requests" avec une description d'accueil
+- Des statuts prédéfinis (Planifié, En cours, Complété, Rejetté)
+
+Cette option n'est disponible que si l'espace ne contient pas encore de tableaux ni de statuts.
+
+## Zone de danger
+
+<Callout type="warn">
+  Les actions de cette section sont irréversibles. Lisez attentivement avant de confirmer.
+</Callout>
+
+| Action | Description |
+|--------|-------------|
+| **Purger les données** | Supprime toutes les contributions, votes, commentaires, statuts, tableaux, épingles et suivis de l'espace. Seuls les membres et les paramètres sont conservés. Utile pour repartir de zéro sans recréer l'espace. |
+| **Supprimer l'espace** | Supprime définitivement l'espace et toutes ses données (tableaux, contributions, membres, paramètres). Réservé au **propriétaire**. |

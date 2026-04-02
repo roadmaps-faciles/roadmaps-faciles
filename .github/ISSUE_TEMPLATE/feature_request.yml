@@ -1,0 +1,40 @@
+name: Feature Request
+description: Proposer une nouvelle fonctionnalité ou amélioration
+type: Feature
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Décrivez la fonctionnalité souhaitée.
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Pourquoi cette fonctionnalité est-elle nécessaire ? Quel problème résout-elle ?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Détaillez le périmètre de la fonctionnalité (composants, pages, API...).
+    validations:
+      required: false
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives envisagées
+      description: Avez-vous considéré d'autres approches ?
+    validations:
+      required: false
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes techniques
+      description: Contraintes, dépendances, ou considérations techniques.
+    validations:
+      required: false

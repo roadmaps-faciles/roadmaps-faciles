@@ -1,0 +1,62 @@
+/* ==============================
+   Shared @utility patterns for @roadmaps-faciles/ui components.
+   Extracted from repeated className patterns across 15+ components.
+
+   Cannot live in tailwind-theme.css because globals.scss imports it via Sass,
+   and Sass cannot parse Tailwind 4 @utility directives.
+   Imported separately as plain CSS (PostCSS-only path).
+
+   Consumers MUST provide Tailwind context before importing this file:
+   - storybook.css: @import "tailwindcss" precedes this import
+   - apps/web: ui-utilities.css wrapper adds @reference directives
+   ============================== */
+
+@utility ui-focus-ring {
+  @apply focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px];
+}
+
+@utility ui-invalid-ring {
+  @apply aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40
+    aria-invalid:border-destructive aria-invalid:ring-[3px];
+}
+
+@utility ui-svg-icon {
+  @apply [&_svg]:pointer-events-none [&_svg]:shrink-0
+    [&_svg:not([class*='size-'])]:size-4;
+}
+
+@utility ui-disabled {
+  @apply disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+@utility ui-popover-animate {
+  @apply data-[state=open]:animate-in data-[state=closed]:animate-out
+    data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0
+    data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95
+    data-[side=bottom]:slide-in-from-top-2
+    data-[side=left]:slide-in-from-right-2
+    data-[side=right]:slide-in-from-left-2
+    data-[side=top]:slide-in-from-bottom-2;
+}
+
+@utility ui-overlay {
+  @apply data-[state=open]:animate-in data-[state=closed]:animate-out
+    data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0
+    fixed inset-0 z-50 bg-black/50;
+}
+
+@utility ui-menu-item {
+  @apply focus:bg-accent focus:text-accent-foreground
+    flex cursor-default items-center gap-2 rounded-sm text-sm
+    outline-hidden select-none
+    [&_svg]:pointer-events-none [&_svg]:shrink-0
+    [&_svg:not([class*='size-'])]:size-4;
+}
+
+@utility ui-close-button {
+  @apply ring-offset-background focus:ring-ring
+    absolute top-4 right-4 rounded-xs opacity-70
+    transition-opacity hover:opacity-100
+    focus:ring-2 focus:ring-offset-2 focus:outline-hidden
+    disabled:pointer-events-none disabled:opacity-50;
+}

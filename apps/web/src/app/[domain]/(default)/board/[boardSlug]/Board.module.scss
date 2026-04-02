@@ -1,0 +1,65 @@
+// ── DSFR-only styles ──
+// These classes are applied only when isDsfr=true.
+// Default theme uses Tailwind classes directly in JSX.
+
+.sidebar {
+    top: var(--sticky-offset, 0px);
+}
+
+.suggestionForm {
+    padding: 0 1rem;
+    background-color: var(--background-lifted-grey);
+    box-shadow: inset 0 0 0 1px var(--border-default-grey);
+    filter: drop-shadow(var(--raised-shadow));
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--background-default-grey);
+    margin-right: -2px;
+    box-shadow: inset 0 -1px 0 0 var(--border-default-grey);
+    top: var(--sticky-offset, 0px);
+}
+
+.header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    box-shadow: 0 0 8px 3px var(--shadow-color);
+    z-index: -1;
+}
+
+// ── Shared styles (both themes) ──
+
+.boardSubTiltle {
+    font-weight: unset;
+}
+
+// ── DSFR-only compact list (PostListCompact) ──
+
+.compactList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border: 1px solid var(--border-default-grey);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.compactItem {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-default-grey);
+    transition: background-color 0.15s ease;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &:hover {
+        background-color: var(--background-alt-grey);
+    }
+}

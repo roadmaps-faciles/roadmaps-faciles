@@ -1,0 +1,41 @@
+---
+title: Modération du contenu
+description: Actions de modération disponibles sur les contributions publiées.
+---
+
+En dehors du flux d'approbation, les modérateurs et administrateurs disposent d'actions de modération sur les contributions déjà publiées.
+
+## Actions disponibles
+
+### Modifier une contribution
+
+Les modérateurs et administrateurs peuvent modifier le titre et la description de **n'importe quelle contribution**, même si l'option "Autoriser les modifications" n'est pas activée pour les utilisateurs.
+
+La mention "modifié par" apparaît sur la page de la contribution avec la date de dernière modification et l'auteur de la modification.
+
+### Supprimer une contribution
+
+Les modérateurs et administrateurs peuvent supprimer n'importe quelle contribution.
+
+<Callout type="warn">
+  La suppression est irréversible. Les votes, commentaires et l'historique d'activité associés sont également supprimés.
+</Callout>
+
+### Changer le statut
+
+Seuls les **administrateurs** et le **propriétaire** peuvent changer le statut d'une contribution (ex. : passer de "À étudier" à "En cours"). Les modérateurs **ne disposent pas** de cette permission.
+
+Le changement de statut est tracé dans la timeline et apparaît comme un événement avec le nouveau statut.
+
+## Journal d'audit
+
+Toutes les actions de modération sont enregistrées dans le **[journal d'audit](/doc/admin/audit-log)** accessible par les administrateurs. Chaque entrée contient :
+
+| Information | Description |
+|-------------|-------------|
+| **Action** | Le type d'action (approbation, rejet, suppression, modification...) |
+| **Utilisateur** | La personne qui a réalisé l'action |
+| **Date et heure** | Le moment exact, avec identifiant de corrélation |
+| **Résultat** | Succès ou erreur |
+
+Cette traçabilité permet de comprendre qui a fait quoi et quand, ce qui est essentiel en cas de désaccord ou d'audit.

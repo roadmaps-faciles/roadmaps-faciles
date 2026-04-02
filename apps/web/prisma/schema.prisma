@@ -1,0 +1,862 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["typedSql", "views", "fullTextSearchPostgres"]
+  binaryTargets   = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model ApiKey {
+  id                Int      @id @default(autoincrement())
+  tenantId          Int
+  userId            String
+  commonTokenPrefix String
+  randomTokenPrefix String
+  tokenDigest       String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tenantId])
+  @@unique([tokenDigest])
+  @@index([tenantId])
+  @@index([userId])
+}
+
+model Board {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  order       Int
+  slug        String?
+  tenantId    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant               Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  posts                Post[]
+  pins                 Pin[]
+  tenantSettingForRoot TenantSettings?
+  postsWithHotness     PostWithHotness[]
+
+  @@unique([name, tenantId])
+  @@unique([slug, tenantId])
+  @@index([tenantId])
+}
+
+model Comment {
+  id           Int      @id @default(autoincrement())
+  body         String?
+  userId       String
+  postId       Int
+  parentId     Int?
+  isPostUpdate Boolean  @default(false)
+  tenantId     Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user       User       @relation(fields: [userId], references: [id])
+  post       Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parent     Comment?   @relation("CommentParent", fields: [parentId], references: [id])
+  replies    Comment[]  @relation("CommentParent")
+  activities Activity[]
+
+  @@index([parentId])
+  @@index([postId])
+  @@index([tenantId])
+  @@index([userId])
+}
+
+model Follow {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  postId    Int
+  tenantId  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([userId])
+  @@index([postId])
+  @@index([tenantId])
+}
+
+model Invitation {
+  id          Int       @id @default(autoincrement())
+  email       String
+  tokenDigest String
+  acceptedAt  DateTime?
+  role        UserRole  @default(USER)
+  tenantId    Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([email, tenantId])
+  @@index([tenantId])
+}
+
+model Like {
+  id          Int      @id @default(autoincrement())
+  userId      String?
+  anonymousId String?
+  postId      Int
+  tenantId    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  post Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@unique([anonymousId, postId])
+  @@index([userId])
+  @@index([postId])
+  @@index([tenantId])
+}
+
+enum PostStatusColor {
+  grey
+  gray
+  blueFrance
+  redMarianne
+  greenTilleulVerveine
+  greenBourgeon
+  greenEmeraude
+  greenMenthe
+  greenArchipel
+  blueEcume
+  blueCumulus
+  purpleGlycine
+  pinkMacaron
+  pinkTuile
+  yellowTournesol
+  yellowMoutarde
+  orangeTerreBattue
+  brownCafeCreme
+  brownCaramel
+  brownOpera
+  beigeGrisGalet
+  info
+  success
+  warning
+  error
+}
+
+model PostStatus {
+  id            Int             @id @default(autoincrement())
+  name          String
+  color         PostStatusColor
+  order         Int
+  showInRoadmap Boolean         @default(false)
+  tenantId      Int
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  tenant       Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  posts        Post[]
+  statusChange PostStatusChange[]
+
+  @@unique([name, tenantId])
+  @@index([tenantId])
+}
+
+enum PostApprovalStatus {
+  APPROVED
+  PENDING
+  REJECTED
+}
+
+model Post {
+  id             Int                @id @default(autoincrement())
+  title          String
+  description    String?
+  boardId        Int
+  postStatusId   Int?
+  tenantId       Int
+  userId         String?
+  anonymousId    String?
+  slug           String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  editedAt       DateTime?
+  editedById     String?
+  approvalStatus PostApprovalStatus @default(APPROVED)
+  tags           String[]
+  sourceLabel    String?
+
+  board      Board            @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  user       User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  editedBy   User?            @relation("PostEditor", fields: [editedById], references: [id], onDelete: SetNull)
+  postStatus PostStatus?      @relation(fields: [postStatusId], references: [id], onDelete: SetNull)
+  comments   Comment[]
+  follows    Follow[]
+  likes      Like[]
+  pin        Pin?
+  hotness    PostWithHotness?
+  activities Activity[]
+
+  textsearchable_index_col Unsupported("tsvector GENERATED ALWAYS AS (to_tsvector('french'::regconfig, COALESCE(title, ''::text) || ' ' || COALESCE(description, ''::text))) STORED;")?
+
+  // @@fulltext([title, description])
+  // @@fulltext([description])
+  // @@fulltext([title])
+
+  @@unique([slug, tenantId])
+  @@index([textsearchable_index_col], type: Gin)
+  @@index([boardId])
+  @@index([postStatusId])
+  @@index([tenantId])
+  @@index([anonymousId])
+  @@index([userId])
+  @@index([tags])
+}
+
+enum ActivityType {
+  COMMENT
+  FOLLOW
+  STATUS_CHANGE
+  LIKE
+}
+
+view Activity {
+  id             Int          @unique
+  postId         Int
+  type           ActivityType
+  count          Int
+  startTime      DateTime
+  endTime        DateTime
+  commentId      Int?
+  statusChangeId Int?
+
+  post         Post              @relation(fields: [postId], references: [id])
+  comment      Comment?          @relation(fields: [commentId], references: [id])
+  statusChange PostStatusChange? @relation(fields: [statusChangeId], references: [id])
+}
+
+view PostWithHotness {
+  id      Int     @unique
+  hotness Decimal @default(0.0)
+  boardId Int
+  postId  Int     @unique
+  post    Post    @relation(fields: [postId], references: [id])
+  board   Board   @relation(fields: [boardId], references: [id])
+}
+
+model Pin {
+  id      Int @id @default(autoincrement())
+  boardId Int
+  postId  Int @unique
+
+  board Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  post  Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([boardId, postId])
+}
+
+model PostStatusChange {
+  id           Int      @id @default(autoincrement())
+  userId       String
+  postId       Int
+  postStatusId Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  tenantId     Int
+
+  postStatus PostStatus? @relation(fields: [postStatusId], references: [id], onDelete: SetNull)
+  activities Activity[]
+
+  @@index([postId])
+  @@index([postStatusId])
+  @@index([tenantId])
+  @@index([userId])
+}
+
+enum Locale {
+  fr
+  en
+}
+
+model Tenant {
+  id                  Int             @id @default(autoincrement())
+  organizationId      Int
+  deletedAt           DateTime?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  organization        Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  apiKeys             ApiKey[]
+  boards              Board[]
+  settings            TenantSettings?
+  members             UserOnTenant[]
+  postStatus          PostStatus[]
+  pinnedByAppSettings AppSettings?
+  integrations        TenantIntegration[]
+  orgAddons           OrgAddon[]
+
+  @@index([organizationId])
+}
+
+enum UiTheme {
+  Default
+  Dsfr
+}
+
+enum EmailRegistrationPolicy {
+  ANYONE
+  NOONE
+  DOMAINS
+}
+
+model TenantSettings {
+  id                      Int                     @id @default(autoincrement())
+  tenantId                Int                     @unique
+  name                    String
+  customDomain            String?
+  subdomain               String
+  locale                  Locale                  @default(fr)
+  isPrivate               Boolean                 @default(false)
+  allowVoting             Boolean                 @default(true)
+  allowComments           Boolean                 @default(true)
+  allowAnonymousVoting    Boolean                 @default(true)
+  allowPostEdits          Boolean                 @default(false)
+  allowPostDeletion       Boolean                 @default(false)
+  showRoadmapInHeader     Boolean                 @default(false)
+  allowAnonymousFeedback  Boolean                 @default(true)
+  requirePostApproval     Boolean                 @default(false)
+  allowEmbedding          Boolean                 @default(false)
+  emailRegistrationPolicy EmailRegistrationPolicy @default(ANYONE)
+  allowedEmailDomains     String[]
+  force2FA                Boolean                 @default(false)
+  force2FAGraceDays       Int                     @default(5)
+  uiTheme                 UiTheme                 @default(Default)
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+  rootBoardId             Int?                    @unique
+
+  rootBoard Board? @relation(fields: [rootBoardId], references: [id], onDelete: SetNull)
+  tenant    Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([customDomain])
+  @@unique([subdomain])
+  @@index([tenantId])
+  @@index([rootBoardId])
+}
+
+model AppSettings {
+  id                 Int      @id @default(0)
+  force2FA           Boolean  @default(false)
+  force2FAGraceDays  Int      @default(5)
+  featureFlags       Json?
+  rootOAuthProviders Json?
+  pinnedTenantId     Int?     @unique
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  pinnedTenant Tenant? @relation(fields: [pinnedTenantId], references: [id], onDelete: SetNull)
+}
+
+model TenantDefaultOAuth {
+  id        Int      @id @default(autoincrement())
+  tenantId  Int
+  provider  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, provider])
+  @@index([tenantId])
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+  DELETED
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  MODERATOR
+  OWNER
+  INHERITED
+}
+
+model User {
+  id                         String     @id @default(cuid())
+  name                       String?
+  email                      String     @unique
+  emailVerified              DateTime?
+  username                   String?    @unique
+  image                      String?
+  notificationsEnabled       Boolean    @default(true)
+  status                     UserStatus @default(ACTIVE)
+  role                       UserRole   @default(USER)
+  signInCount                Int        @default(0)
+  currentSignInAt            DateTime?
+  lastSignInAt               DateTime?
+  currentSignInIp            String?
+  lastSignInIp               String?
+  recapNotificationFrequency Int        @default(0)
+  createdAt                  DateTime   @default(now())
+  updatedAt                  DateTime   @updatedAt
+  isBetaGouvMember           Boolean    @default(false)
+  otpSecret                  String?
+  otpVerifiedAt              DateTime?
+  emailTwoFactorEnabled      Boolean    @default(false)
+  twoFactorEnabled           Boolean    @default(false)
+  twoFactorDeadline          DateTime?
+  passwordHash               String?
+
+  posts          Post[]
+  editedPosts    Post[]         @relation("PostEditor")
+  apiKeys        ApiKey[]
+  comments       Comment[]
+  follows        Follow[]
+  likes          Like[]
+  memberships    UserOnTenant[]
+  accounts       Account[]
+  sessions       Session[]
+  // Optional for WebAuthn support
+  authenticators     Authenticator[]
+  orgMemberships     OrgMember[]
+}
+
+model UserOnTenant {
+  userId   String
+  tenantId Int
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  role     UserRole   @default(USER)
+  status   UserStatus @default(ACTIVE)
+  joinedAt DateTime   @default(now())
+
+  @@id([userId, tenantId])
+  @@index([tenantId])
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+// Optional for WebAuthn support
+model Authenticator {
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, credentialID])
+}
+
+model OAuth {
+  id        Int      @id @default(autoincrement())
+  provider  String
+  uid       String
+  userId    String
+  tenantId  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([provider, uid, tenantId])
+  @@index([userId])
+  @@index([tenantId])
+}
+
+model Webhook {
+  id        Int      @id @default(autoincrement())
+  tenantId  Int
+  url       String
+  event     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+}
+
+// --- Integrations ---
+
+enum IntegrationType {
+  NOTION
+}
+
+enum IntegrationSyncStatus {
+  SYNCED
+  PENDING
+  ERROR
+  CONFLICT
+}
+
+enum SyncDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum SyncLogStatus {
+  SUCCESS
+  ERROR
+  SKIPPED
+  CONFLICT
+}
+
+model TenantIntegration {
+  id                  Int             @id @default(autoincrement())
+  tenantId            Int
+  type                IntegrationType
+  name                String
+  config              Json
+  enabled             Boolean         @default(true)
+  lastSyncAt          DateTime?
+  syncIntervalMinutes Int?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  tenant   Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  mappings IntegrationMapping[]
+  syncLogs IntegrationSyncLog[]
+
+  @@index([tenantId])
+  @@index([enabled, lastSyncAt])
+}
+
+model IntegrationMapping {
+  id            Int                   @id @default(autoincrement())
+  integrationId Int
+  localType     String
+  localId       Int
+  remoteId      String
+  remoteUrl     String?
+  syncStatus    IntegrationSyncStatus @default(PENDING)
+  lastSyncAt    DateTime?
+  lastError     String?
+  metadata      Json?
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  integration TenantIntegration  @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  syncLogs    IntegrationSyncLog[]
+
+  @@unique([integrationId, localType, localId])
+  @@index([integrationId])
+  @@index([localType, localId])
+}
+
+model IntegrationSyncLog {
+  id            Int           @id @default(autoincrement())
+  integrationId Int
+  mappingId     Int?
+  syncRunId     String?
+  direction     SyncDirection
+  status        SyncLogStatus
+  message       String?
+  details       Json?
+  createdAt     DateTime      @default(now())
+
+  integration TenantIntegration   @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  mapping     IntegrationMapping? @relation(fields: [mappingId], references: [id], onDelete: SetNull)
+
+  @@index([integrationId, createdAt])
+  @@index([mappingId])
+  @@index([syncRunId])
+}
+
+// --- Organizations ---
+
+enum OrgPlan {
+  BASE
+  GRANTED_FREE
+  GOV
+}
+
+enum OrgRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum AddonType {
+  TRACKING
+  INTEGRATIONS
+  STORAGE_S3
+  DNS_MANAGEMENT
+  CUSTOM_DOMAIN
+  SSO_ENTERPRISE
+  TWO_FACTOR_ENTERPRISE
+  API_KEYS
+  WEBHOOKS
+  AUDIT_LOG
+  THEME_DSFR
+  CRON_JOBS
+  MULTI_TENANT
+}
+
+enum BillingInterval {
+  MONTHLY
+  YEARLY
+}
+
+model Organization {
+  id                 Int      @id @default(autoincrement())
+  name               String
+  slug               String   @unique
+  plan               OrgPlan  @default(BASE)
+  stripeCustomerId     String?  @unique
+  stripeSubscriptionId String?
+  payAsYouWantCents    Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  tenants  Tenant[]
+  members  OrgMember[]
+  addons   OrgAddon[]
+  domains  OrgDomain[]
+}
+
+model OrgMember {
+  id             Int      @id @default(autoincrement())
+  organizationId Int
+  userId         String
+  role           OrgRole  @default(MEMBER)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@index([organizationId])
+  @@index([userId])
+}
+
+model OrgDomain {
+  id                Int       @id @default(autoincrement())
+  organizationId    Int
+  domain            String    @unique
+  verificationToken String    @unique
+  verifiedAt        DateTime?
+  isGouv            Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+}
+
+model OrgAddon {
+  id              Int              @id @default(autoincrement())
+  organizationId  Int
+  tenantId        Int?
+  addon           AddonType
+  active          Boolean          @default(false)
+  billingInterval BillingInterval?
+  purchaseId      String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  tenant       Tenant?      @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  // Partial unique indexes managed in raw SQL migration (20260321100000):
+  // - OrgAddon_org_addon_unique: UNIQUE (organizationId, addon) WHERE tenantId IS NULL
+  // - OrgAddon_org_tenant_addon_unique: UNIQUE (organizationId, tenantId, addon) WHERE tenantId IS NOT NULL
+  // ⚠️ NO @@index or @@unique here — Prisma cannot express partial indexes and will drop them
+}
+
+enum AuditAction {
+  // Tenant-scoped — Boards
+  BOARD_CREATE
+  BOARD_DELETE
+  BOARD_REORDER
+  BOARD_UPDATE
+
+  // Tenant-scoped — Post statuses
+  POST_STATUS_CREATE
+  POST_STATUS_DELETE
+  POST_STATUS_REORDER
+  POST_STATUS_UPDATE
+
+  // Tenant-scoped — Posts
+  POST_CREATE
+  POST_APPROVE
+  POST_REJECT
+  POST_DELETE
+  POST_EDIT
+
+  // Tenant-scoped — Images
+  IMAGE_UPLOAD
+
+  // Tenant-scoped — Comments
+  COMMENT_CREATE
+  COMMENT_EDIT
+  COMMENT_DELETE
+
+  // Tenant-scoped — Votes
+  POST_VOTE
+  POST_UNVOTE
+
+  // Tenant-scoped — API keys
+  API_KEY_CREATE
+  API_KEY_DELETE
+
+  // Tenant-scoped — Webhooks
+  WEBHOOK_CREATE
+  WEBHOOK_DELETE
+
+  // Tenant-scoped — Integrations
+  INTEGRATION_CREATE
+  INTEGRATION_UPDATE
+  INTEGRATION_DELETE
+  INTEGRATION_SYNC
+
+  // Tenant-scoped — Members
+  MEMBER_REMOVE
+  MEMBER_ROLE_UPDATE
+  MEMBER_STATUS_UPDATE
+
+  // Tenant-scoped — Invitations
+  INVITATION_REVOKE
+  INVITATION_SEND
+
+  // Tenant-scoped — Settings
+  AUTHENTICATION_SETTINGS_UPDATE
+  ROADMAP_SETTINGS_UPDATE
+  TENANT_DELETE
+  TENANT_DOMAIN_UPDATE
+  TENANT_PURGE_DATA
+  TENANT_SEED_DATA
+  TENANT_SETTINGS_UPDATE
+
+  // Tenant-scoped — Security
+  SECURITY_SETTINGS_UPDATE
+
+  // User-scoped — Profile
+  PROFILE_UPDATE
+  ACCOUNT_DELETE
+  EM_LINK_REQUEST
+  EM_LINK_CONFIRM
+
+  // User-scoped — Security (2FA)
+  TWO_FACTOR_EMAIL_TOGGLE
+  TWO_FACTOR_OTP_SETUP
+  TWO_FACTOR_OTP_REMOVE
+  TWO_FACTOR_PASSKEY_REGISTER
+  TWO_FACTOR_PASSKEY_REMOVE
+
+  // Root-scoped
+  ROOT_MEMBER_REMOVE
+  ROOT_MEMBER_ROLE_UPDATE
+  ROOT_MEMBER_STATUS_UPDATE
+  ROOT_TENANT_CREATE
+  ROOT_USER_ROLE_UPDATE
+  ROOT_USER_STATUS_UPDATE
+  ROOT_USER_UPDATE
+  ROOT_FEATURE_FLAGS_UPDATE
+  ROOT_SECURITY_SETTINGS_UPDATE
+  ROOT_APP_SETTINGS_UPDATE
+  ROOT_ORG_PLAN_UPDATE
+  ROOT_ORG_ADDON_TOGGLE
+  ROOT_ORG_DELETE
+
+  // Password
+  PASSWORD_SET
+  PASSWORD_CHANGE
+  PASSWORD_RESET_REQUEST
+  PASSWORD_RESET_COMPLETE
+  USER_SIGNUP
+
+  // Organization-scoped
+  ORG_CREATE
+  ORG_UPDATE
+  ORG_DELETE
+  ORG_MEMBER_ADD
+  ORG_MEMBER_REMOVE
+  ORG_MEMBER_ROLE_UPDATE
+  ORG_DOMAIN_ADD
+  ORG_DOMAIN_REMOVE
+  ORG_DOMAIN_VERIFY
+  ORG_ADDON_TOGGLE
+
+  // Billing
+  ORG_CHECKOUT_CREATED
+  ORG_SUBSCRIPTION_CREATED
+  ORG_SUBSCRIPTION_CANCELLED
+  ORG_SUBSCRIPTION_UPDATED
+  ORG_PORTAL_SESSION_CREATED
+  ORG_PAYW_UPDATED
+}
+
+model AuditLog {
+  id         Int         @id @default(autoincrement())
+  action     AuditAction
+  success    Boolean     @default(true)
+  error      String?
+  userId     String?
+  tenantId   Int?
+  targetType String?
+  targetId   String?
+  metadata   Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime    @default(now())
+
+  @@index([tenantId, createdAt])
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+  @@index([createdAt])
+}

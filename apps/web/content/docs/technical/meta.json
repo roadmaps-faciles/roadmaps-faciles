@@ -1,0 +1,4 @@
+{
+  "title": "Technique",
+  "pages": ["index", "dns", "deployment", "self-hosting", "security", "tracking", "feature-flags"]
+}

@@ -1,0 +1,53 @@
+---
+title: Rôles et permissions
+description: Comprendre les différents rôles et leurs permissions dans un espace de travail.
+---
+
+Chaque membre d'un espace de travail se voit attribuer un **rôle** qui détermine ses permissions. Les rôles sont hiérarchiques : chaque rôle supérieur inclut les permissions du rôle inférieur.
+
+## Hiérarchie des rôles
+
+| Rôle | Description |
+|------|-------------|
+| **Propriétaire** | Contrôle total sur l'espace, y compris sa suppression. Au moins un propriétaire par espace (plusieurs propriétaires sont possibles). |
+| **Administrateur** | Gestion des paramètres, tableaux, statuts, membres et modération. |
+| **Modérateur** | Approbation/rejet des contributions, suppression de contenu. Pas d'accès aux paramètres de l'espace. |
+| **Utilisateur** | Création de contributions, votes et commentaires. Rôle par défaut à l'inscription. |
+
+## Matrice des permissions
+
+| Action | Propriétaire | Admin | Modérateur | Utilisateur |
+|--------|:---:|:---:|:---:|:---:|
+| Créer des contributions | ✓ | ✓ | ✓ | ✓ |
+| Voter | ✓ | ✓ | ✓ | ✓ |
+| Commenter | ✓ | ✓ | ✓ | ✓ |
+| Modifier ses propres contributions | ✓ | ✓ | ✓ | ✓* |
+| Supprimer ses propres contributions | ✓ | ✓ | ✓ | ✓* |
+| Approuver/rejeter les contributions | ✓ | ✓ | ✓ | ✗ |
+| Modifier/supprimer toute contribution | ✓ | ✓ | ✓ | ✗ |
+| Changer le statut d'une contribution | ✓ | ✓ | ✗ | ✗ |
+| Gérer les tableaux | ✓ | ✓ | ✗ | ✗ |
+| Gérer les statuts | ✓ | ✓ | ✗ | ✗ |
+| Gérer les membres et invitations | ✓ | ✓ | ✗ | ✗ |
+| Configurer les paramètres de l'espace | ✓ | ✓ | ✗ | ✗ |
+| Gérer les webhooks et clés API | ✓ | ✓ | ✗ | ✗ |
+| Consulter le journal d'audit | ✓ | ✓ | ✗ | ✗ |
+| Supprimer l'espace | ✓ | ✗ | ✗ | ✗ |
+
+*\* Sous réserve que l'option soit activée dans les [paramètres de l'espace](/doc/admin/general-settings).*
+
+## Rôle hérité
+
+Lorsqu'un utilisateur se connecte à un espace via le mécanisme de pont SSO (depuis la page d'accueil de Roadmaps Faciles), il obtient automatiquement le rôle **Hérité**. Ce rôle est équivalent à Utilisateur et signifie que la membership a été créée automatiquement, sans invitation explicite.
+
+## Super-administrateur (plateforme)
+
+En dehors des espaces de travail, les **super-administrateurs** de la plateforme ont accès à une interface d'administration globale permettant de :
+- Créer et gérer tous les espaces de travail
+- Gérer tous les utilisateurs de la plateforme
+- Consulter le journal d'audit global
+- Accéder aux outils de diagnostic
+
+Les super-administrateurs ont également un **accès automatique à tous les espaces de travail**, sans nécessiter d'invitation ou de membership explicite. Ils peuvent ainsi intervenir dans n'importe quel espace en cas de besoin.
+
+Ce rôle est réservé à l'équipe technique qui maintient l'instance Roadmaps Faciles.

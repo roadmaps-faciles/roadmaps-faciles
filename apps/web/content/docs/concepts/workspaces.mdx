@@ -1,0 +1,42 @@
+---
+title: Espaces de travail
+description: Les espaces de travail sont l'unité d'organisation principale de Roadmaps Faciles.
+---
+
+Un **espace de travail** est un environnement isolé qui regroupe tous les tableaux, contributions, membres et paramètres d'un produit ou d'une équipe.
+
+## Sous-domaine et accès
+
+Chaque espace possède un **sous-domaine unique** qui constitue son URL d'accès. Par exemple, un espace nommé "Mon Produit" avec le sous-domaine `mon-produit` est accessible à l'adresse :
+
+```
+mon-produit.{{rootDomain}}
+```
+
+Un **domaine personnalisé** peut aussi être configuré (ex. : `feedback.mon-produit.fr`). Cette fonctionnalité est détaillée dans la section [Domaines personnalisés](/doc/admin/custom-domains).
+
+## Isolation des données
+
+Les données sont **strictement isolées** entre espaces : les membres, contributions et configurations ne sont pas partagés. Un utilisateur peut toutefois être membre de **plusieurs espaces** avec des rôles différents sur chacun.
+
+## Visibilité
+
+Un espace peut être configuré en mode :
+
+- **Public** — Tout le monde peut consulter les tableaux et les contributions, même sans être connecté.
+- **Privé** — Seuls les membres invités peuvent accéder au contenu. Les visiteurs non-membres sont redirigés vers la page de connexion.
+
+Le choix se fait dans les [paramètres généraux](/doc/admin/general-settings) de l'espace.
+
+## Feedback anonyme
+
+Lorsque le **feedback anonyme** est activé, les visiteurs non-connectés peuvent soumettre des suggestions sans créer de compte. L'auteur apparaît alors simplement comme "Anonyme". Le vote anonyme est une option séparée, également configurable par l'administrateur.
+
+Cette option est utile pour maximiser la collecte de retours — certains utilisateurs hésitent à créer un compte pour une simple suggestion.
+
+## Qui peut créer un espace ?
+
+Deux modes de création coexistent :
+
+- **Libre-service** — Tout utilisateur connecté peut créer un espace depuis son tableau de bord. Le créateur en devient automatiquement le **propriétaire**.
+- **Administration** — Les super-administrateurs peuvent créer des espaces depuis l'interface d'administration racine, avec la possibilité de désigner des propriétaires supplémentaires par email.

@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html class="" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Roadmaps Faciles - Wizard Intégration (Dark Mode)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "sidebar-bg": "#E5EAF4",
+                        "error": "#E7000B",
+                        "primary": "#163C90",
+                        "accent-blue": "#3B82F6",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#0A0D14",
+                        "navy-card": "#121826",
+                    },
+                    fontFamily: {
+                        "sans": ['"Public Sans"', "sans-serif"],
+                        "display": ["Geist", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "10px",
+                        "lg": "10px",
+                        "xl": "12px",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                font-family: "Public Sans", sans-serif;
+            }
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .filled {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+
+<style id="stitch-dark-overrides">
+/* === Dark Mode Global Overrides === */
+/* Unlayered styles beat @layer base/utilities from Tailwind CDN */
+
+/* Page backgrounds */
+html.dark body {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+html.dark .bg-white,
+html.dark .bg-surface {
+  background-color: #1e293b;
+}
+html.dark .bg-background-light,
+html.dark .bg-\[\#f6f6f8\],
+html.dark .bg-background {
+  background-color: #0f172a;
+}
+html.dark .bg-slate-50,
+html.dark .bg-slate-100 {
+  background-color: #1e293b;
+}
+html.dark .bg-slate-50\/50,
+html.dark .bg-slate-100\/50,
+html.dark .bg-slate-50\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-sidebar-bg {
+  background-color: #1a2035;
+}
+html.dark .bg-white\/50,
+html.dark .bg-white\/60,
+html.dark .bg-white\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+html.dark .bg-background\/95,
+html.dark .bg-background\/60 {
+  background-color: rgba(15, 23, 42, 0.95);
+}
+
+/* Text colors */
+html.dark .text-slate-900 { color: #f1f5f9; }
+html.dark .text-slate-800 { color: #e2e8f0; }
+html.dark .text-slate-700 { color: #cbd5e1; }
+html.dark .text-slate-600 { color: #94a3b8; }
+html.dark .text-slate-500 { color: #64748b; }
+html.dark .text-slate-400 { color: #64748b; }
+html.dark .text-foreground { color: #e2e8f0; }
+html.dark .text-muted-foreground { color: #8b9ec8; }
+html.dark h1, html.dark h2, html.dark h3, html.dark h4 {
+  color: #f1f5f9;
+}
+
+/* Border colors */
+html.dark .border-slate-200,
+html.dark .border-slate-300,
+html.dark .border-border,
+html.dark .border-slate-200\/40,
+html.dark .border-slate-200\/60,
+html.dark .border-slate-300\/40 {
+  border-color: #334155;
+}
+html.dark .border-slate-100 {
+  border-color: #1e293b;
+}
+html.dark .border-primary\/40,
+html.dark .border-primary\/20 {
+  border-color: rgba(93, 131, 212, 0.3);
+}
+html.dark .border-border\/40 {
+  border-color: rgba(51, 65, 85, 0.4);
+}
+
+/* Dividers */
+html.dark .divide-slate-100 > * + *,
+html.dark .divide-slate-200 > * + * {
+  border-color: #334155;
+}
+html.dark .border-t { border-top-color: #334155; }
+html.dark .border-b { border-bottom-color: #334155; }
+html.dark .border-r { border-right-color: #334155; }
+html.dark .border-l { border-left-color: #334155; }
+
+/* Form elements */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b;
+}
+
+/* Cards and surfaces */
+html.dark .shadcn-card {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+html.dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+
+/* Badges, pills */
+html.dark .bg-green-100 { background-color: rgba(34, 197, 94, 0.15); }
+html.dark .bg-blue-100, html.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.15); }
+html.dark .bg-orange-100, html.dark .bg-orange-50 { background-color: rgba(249, 115, 22, 0.15); }
+html.dark .bg-purple-100 { background-color: rgba(168, 85, 247, 0.15); }
+html.dark .bg-red-100, html.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.15); }
+html.dark .bg-amber-100 { background-color: rgba(245, 158, 11, 0.15); }
+html.dark .bg-emerald-100 { background-color: rgba(16, 185, 129, 0.15); }
+
+/* Hover states */
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-100:hover {
+  background-color: rgba(51, 65, 85, 0.5);
+}
+html.dark .hover\:bg-slate-200\/50:hover {
+  background-color: rgba(51, 65, 85, 0.3);
+}
+
+/* Ring */
+html.dark .ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+html.dark .ring-1.ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+
+/* Glass / backdrop */
+html.dark .glass-header {
+  background-color: rgba(15, 23, 42, 0.85);
+}
+html.dark .backdrop-blur-md {
+  background-color: rgba(15, 23, 42, 0.8);
+}
+
+/* Scrollbar line in h-px */
+html.dark .h-px { background-color: #334155; }
+html.dark .bg-slate-200 { background-color: #334155; }
+
+/* Primary adjustments for dark */
+html.dark .bg-primary\/10 { background-color: rgba(93, 131, 212, 0.15); }
+html.dark .bg-primary\/5 { background-color: rgba(93, 131, 212, 0.08); }
+html.dark .text-primary { color: #7ba3e8; }
+html.dark .bg-primary { background-color: #4a73c4; }
+html.dark .hover\:bg-primary\/5:hover { background-color: rgba(93, 131, 212, 0.1); }
+html.dark .hover\:bg-primary\/10:hover { background-color: rgba(93, 131, 212, 0.15); }
+
+/* Table */
+html.dark table { color: #e2e8f0; }
+html.dark thead { background-color: #1e293b; }
+html.dark th { color: #94a3b8; border-color: #334155; }
+html.dark td { border-color: #334155; }
+html.dark tr:hover { background-color: rgba(51, 65, 85, 0.3); }
+
+/* Specific admin patterns */
+html.dark .bg-white.rounded-custom,
+html.dark .bg-white.rounded-\[10px\],
+html.dark .bg-white.rounded-lg,
+html.dark .bg-white.rounded-xl {
+  background-color: #1e293b;
+}
+
+/* Footer adjustments */
+html.dark footer {
+  background-color: #0f172a;
+  border-color: #334155;
+}
+</style>
+
+</head>
+<body class="flex min-h-screen bg-background-light text-slate-900">
+<aside class="fixed left-0 top-0 z-40 h-screen w-[250px] border-r border-slate-300/40 bg-sidebar-bg flex flex-col justify-between p-4 transition-colors">
+  <div class="flex flex-col gap-8">
+    <div class="flex items-center gap-3 px-2 pt-2">
+      <div class="h-9 w-9 rounded-lg bg-primary flex items-center justify-center text-white shadow-sm">
+        <span class="material-symbols-outlined text-[20px]">map</span>
+      </div>
+      <div class="flex flex-col">
+        <h1 class="text-sm font-bold text-slate-900 leading-tight">Roadmaps Faciles</h1>
+        <p class="text-slate-500 text-[10px] font-medium">Administration</p>
+      </div>
+    </div>
+    <nav class="flex flex-col gap-1">
+      <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Configuration</p>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">settings</span>
+        <span class="text-sm font-medium">Général</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">dashboard</span>
+        <span class="text-sm font-medium">Boards</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">radio_button_checked</span>
+        <span class="text-sm font-medium">Statuts</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">map</span>
+        <span class="text-sm font-medium">Roadmap</span>
+      </a>
+      <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-4 mb-2">Sécurité & Accès</p>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">group</span>
+        <span class="text-sm font-medium">Utilisateurs</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">shield</span>
+        <span class="text-sm font-medium">Authentification</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">key</span>
+        <span class="text-sm font-medium">Clés API</span>
+      </a>
+      <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-4 mb-2">Développeurs</p>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">webhook</span>
+        <span class="text-sm font-medium">Webhooks</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg bg-white/60 px-3 py-2 text-primary shadow-sm ring-1 ring-black/5 transition-colors focus-visible-ring" href="#">
+        <span class="material-symbols-outlined text-[20px]">power</span>
+        <span class="text-sm font-bold">Intégrations</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">receipt_long</span>
+        <span class="text-sm font-medium">Journal d'audit</span>
+      </a>
+      <div class="my-2 h-px bg-slate-200"></div>
+      <a class="flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group mt-2" href="#">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary group-hover:text-error">gpp_maybe</span>
+          <span class="text-sm font-medium">Modération</span>
+        </div>
+        <span class="flex h-5 w-5 items-center justify-center rounded-full bg-error text-[10px] font-bold text-white shadow-sm">3</span>
+      </a>
+    </nav>
+  </div>
+  <div class="px-2 pb-2">
+    <div class="rounded-lg bg-white/50 p-3 border border-slate-200/60">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
+        <span class="text-[10px] font-bold text-slate-700 uppercase tracking-wide">Système Opérationnel</span>
+      </div>
+      <p class="text-[10px] text-slate-500">v4.2.0</p>
+    </div>
+  </div>
+</aside>
+<main class="ml-[250px] flex-1 min-h-screen flex flex-col items-center justify-center p-6">
+<div class="max-w-4xl mx-auto py-12 px-6">
+<header class="mb-10 text-center">
+<div class="inline-flex items-center gap-2 mb-4">
+<div class="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[20px]">extension</span>
+</div>
+<span class="text-sm font-bold tracking-wider uppercase text-slate-500 dark:text-slate-400">Configuration des Intégrations</span>
+</div>
+<h1 class="text-3xl font-black text-slate-900 dark:text-white mb-2">Connecter Jira Cloud</h1>
+<p class="text-slate-600 dark:text-slate-400">Étape 2 sur 4 : Paramétrage des champs et synchronisation.</p>
+</header>
+<nav aria-label="Progress" class="mb-12">
+<ol class="flex items-center justify-between w-full" role="list">
+<li class="relative flex-1">
+<div class="flex items-center">
+<span class="flex h-10 w-10 items-center justify-center rounded-full bg-accent-blue text-white">
+<span class="material-symbols-outlined text-[20px] filled">check</span>
+</span>
+<div class="ml-4 flex-1">
+<span class="text-xs font-bold uppercase tracking-wider text-accent-blue">Authentification</span>
+</div>
+</div>
+<div aria-hidden="true" class="absolute top-5 left-10 w-[calc(100%-2.5rem)] h-0.5 bg-accent-blue"></div>
+</li>
+<li class="relative flex-1">
+<div class="flex items-center">
+<span class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-accent-blue bg-accent-blue/10 text-accent-blue ring-4 ring-background-dark ring-offset-0">
+<span class="text-sm font-bold">2</span>
+</span>
+<div class="ml-4 flex-1">
+<span class="text-xs font-bold uppercase tracking-wider text-accent-blue">Champs</span>
+</div>
+</div>
+<div aria-hidden="true" class="absolute top-5 left-10 w-[calc(100%-2.5rem)] h-0.5 bg-slate-700"></div>
+</li>
+<li class="relative flex-1">
+<div class="flex items-center">
+<span class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-slate-700 bg-background-dark text-slate-500">
+<span class="text-sm font-bold">3</span>
+</span>
+<div class="ml-4 flex-1">
+<span class="text-xs font-bold uppercase tracking-wider text-slate-500">Flux</span>
+</div>
+</div>
+<div aria-hidden="true" class="absolute top-5 left-10 w-[calc(100%-2.5rem)] h-0.5 bg-slate-700"></div>
+</li>
+<li class="relative">
+<div class="flex items-center">
+<span class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-slate-700 bg-background-dark text-slate-500">
+<span class="text-sm font-bold">4</span>
+</span>
+</div>
+</li>
+</ol>
+</nav>
+<div class="bg-navy-card rounded-lg border border-white/40 p-8 shadow-none">
+<form class="space-y-8">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="space-y-3">
+<label class="block text-sm font-bold text-slate-300">Projet Jira source</label>
+<div class="relative">
+<select class="block w-full rounded-lg border-slate-700 bg-slate-900/50 py-3 pl-4 pr-10 text-slate-200 focus:border-accent-blue focus:ring-accent-blue sm:text-sm appearance-none transition-all">
+<option>Product Roadmap (PR)</option>
+<option>Core Backend (CB)</option>
+<option>Mobile App (MA)</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+<p class="text-xs text-slate-500">Sélectionnez le projet Jira contenant vos tickets.</p>
+</div>
+<div class="space-y-3">
+<label class="block text-sm font-bold text-slate-300">Tableau Roadmap cible</label>
+<div class="relative">
+<select class="block w-full rounded-lg border-slate-700 bg-slate-900/50 py-3 pl-4 pr-10 text-slate-200 focus:border-accent-blue focus:ring-accent-blue sm:text-sm appearance-none transition-all">
+<option>Planification Q4 2023</option>
+<option>Stratégie 2024</option>
+<option>Archives</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<div class="space-y-4">
+<label class="block text-sm font-bold text-slate-300">Mode de synchronisation</label>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<label class="relative flex cursor-pointer rounded-lg border border-accent-blue/40 bg-accent-blue/5 p-4 focus:outline-none transition-all hover:bg-accent-blue/10">
+<input checked="" class="sr-only" name="sync-mode" type="radio" value="auto"/>
+<div class="flex flex-1">
+<div class="flex flex-col">
+<span class="block text-sm font-bold text-white">Automatique</span>
+<span class="mt-1 flex items-center text-xs text-slate-400">Synchronisation bidirectionnelle en temps réel.</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-accent-blue filled">radio_button_checked</span>
+</label>
+<label class="relative flex cursor-pointer rounded-lg border border-slate-700 bg-slate-900/30 p-4 focus:outline-none transition-all hover:bg-slate-800/50">
+<input class="sr-only" name="sync-mode" type="radio" value="manual"/>
+<div class="flex flex-1">
+<div class="flex flex-col">
+<span class="block text-sm font-bold text-slate-300">Manuel</span>
+<span class="mt-1 flex items-center text-xs text-slate-500">Mise à jour uniquement sur demande.</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-600">radio_button_unchecked</span>
+</label>
+</div>
+</div>
+<div class="space-y-4">
+<label class="block text-sm font-bold text-slate-300">Éléments à importer</label>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+<div class="flex items-start">
+<div class="flex h-5 items-center">
+<input checked="" class="h-4 w-4 rounded border-slate-700 bg-slate-900 text-accent-blue focus:ring-accent-blue focus:ring-offset-navy-card" id="epic" name="epic" type="checkbox"/>
+</div>
+<div class="ml-3 text-sm">
+<label class="font-medium text-slate-300" for="epic">Epics</label>
+</div>
+</div>
+<div class="flex items-start">
+<div class="flex h-5 items-center">
+<input checked="" class="h-4 w-4 rounded border-slate-700 bg-slate-900 text-accent-blue focus:ring-accent-blue focus:ring-offset-navy-card" id="story" name="story" type="checkbox"/>
+</div>
+<div class="ml-3 text-sm">
+<label class="font-medium text-slate-300" for="story">Stories</label>
+</div>
+</div>
+<div class="flex items-start">
+<div class="flex h-5 items-center">
+<input class="h-4 w-4 rounded border-slate-700 bg-slate-900 text-accent-blue focus:ring-accent-blue focus:ring-offset-navy-card" id="bugs" name="bugs" type="checkbox"/>
+</div>
+<div class="ml-3 text-sm">
+<label class="font-medium text-slate-300" for="bugs">Bugs</label>
+</div>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-6 border-t border-white/10 mt-8">
+<button class="px-6 py-2.5 rounded-lg border border-slate-700 text-slate-400 font-bold text-sm hover:bg-slate-800 hover:text-white transition-colors" type="button">
+                        Précédent
+                    </button>
+<button class="px-8 py-2.5 rounded-lg bg-accent-blue hover:bg-blue-600 text-white font-bold text-sm transition-all" type="submit">
+                        Continuer
+                    </button>
+</div>
+</form>
+</div>
+<footer class="mt-12 text-center text-slate-600 dark:text-slate-500 text-xs">
+            Roadmaps Faciles DS • Variante 5 de 6 • Workspace Dark Mode v1.0
+        </footer>
+</div>
+
+
+<script id="stitch-dark-toggle">
+(function() {
+  var html = document.documentElement;
+  var stored = localStorage.getItem('stitch-theme');
+  if (stored === 'dark') html.classList.add('dark');
+  else if (stored === 'light') html.classList.remove('dark');
+
+  var btn = document.createElement('button');
+  btn.id = 'theme-toggle';
+  btn.setAttribute('aria-label', 'Toggle dark mode');
+  Object.assign(btn.style, {
+    position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: '9999',
+    width: '3rem', height: '3rem', borderRadius: '50%',
+    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'all 0.2s ease', fontSize: '1.25rem', border: 'none',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.15)'
+  });
+
+  function update() {
+    var isDark = html.classList.contains('dark');
+    var icon = document.createElement('span');
+    icon.className = 'material-symbols-outlined';
+    icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+    icon.style.fontSize = '1.4rem';
+    btn.textContent = '';
+    btn.appendChild(icon);
+    btn.style.backgroundColor = isDark ? '#1e293b' : '#ffffff';
+    btn.style.color = isDark ? '#fbbf24' : '#64748b';
+    btn.style.boxShadow = isDark
+      ? '0 2px 12px rgba(0,0,0,0.4), 0 0 0 1px rgba(100,116,139,0.2)'
+      : '0 2px 12px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05)';
+  }
+
+  btn.addEventListener('click', function() {
+    html.classList.toggle('dark');
+    localStorage.setItem('stitch-theme', html.classList.contains('dark') ? 'dark' : 'light');
+    update();
+  });
+
+  document.body.appendChild(btn);
+  update();
+})();
+</script>
+
+</main>
+</body></html>

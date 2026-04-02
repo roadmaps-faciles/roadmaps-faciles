@@ -1,0 +1,27 @@
+.highlighted {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: calc(100% - .5rem);
+    pointer-events: none;
+    background-color: transparent;
+    // border: 1px solid;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    padding: 0.5rem 1rem;
+    min-height: 3.75rem;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+    white-space: break-spaces;
+    word-break: break-word;
+}
+
+.textarea {
+    color: transparent;
+    caret-color: var(--text-default-grey);
+    field-sizing: content;
+    text-indent: .2rem each-line;
+}

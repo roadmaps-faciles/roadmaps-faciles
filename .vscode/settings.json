@@ -1,0 +1,45 @@
+{
+  "js/ts.tsdk.path": "node_modules/typescript/lib",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "files.associations": {
+    ".env*": "dotenv",
+  },
+  "js/ts.preferences.autoImportSpecifierExcludeRegexes": [
+    "^node",
+    "^postcss",
+    "^@codegouvfr/react-dsfr/fr/cx$",
+    "^next/dist/server",
+    "^next/router",
+    "^@faker-js/faker",
+    "^@mui/[^/]+$"
+  ],
+  "json.format.keepLines": true,
+  "loccy.annotations.previewLocale": "fr",
+  "loccy.sourceLocale": "fr",
+  "eslint.workingDirectories": [
+    { "mode": "auto" }
+  ],
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+  "tailwindCSS.experimental.configFile": {
+    "apps/web/tailwind.css": "apps/web/src/**",
+    "packages/ui/.storybook/storybook.css": "packages/ui/src/**"
+  },
+  "tailwindCSS.classFunctions": [
+    "cva",
+    "cn",
+    "clsx"
+  ]
+}

@@ -1,0 +1,26 @@
+name: Tâche technique
+description: Tâche technique, refactoring, infrastructure, DX
+type: Task
+labels: ["infra"]
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: Contexte
+      description: Pourquoi cette tâche est-elle nécessaire ?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Que faut-il faire concrètement ?
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes techniques
+      description: Contraintes, dépendances, ou considérations.
+    validations:
+      required: false

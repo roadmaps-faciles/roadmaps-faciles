@@ -1,0 +1,87 @@
+import { Badge } from "@roadmaps-faciles/ui";
+import { getTranslations } from "next-intl/server";
+import { connection } from "next/server";
+
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { config } from "@/config";
+import { getLicenseStatus } from "@/lib/ee/licensing/licenseService";
+
+const LicenseInfoRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
+  <div className="flex items-center justify-between border-b py-3 last:border-b-0">
+    <span className="text-sm font-medium text-muted-foreground">{label}</span>
+    <span className="text-sm font-semibold">{value}</span>
+  </div>
+);
+
+const AdminLicensingPage = async () => {
+  await connection();
+  const [status, t] = await Promise.all([getLicenseStatus(), getTranslations("rootAdmin.licensing")]);
+
+  const isCloud = !config.licenseKey;
+
+  const modeLabel = isCloud ? t("modeCloud") : status.mode === "licensed" ? t("modeLicensed") : t("modeCommunity");
+
+  const planLabel =
+    status.plan === "GOV_LICENSED" ? t("planGovLicensed") : status.plan === "LICENSED" ? t("planLicensed") : "—";
+
+  const statusBadge = (() => {
+    if (isCloud) return <Badge variant="secondary">{t("modeCloud")}</Badge>;
+    if (!status.valid) return <Badge variant="destructive">{t("statusExpired")}</Badge>;
+    if (status.gracePeriodEnd) return <Badge variant="outline">{t("statusGracePeriod")}</Badge>;
+    if (status.mode === "licensed") return <Badge className="bg-green-600 text-white">{t("statusActive")}</Badge>;
+    return <Badge variant="secondary">{t("modeCommunity")}</Badge>;
+  })();
+
+  const formatDate = (date: Date | undefined) => {
+    if (!date) return "—";
+    return date.toLocaleDateString("fr-FR", { year: "numeric", month: "long", day: "numeric" });
+  };
+
+  const daysUntil = (date: Date | undefined) => {
+    if (!date) return null;
+    const diff = Math.ceil((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+    if (diff < 0) return t("expired");
+    return t("daysRemaining", { count: diff });
+  };
+
+  return (
+    <>
+      <AdminPageHeader title={t("title")} description={t("description")} />
+
+      <div className="max-w-lg rounded-lg border p-6">
+        <LicenseInfoRow label={t("mode")} value={modeLabel} />
+        <LicenseInfoRow label={t("status")} value={statusBadge} />
+
+        {!isCloud && status.mode === "licensed" && (
+          <>
+            <LicenseInfoRow label={t("plan")} value={planLabel} />
+            <LicenseInfoRow
+              label={t("expiry")}
+              value={
+                <span className="flex items-center gap-2">
+                  {formatDate(status.expiresAt)}
+                  {daysUntil(status.expiresAt) && (
+                    <span className="text-xs text-muted-foreground">({daysUntil(status.expiresAt)})</span>
+                  )}
+                </span>
+              }
+            />
+            <LicenseInfoRow
+              label={t("lastVerified")}
+              value={status.lastVerified ? formatDate(status.lastVerified) : t("never")}
+            />
+            {status.gracePeriodEnd && (
+              <LicenseInfoRow label={t("gracePeriodEnd")} value={formatDate(status.gracePeriodEnd)} />
+            )}
+          </>
+        )}
+
+        {!isCloud && status.mode === "community" && (
+          <p className="mt-4 text-sm text-muted-foreground">{t("noLicenseKey")}</p>
+        )}
+      </div>
+    </>
+  );
+};
+
+export default AdminLicensingPage;

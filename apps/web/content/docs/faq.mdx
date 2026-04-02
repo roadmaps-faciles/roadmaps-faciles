@@ -1,0 +1,118 @@
+---
+title: FAQ
+description: Questions fréquemment posées sur Roadmaps Faciles.
+---
+
+## Général
+
+### Qu'est-ce que Roadmaps Faciles ?
+
+Roadmaps Faciles est une plateforme open source de collecte de feedback et de gestion de feuilles de route produit. Elle permet aux équipes de recueillir les retours de leurs utilisateurs, de les prioriser par le vote, et de communiquer l'avancement via une feuille de route visuelle.
+
+### Qui peut utiliser Roadmaps Faciles ?
+
+Roadmaps Faciles est conçu pour toute équipe produit souhaitant structurer sa collecte de feedback. Il est notamment utilisé par des services publics français.
+
+### La plateforme est-elle gratuite ?
+
+Oui, Roadmaps Faciles est un logiciel libre et gratuit.
+
+### En quelles langues la plateforme est-elle disponible ?
+
+L'interface est disponible en **français** (par défaut) et en **anglais**. Voir [Changer de langue](/doc/guides/language).
+
+---
+
+## Comptes et accès
+
+### Comment créer un compte ?
+
+Rendez-vous sur la page de connexion de l'espace et choisissez entre l'authentification par **email (magic link)** ou via **Espace Membre** (beta.gouv.fr). Voir [Créer un compte](/doc/guides/create-account).
+
+### J'ai perdu l'accès à mon compte, que faire ?
+
+Reconnectez-vous via votre méthode d'authentification habituelle. Les sessions sont gérées automatiquement — un nouveau magic link vous sera envoyé par email.
+
+### Puis-je appartenir à plusieurs espaces ?
+
+Oui, un même compte peut être membre de **plusieurs espaces de travail** avec des rôles différents sur chacun.
+
+### Comment rejoindre un espace existant ?
+
+Trois possibilités :
+- **Inscription directe** — Si l'espace l'autorise, inscrivez-vous depuis la page de connexion.
+- **Invitation** — Cliquez sur le lien d'invitation reçu par email.
+- **Pont SSO** — Si vous êtes connecté sur la page d'accueil de Roadmaps Faciles, naviguez simplement vers l'espace.
+
+---
+
+## Feedback et votes
+
+### Mon post n'apparaît pas, pourquoi ?
+
+Si la **modération préalable** est activée sur l'espace, votre contribution est en attente d'approbation par un modérateur. Voir [Approbation des contributions](/doc/moderation/post-approval).
+
+### Puis-je voter pour mes propres contributions ?
+
+Oui, vous pouvez voter pour vos propres propositions.
+
+### Peut-on voter sans créer de compte ?
+
+Si le **vote anonyme** est activé par l'administrateur de l'espace, oui. Sinon, un compte est requis.
+
+### Puis-je modifier ou supprimer ma contribution ?
+
+Cela dépend des paramètres de l'espace. L'administrateur peut activer ou désactiver la modification et la suppression des contributions par leurs auteurs. Voir [Paramètres généraux](/doc/admin/general-settings).
+
+### Comment fonctionne le tri par "Tendance" ?
+
+Le tri par tendance utilise un algorithme qui combine le nombre de votes et de commentaires récents. Les contributions récemment actives remontent en haut, même si elles ont moins de votes au total qu'une contribution plus ancienne.
+
+### Quelle est la différence entre les vues cartes et liste ?
+
+La **vue cartes** affiche un aperçu détaillé de chaque contribution. La **vue liste** est condensée et permet de parcourir rapidement un grand nombre de contributions. Voir [Vues des tableaux](/doc/guides/board-views).
+
+---
+
+## Administration
+
+### Comment ajouter un domaine personnalisé ?
+
+Dans les paramètres généraux de votre espace, renseignez le domaine souhaité. Vous devrez configurer un enregistrement DNS (CNAME) pointant vers la plateforme. Voir [Domaines personnalisés](/doc/admin/custom-domains).
+
+### Comment inviter un nouveau membre ?
+
+Rendez-vous dans **Administration > Membres > Invitations**, entrez l'email et le rôle souhaité, puis envoyez l'invitation. Le membre recevra un email avec un lien sécurisé. Voir [Membres et invitations](/doc/admin/members).
+
+### Puis-je exporter mes données ?
+
+Le journal d'audit peut être consulté dans l'interface d'administration. Pour un export complet des données, contactez l'équipe technique.
+
+### Comment supprimer mon espace ?
+
+Dans les paramètres généraux, section **Zone de danger**, cliquez sur "Supprimer l'espace". Cette action est irréversible et supprime toutes les données associées. Seul le **propriétaire** peut effectuer cette action.
+
+### Quelle est la différence entre purger et supprimer un espace ?
+
+- **Purger** supprime les contributions, votes, commentaires, statuts et tableaux. Seuls les membres et les paramètres sont conservés. Utile pour repartir de zéro.
+- **Supprimer** supprime l'espace entièrement, y compris sa configuration.
+
+### Comment savoir qui a fait quoi sur l'espace ?
+
+Le [journal d'audit](/doc/admin/audit-log) enregistre toutes les actions administratives avec l'auteur, la date et le détail de l'action.
+
+---
+
+## Technique
+
+### Faut-il configurer quelque chose pour que les emails fonctionnent ?
+
+Un serveur SMTP doit être configuré par l'équipe technique via les variables d'environnement `MAILER_*`. En développement, un serveur Maildev est fourni. Voir [Déploiement](/doc/technical/deployment).
+
+### Comment fonctionne le pont SSO entre le domaine racine et les espaces ?
+
+Le pont SSO utilise un token HMAC-SHA256 signé avec une expiration de 5 minutes pour transférer la session de manière sécurisée entre domaines. Voir [Sécurité](/doc/technical/security).
+
+### Le suivi d'erreurs Sentry est-il obligatoire ?
+
+Non, Sentry est entièrement **optionnel**. Si la variable `SENTRY_DSN` est vide, Sentry est complètement désactivé sans aucun impact sur les performances.

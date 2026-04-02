@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": false,
+  "tsx": true,
+  "iconLibrary": "lucide",
+  "tailwind": {
+    "config": "",
+    "css": "src/tokens/utilities.css",
+    "baseColor": "zinc",
+    "cssVariables": true
+  },
+  "aliases": {
+    "utils": "@roadmaps-faciles/ui/lib/cn",
+    "components": "@roadmaps-faciles/ui/components",
+    "ui": "@roadmaps-faciles/ui/components",
+    "hooks": "@roadmaps-faciles/ui/lib",
+    "lib": "@roadmaps-faciles/ui/lib"
+  }
+}

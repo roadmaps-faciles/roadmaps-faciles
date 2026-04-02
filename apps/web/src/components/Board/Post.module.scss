@@ -1,0 +1,36 @@
+$postStatusColor: (
+    grey: "grey",
+    blueFrance: "blue-france",
+    redMarianne: "red-marianne",
+    greenTilleulVerveine: "green-tilleul-verveine",
+    greenBourgeon: "green-bourgeon",
+    greenEmeraude: "green-emeraude",
+    greenMenthe: "green-menthe",
+    greenArchipel: "green-archipel",
+    blueEcume: "blue-ecume",
+    blueCumulus: "blue-cumulus",
+    purpleGlycine: "purple-glycine",
+    pinkMacaron: "pink-macaron",
+    pinkTuile: "pink-tuile",
+    yellowTournesol: "yellow-tournesol",
+    yellowMoutarde: "yellow-moutarde",
+    orangeTerreBattue: "orange-terre-battue",
+    brownCafeCreme: "brown-cafe-creme",
+    brownCaramel: "brown-caramel",
+    brownOpera: "brown-opera",
+    beigeGrisGalet: "beige-gris-galet",
+    info: "info",
+    success: "success",
+    warning: "warning",
+    error: "error",
+);
+
+@each $name, $dsfrColor in $postStatusColor {
+    .fr-badge--color-#{""+$name} {
+        color: var(--text-action-high-#{$dsfrColor});
+        background-color: var(--background-contrast-#{$dsfrColor});
+        --idle: transparent;
+        --hover: var(--background-contrast-#{$dsfrColor}-hover);
+        --active: var(--background-contrast-#{$dsfrColor}-active);
+    }
+}

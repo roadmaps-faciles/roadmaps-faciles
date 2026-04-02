@@ -1,0 +1,18 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "node",
+  "versioning": "prerelease",
+  "prerelease": true,
+  "include-component-in-tag": false,
+  "include-v-in-tag": true,
+  "skip-changelog": true,
+  "bump-minor-pre-major": true,
+  "pull-request-title-pattern": "chore(release): ${version}",
+  "packages": {
+    "apps/web": {
+      "release-as": "1.0.0-alpha.0",
+      "prerelease-type": "alpha",
+      "exclude-paths": [ "apps/web/content/docs/", ".github/", "CLAUDE.md", "CLAUDE.local.md", "README.md", "packages/ui/" ]
+    }
+  }
+}

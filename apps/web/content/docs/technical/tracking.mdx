@@ -1,0 +1,136 @@
+---
+title: Tracking & Analytics
+description: Architecture du tracking, plan d'événements AARRI et configuration des fournisseurs (noop, Matomo, PostHog).
+---
+
+## Architecture
+
+Le tracking repose sur une **abstraction multi-provider** dans `src/lib/tracking-provider/`. Trois fournisseurs sont supportés, sélectionnés via la variable d'environnement `NEXT_PUBLIC_TRACKING_PROVIDER` :
+
+| Fournisseur | Niveau   | Client | Serveur | Feature flags |
+|-------------|----------|--------|---------|---------------|
+| `noop`      | noop     | —      | —       | —             |
+| `matomo`    | simple   | Page views uniquement | — | — |
+| `posthog`   | full     | Events, identify, group | Events, identify, group | Oui |
+
+<Callout type="info" title="Noop par défaut">
+En développement local, le provider par défaut est `noop` — aucun événement n'est envoyé. Pour tester le tracking, configurez `NEXT_PUBLIC_TRACKING_PROVIDER=posthog` avec une clé PostHog valide.
+</Callout>
+
+### Interfaces
+
+- **`ITrackingProvider`** — côté client : `track()`, `identify()`, `group()`, `page()`, `reset()`
+- **`IFeatureFlagProvider`** — côté client (PostHog uniquement) : `isFeatureEnabled()`, `getFeatureFlag()`, `onFeatureFlags()`
+- **`IServerTrackingProvider`** — côté serveur : `track()`, `identify()`, `groupIdentify()`, `shutdown()`
+
+### Composants React
+
+- **`<TrackingProvider>`** — Context provider client, initialise le fournisseur selon la config
+- **`useTracking()`** — Hook client pour accéder au provider
+- **`<TrackPageView event={...} />`** — Composant fire-and-forget pour les page views côté client
+
+### Helpers serveur
+
+- **`trackServerEvent(distinctId, event)`** — Fire-and-forget, appelle le provider serveur
+- **`identifyServerUser(distinctId, traits)`** — Identifie un utilisateur côté serveur
+- **`identifyServerGroup(groupType, groupId, traits)`** — Identifie un groupe côté serveur
+
+---
+
+## Plan de tracking — AARRI
+
+Le plan de tracking suit le framework **AARRI Pirate Metrics** ([méthode beta.gouv](https://doc.incubateur.net/communaute/solliciter-et-contribuer-a-la-communaute/je-sollicite-de-laide-transverse/piloter-sa-croissance-et-evaluer-son-impact)) — variante du AARRR classique où Impact remplace Revenue (service public, pas de revenu).
+
+Convention de nommage : `entité.verbe_au_passé` — ex. `post.created`, `user.signed_up`.
+
+### 1. Acquisition
+
+Événements de découverte de la plateforme.
+
+| Événement | Properties | Côté | Description |
+|-----------|------------|------|-------------|
+| `docs.page_viewed` | `path`, `section` | Client | Page de documentation consultée |
+| `board.public_viewed` | `boardId`, `tenantId` | Client | Board public consulté sans authentification |
+| `embed.viewed` | `boardId`, `tenantId`, `referrer?` | Client | Board embarqué vu dans une iframe |
+
+### 2. Activation
+
+Premier moment de valeur ("aha!").
+
+| Événement | Properties | Côté | Description |
+|-----------|------------|------|-------------|
+| `user.signed_up` | `userId`, `method` | Serveur | Compte créé |
+| `user.first_login` | `userId`, `method` | Serveur | Toute première connexion |
+| `tenant.created` | `tenantId`, `subdomain` | Serveur | Espace créé |
+| `post.first_created` | `postId`, `boardId`, `tenantId` | Serveur | Premier feedback soumis |
+| `vote.first_cast` | `postId`, `tenantId` | Serveur | Premier vote |
+
+### 3. Engagement
+
+Profondeur d'utilisation active.
+
+| Événement | Properties | Côté | Description |
+|-----------|------------|------|-------------|
+| `post.created` | `postId`, `boardId`, `tenantId`, `isAnonymous` | Serveur | Feedback soumis |
+| `post.viewed` | `postId`, `boardId`, `tenantId` | Client | Détail d'un post consulté |
+| `vote.cast` | `postId`, `tenantId` | Serveur | Vote positif |
+| `comment.created` | `postId`, `tenantId`, `isReply` | Serveur | Commentaire ajouté |
+| `post.status_changed` | `postId`, `tenantId`, `oldStatus`, `newStatus` | Serveur | Statut modifié par admin/modérateur |
+| `board.viewed` | `boardId`, `tenantId` | Client | Board consulté (authentifié) |
+| `board.created` | `boardId`, `tenantId` | Serveur | Board créé |
+
+### 4. Retention
+
+Les utilisateurs reviennent (signaux de retour).
+
+| Événement | Properties | Côté | Description |
+|-----------|------------|------|-------------|
+| `user.signed_in` | `userId`, `method` | Serveur | Connexion (chaque login = signal de retour) |
+
+### 5. Referral
+
+Les utilisateurs en amènent d'autres.
+
+| Événement | Properties | Côté | Description |
+|-----------|------------|------|-------------|
+| `invitation.sent` | `tenantId`, `role` | Serveur | Invitation envoyée |
+| `invitation.accepted` | `tenantId`, `userId` | Serveur | Invitation acceptée |
+| `tenant.domain_configured` | `tenantId`, `domain` | Serveur | Domaine custom configuré |
+| `embed.configured` | `tenantId` | Serveur | Embed activé |
+
+### 6. Impact (remplace Revenue)
+
+Valeur créée pour le service public.
+
+| Événement | Properties | Côté | Description |
+|-----------|------------|------|-------------|
+| `moderation.post_approved` | `postId`, `tenantId` | Serveur | Post approuvé par modération |
+| `moderation.post_rejected` | `postId`, `tenantId` | Serveur | Post rejeté par modération |
+| `tenant.settings_updated` | `tenantId`, `setting` | Serveur | Settings mis à jour |
+| `member.role_changed` | `tenantId`, `userId`, `oldRole`, `newRole` | Serveur | Rôle d'un membre modifié |
+
+---
+
+## Configuration
+
+### Variables d'environnement
+
+| Variable | Description | Exemple |
+|----------|-------------|---------|
+| `NEXT_PUBLIC_TRACKING_PROVIDER` | Provider actif | `noop`, `matomo`, `posthog` |
+| `NEXT_PUBLIC_POSTHOG_KEY` | Clé projet PostHog | `phc_...` |
+| `NEXT_PUBLIC_POSTHOG_HOST` | Host PostHog (EU) | `https://eu.i.posthog.com` |
+| `NEXT_PUBLIC_MATOMO_URL` | URL serveur Matomo | `https://stats.example.fr` |
+| `NEXT_PUBLIC_MATOMO_SITE_ID` | ID site Matomo | `42` |
+
+### PostHog — bonnes pratiques
+
+- **Host EU** : toujours utiliser `https://eu.i.posthog.com` pour la conformité RGPD
+- **Session replay** : désactivé (privacy by design)
+- **Autocapture** : activé mais filtré via les attributs `data-ph-*`
+- **Feature flags** : disponibles côté client via `useTracking().isFeatureEnabled()`
+- **Cross-integration Sentry** : le `posthogIntegration()` de `@sentry/nextjs` lie les sessions PostHog aux erreurs Sentry
+
+### Consentement DSFR
+
+Le tracking respecte le consentement utilisateur via le composant DSFR `ConsentBanner`. Les finalités sont configurées dynamiquement selon le provider actif — aucun script de tracking n'est chargé avant consentement explicite.

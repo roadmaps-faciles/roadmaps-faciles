@@ -1,0 +1,118 @@
+# Filtres partagés pour dorny/paths-filter
+# Utilisé par build.yml, lint.yml et test.yml
+# Docs: https://github.com/dorny/paths-filter
+
+# --- Build ---
+
+should-build:
+  - 'package.json'
+  - 'pnpm-lock.yaml'
+  - 'pnpm-workspace.yaml'
+  - 'turbo.json'
+  - 'tsconfig.json'
+  - '.nvmrc'
+  - 'apps/web/src/**'
+  - 'apps/web/prisma/schema.prisma'
+  - 'apps/web/prisma/migrations/**'
+  - 'apps/web/prisma/views/**'
+  - 'apps/web/messages/**'
+  - 'apps/web/public/**'
+  - 'apps/web/next.config.ts'
+  - 'apps/web/postcss.config.js'
+  - 'apps/web/tsconfig.json'
+  - 'apps/web/package.json'
+  - 'apps/web/sentry.*.config.ts'
+  - 'apps/web/source.config.ts'
+  - 'apps/web/next-sitemap.config.js'
+  - 'apps/web/global.ts'
+  - 'apps/web/content/**'
+  - 'packages/ui/src/**'
+  - 'packages/ui/package.json'
+  - '.github/workflows/build.yml'
+  - '.github/filters.yml'
+
+# --- Lint ---
+
+should-lint:
+  - 'package.json'
+  - 'pnpm-lock.yaml'
+  - 'pnpm-workspace.yaml'
+  - 'turbo.json'
+  - 'tsconfig.json'
+  - 'eslint.config.ts'
+  - '.nvmrc'
+  - 'apps/web/src/**'
+  - 'apps/web/tests/**'
+  - 'apps/web/eslint.config.ts'
+  - 'apps/web/tsconfig.json'
+  - 'apps/web/package.json'
+  - 'packages/ui/src/**'
+  - 'packages/ui/package.json'
+  - '.github/workflows/lint.yml'
+  - '.github/filters.yml'
+
+# --- Tests ---
+
+test-unit:
+  - 'package.json'
+  - 'pnpm-lock.yaml'
+  - 'apps/web/src/useCases/**'
+  - 'apps/web/src/lib/utils/**'
+  - 'apps/web/src/lib/model/**'
+  - 'apps/web/src/lib/repo/I*.ts'
+  - 'apps/web/src/lib/repo/index.ts'
+  - 'apps/web/src/lib/services/**'
+  - 'apps/web/src/lib/ee/tracking-provider/**'
+  - 'apps/web/src/lib/ee/integration-provider/**'
+  - 'apps/web/src/lib/ee/storage-provider/**'
+  - 'apps/web/src/lib/ee/licensing/**'
+  - 'apps/web/src/gouv/dsfr/**'
+  - 'apps/web/src/config.ts'
+  - 'apps/web/tests/testu/**'
+  - 'apps/web/tests/testi/**'
+  - 'apps/web/vitest.config.ts'
+  - 'apps/web/vitest.setup.ts'
+  - 'packages/ui/src/**'
+  - 'packages/ui/vitest.config.ts'
+  - 'packages/ui/vitest.setup.ts'
+
+test-db:
+  - 'apps/web/src/lib/repo/impl/**'
+  - 'apps/web/src/lib/db/**'
+  - 'apps/web/prisma/schema.prisma'
+  - 'apps/web/prisma/migrations/**'
+  - 'apps/web/prisma/views/**'
+  - 'apps/web/tests/testdb/**'
+  - 'apps/web/vitest.config.db.ts'
+  - 'apps/web/vitest.setup.ts'
+
+test-e2e:
+  - 'apps/web/src/**'
+  - 'apps/web/prisma/**'
+  - 'apps/web/messages/**'
+  - 'apps/web/public/**'
+  - 'apps/web/tests/teste2e/**'
+  - 'apps/web/playwright.config.ts'
+  - 'apps/web/next.config.ts'
+  - 'packages/ui/src/**'
+
+# --- Licensing server ---
+
+should-build-licensing:
+  - 'apps/licensing/src/**'
+  - 'apps/licensing/prisma/**'
+  - 'apps/licensing/package.json'
+  - 'apps/licensing/tsconfig.json'
+  - 'pnpm-lock.yaml'
+
+test-licensing:
+  - 'apps/licensing/src/**'
+  - 'apps/licensing/tests/**'
+  - 'apps/licensing/vitest.config.ts'
+
+test-config:
+  - 'tsconfig.json'
+  - '.nvmrc'
+  - 'turbo.json'
+  - '.github/workflows/test.yml'
+  - '.github/filters.yml'

@@ -1,0 +1,15 @@
+{
+  "title": "Guide utilisateur",
+  "pages": [
+    "index",
+    "create-account",
+    "submit-post",
+    "vote-and-comment",
+    "search-and-filter",
+    "board-views",
+    "roadmap",
+    "profile",
+    "language",
+    "embed"
+  ]
+}

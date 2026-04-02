@@ -1,0 +1,85 @@
+$thread-line-padding: calc(2rem - 1px);
+
+.thread {
+    display: flex;
+    flex-direction: column;
+}
+
+.thread-entity {
+    display: flex;
+
+    &:last-of-type {
+        & .threadline {
+            padding-right: 0;
+        }
+
+        & .threadline-line {
+            flex: .5;
+        }
+
+        & .thread-entity-content {
+            padding-top: .7rem;
+            margin: 0;
+        }
+    }
+
+    &:not(:last-of-type) .threadline:has(+ .thread-entity-actions) {
+        padding-right: calc($thread-line-padding - 1px);
+    }
+
+
+
+    .thread-entity-actions {
+        padding-top: .7rem;
+        margin: 0;
+    }
+
+
+    &:not(:last-of-type) .threadline-end {
+        display: none;
+    }
+}
+
+.thread-entity-content.thread-entity--row {
+    flex-direction: row;
+}
+
+.thread-entity-content,
+.thread-entity-actions {
+    display: flex;
+    flex-direction: column;
+    margin: .5rem 0;
+    flex: auto;
+}
+
+.threadline {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: start;
+    padding: 0 $thread-line-padding;
+}
+
+.threadline-line {
+    display: flex;
+    flex: 1;
+
+    &::before {
+        content: "";
+        border-left: 2px solid var(--border-default-grey);
+    }
+}
+
+.threadline-end {
+    display: flex;
+
+    &::before {
+        content: "";
+        border: 2px solid var(--border-default-grey);
+        border-right: none;
+        border-top: none;
+        width: 2rem;
+        height: calc(33px - 1rem);
+        border-radius: 0 0 0 1rem;
+    }
+}

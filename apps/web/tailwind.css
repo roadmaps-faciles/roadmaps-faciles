@@ -1,0 +1,12 @@
+/*
+ * Tailwind CSS IntelliSense entry point for apps/web/.
+ * NOT imported in the app — exists solely for the VS Code extension.
+ * Mirrors tailwind-entry.css context for IntelliSense completions.
+ */
+
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "@roadmaps-faciles/ui/tokens/theme.css";
+@import "@roadmaps-faciles/ui/tokens/tailwind-theme.css";
+@import "@roadmaps-faciles/ui/tokens/utilities.css";
+@source "./src";

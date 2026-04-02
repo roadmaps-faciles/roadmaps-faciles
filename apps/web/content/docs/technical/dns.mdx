@@ -1,0 +1,94 @@
+---
+title: Configuration DNS
+description: Guide technique pour la configuration DNS des domaines personnalisés.
+---
+
+<Callout type="info" title="Section technique">
+Cette page s'adresse aux administrateurs techniques en charge de la configuration DNS.
+</Callout>
+
+## Architecture des domaines
+
+Roadmaps Faciles utilise une architecture multi-tenant basée sur les sous-domaines :
+
+```
+{{rootDomain}}              ← Domaine racine (admin plateforme)
+├── mon-produit.{{rootDomain}}  ← Sous-domaine automatique
+├── autre-produit.{{rootDomain}}
+└── feedback.mon-produit.fr      ← Domaine personnalisé (CNAME)
+```
+
+Les sous-domaines sont créés automatiquement à la création d'un espace. Les domaines personnalisés nécessitent une configuration DNS manuelle.
+
+## Enregistrement CNAME
+
+Pour associer un domaine personnalisé, créez un enregistrement **CNAME** pointant vers le domaine racine de la plateforme :
+
+```text
+feedback.mon-produit.fr.  3600  IN  CNAME  {{rootDomain}}.
+```
+
+### Points d'attention
+
+- **Pas d'enregistrement A** — Utilisez un CNAME, pas un enregistrement A. Le CNAME suit automatiquement les changements d'IP de la plateforme.
+- **Point final** — Certains fournisseurs DNS ajoutent automatiquement le point final (`.`) au nom de domaine. Vérifiez la syntaxe attendue par votre fournisseur.
+- **TTL** — Un TTL de `3600` (1 heure) est recommandé. Un TTL plus court accélère la propagation mais augmente les requêtes DNS.
+- **Domaine racine** — Un CNAME sur un domaine racine (apex, ex. : `mon-produit.fr`) n'est pas standard. Utilisez un sous-domaine (ex. : `feedback.mon-produit.fr`), ou un alias/ANAME si votre fournisseur le supporte.
+
+## Fournisseurs DNS supportés
+
+La plateforme peut automatiser la gestion des enregistrements DNS pour les sous-domaines (pas les domaines personnalisés) via les fournisseurs suivants :
+
+| Fournisseur | Variable d'environnement | Description |
+|-------------|--------------------------|-------------|
+| **Noop** | `DNS_PROVIDER=noop` | Aucune automatisation (défaut en dev). |
+| **Manuel** | `DNS_PROVIDER=manual` | Les enregistrements doivent être créés manuellement. |
+| **OVH** | `DNS_PROVIDER=ovh` | API OVH (authentification HMAC-SHA1). |
+| **Cloudflare** | `DNS_PROVIDER=cloudflare` | API Cloudflare v4 (cache de zone ID). |
+
+### Zone DNS configurable
+
+Par défaut, les fournisseurs DNS utilisent le domaine racine de l'instance comme zone DNS. Si votre domaine racine est un sous-domaine d'une zone DNS plus large, configurez la variable `DNS_ZONE_NAME` :
+
+```text
+# Exemple : domaine racine = roadmaps.site.fr, zone DNS = site.fr
+DNS_ZONE_NAME=site.fr
+```
+
+Avec cette configuration, un espace ayant le sous-domaine `mon-produit` verra son enregistrement DNS créé comme `mon-produit.roadmaps` dans la zone `site.fr`, résultant en `mon-produit.roadmaps.site.fr`.
+
+Si `DNS_ZONE_NAME` n'est pas définie ou correspond au domaine racine, le sous-domaine est utilisé tel quel dans la zone.
+
+## Vérification DNS
+
+La plateforme vérifie la configuration DNS en résolvant l'enregistrement CNAME du domaine personnalisé. La vérification :
+
+- Est déclenchée automatiquement lors de la configuration du domaine.
+- Peut être relancée manuellement depuis l'interface d'administration.
+- Normalise le point final (`target.io.` → `target.io`) avant comparaison.
+
+## Certificats TLS
+
+Les certificats TLS sont gérés automatiquement selon le fournisseur de domaine configuré :
+
+| Fournisseur | Mécanisme TLS |
+|-------------|---------------|
+| **Scalingo** | Certificat Let's Encrypt via l'API Scalingo. |
+| **Scalingo Wildcard** | Certificat wildcard (`*.rootDomain`) pour les sous-domaines, Let's Encrypt pour les domaines personnalisés. |
+| **Caddy** | TLS on-demand via l'endpoint `/api/domains/check`. |
+| **Clever Cloud** | Certificat géré par Clever Cloud. |
+
+## Diagnostic
+
+Pour vérifier manuellement la configuration DNS :
+
+```bash
+# Vérifier l'enregistrement CNAME
+dig feedback.mon-produit.fr CNAME +short
+
+# Vérifier la résolution complète
+dig feedback.mon-produit.fr A +short
+
+# Tester la connectivité HTTPS
+curl -I https://feedback.mon-produit.fr
+```

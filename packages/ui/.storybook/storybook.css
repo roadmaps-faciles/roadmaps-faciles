@@ -1,0 +1,89 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "../src/tokens/theme.css";
+@import "../src/tokens/tailwind-theme.css";
+@import "../src/tokens/utilities.css";
+@source "../src/**/*.tsx";
+
+/* Root theme — background/foreground suivent les tokens */
+html[data-ui-theme="Default"] {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* shadcn default: border-color tracks the --border token */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--border);
+  }
+}
+
+/*
+ * Dark mode pour la page Docs de Storybook.
+ * Pure CSS — pas de DocsContainer custom, pas de re-render, pas de refresh.
+ * Cible #storybook-docs (root du docs renderer dans le preview iframe).
+ */
+
+/* Fond principal + texte */
+.dark #storybook-docs {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+
+.dark .docs-story {
+  background-color: var(--background) !important;
+}
+
+/* Titres, paragraphes, descriptions */
+.dark #storybook-docs h1,
+.dark #storybook-docs h2,
+.dark #storybook-docs h3,
+.dark #storybook-docs h4,
+.dark #storybook-docs p,
+.dark #storybook-docs span,
+.dark #storybook-docs li {
+  color: var(--foreground) !important;
+}
+
+/* Props/Args table */
+.dark #storybook-docs table {
+  color: var(--foreground) !important;
+}
+
+.dark #storybook-docs th {
+  color: var(--muted-foreground) !important;
+}
+
+.dark #storybook-docs td {
+  color: var(--foreground) !important;
+  border-color: var(--border) !important;
+}
+
+.dark #storybook-docs thead tr {
+  border-color: var(--border) !important;
+}
+
+.dark #storybook-docs tbody tr {
+  border-color: var(--border) !important;
+}
+
+/* Code inline */
+.dark #storybook-docs code {
+  background-color: var(--muted) !important;
+  color: var(--foreground) !important;
+}
+
+/* Liens */
+.dark #storybook-docs a {
+  color: var(--primary) !important;
+}
+
+/* Séparateurs */
+.dark #storybook-docs hr {
+  border-color: var(--border) !important;
+}

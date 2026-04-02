@@ -1,0 +1,33 @@
+---
+title: Consulter la feuille de route
+description: Suivez visuellement l'avancement des propositions.
+---
+
+La **feuille de route** (roadmap) offre une vue d'ensemble de l'avancement des contributions sous forme de tableau Kanban.
+
+<ImageWithTheme srcLight="/doc/screenshots/roadmap-light.png" srcDark="/doc/screenshots/roadmap-dark.png" alt="Feuille de route" />
+
+## Comment ça fonctionne
+
+- Chaque **colonne** représente un statut configuré par l'administrateur (ex. : "Planifié", "En cours", "Terminé").
+- Les contributions sont affichées dans la colonne correspondant à leur statut actuel.
+- Seuls les statuts marqués comme **visibles dans la feuille de route** y apparaissent. Les statuts internes (ex. : "Refusé", "À trier") sont exclus.
+
+Cela permet à l'équipe produit de communiquer publiquement l'avancement de son produit, sans exposer les détails de gestion interne.
+
+## Navigation
+
+- Cliquez sur le **titre** d'une contribution pour accéder à sa page de détail (votes, commentaires, timeline).
+- Le nombre de **votes** est affiché sur chaque carte.
+- Le **tableau d'origine** est indiqué par un badge de couleur, ce qui permet de distinguer les contributions venant de différents tableaux.
+
+## Accès
+
+La feuille de route est accessible de deux façons :
+
+- **Depuis le menu** — Si l'option **Afficher la roadmap dans l'en-tête** est activée par l'administrateur, un lien apparaît dans le menu principal.
+- **Via l'URL directe** — La feuille de route est toujours accessible à l'adresse `/roadmap` de l'espace, même si le lien n'est pas dans le menu.
+
+## Colonnes vides
+
+Si un statut visible dans la feuille de route n'a aucune contribution, la colonne est affichée avec un message indiquant qu'il n'y a pas encore de contributions pour ce statut.

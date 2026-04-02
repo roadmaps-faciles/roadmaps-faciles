@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "es2023"
+    ],
+    "module": "node16",
+    "target": "es2022",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node16",
+    "resolveJsonModule": true,
+    "baseUrl": "./",
+    "paths": {
+      "@/config": [
+        "../src/config.ts"
+      ],
+      "@/gouv/dsfr": [
+        "../src/gouv/dsfr/server.ts"
+      ],
+      "@/gouv/dsfr/client": [
+        "../src/gouv/dsfr/client.ts"
+      ],
+      "@/gouv/dsfr/utils/*": [
+        "../src/gouv/dsfr/utils/*"
+      ],
+      "@/utils/*": [
+        "../src/lib/utils/*"
+      ],
+      "@/prisma/*": [
+        "../src/generated/prisma/*"
+      ],
+      "@/*": [
+        "../src/*"
+      ]
+    }
+  },
+  "ts-node": {
+    "transpileOnly": true,
+    "require": [
+      "tsconfig-paths/register"
+    ]
+  }
+}

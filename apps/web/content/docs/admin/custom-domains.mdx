@@ -1,0 +1,55 @@
+---
+title: Domaines personnalisés
+description: Associez votre propre nom de domaine à votre espace de travail.
+---
+
+Par défaut, votre espace est accessible via un sous-domaine de la plateforme (ex. : `mon-produit.{{rootDomain}}`). Vous pouvez configurer un **domaine personnalisé** pour que votre espace soit accessible via votre propre nom de domaine (ex. : `feedback.mon-produit.fr`).
+
+## Configurer un domaine personnalisé
+
+1. Rendez-vous dans **Administration > Général**.
+2. Dans la section **Identité**, renseignez votre domaine personnalisé (ex. : `feedback.mon-produit.fr`).
+3. Validez la modification.
+4. Configurez l'enregistrement DNS chez votre fournisseur (voir ci-dessous).
+5. Attendez la propagation DNS (quelques minutes à quelques heures).
+6. Vérifiez la configuration depuis l'interface d'administration.
+
+Une fois le DNS configuré, votre espace est accessible aux deux adresses (sous-domaine Roadmaps Faciles et domaine personnalisé).
+
+<Callout type="info" title="Section technique">
+Les étapes suivantes s'adressent à la personne en charge de la configuration DNS de votre domaine. Si ce n'est pas vous, transmettez ces informations à votre équipe technique.
+</Callout>
+
+## Configuration DNS
+
+Pour associer votre domaine, vous devez créer un **enregistrement CNAME** chez votre fournisseur DNS.
+
+### Étape par étape
+
+1. Connectez-vous au panneau de gestion DNS de votre domaine (OVH, Cloudflare, Gandi, etc.).
+2. Créez un enregistrement de type **CNAME** :
+
+| Champ | Valeur |
+|-------|--------|
+| **Type** | `CNAME` |
+| **Nom / Hôte** | Le sous-domaine souhaité (ex. : `feedback`) |
+| **Cible / Valeur** | Le domaine de la plateforme (ex. : `{{rootDomain}}`) |
+| **TTL** | `3600` (1 heure) ou la valeur par défaut |
+
+3. Enregistrez la modification.
+
+### Vérification
+
+La vérification DNS est **automatique** : Roadmaps Faciles vérifie régulièrement que l'enregistrement CNAME est correctement configuré. Vous pouvez également déclencher une vérification manuelle depuis l'interface d'administration.
+
+### Certificat TLS (HTTPS)
+
+Le certificat TLS est **provisionné automatiquement** par la plateforme une fois le DNS vérifié. Aucune action de votre part n'est nécessaire — votre domaine sera accessible en HTTPS.
+
+## Résolution de problèmes
+
+| Symptôme | Cause possible | Solution |
+|----------|---------------|----------|
+| "DNS non vérifié" | L'enregistrement CNAME n'est pas encore propagé. | Patientez jusqu'à 24h. Vérifiez avec `dig feedback.mon-produit.fr CNAME`. |
+| "DNS non vérifié" après 24h | L'enregistrement CNAME pointe vers la mauvaise cible. | Vérifiez la valeur cible dans votre panneau DNS. |
+| Erreur de certificat | Le CNAME vient d'être configuré. | Le certificat TLS peut prendre quelques minutes à être émis après la vérification DNS. |

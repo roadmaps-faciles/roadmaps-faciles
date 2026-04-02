@@ -1,0 +1,159 @@
+/* ==============================
+   @roadmaps-faciles/ui design tokens — French Blue palette (oklch)
+   Primary: #163C90 (French Blue)
+   Light tints: #516DAC, #8B9EC8, #C5CFE4
+   Dark shades: #193675, #1C2F59, #1F293E, #222222
+   Scoped to [data-ui-theme="Default"]
+   ============================== */
+
+[data-ui-theme="Default"] {
+    color-scheme: light;
+
+    /* Sticky offset = RootHeader height (h-16) */
+    --sticky-offset: 4rem;
+
+    /* French Blue primary */
+    --primary: oklch(0.386 0.146 263);
+    --primary-foreground: oklch(1 0 0);
+
+    /* Backgrounds */
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.252 0.041 264);  /* near Carbon Black with a blue tint */
+
+    /* Cards */
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.252 0.041 264);
+
+    /* Popovers */
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.252 0.041 264);
+
+    /* Secondary — Lavender tint */
+    --secondary: oklch(0.853 0.031 265);
+    --secondary-foreground: oklch(0.350 0.114 263);  /* Regal Navy */
+
+    /* Muted — very light lavender */
+    --muted: oklch(0.935 0.015 265);
+    --muted-foreground: oklch(0.542 0.104 265);  /* Smart Blue */
+
+    /* Accent — Wisteria Blue area */
+    --accent: oklch(0.920 0.020 265);
+    --accent-foreground: oklch(0.350 0.114 263);
+
+    /* Destructive */
+    --destructive: oklch(0.577 0.245 27.325);
+    --destructive-foreground: oklch(0.577 0.245 27.325);
+
+    /* Success */
+    --success: oklch(0.723 0.191 142.5);
+    --success-foreground: oklch(1 0 0);
+
+    /* Warning */
+    --warning: oklch(0.769 0.189 70.08);
+    --warning-foreground: oklch(0.252 0.041 264);
+
+    /* Surface — alias of card */
+    --surface: oklch(1 0 0);
+    --surface-foreground: oklch(0.252 0.041 264);
+
+    /* Surface alt */
+    --surface-alt: oklch(0.960 0.010 265);
+    --surface-alt-foreground: oklch(0.252 0.041 264);
+
+    /* Borders & inputs */
+    --border: oklch(0.885 0.020 265);
+    --input: oklch(0.885 0.020 265);
+    --ring: oklch(0.542 0.104 265);
+    --radius: 0.625rem;
+
+    /* Sidebar — light bg matches Stitch #E5EAF4 */
+    --sidebar-background: oklch(0.936 0.015 264);
+    --sidebar-foreground: oklch(0.252 0.041 264);
+    --sidebar-primary: oklch(0.386 0.146 263);
+    --sidebar-primary-foreground: oklch(1 0 0);
+    --sidebar-accent: oklch(0.900 0.020 265);
+    --sidebar-accent-foreground: oklch(0.350 0.114 263);
+    --sidebar-border: oklch(0.860 0.020 265);
+    --sidebar-ring: oklch(0.542 0.104 265);
+
+    /* Charts — use palette spread */
+    --chart-1: oklch(0.386 0.146 263);  /* French Blue */
+    --chart-2: oklch(0.542 0.104 265);  /* Smart Blue */
+    --chart-3: oklch(0.700 0.066 266);  /* Wisteria Blue */
+    --chart-4: oklch(0.646 0.222 41);   /* orange accent */
+    --chart-5: oklch(0.600 0.180 145);  /* green accent */
+}
+
+.dark[data-ui-theme="Default"] {
+    color-scheme: dark;
+
+    /* Lighter blue for dark mode contrast */
+    --primary: oklch(0.620 0.130 264);  /* between Smart Blue and Wisteria */
+    --primary-foreground: oklch(1 0 0);
+
+    /* Dark backgrounds from palette */
+    --background: oklch(0.220 0.010 264);  /* near Carbon Black */
+    --foreground: oklch(0.920 0.015 265);  /* near Lavender */
+
+    /* Cards — Prussian Blue */
+    --card: oklch(0.260 0.030 264);
+    --card-foreground: oklch(0.920 0.015 265);
+
+    /* Popovers */
+    --popover: oklch(0.260 0.030 264);
+    --popover-foreground: oklch(0.920 0.015 265);
+
+    /* Secondary — Twilight Indigo */
+    --secondary: oklch(0.313 0.079 264);
+    --secondary-foreground: oklch(0.853 0.031 265);
+
+    /* Muted — Twilight Indigo area */
+    --muted: oklch(0.313 0.060 264);
+    --muted-foreground: oklch(0.700 0.066 266);  /* Wisteria Blue */
+
+    /* Accent */
+    --accent: oklch(0.340 0.060 264);
+    --accent-foreground: oklch(0.853 0.031 265);
+
+    /* Destructive */
+    --destructive: oklch(0.396 0.141 25.723);
+    --destructive-foreground: oklch(0.637 0.237 25.331);
+
+    /* Success */
+    --success: oklch(0.600 0.180 145);
+    --success-foreground: oklch(1 0 0);
+
+    /* Warning */
+    --warning: oklch(0.700 0.170 65);
+    --warning-foreground: oklch(0.220 0.010 264);
+
+    /* Surface — Prussian Blue */
+    --surface: oklch(0.260 0.030 264);
+    --surface-foreground: oklch(0.920 0.015 265);
+
+    /* Surface alt */
+    --surface-alt: oklch(0.280 0.020 264);
+    --surface-alt-foreground: oklch(0.920 0.015 265);
+
+    /* Borders & inputs — subtle, low-contrast (matched to Stitch #334155) */
+    --border: oklch(0.310 0.025 260);
+    --input: oklch(0.310 0.025 260);
+    --ring: oklch(0.542 0.104 265);
+
+    /* Sidebar — darker than background for visible distinction */
+    --sidebar-background: oklch(0.200 0.025 264);
+    --sidebar-foreground: oklch(0.920 0.015 265);
+    --sidebar-primary: oklch(0.620 0.130 264);
+    --sidebar-primary-foreground: oklch(1 0 0);
+    --sidebar-accent: oklch(0.300 0.050 264);
+    --sidebar-accent-foreground: oklch(0.853 0.031 265);
+    --sidebar-border: oklch(0.280 0.025 260);
+    --sidebar-ring: oklch(0.542 0.104 265);
+
+    /* Charts */
+    --chart-1: oklch(0.620 0.130 264);
+    --chart-2: oklch(0.700 0.066 266);
+    --chart-3: oklch(0.853 0.031 265);
+    --chart-4: oklch(0.627 0.265 303.9);
+    --chart-5: oklch(0.645 0.246 16.439);
+}

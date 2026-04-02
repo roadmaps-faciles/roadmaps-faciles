@@ -1,0 +1,433 @@
+---
+title: Self-hosting
+description: Guide complet pour déployer Roadmaps Faciles sur votre propre infrastructure.
+---
+
+<Callout type="info" title="Section technique">
+Cette page s'adresse aux développeurs et administrateurs système souhaitant héberger leur propre instance de Roadmaps Faciles.
+</Callout>
+
+## Prérequis
+
+| Composant | Version / Description |
+|-----------|----------------------|
+| **Node.js** | 24 ou supérieur |
+| **PostgreSQL** | 15 ou supérieur |
+| **Redis** | Compatible Redis 6+ |
+| **SMTP** | Serveur d'envoi d'emails (magic links, invitations) |
+| **pnpm** | Gestionnaire de paquets (voir `packageManager` dans `package.json`) |
+
+## Démarrage rapide
+
+**1. Cloner le dépôt**
+
+```bash
+git clone https://github.com/roadmaps-faciles/roadmaps-faciles.git
+cd roadmaps-faciles
+```
+
+**2. Lancer les services avec Docker Compose**
+
+Le fichier `docker-compose.yml` fourni démarre les trois services nécessaires au développement :
+
+```bash
+docker compose up -d
+```
+
+| Service | Port | Description |
+|---------|------|-------------|
+| **PostgreSQL** | `5432` | Base de données (user: `postgres`, password: `postgres`, dbs: `roadmaps-faciles` + `licensing`) |
+| **Redis** | `6379` | Cache et sessions |
+| **Maildev** | `1025` (SMTP) / `1080` (Web UI) | Serveur SMTP de développement |
+| **MinIO** | `9000` (API) / `9001` (Console) | Stockage S3 local (user: `minioadmin`, password: `minioadmin`) |
+
+**3. Configurer les variables d'environnement**
+
+Copiez le fichier de configuration de développement et adaptez-le :
+
+```bash
+cp .env.development .env.local
+```
+
+Les variables minimales à configurer sont décrites dans la section [Variables d'environnement](#variables-denvironnement).
+
+**4. Installer les dépendances et préparer la base**
+
+```bash
+pnpm install
+pnpm prisma migrate deploy
+pnpm prisma db seed
+```
+
+**5. Lancer le serveur de développement**
+
+```bash
+pnpm dev
+```
+
+L'application est accessible sur `http://localhost:3000`.
+
+## Variables d'environnement
+
+### Obligatoires
+
+| Variable | Description | Exemple |
+|----------|-------------|---------|
+| `DATABASE_URL` | URL de connexion PostgreSQL | `postgresql://user:pass@host:5432/db` |
+| `REDIS_URL` | URL de connexion Redis | `redis://localhost:6379` |
+| `SECURITY_JWT_SECRET` | Secret pour les tokens JWT et HMAC (32+ caractères aléatoires) | — |
+| `SECURITY_WEBHOOK_SECRET` | Secret pour la signature des webhooks | — |
+| `MAILER_SMTP_HOST` | Hôte du serveur SMTP | `smtp.example.com` |
+| `MAILER_SMTP_PORT` | Port SMTP | `587` |
+| `MAILER_FROM_EMAIL` | Adresse d'expédition des emails | `Roadmaps <noreply@example.com>` |
+| `NEXT_PUBLIC_SITE_URL` | URL publique de l'instance (avec protocole) | `https://roadmaps.example.com` |
+| `ADMINS` | Identifiants des super-administrateurs, séparés par virgule | `alice,bob` |
+| `AUTH_TRUST_HOST` | Activer la confiance de l'hôte pour NextAuth | `1` |
+
+<Callout type="warn" title="Secrets">
+Générez des secrets aléatoires robustes pour `SECURITY_JWT_SECRET` et `SECURITY_WEBHOOK_SECRET`. En production, ne réutilisez jamais les valeurs de développement.
+</Callout>
+
+### Optionnelles
+
+| Variable | Description | Défaut |
+|----------|-------------|--------|
+| `APP_ENV` | Environnement applicatif (`dev`, `review`, `staging`, `prod`) | `dev` |
+| `MAINTENANCE_MODE` | Active le mode maintenance | `false` |
+| `LOG_LEVEL` | Niveau de log Pino (`debug`, `info`, `warn`, `error`) | `info` |
+| `SENTRY_DSN` | DSN Sentry pour le suivi d'erreurs (vide = désactivé) | — |
+| `NEXT_PUBLIC_MATOMO_URL` | URL de l'instance Matomo | — |
+| `NEXT_PUBLIC_MATOMO_SITE_ID` | ID du site Matomo | — |
+
+### Licence (features EE — optionnel)
+
+Pour débloquer les features Enterprise Edition (intégrations, API keys, webhooks, domaines custom, tracking avancé, 2FA…) sur une instance self-hosted, vous devez acquérir une licence sur [licensing.roadmaps-faciles.fr](https://licensing.roadmaps-faciles.fr).
+
+| Variable | Description | Défaut |
+|----------|-------------|--------|
+| `LICENSE_KEY` | Clé de licence au format `rf_live_...` — laissez vide pour le mode Community (core AGPL uniquement) | *(vide)* |
+| `LICENSING_SERVER_URL` | URL du serveur de licences (pour la vérification en ligne) | `https://licensing.roadmaps-faciles.fr` |
+| `INSTANCE_ID` | Identifiant unique de votre instance (généré au premier lancement ou manuellement) | *(vide)* |
+
+<Callout type="info" title="Fonctionnement">
+La vérification de licence est principalement **offline** (signature Ed25519 embarquée dans la clé). Un refresh en ligne est effectué toutes les 24h auprès du serveur de licences. En cas d'indisponibilité du serveur, une **période de grâce de 7 jours** maintient les features EE actives.
+</Callout>
+
+**Plans disponibles :**
+
+| Plan | Features |
+|------|----------|
+| **LICENSED** | Toutes les features EE |
+| **GOV_LICENSED** | Toutes les features EE + thème DSFR (Design System de l'État) |
+
+Sans licence, l'instance fonctionne en mode **Community** avec les fonctionnalités core (AGPL v3).
+
+### OAuth / SSO (optionnel)
+
+Pour activer la connexion via des fournisseurs OAuth, configurez les variables correspondantes :
+
+| Variable | Description |
+|----------|-------------|
+| `OAUTH_GITHUB_CLIENT_ID` | Client ID de l'application GitHub OAuth |
+| `OAUTH_GITHUB_CLIENT_SECRET` | Client Secret GitHub |
+| `OAUTH_GOOGLE_CLIENT_ID` | Client ID Google OAuth |
+| `OAUTH_GOOGLE_CLIENT_SECRET` | Client Secret Google |
+| `OAUTH_PROCONNECT_CLIENT_ID` | Client ID ProConnect (OIDC) |
+| `OAUTH_PROCONNECT_CLIENT_SECRET` | Client Secret ProConnect |
+
+Seuls les fournisseurs dont les variables sont renseignées seront disponibles. Chaque tenant choisit ensuite lesquels activer via **Administration > Authentification**.
+
+### Observabilité (optionnel)
+
+| Variable | Description | Défaut |
+|----------|-------------|--------|
+| `SENTRY_DSN` | DSN Sentry pour le suivi d'erreurs (vide = désactivé) | — |
+| `SENTRY_AUTH_TOKEN` | Token d'authentification Sentry (pour l'upload des source maps) | — |
+| `APP_ENV` | Environnement applicatif (`dev`, `review`, `staging`, `prod`) — les source maps ne sont uploadées qu'en `prod` et `staging` | `dev` |
+
+### Branding
+
+L'apparence de l'instance est personnalisable via les variables `NEXT_PUBLIC_BRAND_*` :
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_BRAND_NAME` | Nom de l'application |
+| `NEXT_PUBLIC_BRAND_TAGLINE` | Accroche sous le nom |
+| `NEXT_PUBLIC_BRAND_MINISTRY` | Intitulé du ministère (bloc-marque DSFR) |
+| `NEXT_PUBLIC_BRAND_OPERATOR_ENABLE` | Afficher le logo opérateur (`true`/`false`) |
+| `NEXT_PUBLIC_BRAND_OPERATOR_LOGO_URL` | URL du logo opérateur |
+| `NEXT_PUBLIC_BRAND_OPERATOR_LOGO_ALT` | Texte alternatif du logo |
+| `NEXT_PUBLIC_BRAND_OPERATOR_LOGO_ORIENTATION` | Orientation du logo (`vertical`/`horizontal`) |
+
+### Mentions légales
+
+Les pages légales (mentions légales, politique de confidentialité) sont personnalisables pour refléter les informations de l'opérateur qui héberge l'instance :
+
+| Variable | Description | Défaut |
+|----------|-------------|--------|
+| `NEXT_PUBLIC_LEGAL_PUBLISHER_NAME` | Nom de l'éditeur du site | `Roadmaps Faciles` |
+| `NEXT_PUBLIC_LEGAL_PUBLISHER_ADDRESS` | Adresse de l'éditeur | *(vide)* |
+| `NEXT_PUBLIC_LEGAL_PUBLICATION_DIRECTOR` | Directeur de la publication | `Le responsable légal de Roadmaps Faciles` |
+| `NEXT_PUBLIC_LEGAL_HOSTING_NAME` | Nom de l'hébergeur | `Scalingo SAS` |
+| `NEXT_PUBLIC_LEGAL_HOSTING_ADDRESS` | Adresse de l'hébergeur | `15 avenue du Rhin, 67100 Strasbourg, France` |
+| `NEXT_PUBLIC_LEGAL_HOSTING_CONTACT` | Email de contact de l'hébergeur | `support@scalingo.com` |
+| `NEXT_PUBLIC_LEGAL_HOSTING_PRIVACY_URL` | Lien vers la politique de confidentialité de l'hébergeur | *(Scalingo)* |
+| `NEXT_PUBLIC_LEGAL_CONTACT_EMAIL` | Email de contact général | `contact@roadmaps-faciles.fr` |
+| `NEXT_PUBLIC_LEGAL_RGPD_EMAIL` | Email DPO / exercice des droits RGPD | `rgpd@roadmaps-faciles.fr` |
+
+<Callout type="info">
+Ces variables sont utilisées par les pages `/mentions-legales` et `/politique-de-confidentialite`. Si vous self-hostez, adaptez au minimum le nom de l'éditeur, l'hébergeur, et les adresses email de contact.
+</Callout>
+
+### SMTP
+
+| Variable | Description | Défaut |
+|----------|-------------|--------|
+| `MAILER_SMTP_HOST` | Hôte SMTP | — |
+| `MAILER_SMTP_PORT` | Port SMTP | `587` |
+| `MAILER_SMTP_LOGIN` | Identifiant SMTP | — |
+| `MAILER_SMTP_PASSWORD` | Mot de passe SMTP | — |
+| `MAILER_SMTP_SSL` | Activer TLS | `false` |
+| `MAILER_FROM_EMAIL` | Adresse d'expédition | — |
+
+### Stockage S3 (upload d'images)
+
+Pour activer l'upload d'images dans les contributions, configurez un stockage S3-compatible :
+
+| Variable | Description | Défaut |
+|----------|-------------|--------|
+| `STORAGE_PROVIDER` | Provider de stockage : `noop` (désactivé), `s3` | `noop` |
+| `STORAGE_MAX_FILE_SIZE_MB` | Taille max d'un fichier uploadé (Mo) | `5` |
+| `STORAGE_S3_ENDPOINT` | Endpoint S3 (ex: `https://s3.amazonaws.com` ou MinIO) | — |
+| `STORAGE_S3_REGION` | Région S3 | `us-east-1` |
+| `STORAGE_S3_BUCKET` | Nom du bucket | — |
+| `STORAGE_S3_ACCESS_KEY_ID` | Access Key ID | — |
+| `STORAGE_S3_SECRET_ACCESS_KEY` | Secret Access Key | — |
+| `STORAGE_S3_PUBLIC_URL` | URL publique du bucket (pour construire les URLs des images) | — |
+
+<Callout type="info">
+Le bucket doit être configuré pour un accès public en lecture (les images uploadées sont référencées directement dans le Markdown des contributions). Sur Scalingo, utilisez l'addon S3-compatible fourni par la plateforme.
+</Callout>
+
+### Multi-tenant et domaines
+
+| Variable | Description |
+|----------|-------------|
+| `DOMAIN_PROVIDER` | Fournisseur de domaine : `noop`, `scalingo`, `scalingo-wildcard`, `clevercloud`, `caddy` |
+| `DNS_PROVIDER` | Fournisseur DNS : `noop`, `manual`, `ovh`, `cloudflare` |
+| `DNS_PROVIDER_TARGET` | Domaine cible pour les enregistrements CNAME des sous-domaines |
+| `DNS_ZONE_NAME` | Zone DNS si différente du domaine racine (sous-domaines imbriqués, ex. : `site.fr` pour un rootDomain `roadmaps.site.fr`) |
+
+Les variables spécifiques à chaque fournisseur sont documentées dans le fichier `.env.development`.
+
+## Build et lancement en production
+
+**1. Build**
+
+```bash
+pnpm install
+pnpm build
+```
+
+Le build produit un **standalone output** dans `.next/standalone/` — un serveur Node.js autonome qui embarque uniquement les dépendances nécessaires.
+
+**2. Lancement**
+
+```bash
+node .next/standalone/server.js
+```
+
+Le serveur écoute par défaut sur le port `3000`. Utilisez la variable `PORT` pour le modifier :
+
+```bash
+PORT=8080 node .next/standalone/server.js
+```
+
+<Callout type="warn" title="Assets statiques">
+Le script `build` copie automatiquement les dossiers `public/` et `.next/static/` dans le standalone. Si vous déployez manuellement, vérifiez que ces dossiers sont présents dans `.next/standalone/`.
+</Callout>
+
+## Base de données
+
+### Migrations
+
+Appliquez les migrations Prisma avant chaque déploiement :
+
+```bash
+pnpm prisma migrate deploy
+```
+
+<Callout type="error" title="Ne pas utiliser en production">
+`prisma migrate reset` **supprime toutes les données**. Utilisez uniquement `prisma migrate deploy` en production.
+</Callout>
+
+### Seed
+
+Le seed initialise un administrateur et un premier espace de travail. Il est configurable via les variables `SEED_*` :
+
+| Variable | Description | Défaut |
+|----------|-------------|--------|
+| `SEED_ADMIN_NAME` | Nom de l'administrateur | `Admin` |
+| `SEED_ADMIN_EMAIL` | Email de l'administrateur | `admin@example.com` |
+| `SEED_ADMIN_USERNAME` | Identifiant de l'administrateur | `admin` |
+| `SEED_ADMIN_IMAGE` | URL de l'avatar de l'administrateur | *(vide)* |
+| `SEED_TENANT_NAME` | Nom du premier espace | `Le Site par Défaut` |
+| `SEED_TENANT_SUBDOMAIN` | Sous-domaine du premier espace | `default` |
+
+```bash
+pnpm prisma db seed
+```
+
+## Options de déploiement
+
+### Scalingo
+
+Roadmaps Faciles fournit un fichier `scalingo.json` pour le déploiement one-click :
+
+- Les addons PostgreSQL et Redis sont provisionnés automatiquement.
+- Les secrets (`SECURITY_JWT_SECRET`, `SECURITY_WEBHOOK_SECRET`) sont générés automatiquement.
+- Le script `first-deploy` exécute `prisma migrate reset --force` pour initialiser la base.
+
+Variables spécifiques :
+
+| Variable | Description |
+|----------|-------------|
+| `DOMAIN_PROVIDER` | `scalingo` ou `scalingo-wildcard` |
+| `DOMAIN_SCALINGO_API_TOKEN` | Token API Scalingo |
+| `DOMAIN_SCALINGO_API_URL` | URL de l'API Scalingo (ex. `https://api.osc-fr1.scalingo.com`) |
+| `DOMAIN_SCALINGO_APP_ID` | ID de l'application Scalingo |
+
+Le mode `scalingo-wildcard` utilise un certificat wildcard (`*.rootDomain`) pour les sous-domaines, évitant la création d'un certificat par sous-domaine.
+
+### Clever Cloud
+
+| Variable | Description |
+|----------|-------------|
+| `DOMAIN_PROVIDER` | `clevercloud` |
+| `DOMAIN_CLEVERCLOUD_CONSUMER_KEY` | Clé consumer OAuth |
+| `DOMAIN_CLEVERCLOUD_CONSUMER_SECRET` | Secret consumer OAuth |
+| `DOMAIN_CLEVERCLOUD_TOKEN` | Token OAuth |
+| `DOMAIN_CLEVERCLOUD_TOKEN_SECRET` | Secret du token OAuth |
+| `DOMAIN_CLEVERCLOUD_APP_ID` | ID de l'application |
+
+### VPS avec Caddy
+
+Pour un hébergement sur VPS, [Caddy](https://caddyserver.com) est recommandé comme reverse proxy. Il gère automatiquement les certificats TLS via le mode **on-demand TLS** :
+
+1. Caddy reçoit une requête pour un domaine inconnu.
+2. Il interroge l'endpoint `/api/domains/check?domain=...` de l'application.
+3. Si le domaine correspond à un espace existant (sous-domaine ou domaine personnalisé), l'application répond `200` et Caddy émet un certificat Let's Encrypt.
+4. Si le domaine est inconnu, l'application répond `404` et Caddy refuse la connexion.
+
+Exemple de configuration Caddy (`Caddyfile`) :
+
+```text
+{
+    on_demand_tls {
+        ask http://localhost:3000/api/domains/check
+    }
+}
+
+:443 {
+    tls {
+        on_demand
+    }
+    reverse_proxy localhost:3000
+}
+```
+
+| Variable | Description |
+|----------|-------------|
+| `DOMAIN_PROVIDER` | `caddy` |
+| `DOMAIN_CADDY_ADMIN_URL` | URL de l'API admin Caddy (ex. `http://localhost:2019`) |
+
+### Docker
+
+L'application ne fournit pas de Dockerfile officiel, mais le standalone output se prête bien à la conteneurisation :
+
+```dockerfile
+FROM node:24-alpine
+
+WORKDIR /app
+COPY .next/standalone ./
+COPY .next/static ./.next/static
+COPY public ./public
+
+ENV PORT=3000
+EXPOSE 3000
+
+CMD ["node", "server.js"]
+```
+
+<Callout type="info" title="Multi-stage build">
+Pour un build complet depuis les sources, ajoutez une étape de build avec `pnpm install && pnpm build` puis copiez le standalone dans l'image finale.
+</Callout>
+
+## Vérification
+
+L'endpoint `GET /api/healthz` vérifie la connectivité aux services critiques :
+
+```bash
+curl -s http://localhost:3000/api/healthz | jq
+```
+
+Réponse type :
+
+```json
+{
+  "status": "healthy",
+  "version": "0.0.1",
+  "environment": "production",
+  "timestamp": "2025-01-15T10:30:00.000Z",
+  "checks": {
+    "database": { "status": "healthy", "latencyMs": 5 },
+    "redis": { "status": "healthy", "latencyMs": 2 }
+  }
+}
+```
+
+| Code HTTP | Signification |
+|-----------|---------------|
+| `200` | Tous les services sont fonctionnels |
+| `503` | Au moins un service est indisponible |
+
+Cet endpoint est adapté pour les health checks de votre orchestrateur (Kubernetes, load balancer, monitoring).
+
+## Domaines personnalisés
+
+Chaque espace de travail peut utiliser un domaine personnalisé en plus de son sous-domaine automatique.
+
+### Configuration
+
+1. Créez un enregistrement **CNAME** pointant vers le domaine racine de votre instance :
+
+```text
+feedback.mon-produit.fr.  3600  IN  CNAME  {{rootDomain}}.
+```
+
+2. Ajoutez le domaine personnalisé dans l'interface d'administration de l'espace.
+
+3. La plateforme vérifie le CNAME et provisionne le certificat TLS selon le fournisseur de domaine configuré.
+
+Pour la configuration DNS détaillée, consultez la page [Configuration DNS](/doc/technical/dns).
+
+### Fournisseurs DNS supportés
+
+La plateforme peut automatiser la gestion des enregistrements DNS pour les **sous-domaines** (pas les domaines personnalisés) :
+
+| Fournisseur | Configuration | Description |
+|-------------|---------------|-------------|
+| **Noop** | `DNS_PROVIDER=noop` | Aucune automatisation (défaut) |
+| **Manuel** | `DNS_PROVIDER=manual` | Instructions pour création manuelle |
+| **OVH** | `DNS_PROVIDER=ovh` | API OVH (HMAC-SHA1) |
+| **Cloudflare** | `DNS_PROVIDER=cloudflare` | API Cloudflare v4 |
+
+## Bonnes pratiques production
+
+- **Secrets** — Utilisez des secrets générés aléatoirement (32+ caractères). Ne partagez jamais les secrets entre environnements.
+- **Backups** — Planifiez des sauvegardes régulières de PostgreSQL (`pg_dump`). Redis est utilisé comme cache et ne nécessite pas de sauvegarde.
+- **Monitoring** — Configurez un check périodique sur `/api/healthz`. Activez Sentry (`SENTRY_DSN`) pour le suivi d'erreurs en temps réel.
+- **Logs** — En production, les logs sont émis en JSON (Pino). Configurez `LOG_LEVEL=info` et collectez les logs avec votre outil habituel (Datadog, Loki, ELK...).
+- **Mises à jour** — Suivez les releases du dépôt. Appliquez toujours `prisma migrate deploy` après une mise à jour.
+- **Administration** — Le premier super-administrateur est défini par la variable `ADMINS`. Limitez le nombre de super-administrateurs au strict nécessaire.
+- **TLS** — En production, toutes les connexions doivent être en HTTPS. Caddy, Scalingo et Clever Cloud gèrent les certificats automatiquement.

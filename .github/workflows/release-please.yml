@@ -1,0 +1,39 @@
+name: release-please
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      release-phase:
+        description: "Release phase (override)"
+        required: true
+        type: choice
+        options:
+          - alpha
+          - beta
+          - stable
+        default: alpha
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - uses: googleapis/release-please-action@16a9c90856f42705d54a6fda1823352bdc62cf38 # v4
+        id: release
+        with:
+          # Pour que la PR de release trigger les autres workflows (lint, test, build),
+          # remplacer par un PAT : secrets.RELEASE_PLEASE_TOKEN
+          token: ${{ secrets.GITHUB_TOKEN }}
+          target-branch: main
+          config-file: release-please-config.${{ inputs.release-phase || 'alpha' }}.json
+          manifest-file: .release-please-manifest.json

@@ -1,0 +1,50 @@
+---
+title: Gestion des statuts
+description: Définissez votre workflow avec des statuts personnalisés.
+---
+
+Les statuts représentent les étapes de votre workflow produit. Gérez-les depuis **Administration > Statuts**.
+
+<ImageWithTheme srcLight="/doc/screenshots/admin-statuses-light.png" srcDark="/doc/screenshots/admin-statuses-dark.png" alt="Gestion des statuts" />
+
+## Créer un statut
+
+1. Cliquez sur **Créer un statut**.
+2. Configurez :
+   - **Nom** — Le libellé du statut (ex. : "En cours de développement").
+   - **Couleur** — Choisissez parmi les couleurs de la palette DSFR. La couleur est utilisée pour le badge affiché sur chaque contribution.
+   - **Visible dans la feuille de route** — Cochez si les contributions avec ce statut doivent apparaître dans la [feuille de route](/doc/guides/roadmap).
+3. Validez.
+
+## Organiser les statuts
+
+L'ordre des statuts reflète la progression naturelle de votre workflow. Réordonnez-les avec les boutons haut/bas pour que :
+
+- La feuille de route affiche les colonnes dans l'**ordre logique** (ex. : "Planifié" avant "En cours", "En cours" avant "Terminé").
+- Les badges de statut suivent une progression cohérente.
+
+## Modifier un statut
+
+Cliquez sur un statut dans la liste pour modifier son nom, sa couleur ou sa visibilité dans la feuille de route.
+
+## Supprimer un statut
+
+La suppression d'un statut **retire le statut** de toutes les contributions qui l'utilisaient. Les contributions restent visibles, mais sans statut assigné.
+
+<Callout type="info">
+  Si vous renommez un statut plutôt que de le supprimer et d'en créer un nouveau, les contributions associées conservent automatiquement le lien avec le statut renommé.
+</Callout>
+
+## Exemple de workflow
+
+Voici un workflow typique avec la visibilité roadmap :
+
+| Statut | Couleur | Visible dans la feuille de route |
+|--------|---------|:---:|
+| À étudier | Gris | Non |
+| Planifié | Bleu | Oui |
+| En cours | Jaune | Oui |
+| Terminé | Vert | Oui |
+| Refusé | Rouge | Non |
+
+Les statuts "À étudier" et "Refusé" restent internes — ils sont utiles pour l'équipe mais pas pour la communication publique.

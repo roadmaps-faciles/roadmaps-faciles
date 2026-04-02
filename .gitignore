@@ -1,0 +1,126 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+node_modules
+
+# testing
+coverage
+playwright-report
+storybook-static
+test-results
+**/tests/teste2e/.auth/*.json
+
+# next.js
+.next/
+out/
+
+# production
+build
+dist
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+
+# Cypress
+cypress/videos
+cypress/screenshots
+
+# Robots.txt
+robots.txt
+
+# yarn berry
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+**/public/dsfr/
+
+**/public/sitemap.xml
+**/public/sitemap*.xml
+
+templates_tmp/
+
+# logos
+**/public/images/custom/*
+!**/public/images/custom/.gitkeep
+
+certificates
+
+**/src/generated/*
+!**/src/generated/.gitattributes
+
+# fumadocs generated
+.source/
+
+# claude local files
+/.claude.local/
+/.claude/**/*.local.json
+/.claude/.worktree-monitor-root
+next-env.d.ts
+CLAUDE.local.md
+
+# playwright MCP logs & debug screenshots
+.playwright-mcp/
+.screenshot-playwright/
+header-*.png
+
+# stitch artifacts
+.stitch/
+
+# turbo
+.turbo
+
+# AI agent skills (keep only .claude/ and .agents/)
+skills/
+skills-lock.json
+.adal/
+.agent/
+.augment/
+.codebuddy/
+.commandcode/
+.continue/
+.cortex/
+.crush/
+.factory/
+.goose/
+.iflow/
+.junie/
+.kilocode/
+.kiro/
+.kode/
+.mcpjam/
+.mux/
+.neovate/
+.openhands/
+.pi/
+.pochi/
+.qoder/
+.qwen/
+.roo/
+.trae/
+.vibe/
+.windsurf/
+.zencoder/

@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html class="" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin - Journal d'Audit</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "sidebar-bg": "#E5EAF4",
+                        "error": "#E7000B",
+                        primary: "#163C90",
+                        "primary-hover": "#102a66",
+                        "primary-focus": "#1e4bb3",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#121620",
+                        "surface": "#ffffff",
+                        "border": "#e2e8f0",
+                        error: "#E7000B",
+                        "disabled-bg": "#E5EAF4",
+                    },
+                    fontFamily: {
+                        sans: ['"Public Sans"', "sans-serif"],
+                        display: ['"Geist"', "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "10px",
+                        lg: "10px",
+                        xl: "12px",
+                        full: "9999px",
+                    },
+                    animation: {
+                        pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                font-family: "Geist", "Public Sans", sans-serif;
+                background-color: #f6f6f8;
+                color: #111317;
+            }
+        }
+        .focus-visible-ring:focus-visible {
+            outline: 2px solid #163C90;
+            outline-offset: 2px;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }.custom-scrollbar::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+
+<style id="stitch-dark-overrides">
+/* === Dark Mode Global Overrides === */
+/* Unlayered styles beat @layer base/utilities from Tailwind CDN */
+
+/* Page backgrounds */
+html.dark body {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+html.dark .bg-white,
+html.dark .bg-surface {
+  background-color: #1e293b;
+}
+html.dark .bg-background-light,
+html.dark .bg-\[\#f6f6f8\],
+html.dark .bg-background {
+  background-color: #0f172a;
+}
+html.dark .bg-slate-50,
+html.dark .bg-slate-100 {
+  background-color: #1e293b;
+}
+html.dark .bg-slate-50\/50,
+html.dark .bg-slate-100\/50,
+html.dark .bg-slate-50\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-sidebar-bg {
+  background-color: #1a2035;
+}
+html.dark .bg-white\/50,
+html.dark .bg-white\/60,
+html.dark .bg-white\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+html.dark .bg-background\/95,
+html.dark .bg-background\/60 {
+  background-color: rgba(15, 23, 42, 0.95);
+}
+
+/* Text colors */
+html.dark .text-slate-900 { color: #f1f5f9; }
+html.dark .text-slate-800 { color: #e2e8f0; }
+html.dark .text-slate-700 { color: #cbd5e1; }
+html.dark .text-slate-600 { color: #94a3b8; }
+html.dark .text-slate-500 { color: #64748b; }
+html.dark .text-slate-400 { color: #64748b; }
+html.dark .text-foreground { color: #e2e8f0; }
+html.dark .text-muted-foreground { color: #8b9ec8; }
+html.dark h1, html.dark h2, html.dark h3, html.dark h4 {
+  color: #f1f5f9;
+}
+
+/* Border colors */
+html.dark .border-slate-200,
+html.dark .border-slate-300,
+html.dark .border-border,
+html.dark .border-slate-200\/40,
+html.dark .border-slate-200\/60,
+html.dark .border-slate-300\/40 {
+  border-color: #334155;
+}
+html.dark .border-slate-100 {
+  border-color: #1e293b;
+}
+html.dark .border-primary\/40,
+html.dark .border-primary\/20 {
+  border-color: rgba(93, 131, 212, 0.3);
+}
+html.dark .border-border\/40 {
+  border-color: rgba(51, 65, 85, 0.4);
+}
+
+/* Dividers */
+html.dark .divide-slate-100 > * + *,
+html.dark .divide-slate-200 > * + * {
+  border-color: #334155;
+}
+html.dark .border-t { border-top-color: #334155; }
+html.dark .border-b { border-bottom-color: #334155; }
+html.dark .border-r { border-right-color: #334155; }
+html.dark .border-l { border-left-color: #334155; }
+
+/* Form elements */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b;
+}
+
+/* Cards and surfaces */
+html.dark .shadcn-card {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+html.dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+
+/* Badges, pills */
+html.dark .bg-green-100 { background-color: rgba(34, 197, 94, 0.15); }
+html.dark .bg-blue-100, html.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.15); }
+html.dark .bg-orange-100, html.dark .bg-orange-50 { background-color: rgba(249, 115, 22, 0.15); }
+html.dark .bg-purple-100 { background-color: rgba(168, 85, 247, 0.15); }
+html.dark .bg-red-100, html.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.15); }
+html.dark .bg-amber-100 { background-color: rgba(245, 158, 11, 0.15); }
+html.dark .bg-emerald-100 { background-color: rgba(16, 185, 129, 0.15); }
+
+/* Hover states */
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-100:hover {
+  background-color: rgba(51, 65, 85, 0.5);
+}
+html.dark .hover\:bg-slate-200\/50:hover {
+  background-color: rgba(51, 65, 85, 0.3);
+}
+
+/* Ring */
+html.dark .ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+html.dark .ring-1.ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+
+/* Glass / backdrop */
+html.dark .glass-header {
+  background-color: rgba(15, 23, 42, 0.85);
+}
+html.dark .backdrop-blur-md {
+  background-color: rgba(15, 23, 42, 0.8);
+}
+
+/* Scrollbar line in h-px */
+html.dark .h-px { background-color: #334155; }
+html.dark .bg-slate-200 { background-color: #334155; }
+
+/* Primary adjustments for dark */
+html.dark .bg-primary\/10 { background-color: rgba(93, 131, 212, 0.15); }
+html.dark .bg-primary\/5 { background-color: rgba(93, 131, 212, 0.08); }
+html.dark .text-primary { color: #7ba3e8; }
+html.dark .bg-primary { background-color: #4a73c4; }
+html.dark .hover\:bg-primary\/5:hover { background-color: rgba(93, 131, 212, 0.1); }
+html.dark .hover\:bg-primary\/10:hover { background-color: rgba(93, 131, 212, 0.15); }
+
+/* Table */
+html.dark table { color: #e2e8f0; }
+html.dark thead { background-color: #1e293b; }
+html.dark th { color: #94a3b8; border-color: #334155; }
+html.dark td { border-color: #334155; }
+html.dark tr:hover { background-color: rgba(51, 65, 85, 0.3); }
+
+/* Specific admin patterns */
+html.dark .bg-white.rounded-custom,
+html.dark .bg-white.rounded-\[10px\],
+html.dark .bg-white.rounded-lg,
+html.dark .bg-white.rounded-xl {
+  background-color: #1e293b;
+}
+
+/* Footer adjustments */
+html.dark footer {
+  background-color: #0f172a;
+  border-color: #334155;
+}
+</style>
+
+</head>
+<body class="flex min-h-screen bg-background-light text-slate-900">
+<aside class="fixed left-0 top-0 z-40 h-screen w-[250px] border-r border-slate-300/40 bg-sidebar-bg flex flex-col justify-between p-4 transition-colors">
+  <div class="flex flex-col gap-8">
+    <div class="flex items-center gap-3 px-2 pt-2">
+      <div class="h-9 w-9 rounded-lg bg-primary flex items-center justify-center text-white shadow-sm">
+        <span class="material-symbols-outlined text-[20px]">map</span>
+      </div>
+      <div class="flex flex-col">
+        <h1 class="text-sm font-bold text-slate-900 leading-tight">Roadmaps Faciles</h1>
+        <p class="text-slate-500 text-[10px] font-medium">Administration</p>
+      </div>
+    </div>
+    <nav class="flex flex-col gap-1">
+      <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Configuration</p>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">settings</span>
+        <span class="text-sm font-medium">Général</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">dashboard</span>
+        <span class="text-sm font-medium">Boards</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">radio_button_checked</span>
+        <span class="text-sm font-medium">Statuts</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">map</span>
+        <span class="text-sm font-medium">Roadmap</span>
+      </a>
+      <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-4 mb-2">Sécurité & Accès</p>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">group</span>
+        <span class="text-sm font-medium">Utilisateurs</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">shield</span>
+        <span class="text-sm font-medium">Authentification</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">key</span>
+        <span class="text-sm font-medium">Clés API</span>
+      </a>
+      <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-4 mb-2">Développeurs</p>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">webhook</span>
+        <span class="text-sm font-medium">Webhooks</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">power</span>
+        <span class="text-sm font-medium">Intégrations</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg bg-white/60 px-3 py-2 text-primary shadow-sm ring-1 ring-black/5 transition-colors focus-visible-ring" href="#">
+        <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+        <span class="text-sm font-bold">Journal d'audit</span>
+      </a>
+      <div class="my-2 h-px bg-slate-200"></div>
+      <a class="flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group mt-2" href="#">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary group-hover:text-error">gpp_maybe</span>
+          <span class="text-sm font-medium">Modération</span>
+        </div>
+        <span class="flex h-5 w-5 items-center justify-center rounded-full bg-error text-[10px] font-bold text-white shadow-sm">3</span>
+      </a>
+    </nav>
+  </div>
+  <div class="px-2 pb-2">
+    <div class="rounded-lg bg-white/50 p-3 border border-slate-200/60">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
+        <span class="text-[10px] font-bold text-slate-700 uppercase tracking-wide">Système Opérationnel</span>
+      </div>
+      <p class="text-[10px] text-slate-500">v4.2.0</p>
+    </div>
+  </div>
+</aside>
+<main class="ml-[250px] flex-1 p-8 lg:px-12 lg:py-10 font-display">
+<header class="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+<div>
+<div class="flex items-center gap-2 text-sm text-slate-500 mb-2">
+<span>Administration</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-primary font-medium">Sécurité</span>
+</div>
+<h1 class="text-3xl font-bold tracking-tight text-slate-900">Journal d'Audit</h1>
+<p class="text-slate-600 mt-1 max-w-2xl">
+                    Consultez l'historique complet des actions effectuées sur la plateforme pour garantir la sécurité et la traçabilité.
+                </p>
+</div>
+<div class="flex items-center gap-3">
+<button class="inline-flex items-center justify-center gap-2 rounded bg-white border border-border px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-primary transition-colors focus-visible-ring">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                    Exporter CSV
+                </button>
+</div>
+</header>
+<!-- Dashboard cards (from journal-audit-2) -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+<div class="bg-white rounded-lg p-5 border border-slate-200 flex flex-col shadow-sm">
+<span class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2">Total Événements (24h)</span>
+<div class="flex items-end justify-between">
+<span class="text-3xl font-bold text-slate-900">2,845</span>
+<span class="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">trending_up</span> +12%
+</span>
+</div>
+</div>
+<div class="bg-white rounded-lg p-5 border border-slate-200 flex flex-col shadow-sm">
+<span class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2">Erreurs Critiques</span>
+<div class="flex items-end justify-between">
+<span class="text-3xl font-bold text-slate-900">3</span>
+<span class="text-xs font-medium text-red-600 bg-red-50 px-2 py-0.5 rounded flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">warning</span> Action requise
+</span>
+</div>
+</div>
+<div class="bg-white rounded-lg p-5 border border-slate-200 flex flex-col shadow-sm">
+<span class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2">Utilisateurs Actifs</span>
+<div class="flex items-end justify-between">
+<span class="text-3xl font-bold text-slate-900">142</span>
+<span class="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded">Stable</span>
+</div>
+</div>
+<div class="bg-white rounded-lg p-5 border border-slate-200 flex flex-col shadow-sm">
+<span class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2">Tentatives d'accès</span>
+<div class="flex items-end justify-between">
+<span class="text-3xl font-bold text-slate-900">89</span>
+<span class="text-xs font-medium text-amber-600 bg-amber-50 px-2 py-0.5 rounded flex items-center gap-1">High</span>
+</div>
+</div>
+</div>
+<div class="bg-surface rounded-lg border border-border/40 p-4 mb-6 shadow-sm">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+<div class="md:col-span-3">
+<label class="block text-xs font-medium text-slate-700 mb-1.5" for="filter-action">Type d'action</label>
+<div class="relative">
+<select class="h-10 w-full appearance-none rounded border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-shadow pr-8 cursor-pointer" id="filter-action">
+<option value="">Toutes les actions</option>
+<option value="creation">Création</option>
+<option value="modification">Modification</option>
+<option value="suppression">Suppression</option>
+<option value="connexion">Connexion</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+<span class="material-symbols-outlined text-[20px]">expand_more</span>
+</div>
+</div>
+</div>
+<div class="md:col-span-3">
+<label class="block text-xs font-medium text-slate-700 mb-1.5" for="filter-date-from">Du</label>
+<div class="relative">
+<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+</div>
+<input class="h-10 w-full rounded border-slate-300 bg-white pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-shadow text-slate-600" id="filter-date-from" type="date"/>
+</div>
+</div>
+<div class="md:col-span-3">
+<label class="block text-xs font-medium text-slate-700 mb-1.5" for="filter-date-to">Au</label>
+<div class="relative">
+<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+</div>
+<input class="h-10 w-full rounded border-slate-300 bg-white pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-shadow text-slate-600" id="filter-date-to" type="date"/>
+</div>
+</div>
+<div class="md:col-span-3 flex gap-2">
+<button class="h-10 flex-1 inline-flex items-center justify-center gap-2 rounded bg-primary text-white font-medium text-sm hover:bg-primary-hover transition-colors focus-visible-ring">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                        Filtrer
+                    </button>
+<button class="h-10 w-10 inline-flex items-center justify-center rounded bg-white border border-slate-300 text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-colors" title="Réinitialiser">
+<span class="material-symbols-outlined text-[20px]">refresh</span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-surface rounded-lg border border-border/40 overflow-hidden shadow-sm flex flex-col">
+<div class="overflow-x-auto custom-scrollbar">
+<table class="w-full text-sm text-left border-collapse">
+<thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-border sticky top-0 z-10">
+<tr>
+<th class="px-6 py-4 font-semibold w-16" scope="col">
+<span class="sr-only">Détails</span>
+</th>
+<th class="px-6 py-4 font-semibold min-w-[180px]" scope="col">
+<div class="flex items-center gap-1 cursor-pointer hover:text-primary transition-colors">
+                                    Date/Heure
+                                    <span class="material-symbols-outlined text-[16px]">arrow_downward</span>
+</div>
+</th>
+<th class="px-6 py-4 font-semibold min-w-[200px]" scope="col">Utilisateur</th>
+<th class="px-6 py-4 font-semibold" scope="col">Action</th>
+<th class="px-6 py-4 font-semibold min-w-[200px]" scope="col">Ressource</th>
+<th class="px-6 py-4 font-semibold text-center" scope="col">Résultat</th>
+<th class="px-6 py-4 font-semibold text-right" scope="col">IP</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border/60">
+<tr class="bg-surface hover:bg-slate-50 transition-colors group">
+<td class="px-6 py-4 text-center">
+<button class="text-slate-400 hover:text-primary transition-colors p-1 rounded hover:bg-slate-100">
+<span class="material-symbols-outlined text-[20px]">expand_more</span>
+</button>
+</td>
+<td class="px-6 py-4 text-slate-600 whitespace-nowrap">
+                                24 Oct 2023 <span class="text-slate-400 ml-1">14:32:10</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded-full bg-slate-200 border border-white shadow-sm overflow-hidden flex-shrink-0">
+<img alt="User" class="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoy1P_W9CEshUKBr0t1bqyaOJkenoyJaiHVFE8Fpk4BqOEdCIMBpZ22_AU5rJPrxvafKmAokhxgSz4lox2EfWxfxWxN7EUFfE_ymCpQ_mxLjomcKR-wZFlH5SqAy5L_aQjh-YpdVy16_qxeI8kaRqZ5wUv1oz6dFPdh4tAMFdqDfvpDqcgVfWNY0hGte3Q_-ex1vzcWnD0ffTMMD4YlqRSFew8JaRm0yIHP0WAuqlC54REUFysr6q06IW-mDabg-0fPolVAjdL17UM"/>
+</div>
+<div>
+<div class="font-medium text-slate-900">Sophie Martin</div>
+<div class="text-xs text-slate-500">sophie.m@example.com</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 border border-emerald-100">
+<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                    Création
+                                </span>
+</td>
+<td class="px-6 py-4 text-slate-700 font-medium">
+                                Roadmap Q4 2023
+                            </td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center justify-center h-6 px-2 rounded-full bg-green-100 text-green-700 text-xs font-bold border border-green-200">
+                                    Succès
+                                </span>
+</td>
+<td class="px-6 py-4 text-right text-slate-500 font-mono text-xs">
+                                192.168.1.42
+                            </td>
+</tr>
+<tr class="bg-slate-50/50 hover:bg-slate-50 transition-colors group">
+<td class="px-6 py-4 text-center">
+<button class="text-slate-400 hover:text-primary transition-colors p-1 rounded hover:bg-slate-100">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</td>
+<td class="px-6 py-4 text-slate-600 whitespace-nowrap">
+                                24 Oct 2023 <span class="text-slate-400 ml-1">11:15:05</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded-full bg-primary/10 text-primary border border-white shadow-sm flex items-center justify-center font-bold text-xs flex-shrink-0">
+                                        JD
+                                    </div>
+<div>
+<div class="font-medium text-slate-900">Jean Dupont</div>
+<div class="text-xs text-slate-500">jean.d@example.com</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 border border-amber-100">
+<span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                                    Modification
+                                </span>
+</td>
+<td class="px-6 py-4 text-slate-700 font-medium">
+                                Paramètres Généraux
+                            </td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center justify-center h-6 px-2 rounded-full bg-green-100 text-green-700 text-xs font-bold border border-green-200">
+                                    Succès
+                                </span>
+</td>
+<td class="px-6 py-4 text-right text-slate-500 font-mono text-xs">
+                                10.0.0.58
+                            </td>
+</tr>
+<tr class="bg-surface hover:bg-slate-50 transition-colors group">
+<td class="px-6 py-4 text-center">
+<button class="text-slate-400 hover:text-primary transition-colors p-1 rounded hover:bg-slate-100">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</td>
+<td class="px-6 py-4 text-slate-600 whitespace-nowrap">
+                                23 Oct 2023 <span class="text-slate-400 ml-1">09:45:22</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded-full bg-slate-200 border border-white shadow-sm overflow-hidden flex-shrink-0">
+<img alt="User" class="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoy1P_W9CEshUKBr0t1bqyaOJkenoyJaiHVFE8Fpk4BqOEdCIMBpZ22_AU5rJPrxvafKmAokhxgSz4lox2EfWxfxWxN7EUFfE_ymCpQ_mxLjomcKR-wZFlH5SqAy5L_aQjh-YpdVy16_qxeI8kaRqZ5wUv1oz6dFPdh4tAMFdqDfvpDqcgVfWNY0hGte3Q_-ex1vzcWnD0ffTMMD4YlqRSFew8JaRm0yIHP0WAuqlC54REUFysr6q06IW-mDabg-0fPolVAjdL17UM"/>
+</div>
+<div>
+<div class="font-medium text-slate-900">Marie Currie</div>
+<div class="text-xs text-slate-500">marie.c@example.com</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 border border-red-100">
+<span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>
+                                    Suppression
+                                </span>
+</td>
+<td class="px-6 py-4 text-slate-700 font-medium">
+                                Projet "Alpha"
+                            </td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center justify-center h-6 px-2 rounded-full bg-red-100 text-red-700 text-xs font-bold border border-red-200">
+                                    Échec
+                                </span>
+</td>
+<td class="px-6 py-4 text-right text-slate-500 font-mono text-xs">
+                                84.15.12.99
+                            </td>
+</tr>
+<tr class="bg-slate-50 border-b border-border/40">
+<td class="px-6 py-4" colspan="7">
+<div class="bg-white border border-slate-200 rounded-lg p-4 font-mono text-xs text-slate-600">
+<div class="flex justify-between items-start mb-2">
+<span class="font-bold text-slate-800">Détails de l'erreur JSON</span>
+<button class="text-primary hover:text-primary-hover flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">content_copy</span> Copier
+                                        </button>
+</div>
+<pre class="overflow-x-auto p-2 bg-slate-50 rounded border border-slate-100">{
+  "error_code": "PERMISSION_DENIED",
+  "message": "User does not have sufficient privileges to delete this resource.",
+  "resource_id": "proj_alpha_001",
+  "timestamp": "2023-10-23T09:45:22Z"
+}</pre>
+</div>
+</td>
+</tr>
+<tr class="bg-slate-50/50 hover:bg-slate-50 transition-colors group">
+<td class="px-6 py-4 text-center">
+<button class="text-slate-400 hover:text-primary transition-colors p-1 rounded hover:bg-slate-100">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</td>
+<td class="px-6 py-4 text-slate-600 whitespace-nowrap">
+                                23 Oct 2023 <span class="text-slate-400 ml-1">08:12:00</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded-full bg-slate-200 border border-white shadow-sm overflow-hidden flex-shrink-0">
+<img alt="User" class="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoy1P_W9CEshUKBr0t1bqyaOJkenoyJaiHVFE8Fpk4BqOEdCIMBpZ22_AU5rJPrxvafKmAokhxgSz4lox2EfWxfxWxN7EUFfE_ymCpQ_mxLjomcKR-wZFlH5SqAy5L_aQjh-YpdVy16_qxeI8kaRqZ5wUv1oz6dFPdh4tAMFdqDfvpDqcgVfWNY0hGte3Q_-ex1vzcWnD0ffTMMD4YlqRSFew8JaRm0yIHP0WAuqlC54REUFysr6q06IW-mDabg-0fPolVAjdL17UM"/>
+</div>
+<div>
+<div class="font-medium text-slate-900">Lucas Bernard</div>
+<div class="text-xs text-slate-500">lucas.b@example.com</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 border border-blue-100">
+<span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                                    Connexion
+                                </span>
+</td>
+<td class="px-6 py-4 text-slate-700 font-medium">
+                                Portail Admin
+                            </td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center justify-center h-6 px-2 rounded-full bg-green-100 text-green-700 text-xs font-bold border border-green-200">
+                                    Succès
+                                </span>
+</td>
+<td class="px-6 py-4 text-right text-slate-500 font-mono text-xs">
+                                172.16.0.23
+                            </td>
+</tr>
+<tr class="bg-surface hover:bg-slate-50 transition-colors group">
+<td class="px-6 py-4 text-center">
+<button class="text-slate-400 hover:text-primary transition-colors p-1 rounded hover:bg-slate-100">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</td>
+<td class="px-6 py-4 text-slate-600 whitespace-nowrap">
+                                22 Oct 2023 <span class="text-slate-400 ml-1">16:20:45</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded-full bg-primary/10 text-primary border border-white shadow-sm flex items-center justify-center font-bold text-xs flex-shrink-0">
+                                        AS
+                                    </div>
+<div>
+<div class="font-medium text-slate-900">Alice Smith</div>
+<div class="text-xs text-slate-500">alice.s@example.com</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-purple-50 px-2.5 py-1 text-xs font-medium text-purple-700 border border-purple-100">
+<span class="h-1.5 w-1.5 rounded-full bg-purple-500"></span>
+                                    Export
+                                </span>
+</td>
+<td class="px-6 py-4 text-slate-700 font-medium">
+                                Données Utilisateurs
+                            </td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center justify-center h-6 px-2 rounded-full bg-green-100 text-green-700 text-xs font-bold border border-green-200">
+                                    Succès
+                                </span>
+</td>
+<td class="px-6 py-4 text-right text-slate-500 font-mono text-xs">
+                                192.168.1.15
+                            </td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="border-t border-border bg-slate-50 px-6 py-4 flex items-center justify-between">
+<div class="text-xs text-slate-500">
+                    Affichage de <span class="font-medium text-slate-900">1</span> à <span class="font-medium text-slate-900">5</span> sur <span class="font-medium text-slate-900">1,248</span> résultats
+                </div>
+<nav aria-label="Pagination" class="isolate inline-flex -space-x-px rounded-md shadow-sm">
+<a class="relative inline-flex items-center rounded-l-md px-2 py-2 text-slate-400 ring-1 ring-inset ring-slate-300 hover:bg-white hover:text-slate-600 focus:z-20 focus:outline-offset-0 transition-colors" href="#">
+<span class="sr-only">Précédent</span>
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</a>
+<a class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-primary focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary" href="#">1</a>
+<a class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-slate-900 ring-1 ring-inset ring-slate-300 hover:bg-white focus:z-20 focus:outline-offset-0 transition-colors" href="#">2</a>
+<a class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-slate-900 ring-1 ring-inset ring-slate-300 hover:bg-white focus:z-20 focus:outline-offset-0 transition-colors" href="#">3</a>
+<span class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-slate-700 ring-1 ring-inset ring-slate-300 focus:outline-offset-0 bg-slate-50">...</span>
+<a class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-slate-900 ring-1 ring-inset ring-slate-300 hover:bg-white focus:z-20 focus:outline-offset-0 transition-colors" href="#">24</a>
+<a class="relative inline-flex items-center rounded-r-md px-2 py-2 text-slate-400 ring-1 ring-inset ring-slate-300 hover:bg-white hover:text-slate-600 focus:z-20 focus:outline-offset-0 transition-colors" href="#">
+<span class="sr-only">Suivant</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</a>
+</nav>
+</div>
+</div>
+</main>
+
+
+<script id="stitch-dark-toggle">
+(function() {
+  var html = document.documentElement;
+  var stored = localStorage.getItem('stitch-theme');
+  if (stored === 'dark') html.classList.add('dark');
+  else if (stored === 'light') html.classList.remove('dark');
+
+  var btn = document.createElement('button');
+  btn.id = 'theme-toggle';
+  btn.setAttribute('aria-label', 'Toggle dark mode');
+  Object.assign(btn.style, {
+    position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: '9999',
+    width: '3rem', height: '3rem', borderRadius: '50%',
+    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'all 0.2s ease', fontSize: '1.25rem', border: 'none',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.15)'
+  });
+
+  function update() {
+    var isDark = html.classList.contains('dark');
+    var icon = document.createElement('span');
+    icon.className = 'material-symbols-outlined';
+    icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+    icon.style.fontSize = '1.4rem';
+    btn.textContent = '';
+    btn.appendChild(icon);
+    btn.style.backgroundColor = isDark ? '#1e293b' : '#ffffff';
+    btn.style.color = isDark ? '#fbbf24' : '#64748b';
+    btn.style.boxShadow = isDark
+      ? '0 2px 12px rgba(0,0,0,0.4), 0 0 0 1px rgba(100,116,139,0.2)'
+      : '0 2px 12px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05)';
+  }
+
+  btn.addEventListener('click', function() {
+    html.classList.toggle('dark');
+    localStorage.setItem('stitch-theme', html.classList.contains('dark') ? 'dark' : 'light');
+    update();
+  });
+
+  document.body.appendChild(btn);
+  update();
+})();
+</script>
+
+</body></html>

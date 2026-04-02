@@ -1,0 +1,3 @@
+-- AlterEnum
+ALTER TYPE "AuditAction" ADD VALUE 'COMMENT_EDIT';
+ALTER TYPE "AuditAction" ADD VALUE 'COMMENT_DELETE';

@@ -1,0 +1,75 @@
+import { Badge } from "@roadmaps-faciles/ui";
+import { Map } from "lucide-react";
+import { getTranslations } from "next-intl/server";
+
+import { config } from "@/config";
+import { RootFooter } from "@/ui/RootFooter";
+
+export interface DefaultFooterProps {
+  id: string;
+}
+
+export const DefaultFooter = async ({ id }: DefaultFooterProps) => {
+  const t = await getTranslations("footer");
+
+  const columns = [
+    {
+      title: t("columns.product.title"),
+      links: [
+        { text: t("columns.product.features"), href: "/pricing" },
+        { text: t("columns.product.publicRoadmap"), href: "#" },
+        { text: t("columns.product.hosting"), href: "#" },
+      ],
+    },
+    {
+      title: t("columns.resources.title"),
+      links: [
+        { text: t("columns.resources.documentation"), href: "/doc" },
+        { text: t("columns.resources.api"), href: "#" },
+        { text: t("columns.resources.github"), href: config.repositoryUrl },
+      ],
+    },
+    {
+      title: t("columns.legal.title"),
+      links: [
+        { text: t("columns.legal.legalNotice"), href: "/mentions-legales" },
+        { text: t("columns.legal.privacy"), href: "/politique-de-confidentialite" },
+        { text: t("columns.legal.accessibility"), href: "/accessibilite" },
+        { text: t("columns.legal.cgu"), href: "/cgu" },
+      ],
+    },
+  ];
+
+  return (
+    <RootFooter
+      id={id}
+      brandName={config.brand.name}
+      brandIcon={<Map className="size-5" />}
+      contentDescription={t("contentDescription")}
+      columns={columns}
+      badges={
+        <Badge variant="outline" className="font-mono text-[10px] text-muted-foreground">
+          Apache 2.0
+        </Badge>
+      }
+      copyright={t("copyright", { year: new Date().getFullYear(), brandName: config.brand.name })}
+      license={
+        <>
+          {t.rich("license", {
+            a: chunks => (
+              <a
+                href={`${config.repositoryUrl}/blob/main/LICENSE`}
+                target="_blank"
+                rel="noreferrer"
+                className="underline hover:text-foreground"
+              >
+                {chunks}
+              </a>
+            ),
+          })}
+        </>
+      }
+      version={`v${config.appVersion}.${config.appVersionCommit.slice(0, 7)}`}
+    />
+  );
+};

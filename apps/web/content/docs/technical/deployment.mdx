@@ -1,0 +1,86 @@
+---
+title: Déploiement
+description: Guide de déploiement de Roadmaps Faciles sur différentes plateformes.
+---
+
+<Callout type="info" title="Section technique">
+Cette page s'adresse aux équipes techniques en charge du déploiement et de l'hébergement de l'instance.
+</Callout>
+
+## Prérequis
+
+- **Node.js 24** ou supérieur
+- **PostgreSQL 15** — Base de données principale
+- **Redis** — Cache et sessions
+- **SMTP** — Envoi d'emails (magic links, invitations)
+
+## Plateformes supportées
+
+### Scalingo
+
+Roadmaps Faciles supporte nativement le déploiement sur [Scalingo](https://scalingo.com). Le fournisseur de domaine Scalingo gère automatiquement les certificats TLS et l'ajout de domaines personnalisés via l'API Scalingo.
+
+Variables d'environnement spécifiques :
+- `DOMAIN_PROVIDER=scalingo` ou `DOMAIN_PROVIDER=scalingo-wildcard`
+- `DOMAIN_SCALINGO_API_TOKEN`, `DOMAIN_SCALINGO_API_URL`, `DOMAIN_SCALINGO_APP_ID`
+
+### Clever Cloud
+
+Le déploiement sur [Clever Cloud](https://www.clever-cloud.com) est supporté avec la gestion automatique des domaines personnalisés.
+
+Variables d'environnement spécifiques :
+- `DOMAIN_PROVIDER=clevercloud`
+- `DOMAIN_CLEVERCLOUD_*` (consumer key, secret, token, app ID)
+
+### Docker / VPS
+
+Pour un déploiement sur serveur dédié ou VPS, utilisez [Caddy](https://caddyserver.com) comme reverse proxy pour la gestion TLS on-demand :
+
+- `DOMAIN_PROVIDER=caddy`
+- `DOMAIN_CADDY_ADMIN_URL` — URL de l'API admin Caddy
+
+Caddy interroge l'endpoint `/api/domains/check?domain=...` avant d'émettre un certificat, pour vérifier que le domaine est autorisé.
+
+## Déploiement automatisé (CI/CD)
+
+Le déploiement est piloté par GitHub Actions via le workflow `deploy.yml` qui push le code vers Scalingo :
+
+| Événement | Environnement | App Scalingo |
+|-----------|---------------|--------------|
+| Push sur `dev` (après CI) | Staging | `roadmaps-faciles-staging` |
+| Release (tag release-please) | Production | `roadmaps-faciles` |
+| Déclenchement manuel | Staging ou Production | Au choix |
+
+Les **review apps** sont gérées nativement par l'intégration GitHub de Scalingo : une app éphémère est créée automatiquement pour chaque pull request.
+
+Le workflow attend que les jobs CI (build, lint, tests) passent avant de déployer. Un déclenchement manuel (`workflow_dispatch`) est disponible pour les deux environnements.
+
+Les secrets Scalingo (`SCALINGO_API_TOKEN`) sont stockés dans les GitHub Environments (`staging`, `production`).
+
+## Variables d'environnement principales
+
+| Variable | Description | Obligatoire |
+|----------|-------------|:-----------:|
+| `DATABASE_URL` | URL de connexion PostgreSQL | Oui |
+| `REDIS_URL` | URL de connexion Redis | Oui |
+| `SECURITY_JWT_SECRET` | Secret pour les tokens JWT et HMAC | Oui |
+| `SECURITY_WEBHOOK_SECRET` | Secret pour la signature des webhooks | Oui |
+| `MAILER_SMTP_HOST` | Hôte du serveur SMTP | Oui |
+| `MAILER_FROM_EMAIL` | Adresse d'expédition des emails | Oui |
+| `NEXT_PUBLIC_SITE_URL` | URL publique de l'instance | Oui |
+| `ADMINS` | Identifiants des super-administrateurs (séparés par virgule) | Oui |
+| `DOMAIN_PROVIDER` | Fournisseur de domaine (`noop`, `scalingo`, `caddy`...) | Non |
+| `DNS_PROVIDER` | Fournisseur DNS (`noop`, `manual`, `ovh`, `cloudflare`) | Non |
+| `PLATFORM_DOMAIN` | Domaine de la plateforme d'hébergement (ex: `scalingo.io`) — redirige vers `NEXT_PUBLIC_SITE_URL` | Non |
+| `SENTRY_DSN` | DSN Sentry pour le suivi d'erreurs (vide = désactivé) | Non |
+
+La liste complète des variables est documentée dans le fichier `.env.development` du projet.
+
+## Observabilité
+
+| Composant | Description |
+|-----------|-------------|
+| **Logs structurés** | Pino (JSON en production, formaté en dev). Logger serveur uniquement. |
+| **Suivi d'erreurs** | Sentry (optionnel, activé par `SENTRY_DSN`). Auto-instrumente RSC, Server Actions, Prisma. |
+| **Health check** | `GET /api/healthz` — Vérifie la connectivité DB et Redis. HTTP 200 si OK, 503 sinon. |
+| **Correlation ID** | UUID généré par requête, propagé via l'en-tête `x-correlation-id` (requête et réponse). |

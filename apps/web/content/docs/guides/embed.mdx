@@ -1,0 +1,77 @@
+---
+title: Intégrer dans un site (iframe)
+description: Affichez vos tableaux et votre feuille de route dans un site externe via une iframe.
+---
+
+Le **mode embed** permet d'intégrer les tableaux et la feuille de route de votre espace directement dans un site externe via une `<iframe>`. Les visiteurs peuvent consulter les contributions et voter sans quitter votre site.
+
+## Activer le mode embed
+
+Le mode embed doit être activé par un administrateur :
+
+1. Rendez-vous dans **Administration > Général**.
+2. Activez l'option **Autoriser l'intégration (iframe)**.
+3. Enregistrez.
+
+Si le mode embed n'est pas activé, les pages embed affichent un message d'erreur.
+
+## URLs d'intégration
+
+Deux types de pages sont disponibles en mode embed :
+
+| Page | URL | Description |
+|------|-----|-------------|
+| **Tableau** | `/embed/board/{slug}` | Affiche les contributions d'un tableau spécifique. |
+| **Feuille de route** | `/embed/roadmap` | Affiche la feuille de route (vue Kanban par statut). |
+
+L'URL complète dépend du domaine de votre espace :
+
+```
+https://mon-produit.{{rootDomain}}/embed/board/suggestions
+https://mon-produit.{{rootDomain}}/embed/roadmap
+```
+
+## Snippet d'intégration
+
+Copiez et adaptez ce code HTML pour intégrer un tableau dans votre site :
+
+```html
+<iframe
+  src="https://mon-produit.{{rootDomain}}/embed/board/suggestions"
+  width="100%"
+  height="600"
+  frameborder="0"
+  style="border: none;"
+></iframe>
+```
+
+## Paramètres URL
+
+Personnalisez l'affichage via des paramètres dans l'URL :
+
+| Paramètre | Valeurs | Description |
+|-----------|---------|-------------|
+| `view` | `cards` (défaut), `list` | Mode d'affichage des contributions. |
+| `order` | `trending` (défaut), `top`, `new` | Ordre de tri des contributions. |
+| `theme` | `light`, `dark` | Force le thème clair ou sombre (par défaut, suit les préférences du navigateur). |
+| `hideVotes` | `true`, `false` (défaut) | Masque les compteurs de votes et désactive les boutons de vote. |
+| `search` | texte libre | Pré-filtre les contributions par mots-clés. |
+
+Exemple avec paramètres :
+
+```
+/embed/board/suggestions?view=list&theme=dark&hideVotes=true
+```
+
+## Espaces privés
+
+Si l'espace est configuré en **mode privé**, l'iframe affiche un message invitant les visiteurs à se connecter. Un lien vers la page de connexion de l'espace est affiché.
+
+## Layout embed
+
+Les pages embed utilisent un layout minimal :
+
+- Pas d'en-tête ni de navigation de l'espace.
+- Pas de pied de page standard.
+- Un petit bandeau en bas indique "Propulsé par Roadmaps Faciles" avec un lien vers l'instance.
+- Les liens vers les contributions s'ouvrent dans un nouvel onglet (`target="_blank"`).

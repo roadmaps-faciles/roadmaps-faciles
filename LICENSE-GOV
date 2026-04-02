@@ -1,0 +1,103 @@
+Roadmaps Faciles Gov License
+=====================
+
+Version 1.0
+
+Copyright (c) 2025-present Roadmaps Faciles. All rights reserved.
+
+1. Definitions
+
+"License" means the terms and conditions defined in this document.
+
+"Licensor" means Roadmaps Faciles.
+
+"Licensed Work" means the software components, source code, and associated
+files distributed under this License. The Licensed Work is identified by
+its location within directories named "gouv/", "(gouv)/", "dsfr/", or
+"dsfr-bootstrap/" in the Roadmaps Faciles repository, or by the presence of a
+copy of this License in the nearest parent directory.
+
+"You" (or "Your") means the individual or legal entity exercising
+permissions granted by this License.
+
+"Government Domain" means any domain ending in ".gouv.fr" or any digital
+service operated by or on behalf of a French public administration
+(administration de l'Etat, collectivite territoriale, etablissement public,
+or any entity fulfilling a public service mission under French law).
+
+"Production Use" means any use of the Licensed Work in a publicly
+accessible environment serving end users, including but not limited to
+deployment on web servers, cloud platforms, or embedded systems accessible
+over a network.
+
+2. Grant of Rights
+
+Subject to the terms of this License, the Licensor grants You a worldwide,
+royalty-free, non-exclusive license to:
+
+  a) Use, copy, and modify the Licensed Work for any purpose including
+     development, testing, evaluation, and education, without restriction.
+
+  b) Redistribute the Licensed Work and derivative works, provided that
+     such redistribution is made under the terms of this License.
+
+  c) Make Production Use of the Licensed Work, provided that such
+     Production Use is exclusively on or for a Government Domain.
+
+3. Restrictions
+
+  a) You may NOT make Production Use of the Licensed Work on or for any
+     domain or service that does not qualify as a Government Domain.
+
+  b) You may NOT remove or alter this License from any copy or derivative
+     work of the Licensed Work.
+
+  c) You may NOT use the name, trademarks, or logos of the Licensor to
+     endorse or promote products derived from the Licensed Work without
+     prior written permission.
+
+4. Government Domain Verification
+
+The Licensor may include technical measures to verify compliance with
+Section 3(a). These measures are supplementary to the legal restrictions
+of this License. Circumventing or removing such technical measures does
+not alter Your obligations under this License.
+
+5. Contributions
+
+Contributions to the Licensed Work are accepted under the terms of this
+License. By contributing, You agree that Your contributions are licensed
+under the same terms.
+
+6. Disclaimer of Warranty
+
+TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK IS PROVIDED
+"AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE, AND NON-INFRINGEMENT.
+
+7. Limitation of Liability
+
+IN NO EVENT SHALL THE LICENSOR BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING
+FROM, OUT OF, OR IN CONNECTION WITH THE LICENSED WORK OR THE USE OR OTHER
+DEALINGS IN THE LICENSED WORK.
+
+8. Termination
+
+This License and the rights granted hereunder will terminate automatically
+if You fail to comply with any of its terms. Upon termination, You must
+cease all use and distribution of the Licensed Work.
+
+9. Miscellaneous
+
+  a) If any provision of this License is held to be unenforceable, such
+     provision shall be reformed only to the extent necessary to make it
+     enforceable, and the remaining provisions shall continue in full
+     force and effect.
+
+  b) This License shall be governed by and construed in accordance with
+     the laws of France.
+
+  c) This License constitutes the entire agreement between the parties
+     with respect to the Licensed Work licensed hereunder.

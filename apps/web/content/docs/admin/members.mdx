@@ -1,0 +1,68 @@
+---
+title: Membres et invitations
+description: Gérez les membres de votre espace et invitez de nouveaux collaborateurs.
+---
+
+La gestion des membres est accessible via **Administration > Membres**.
+
+<ImageWithTheme srcLight="/doc/screenshots/admin-members-light.png" srcDark="/doc/screenshots/admin-members-dark.png" alt="Gestion des membres" />
+
+## Consulter les membres
+
+La liste des membres affiche :
+
+| Information | Description |
+|-------------|-------------|
+| **Nom** | Le nom affiché du membre. |
+| **Email** | L'adresse email du compte. |
+| **Rôle** | Le rôle attribué (Propriétaire, Admin, Modérateur, Utilisateur). |
+| **Statut** | L'état du compte (Actif ou Bloqué). |
+| **Date d'inscription** | La date à laquelle le membre a rejoint l'espace. |
+
+Vous pouvez filtrer la liste par statut ou par rôle pour retrouver rapidement un membre.
+
+## Inviter un membre
+
+Les invitations permettent d'ajouter de nouveaux membres à votre espace, quel que soit la politique d'inscription configurée.
+
+1. Rendez-vous dans **Administration > Membres > Invitations**.
+2. Entrez l'**adresse email** du futur membre.
+3. Sélectionnez le **rôle** à attribuer (Utilisateur, Modérateur ou Administrateur).
+4. Cliquez sur **Envoyer l'invitation**.
+
+Le membre reçoit un **email avec un lien sécurisé** pour rejoindre l'espace. Ce lien est à usage unique et reste valide jusqu'à son utilisation ou sa révocation.
+
+### Invitations en attente
+
+La liste des invitations envoyées mais pas encore acceptées est visible dans l'onglet **Invitations**. Vous pouvez :
+
+- **Consulter** les invitations en attente (email, rôle, date d'envoi).
+- **Révoquer** une invitation si elle n'est plus pertinente.
+
+### Comportement à l'acceptation
+
+Lorsqu'un membre accepte une invitation :
+
+- S'il a déjà un compte Roadmaps Faciles, il est automatiquement rattaché à l'espace avec le rôle défini.
+- S'il n'a pas de compte, un compte est créé lors de sa première connexion.
+- L'invitation **contourne** la politique d'inscription — même si l'espace est sur invitation uniquement ou limité à certains domaines, l'invitation prévaut.
+
+## Modifier un rôle
+
+Changez le rôle d'un membre directement depuis la liste des membres. Les rôles disponibles sont :
+
+- **Administrateur** — Accès complet à la configuration de l'espace.
+- **Modérateur** — Approbation et modération du contenu.
+- **Utilisateur** — Accès standard (création, vote, commentaire).
+
+<Callout type="info">
+  Le rôle **Propriétaire** peut être attribué uniquement par un propriétaire existant. Un espace peut avoir plusieurs propriétaires, mais le dernier propriétaire ne peut pas être rétrogradé.
+</Callout>
+
+## Bloquer un membre
+
+Le blocage empêche un membre de se connecter à l'espace. Son contenu (contributions, votes, commentaires) est **conservé**. Cette action est réversible — vous pouvez débloquer un membre à tout moment.
+
+## Retirer un membre
+
+La suppression retire le membre de l'espace. Il peut être ré-invité ultérieurement. Son contenu (contributions, commentaires) reste visible sur l'espace.

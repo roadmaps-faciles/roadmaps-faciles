@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html class="" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Roadmaps Faciles - Board Full-Width Modal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#5D83D4",
+                        "primary-hover": "#4a69aa",
+                        "primary-focus": "#7a9ae0",
+                        "background-dark": "#181B1F",
+                        "surface-dark": "#1D2433",
+                        "border-dark": "#2D3A55",
+                        "border-dark-opacity": "rgba(45, 58, 85, 0.4)",
+                        "muted-dark": "#1C2F59",
+                        "text-light": "#E0E5EF",
+                        "text-muted": "#94A3B8",
+                        error: "#ef4444",
+                        "disabled-bg": "#2A303C",
+                    },
+                    fontFamily: {
+                        sans: ['"Public Sans"', "sans-serif"],
+                        display: ['"Public Sans"', "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "10px",
+                        lg: "10px",
+                        xl: "12px",
+                        full: "9999px",
+                    },
+                    boxShadow: {
+                        'none': 'none',
+                    }
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                font-family: "Public Sans", sans-serif;
+                background-color: #181B1F;
+                color: #E0E5EF;
+            }
+        }
+        .focus-visible-ring:focus-visible {
+            outline: 2px solid #5D83D4;
+            outline-offset: 2px;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .font-variation-settings-filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        input, select, textarea {
+            background-color: #1D2433;
+            color: #E0E5EF;
+            border-color: #2D3A55;
+        }
+        ::placeholder {
+            color: #64748b;
+        }.modal-overlay {
+            background-color: rgba(24, 27, 31, 0.85);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+
+<style id="stitch-dark-overrides">
+/* === Dark Mode Global Overrides === */
+/* Unlayered styles beat @layer base/utilities from Tailwind CDN */
+
+/* Page backgrounds */
+html.dark body {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+html.dark .bg-white,
+html.dark .bg-surface {
+  background-color: #1e293b;
+}
+html.dark .bg-background-light,
+html.dark .bg-\[\#f6f6f8\],
+html.dark .bg-background {
+  background-color: #0f172a;
+}
+html.dark .bg-slate-50,
+html.dark .bg-slate-100 {
+  background-color: #1e293b;
+}
+html.dark .bg-slate-50\/50,
+html.dark .bg-slate-100\/50,
+html.dark .bg-slate-50\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-sidebar-bg {
+  background-color: #1a2035;
+}
+html.dark .bg-white\/50,
+html.dark .bg-white\/60,
+html.dark .bg-white\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+html.dark .bg-background\/95,
+html.dark .bg-background\/60 {
+  background-color: rgba(15, 23, 42, 0.95);
+}
+
+/* Text colors */
+html.dark .text-slate-900 { color: #f1f5f9; }
+html.dark .text-slate-800 { color: #e2e8f0; }
+html.dark .text-slate-700 { color: #cbd5e1; }
+html.dark .text-slate-600 { color: #94a3b8; }
+html.dark .text-slate-500 { color: #64748b; }
+html.dark .text-slate-400 { color: #64748b; }
+html.dark .text-foreground { color: #e2e8f0; }
+html.dark .text-muted-foreground { color: #8b9ec8; }
+html.dark h1, html.dark h2, html.dark h3, html.dark h4 {
+  color: #f1f5f9;
+}
+
+/* Border colors */
+html.dark .border-slate-200,
+html.dark .border-slate-300,
+html.dark .border-border,
+html.dark .border-slate-200\/40,
+html.dark .border-slate-200\/60,
+html.dark .border-slate-300\/40 {
+  border-color: #334155;
+}
+html.dark .border-slate-100 {
+  border-color: #1e293b;
+}
+html.dark .border-primary\/40,
+html.dark .border-primary\/20 {
+  border-color: rgba(93, 131, 212, 0.3);
+}
+html.dark .border-border\/40 {
+  border-color: rgba(51, 65, 85, 0.4);
+}
+
+/* Dividers */
+html.dark .divide-slate-100 > * + *,
+html.dark .divide-slate-200 > * + * {
+  border-color: #334155;
+}
+html.dark .border-t { border-top-color: #334155; }
+html.dark .border-b { border-bottom-color: #334155; }
+html.dark .border-r { border-right-color: #334155; }
+html.dark .border-l { border-left-color: #334155; }
+
+/* Form elements */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b;
+}
+
+/* Cards and surfaces */
+html.dark .shadcn-card {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+html.dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+
+/* Badges, pills */
+html.dark .bg-green-100 { background-color: rgba(34, 197, 94, 0.15); }
+html.dark .bg-blue-100, html.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.15); }
+html.dark .bg-orange-100, html.dark .bg-orange-50 { background-color: rgba(249, 115, 22, 0.15); }
+html.dark .bg-purple-100 { background-color: rgba(168, 85, 247, 0.15); }
+html.dark .bg-red-100, html.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.15); }
+html.dark .bg-amber-100 { background-color: rgba(245, 158, 11, 0.15); }
+html.dark .bg-emerald-100 { background-color: rgba(16, 185, 129, 0.15); }
+
+/* Hover states */
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-100:hover {
+  background-color: rgba(51, 65, 85, 0.5);
+}
+html.dark .hover\:bg-slate-200\/50:hover {
+  background-color: rgba(51, 65, 85, 0.3);
+}
+
+/* Ring */
+html.dark .ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+html.dark .ring-1.ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+
+/* Glass / backdrop */
+html.dark .glass-header {
+  background-color: rgba(15, 23, 42, 0.85);
+}
+html.dark .backdrop-blur-md {
+  background-color: rgba(15, 23, 42, 0.8);
+}
+
+/* Scrollbar line in h-px */
+html.dark .h-px { background-color: #334155; }
+html.dark .bg-slate-200 { background-color: #334155; }
+
+/* Primary adjustments for dark */
+html.dark .bg-primary\/10 { background-color: rgba(93, 131, 212, 0.15); }
+html.dark .bg-primary\/5 { background-color: rgba(93, 131, 212, 0.08); }
+html.dark .text-primary { color: #7ba3e8; }
+html.dark .bg-primary { background-color: #4a73c4; }
+html.dark .hover\:bg-primary\/5:hover { background-color: rgba(93, 131, 212, 0.1); }
+html.dark .hover\:bg-primary\/10:hover { background-color: rgba(93, 131, 212, 0.15); }
+
+/* Table */
+html.dark table { color: #e2e8f0; }
+html.dark thead { background-color: #1e293b; }
+html.dark th { color: #94a3b8; border-color: #334155; }
+html.dark td { border-color: #334155; }
+html.dark tr:hover { background-color: rgba(51, 65, 85, 0.3); }
+
+/* Specific admin patterns */
+html.dark .bg-white.rounded-custom,
+html.dark .bg-white.rounded-\[10px\],
+html.dark .bg-white.rounded-lg,
+html.dark .bg-white.rounded-xl {
+  background-color: #1e293b;
+}
+
+/* Footer adjustments */
+html.dark footer {
+  background-color: #0f172a;
+  border-color: #334155;
+}
+</style>
+
+</head>
+<body class="flex flex-col min-h-screen bg-background-dark text-text-light overflow-hidden">
+<header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border-dark bg-surface-dark px-6 lg:px-12">
+<div class="flex items-center gap-4">
+<div class="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[20px]">map</span>
+</div>
+<h1 class="text-lg font-bold text-text-light">Roadmaps Faciles</h1>
+<div class="hidden md:flex items-center gap-1 ml-4">
+<a class="px-3 py-1.5 text-sm font-medium text-text-light bg-white/5 rounded transition-colors" href="#">Board</a>
+<a class="px-3 py-1.5 text-sm font-medium text-text-muted hover:text-text-light hover:bg-white/5 rounded transition-colors" href="#">Changelog</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 text-text-muted">
+<span class="material-symbols-outlined text-[18px]">search</span>
+</span>
+<input class="h-9 w-64 rounded bg-background-dark border-border-dark pl-9 pr-4 text-sm text-text-light placeholder-text-muted focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="Rechercher..." type="text"/>
+</div>
+<button class="h-9 px-4 bg-primary hover:bg-primary-hover text-white rounded font-medium text-sm transition-colors focus-visible-ring flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+<span class="hidden sm:inline">Nouvelle Idée</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-indigo-900 border border-indigo-700 flex items-center justify-center text-xs font-bold text-indigo-200">
+                JD
+            </div>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto p-6 lg:px-12 lg:py-8 relative">
+<div class="max-w-7xl mx-auto">
+<div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h2 class="text-3xl font-black tracking-tight text-text-light mb-2">Roadmap Produit Q4</h2>
+<p class="text-text-muted max-w-2xl">
+                        Aidez-nous à façonner l'avenir de Roadmaps Faciles. Votez pour vos fonctionnalités préférées.
+                    </p>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-sm text-text-muted font-medium">Trier par:</span>
+<select class="h-9 rounded border-border-dark bg-surface-dark px-3 text-sm text-text-light focus:border-primary focus:ring-1 focus:ring-primary">
+<option>Plus populaires</option>
+<option>Plus récents</option>
+<option>Tendance</option>
+</select>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<article class="group flex flex-col justify-between rounded-lg border border-border-dark bg-surface-dark p-6 transition-all hover:border-primary/50">
+<div class="mb-4">
+<div class="flex items-start justify-between mb-3">
+<span class="inline-flex items-center rounded-full bg-emerald-900/40 px-2.5 py-0.5 text-xs font-medium text-emerald-300 border border-emerald-800/30">
+                                En cours
+                            </span>
+<button class="text-text-muted hover:text-text-light">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</div>
+<h3 class="text-lg font-bold text-text-light mb-2 group-hover:text-primary transition-colors">Intégration Slack</h3>
+<p class="text-sm text-text-muted line-clamp-3">
+                            Recevoir des notifications directement dans un canal Slack lorsqu'un commentaire est ajouté ou qu'un statut change.
+                        </p>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-border-dark/50">
+<button class="flex items-center gap-1.5 text-primary bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded transition-colors">
+<span class="material-symbols-outlined text-[18px] font-variation-settings-filled">thumb_up</span>
+<span class="text-sm font-bold">142</span>
+</button>
+<div class="flex items-center gap-2 text-text-muted text-xs">
+<span class="material-symbols-outlined text-[16px]">chat_bubble</span>
+<span>24</span>
+</div>
+</div>
+</article>
+<article class="group flex flex-col justify-between rounded-lg border border-border-dark bg-surface-dark p-6 transition-all hover:border-primary/50">
+<div class="mb-4">
+<div class="flex items-start justify-between mb-3">
+<span class="inline-flex items-center rounded-full bg-amber-900/40 px-2.5 py-0.5 text-xs font-medium text-amber-300 border border-amber-800/30">
+                                Planifié
+                            </span>
+</div>
+<h3 class="text-lg font-bold text-text-light mb-2 group-hover:text-primary transition-colors">Mode Sombre Automatique</h3>
+<p class="text-sm text-text-muted line-clamp-3">
+                            Détection automatique des préférences système pour basculer entre le mode clair et le mode sombre sans intervention manuelle.
+                        </p>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-border-dark/50">
+<button class="flex items-center gap-1.5 text-text-muted hover:text-text-light hover:bg-white/5 px-3 py-1.5 rounded transition-colors">
+<span class="material-symbols-outlined text-[18px]">thumb_up</span>
+<span class="text-sm font-medium">89</span>
+</button>
+<div class="flex items-center gap-2 text-text-muted text-xs">
+<span class="material-symbols-outlined text-[16px]">chat_bubble</span>
+<span>12</span>
+</div>
+</div>
+</article>
+<article class="group flex flex-col justify-between rounded-lg border border-border-dark bg-surface-dark p-6 transition-all hover:border-primary/50">
+<div class="mb-4">
+<div class="flex items-start justify-between mb-3">
+<span class="inline-flex items-center rounded-full bg-surface-dark border border-border-dark px-2.5 py-0.5 text-xs font-medium text-text-muted">
+                                Suggestion
+                            </span>
+</div>
+<h3 class="text-lg font-bold text-text-light mb-2 group-hover:text-primary transition-colors">Export PDF</h3>
+<p class="text-sm text-text-muted line-clamp-3">
+                            Permettre d'exporter la vue actuelle de la roadmap au format PDF pour les présentations mensuelles.
+                        </p>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-border-dark/50">
+<button class="flex items-center gap-1.5 text-text-muted hover:text-text-light hover:bg-white/5 px-3 py-1.5 rounded transition-colors">
+<span class="material-symbols-outlined text-[18px]">thumb_up</span>
+<span class="text-sm font-medium">56</span>
+</button>
+<div class="flex items-center gap-2 text-text-muted text-xs">
+<span class="material-symbols-outlined text-[16px]">chat_bubble</span>
+<span>8</span>
+</div>
+</div>
+</article>
+<article class="group flex flex-col justify-between rounded-lg border border-border-dark bg-surface-dark p-6 transition-all hover:border-primary/50">
+<div class="mb-4">
+<div class="flex items-start justify-between mb-3">
+<span class="inline-flex items-center rounded-full bg-surface-dark border border-border-dark px-2.5 py-0.5 text-xs font-medium text-text-muted">
+                                Suggestion
+                            </span>
+</div>
+<h3 class="text-lg font-bold text-text-light mb-2 group-hover:text-primary transition-colors">API Publique</h3>
+<p class="text-sm text-text-muted line-clamp-3">
+                            Accès programmatique aux données de la roadmap pour intégrer des outils tiers ou des tableaux de bord personnalisés.
+                        </p>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-border-dark/50">
+<button class="flex items-center gap-1.5 text-text-muted hover:text-text-light hover:bg-white/5 px-3 py-1.5 rounded transition-colors">
+<span class="material-symbols-outlined text-[18px]">thumb_up</span>
+<span class="text-sm font-medium">42</span>
+</button>
+<div class="flex items-center gap-2 text-text-muted text-xs">
+<span class="material-symbols-outlined text-[16px]">chat_bubble</span>
+<span>5</span>
+</div>
+</div>
+</article>
+<article class="group flex flex-col justify-between rounded-lg border border-border-dark bg-surface-dark p-6 transition-all hover:border-primary/50">
+<div class="mb-4">
+<div class="flex items-start justify-between mb-3">
+<span class="inline-flex items-center rounded-full bg-surface-dark border border-border-dark px-2.5 py-0.5 text-xs font-medium text-text-muted">
+                                Suggestion
+                            </span>
+</div>
+<h3 class="text-lg font-bold text-text-light mb-2 group-hover:text-primary transition-colors">SSO Google</h3>
+<p class="text-sm text-text-muted line-clamp-3">
+                            Ajouter l'authentification unique via Google Workspace pour faciliter la connexion des équipes d'entreprise.
+                        </p>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-border-dark/50">
+<button class="flex items-center gap-1.5 text-text-muted hover:text-text-light hover:bg-white/5 px-3 py-1.5 rounded transition-colors">
+<span class="material-symbols-outlined text-[18px]">thumb_up</span>
+<span class="text-sm font-medium">38</span>
+</button>
+<div class="flex items-center gap-2 text-text-muted text-xs">
+<span class="material-symbols-outlined text-[16px]">chat_bubble</span>
+<span>3</span>
+</div>
+</div>
+</article>
+<article class="group flex flex-col justify-between rounded-lg border border-border-dark bg-surface-dark p-6 transition-all hover:border-primary/50">
+<div class="mb-4">
+<div class="flex items-start justify-between mb-3">
+<span class="inline-flex items-center rounded-full bg-surface-dark border border-border-dark px-2.5 py-0.5 text-xs font-medium text-text-muted">
+                                Suggestion
+                            </span>
+</div>
+<h3 class="text-lg font-bold text-text-light mb-2 group-hover:text-primary transition-colors">Vue Calendrier</h3>
+<p class="text-sm text-text-muted line-clamp-3">
+                            Visualiser les tickets sous forme de calendrier mensuel pour mieux appréhender les échéances.
+                        </p>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-border-dark/50">
+<button class="flex items-center gap-1.5 text-text-muted hover:text-text-light hover:bg-white/5 px-3 py-1.5 rounded transition-colors">
+<span class="material-symbols-outlined text-[18px]">thumb_up</span>
+<span class="text-sm font-medium">31</span>
+</button>
+<div class="flex items-center gap-2 text-text-muted text-xs">
+<span class="material-symbols-outlined text-[16px]">chat_bubble</span>
+<span>1</span>
+</div>
+</div>
+</article>
+</div>
+</div>
+</main>
+<div aria-modal="true" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 modal-overlay" role="dialog">
+<div class="w-full max-w-2xl transform overflow-hidden rounded-xl bg-surface-dark border border-border-dark shadow-2xl transition-all flex flex-col max-h-[90vh]">
+<div class="flex items-center justify-between px-6 py-5 border-b border-border-dark">
+<h3 class="text-xl font-bold text-text-light">Proposer une fonctionnalité</h3>
+<button class="text-text-muted hover:text-text-light transition-colors rounded p-1 hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-primary">
+<span class="material-symbols-outlined text-[24px]">close</span>
+</button>
+</div>
+<div class="p-6 overflow-y-auto custom-scrollbar">
+<form class="space-y-6">
+<div class="space-y-2">
+<label class="block text-sm font-medium text-text-light" for="title">Titre court <span class="text-error">*</span></label>
+<input class="block w-full rounded border-border-dark bg-background-dark px-3 py-2 text-text-light placeholder-text-muted focus:border-primary focus:ring-primary sm:text-sm" id="title" placeholder="Ex: Export PDF des rapports" type="text"/>
+<p class="text-xs text-text-muted">Soyez précis et concis.</p>
+</div>
+<div class="space-y-2">
+<label class="block text-sm font-medium text-text-light" for="category">Catégorie</label>
+<div class="relative">
+<select class="block w-full appearance-none rounded border-border-dark bg-background-dark px-3 py-2 pr-8 text-text-light focus:border-primary focus:ring-primary sm:text-sm" id="category">
+<option>Fonctionnalité</option>
+<option>Amélioration UX</option>
+<option>Intégration</option>
+<option>Bug</option>
+<option>Autre</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-text-muted">
+<span class="material-symbols-outlined text-[20px]">expand_more</span>
+</div>
+</div>
+</div>
+<div class="space-y-2">
+<label class="block text-sm font-medium text-text-light" for="description">Description détaillée <span class="text-error">*</span></label>
+<div class="border border-border-dark rounded overflow-hidden">
+<div class="flex items-center gap-1 p-2 border-b border-border-dark bg-background-dark/50">
+<button class="p-1.5 text-text-muted hover:text-text-light hover:bg-white/10 rounded transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">format_bold</span>
+</button>
+<button class="p-1.5 text-text-muted hover:text-text-light hover:bg-white/10 rounded transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">format_italic</span>
+</button>
+<div class="w-px h-4 bg-border-dark mx-1"></div>
+<button class="p-1.5 text-text-muted hover:text-text-light hover:bg-white/10 rounded transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">format_list_bulleted</span>
+</button>
+<button class="p-1.5 text-text-muted hover:text-text-light hover:bg-white/10 rounded transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">image</span>
+</button>
+</div>
+<textarea class="block w-full border-none bg-background-dark p-3 text-text-light placeholder-text-muted focus:ring-0 sm:text-sm" id="description" placeholder="Décrivez votre idée, pourquoi elle est importante..." rows="5"></textarea>
+</div>
+</div>
+<div class="space-y-4 pt-2">
+<div class="flex items-center gap-3 p-3 rounded bg-background-dark border border-border-dark">
+<div class="flex h-5 items-center">
+<input class="h-4 w-4 rounded border-border-dark bg-surface-dark text-primary focus:ring-primary focus:ring-offset-surface-dark" id="notify" type="checkbox"/>
+</div>
+<div class="text-sm">
+<label class="font-medium text-text-light" for="notify">Me tenir informé</label>
+<p class="text-text-muted text-xs">Recevoir un email quand le statut change.</p>
+</div>
+</div>
+</div>
+</form>
+</div>
+<div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 px-6 py-5 border-t border-border-dark bg-surface-dark">
+<button class="w-full sm:w-auto h-10 px-4 bg-transparent border border-border-dark hover:bg-white/5 text-text-light rounded font-medium text-sm transition-colors focus-visible-ring" type="button">
+                    Annuler
+                </button>
+<button class="w-full sm:w-auto h-10 px-6 bg-primary hover:bg-primary-hover text-white rounded font-medium text-sm transition-colors focus-visible-ring shadow-lg shadow-primary/20" type="button">
+                    Soumettre l'idée
+                </button>
+</div>
+</div>
+</div>
+
+
+<script id="stitch-dark-toggle">
+(function() {
+  var html = document.documentElement;
+  var stored = localStorage.getItem('stitch-theme');
+  if (stored === 'dark') html.classList.add('dark');
+  else if (stored === 'light') html.classList.remove('dark');
+
+  var btn = document.createElement('button');
+  btn.id = 'theme-toggle';
+  btn.setAttribute('aria-label', 'Toggle dark mode');
+  Object.assign(btn.style, {
+    position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: '9999',
+    width: '3rem', height: '3rem', borderRadius: '50%',
+    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'all 0.2s ease', fontSize: '1.25rem', border: 'none',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.15)'
+  });
+
+  function update() {
+    var isDark = html.classList.contains('dark');
+    var icon = document.createElement('span');
+    icon.className = 'material-symbols-outlined';
+    icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+    icon.style.fontSize = '1.4rem';
+    btn.textContent = '';
+    btn.appendChild(icon);
+    btn.style.backgroundColor = isDark ? '#1e293b' : '#ffffff';
+    btn.style.color = isDark ? '#fbbf24' : '#64748b';
+    btn.style.boxShadow = isDark
+      ? '0 2px 12px rgba(0,0,0,0.4), 0 0 0 1px rgba(100,116,139,0.2)'
+      : '0 2px 12px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05)';
+  }
+
+  btn.addEventListener('click', function() {
+    html.classList.toggle('dark');
+    localStorage.setItem('stitch-theme', html.classList.contains('dark') ? 'dark' : 'light');
+    update();
+  });
+
+  document.body.appendChild(btn);
+  update();
+})();
+</script>
+
+</body></html>

@@ -1,0 +1,156 @@
+---
+title: Feature Flags
+description: Système de feature flags intégré pour déployer en continu sans exposer les features non finalisées.
+---
+
+<Callout type="info" title="Section technique">
+Cette page s'adresse aux développeurs et super admins. Elle décrit le fonctionnement du système de feature flags et explique comment flagger une nouvelle feature.
+</Callout>
+
+## Principe
+
+Les feature flags permettent de **merger et déployer du code en production** sans que les utilisateurs voient les features en cours de développement :
+
+- **Flag OFF** — seuls les super admins voient et utilisent la feature (invisible pour tous les autres)
+- **Flag ON** — la feature est disponible pour tout le monde
+
+Aucune branche longue, aucun env var à changer, aucun redeploy nécessaire pour activer une feature : on flip le flag dans l'admin UI.
+
+## Architecture
+
+### Registre
+
+Le fichier `src/lib/feature-flags/flags.ts` est le **single source of truth** des feature flags :
+
+```ts
+export const FEATURE_FLAGS = {
+  myFeature: false,
+  anotherFeature: false,
+} as const satisfies Record<string, boolean>;
+```
+
+Chaque clé est un flag, chaque valeur est son **état par défaut** (généralement `false`).
+
+### Stockage
+
+Les overrides sont stockés en JSON dans le champ `featureFlags` du singleton `AppSettings` (Prisma). Au read time, les valeurs DB sont **mergées** avec les defaults du registre :
+
+1. On part des defaults de `FEATURE_FLAGS`
+2. On override avec les valeurs présentes en DB
+3. Les clés DB inconnues (flag supprimé du registre) sont **ignorées** automatiquement
+
+### Résolution
+
+`getFeatureFlags()` utilise `React.cache()` — une seule lecture DB par request, même si appelé dans N composants server.
+
+Le `FeatureFlagProvider` dans le root layout reçoit des **flags effectifs** déjà résolus :
+
+- **Utilisateur normal** → reçoit les flags tels quels (merge defaults + DB)
+- **Super admin** → tous les flags sont forcés à `true`
+
+Les composants client n'ont **aucune connaissance** de `isSuperAdmin`. Ils reçoivent juste des booleans.
+
+## Admin UI
+
+La page **Administration > Feature Flags** (`/admin/feature-flags`) permet aux admins globaux de toggler chaque flag individuellement. Chaque modification est tracée dans le journal d'audit (`ROOT_FEATURE_FLAGS_UPDATE`).
+
+## Guide développeur : comment flagger une feature
+
+### 1. Se poser la question
+
+À chaque nouvelle feature, se demander : **"cette feature doit-elle être derrière un flag ?"**
+
+La réponse est **oui** si :
+- La feature n'est pas stabilisée et part en prod
+- La feature est en beta/test
+- La feature a des dépendances externes non finalisées
+
+### 2. Ajouter le flag
+
+**Une seule ligne** dans `src/lib/feature-flags/flags.ts` :
+
+```ts
+export const FEATURE_FLAGS = {
+  myNewFeature: false, // <-- ajouter ici
+} as const satisfies Record<string, boolean>;
+```
+
+Puis ajouter les **clés i18n** dans `messages/fr.json` et `messages/en.json` :
+
+```json
+{
+  "rootAdmin": {
+    "featureFlags": {
+      "flags": {
+        "myNewFeature": {
+          "label": "Ma nouvelle feature",
+          "description": "Description courte de ce que fait cette feature."
+        }
+      }
+    }
+  }
+}
+```
+
+### 3. Conditionner le code
+
+#### Côté server (RSC, server actions, route handlers)
+
+```ts
+import { isFeatureEnabled } from "@/lib/feature-flags";
+import { auth } from "@/lib/next-auth/auth";
+
+// Dans un RSC
+const session = await auth();
+if (await isFeatureEnabled("myNewFeature", session)) {
+  // Afficher le composant
+}
+
+// Pour bloquer l'accès (renvoie forbidden())
+import { assertFeature } from "@/lib/feature-flags";
+await assertFeature("myNewFeature", session);
+```
+
+#### Côté client (composants)
+
+```tsx
+import { useFeatureFlag } from "@/lib/feature-flags/client";
+
+const MyComponent = () => {
+  const isEnabled = useFeatureFlag("myNewFeature");
+
+  if (!isEnabled) return null;
+
+  return <div>Ma nouvelle feature</div>;
+};
+```
+
+Le hook retourne un **boolean simple**. Le bypass super admin est déjà résolu côté provider — aucune logique de rôle ne leak dans les composants.
+
+### 4. Tester
+
+Vérifier les **4 cas** :
+
+| Cas | Flag | User | Résultat attendu |
+|-----|------|------|------------------|
+| 1 | ON | Super admin | Feature visible |
+| 2 | ON | User normal | Feature visible |
+| 3 | OFF | Super admin | Feature visible (bypass) |
+| 4 | OFF | User normal | Feature cachée |
+
+### 5. Retirer le flag
+
+Quand la feature est validée et stable :
+
+1. **Supprimer** la clé de `FEATURE_FLAGS` dans `flags.ts`
+2. **Supprimer** le code conditionnel (les `if (isEnabled)`, `assertFeature`, `useFeatureFlag`)
+3. **Supprimer** les clés i18n correspondantes
+4. La valeur DB orpheline est **ignorée automatiquement** (pas de cleanup DB nécessaire)
+
+### Checklist PR
+
+Pour chaque PR, se poser la question :
+
+- [ ] Cette PR introduit-elle une feature non stabilisée qui va en prod ?
+- [ ] Si oui, est-elle derrière un feature flag ?
+- [ ] Les 4 cas de test sont-ils couverts ?

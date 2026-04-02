@@ -1,0 +1,15 @@
+import "server-only";
+import Stripe from "stripe";
+
+import { config } from "@/config";
+
+export const stripe = config.stripe.secretKey
+  ? new Stripe(config.stripe.secretKey, { apiVersion: "2026-02-25.clover" })
+  : null;
+
+export function getStripe(): Stripe {
+  if (!stripe) {
+    throw new Error("Stripe is not configured. Set STRIPE_SECRET_KEY.");
+  }
+  return stripe;
+}

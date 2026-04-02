@@ -1,0 +1,138 @@
+name: Deploy
+
+on:
+  # Staging: triggered when any CI workflow completes on dev
+  # workflow_run fires ONCE per completed workflow — the resolve job checks ALL three passed
+  workflow_run:
+    workflows: [Build, Lint, Tests]
+    types: [completed]
+    branches: [dev]
+
+  # Production: triggered when release-please publishes a GitHub Release
+  release:
+    types: [published]
+
+  # Manual trigger for both environments
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+        default: staging
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: deploy-${{ github.event.inputs.environment || (github.event_name == 'release' && 'production') || 'staging' }}
+  # true = cancel queued (not in-flight) duplicates from workflow_run triple-trigger
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────────────
+  # Resolve target environment & verify CI status
+  # ─────────────────────────────────────────────────
+  resolve:
+    name: Resolve environment
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.resolve.outputs.environment }}
+      app_name: ${{ steps.resolve.outputs.app_name }}
+      ref: ${{ steps.resolve.outputs.ref }}
+      should_deploy: ${{ steps.resolve.outputs.should_deploy }}
+    steps:
+      - name: Checkout scripts
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+          sparse-checkout-cone-mode: false
+
+      - name: Resolve deployment target
+        id: resolve
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7
+        with:
+          script: |
+            const script = require('./.github/scripts/resolve-deploy.js');
+            await script({
+              github, context, core,
+              dispatchEnvironment: '${{ github.event.inputs.environment }}',
+            });
+
+  # ─────────────────────────────────────────────────
+  # CI gate for releases (verify CI passed on tag commit)
+  # ─────────────────────────────────────────────────
+  ci-gate:
+    name: Verify CI for release
+    needs: [resolve]
+    if: needs.resolve.outputs.should_deploy == 'true' && github.event_name == 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout scripts
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+          sparse-checkout-cone-mode: false
+
+      - name: Check CI workflows passed for release commit
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7
+        with:
+          script: |
+            const script = require('./.github/scripts/ci-gate-release.js');
+            await script({
+              github, context, core,
+              tag: '${{ needs.resolve.outputs.ref }}',
+            });
+
+  # ─────────────────────────────────────────────────
+  # Deploy to Scalingo
+  # ─────────────────────────────────────────────────
+  deploy:
+    name: Deploy to ${{ needs.resolve.outputs.environment }}
+    needs: [resolve, ci-gate]
+    # ci-gate is skipped for non-release events — use always() + explicit checks
+    if: >-
+      always() &&
+      needs.resolve.outputs.should_deploy == 'true' &&
+      needs.resolve.result == 'success' &&
+      (needs.ci-gate.result == 'success' || needs.ci-gate.result == 'skipped')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: ${{ needs.resolve.outputs.environment }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.resolve.outputs.ref }}
+          fetch-depth: 0
+
+      - name: Setup Scalingo CLI
+        uses: scalingo-community/setup-scalingo@87fe86eedc708ffb9d232c756b21f6a5784f6c8a # v0.1.1
+        with:
+          region: osc-fr1
+          api_token: ${{ secrets.SCALINGO_API_TOKEN }}
+          app_name: ${{ needs.resolve.outputs.app_name }}
+
+      - name: Setup ephemeral SSH key
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keygen -t ed25519 -f ~/.ssh/scalingo-deploy -N "" -q
+          scalingo keys-add "ci-deploy-${{ github.run_id }}" ~/.ssh/scalingo-deploy.pub
+          ssh-keyscan ssh.osc-fr1.scalingo.com >> ~/.ssh/known_hosts 2>/dev/null
+          printf "Host ssh.osc-fr1.scalingo.com\n  IdentityFile ~/.ssh/scalingo-deploy\n" >> ~/.ssh/config
+
+      - name: Deploy to Scalingo
+        run: |
+          echo "Deploying to ${{ needs.resolve.outputs.app_name }}"
+          echo "Ref: ${{ needs.resolve.outputs.ref }}"
+          echo "---"
+          git push scalingo HEAD:refs/heads/master --force
+
+      - name: Cleanup ephemeral SSH key
+        if: always()
+        run: scalingo keys-remove "ci-deploy-${{ github.run_id }}"

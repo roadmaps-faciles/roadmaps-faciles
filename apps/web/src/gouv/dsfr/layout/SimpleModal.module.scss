@@ -1,0 +1,69 @@
+.fr-simple-modal {
+    --ground: 2000;
+    align-items: stretch;
+    background-color: rgba(23, 23, 23, 0.64);
+    bottom: 0px;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+    left: 0px;
+    opacity: 0;
+    position: fixed;
+    right: 0px;
+    top: 0px;
+    visibility: hidden;
+    width: 100%;
+    z-index: 1750;
+    border-width: initial;
+    border-style: none;
+    border-color: initial;
+    border-image: initial;
+    margin: 0px;
+    padding: 0px;
+
+    &::after,
+    &::before {
+        display: block;
+        height: 2rem;
+        width: 0px;
+        flex: 1 0 2rem;
+    }
+
+    &::before {
+        content: "";
+    }
+
+    &::after {
+        content: none;
+    }
+
+    &>:global(.fr-container) {
+        pointer-events: none;
+    }
+}
+
+.fr-simple-modal--opened {
+    visibility: inherit;
+    opacity: 1;
+    width: 100%;
+    height: 100%;
+}
+
+@media (min-width: 48em) {
+    .fr-simple-modal {
+        padding-right: var(--scrollbar-width);
+
+        &::after,
+        &::before {
+            height: 10vh;
+            width: 0px;
+            flex: 1 0 10vh;
+        }
+
+        &::after {
+            content: "";
+        }
+    }
+}

@@ -1,0 +1,105 @@
+import { UpdateTenantDomain } from "@/useCases/tenant/UpdateTenantDomain";
+
+import {
+  type createMockTenantSettingsRepo as CreateMockTenantSettingsRepo,
+  createMockTenantSettingsRepo,
+  fakeTenantSettings,
+} from "../helpers";
+
+const mockFindFirst = vi.fn();
+vi.mock("@/lib/db/prisma", () => ({
+  prisma: {
+    tenantSettings: { findFirst: (...args: unknown[]) => mockFindFirst(...args) },
+  },
+}));
+
+const mockAddDomain = vi.fn();
+const mockRemoveDomain = vi.fn();
+vi.mock("@/lib/ee/domain-provider", () => ({
+  getDomainProvider: () => ({ addDomain: mockAddDomain, removeDomain: mockRemoveDomain }),
+}));
+
+const mockAddRecord = vi.fn();
+const mockRemoveRecord = vi.fn();
+vi.mock("@/lib/ee/dns-provider", () => ({
+  getDnsProvider: () => ({ addRecord: mockAddRecord, removeRecord: mockRemoveRecord }),
+}));
+
+vi.mock("@/config", () => ({
+  config: {
+    rootDomain: "localhost:3000",
+    host: "http://localhost:3000",
+  },
+}));
+
+describe("UpdateTenantDomain", () => {
+  let mockSettingsRepo: ReturnType<typeof CreateMockTenantSettingsRepo>;
+  let useCase: UpdateTenantDomain;
+
+  beforeEach(() => {
+    mockSettingsRepo = createMockTenantSettingsRepo();
+    useCase = new UpdateTenantDomain(mockSettingsRepo);
+    mockFindFirst.mockReset();
+    mockAddDomain.mockReset();
+    mockRemoveDomain.mockReset();
+    mockAddRecord.mockReset();
+    mockRemoveRecord.mockReset();
+  });
+
+  it("updates subdomain with domain/DNS provisioning", async () => {
+    const existing = fakeTenantSettings({ id: 1, subdomain: "old", customDomain: null });
+    mockSettingsRepo.findById.mockResolvedValue(existing);
+    mockFindFirst.mockResolvedValue(null); // no conflict
+    mockSettingsRepo.update.mockResolvedValue(fakeTenantSettings({ subdomain: "new" }));
+    mockRemoveDomain.mockResolvedValue(undefined);
+    mockAddDomain.mockResolvedValue(undefined);
+    mockRemoveRecord.mockResolvedValue(undefined);
+    mockAddRecord.mockResolvedValue(undefined);
+
+    await useCase.execute({ settingsId: 1, subdomain: "new" });
+
+    expect(mockSettingsRepo.update).toHaveBeenCalledWith(1, { subdomain: "new" });
+    expect(mockRemoveDomain).toHaveBeenCalledWith("old.localhost:3000");
+    expect(mockAddDomain).toHaveBeenCalledWith("new.localhost:3000", "subdomain");
+    expect(mockRemoveRecord).toHaveBeenCalledWith("old");
+    expect(mockAddRecord).toHaveBeenCalledWith("new");
+  });
+
+  it("throws when settings are not found", async () => {
+    mockSettingsRepo.findById.mockResolvedValue(null);
+
+    await expect(useCase.execute({ settingsId: 999 })).rejects.toThrow("Configuration du tenant introuvable.");
+  });
+
+  it("throws when subdomain conflicts with another tenant", async () => {
+    mockSettingsRepo.findById.mockResolvedValue(fakeTenantSettings({ id: 1, subdomain: "old" }));
+    mockFindFirst.mockResolvedValue({ id: 2 }); // conflict
+
+    await expect(useCase.execute({ settingsId: 1, subdomain: "taken" })).rejects.toThrow(
+      "Ce sous-domaine est déjà utilisé par un autre tenant.",
+    );
+  });
+
+  it("updates custom domain", async () => {
+    const existing = fakeTenantSettings({ id: 1, subdomain: "sub", customDomain: "old.com" });
+    mockSettingsRepo.findById.mockResolvedValue(existing);
+    mockFindFirst.mockResolvedValue(null); // no conflict
+    mockSettingsRepo.update.mockResolvedValue(fakeTenantSettings({ customDomain: "new.com" }));
+    mockRemoveDomain.mockResolvedValue(undefined);
+    mockAddDomain.mockResolvedValue(undefined);
+
+    await useCase.execute({ settingsId: 1, customDomain: "new.com" });
+
+    expect(mockRemoveDomain).toHaveBeenCalledWith("old.com");
+    expect(mockAddDomain).toHaveBeenCalledWith("new.com", "custom");
+  });
+
+  it("throws when custom domain conflicts", async () => {
+    mockSettingsRepo.findById.mockResolvedValue(fakeTenantSettings({ id: 1 }));
+    mockFindFirst.mockResolvedValue({ id: 2 }); // conflict
+
+    await expect(useCase.execute({ settingsId: 1, customDomain: "taken.com" })).rejects.toThrow(
+      "Ce domaine personnalisé est déjà utilisé par un autre tenant.",
+    );
+  });
+});

@@ -1,0 +1,3 @@
+# Protect workflow files
+.github/workflows/*.yml @lsagetlethias
+.github/CODEOWNERS @lsagetlethias

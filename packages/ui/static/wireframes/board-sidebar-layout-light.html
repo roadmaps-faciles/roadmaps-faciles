@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Roadmaps Faciles - Tableau de Bord</title>
+<link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#103c8e",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#111721",
+                        "surface": "#ffffff",
+                        "border-subtle": "#dcdfe5",
+                    },
+                    fontFamily: {
+                        "display": ["Spline Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.625rem", /* 10px */
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+
+<style id="stitch-dark-overrides">
+/* === Dark Mode Global Overrides === */
+/* Unlayered styles beat @layer base/utilities from Tailwind CDN */
+
+/* Page backgrounds */
+html.dark body {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+html.dark .bg-white,
+html.dark .bg-surface {
+  background-color: #1e293b;
+}
+html.dark .bg-background-light,
+html.dark .bg-\[\#f6f6f8\],
+html.dark .bg-background {
+  background-color: #0f172a;
+}
+html.dark .bg-slate-50,
+html.dark .bg-slate-100 {
+  background-color: #1e293b;
+}
+html.dark .bg-slate-50\/50,
+html.dark .bg-slate-100\/50,
+html.dark .bg-slate-50\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-sidebar-bg {
+  background-color: #1a2035;
+}
+html.dark .bg-white\/50,
+html.dark .bg-white\/60,
+html.dark .bg-white\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+html.dark .bg-background\/95,
+html.dark .bg-background\/60 {
+  background-color: rgba(15, 23, 42, 0.95);
+}
+
+/* Text colors */
+html.dark .text-slate-900 { color: #f1f5f9; }
+html.dark .text-slate-800 { color: #e2e8f0; }
+html.dark .text-slate-700 { color: #cbd5e1; }
+html.dark .text-slate-600 { color: #94a3b8; }
+html.dark .text-slate-500 { color: #64748b; }
+html.dark .text-slate-400 { color: #64748b; }
+html.dark .text-foreground { color: #e2e8f0; }
+html.dark .text-muted-foreground { color: #8b9ec8; }
+html.dark h1, html.dark h2, html.dark h3, html.dark h4 {
+  color: #f1f5f9;
+}
+
+/* Border colors */
+html.dark .border-slate-200,
+html.dark .border-slate-300,
+html.dark .border-border,
+html.dark .border-slate-200\/40,
+html.dark .border-slate-200\/60,
+html.dark .border-slate-300\/40 {
+  border-color: #334155;
+}
+html.dark .border-slate-100 {
+  border-color: #1e293b;
+}
+html.dark .border-primary\/40,
+html.dark .border-primary\/20 {
+  border-color: rgba(93, 131, 212, 0.3);
+}
+html.dark .border-border\/40 {
+  border-color: rgba(51, 65, 85, 0.4);
+}
+
+/* Dividers */
+html.dark .divide-slate-100 > * + *,
+html.dark .divide-slate-200 > * + * {
+  border-color: #334155;
+}
+html.dark .border-t { border-top-color: #334155; }
+html.dark .border-b { border-bottom-color: #334155; }
+html.dark .border-r { border-right-color: #334155; }
+html.dark .border-l { border-left-color: #334155; }
+
+/* Form elements */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b;
+}
+
+/* Cards and surfaces */
+html.dark .shadcn-card {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+html.dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+
+/* Badges, pills */
+html.dark .bg-green-100 { background-color: rgba(34, 197, 94, 0.15); }
+html.dark .bg-blue-100, html.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.15); }
+html.dark .bg-orange-100, html.dark .bg-orange-50 { background-color: rgba(249, 115, 22, 0.15); }
+html.dark .bg-purple-100 { background-color: rgba(168, 85, 247, 0.15); }
+html.dark .bg-red-100, html.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.15); }
+html.dark .bg-amber-100 { background-color: rgba(245, 158, 11, 0.15); }
+html.dark .bg-emerald-100 { background-color: rgba(16, 185, 129, 0.15); }
+
+/* Hover states */
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-100:hover {
+  background-color: rgba(51, 65, 85, 0.5);
+}
+html.dark .hover\:bg-slate-200\/50:hover {
+  background-color: rgba(51, 65, 85, 0.3);
+}
+
+/* Ring */
+html.dark .ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+html.dark .ring-1.ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+
+/* Glass / backdrop */
+html.dark .glass-header {
+  background-color: rgba(15, 23, 42, 0.85);
+}
+html.dark .backdrop-blur-md {
+  background-color: rgba(15, 23, 42, 0.8);
+}
+
+/* Scrollbar line in h-px */
+html.dark .h-px { background-color: #334155; }
+html.dark .bg-slate-200 { background-color: #334155; }
+
+/* Primary adjustments for dark */
+html.dark .bg-primary\/10 { background-color: rgba(93, 131, 212, 0.15); }
+html.dark .bg-primary\/5 { background-color: rgba(93, 131, 212, 0.08); }
+html.dark .text-primary { color: #7ba3e8; }
+html.dark .bg-primary { background-color: #4a73c4; }
+html.dark .hover\:bg-primary\/5:hover { background-color: rgba(93, 131, 212, 0.1); }
+html.dark .hover\:bg-primary\/10:hover { background-color: rgba(93, 131, 212, 0.15); }
+
+/* Table */
+html.dark table { color: #e2e8f0; }
+html.dark thead { background-color: #1e293b; }
+html.dark th { color: #94a3b8; border-color: #334155; }
+html.dark td { border-color: #334155; }
+html.dark tr:hover { background-color: rgba(51, 65, 85, 0.3); }
+
+/* Specific admin patterns */
+html.dark .bg-white.rounded-custom,
+html.dark .bg-white.rounded-\[10px\],
+html.dark .bg-white.rounded-lg,
+html.dark .bg-white.rounded-xl {
+  background-color: #1e293b;
+}
+
+/* Footer adjustments */
+html.dark footer {
+  background-color: #0f172a;
+  border-color: #334155;
+}
+</style>
+
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
+<!-- Sticky Minimalist Header -->
+<header class="sticky top-0 z-50 bg-white/80 dark:bg-[#111721]/90 backdrop-blur-md border-b border-[#f0f2f4] dark:border-slate-800 px-6 py-3">
+<div class="max-w-[1200px] mx-auto flex items-center justify-between">
+<div class="flex items-center gap-3 text-[#111318] dark:text-white">
+<div class="size-8 text-primary">
+<svg class="w-full h-full" fill="currentColor" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M36.7273 44C33.9891 44 31.6043 39.8386 30.3636 33.69C29.123 39.8386 26.7382 44 24 44C21.2618 44 18.877 39.8386 17.6364 33.69C16.3957 39.8386 14.0109 44 11.2727 44C7.25611 44 4 35.0457 4 24C4 12.9543 7.25611 4 11.2727 4C14.0109 4 16.3957 8.16144 17.6364 14.31C18.877 8.16144 21.2618 4 24 4C26.7382 4 29.123 8.16144 30.3636 14.31C31.6043 8.16144 33.9891 4 36.7273 4C40.7439 4 44 12.9543 44 24C44 35.0457 40.7439 44 36.7273 44Z"></path>
+</svg>
+</div>
+<h1 class="text-lg font-bold leading-tight tracking-tight">Roadmaps Faciles</h1>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-primary font-bold text-sm leading-normal" href="#">Tableau</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">Feuille de route</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">Journal</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">Paramètres</a>
+</nav>
+<div class="flex items-center gap-4">
+<div class="hidden sm:flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-xl">notifications</span>
+</div>
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-9 border border-border-subtle" data-alt="User profile avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDfKIJ62-kQPFcoJ7-Em7tZ3vapxJBccXZ0r1_9RZu_iFcDKXiaBEFZibBOJ6g0R9TJK_QsYUILP3vtQClSsasCcvyul-h4tiXInd2IKJanqMVnMaiFOj4zrwA64F88xAiVTX8p7lFfTCJHV_ymMdN-rdtQAtg9iW6UaynSlREZ4GbANUvGQK-MSs85rDScC6ydgpiT2gNRNIwSq3oZ6YucHIWZLfNdSZrjFgoeIJqMPfh9UUn7DP6XH2_O4m2YbuPcZGnmDJeqplOM");'></div>
+</div>
+</div>
+</header>
+<!-- Main Layout Container -->
+<main class="flex-grow flex justify-center py-8 px-4 sm:px-6">
+<div class="flex flex-col lg:flex-row gap-8 w-full max-w-[1200px]">
+<!-- Sidebar (Left): Create Suggestion Form -->
+<aside class="w-full lg:w-1/3 lg:max-w-[360px] flex-shrink-0">
+<div class="bg-surface dark:bg-[#1e2736] rounded p-6 border border-border-subtle dark:border-slate-700 sticky top-24">
+<h3 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight mb-4">Nouvelle suggestion</h3>
+<form class="flex flex-col gap-4" onsubmit="event.preventDefault();">
+<label class="flex flex-col gap-2">
+<span class="text-slate-700 dark:text-slate-300 text-sm font-semibold">Titre</span>
+<input class="form-input w-full rounded border-border-subtle dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-1 focus:ring-primary px-3 py-2.5 text-sm placeholder:text-slate-400" placeholder="Résumez votre idée..." type="text"/>
+</label>
+<label class="flex flex-col gap-2">
+<div class="flex justify-between items-center">
+<span class="text-slate-700 dark:text-slate-300 text-sm font-semibold">Description</span>
+<span class="text-xs text-slate-400">Markdown supporté</span>
+</div>
+<textarea class="form-textarea w-full rounded border-border-subtle dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-1 focus:ring-primary px-3 py-2.5 text-sm min-h-[160px] resize-y placeholder:text-slate-400" placeholder="Détails de votre suggestion..."></textarea>
+</label>
+<button class="mt-2 w-full flex items-center justify-center gap-2 rounded bg-primary hover:bg-primary/90 text-white py-2.5 px-4 text-sm font-bold transition-colors shadow-sm" type="submit">
+<span class="material-symbols-outlined text-lg">check</span>
+                            Valider
+                        </button>
+</form>
+</div>
+</aside>
+<!-- Main Content (Right): List & Filters -->
+<section class="flex-1 min-w-0">
+<!-- Filter Bar -->
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+<div class="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+<!-- Segmented Control -->
+<div class="inline-flex p-1 bg-surface dark:bg-[#1e2736] rounded border border-border-subtle dark:border-slate-700 w-full sm:w-auto">
+<button class="px-4 py-1.5 text-sm font-medium rounded bg-primary/10 text-primary dark:text-white dark:bg-primary shadow-sm transition-all flex-1 sm:flex-none text-center">Tendance</button>
+<button class="px-4 py-1.5 text-sm font-medium rounded text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex-1 sm:flex-none text-center">Top</button>
+<button class="px-4 py-1.5 text-sm font-medium rounded text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex-1 sm:flex-none text-center">Nouveau</button>
+</div>
+</div>
+<div class="flex items-center gap-4 w-full sm:w-auto flex-1 sm:flex-none justify-end">
+<span class="text-sm font-medium text-slate-500 whitespace-nowrap hidden md:block">44 résultats</span>
+<!-- Search Bar -->
+<div class="relative w-full sm:w-64">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[20px]">search</span>
+<input class="form-input w-full pl-10 pr-4 py-2 rounded border-border-subtle dark:border-slate-700 bg-surface dark:bg-[#1e2736] text-slate-900 dark:text-white focus:border-primary focus:ring-1 focus:ring-primary text-sm placeholder:text-slate-400" placeholder="Rechercher..." type="text"/>
+</div>
+</div>
+</div>
+<!-- Suggestions List -->
+<div class="flex flex-col gap-4">
+<!-- Card 1 -->
+<div class="group bg-surface dark:bg-[#1e2736] rounded border border-border-subtle dark:border-slate-700 p-5 hover:border-primary/40 dark:hover:border-primary/40 transition-colors flex gap-5">
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-3 mb-2">
+<h3 class="text-lg font-bold text-slate-900 dark:text-white leading-tight truncate">Intégration sombre native (Dark Mode)</h3>
+<span class="px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 text-xs font-bold uppercase tracking-wider">En cours</span>
+</div>
+<p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed line-clamp-2 mb-4">
+                                Ce serait génial d'avoir un mode sombre natif qui s'adapte aux préférences du système d'exploitation. Actuellement, travailler tard le soir est un peu fatiguant pour les yeux avec le fond blanc brillant.
+                            </p>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<div class="size-6 rounded-full bg-cover bg-center" data-alt="Avatar of Alice" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDlK7NsB2JPk1oRCUtOUVdutoOTGmcpDgR3XfqbYBzrEbX-92aWG8OKnJ-Pa0y_x5b9PCdI3OTHcox6Yykbd0aFOdw9fOKKfE-t8dhuY31SZdcgn2uyPPKXUbJtYl67qqvdl-akWigwri0mOQUWTn1KOQ_mc2f1RQoQiNK2cED2ZlyRRWYDCZnIz3qJOap2Fu5bGYtpSso491KKMHV01uEd1Ew2o9NB0nFw0CR5qKMku0RYW_hfUKRqobW3ZMpD6n-hr-LttCyh9B0B");'></div>
+<span class="text-xs font-medium text-slate-500 dark:text-slate-400">Alice D.</span>
+</div>
+<span class="text-slate-300 dark:text-slate-600">•</span>
+<span class="text-xs text-slate-500 dark:text-slate-400">Il y a 2h</span>
+<span class="text-slate-300 dark:text-slate-600">•</span>
+<div class="flex items-center gap-1 text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-[16px]">chat_bubble</span>
+<span class="text-xs font-medium">12</span>
+</div>
+</div>
+</div>
+<!-- Like Toggle -->
+<div class="flex flex-col items-center justify-start pt-1">
+<button class="flex flex-col items-center justify-center w-12 h-14 rounded bg-primary/5 dark:bg-primary/10 border border-primary/20 dark:border-primary/30 text-primary hover:bg-primary hover:text-white dark:hover:bg-primary transition-all group/vote">
+<span class="material-symbols-outlined text-[24px] mb-[-2px] group-hover/vote:-translate-y-0.5 transition-transform">expand_less</span>
+<span class="text-sm font-bold">142</span>
+</button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group bg-surface dark:bg-[#1e2736] rounded border border-border-subtle dark:border-slate-700 p-5 hover:border-primary/40 dark:hover:border-primary/40 transition-colors flex gap-5">
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-3 mb-2">
+<h3 class="text-lg font-bold text-slate-900 dark:text-white leading-tight truncate">Export PDF des Roadmaps</h3>
+<span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider">Planifié</span>
+</div>
+<p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed line-clamp-2 mb-4">
+                                Pouvoir exporter la vue actuelle en PDF haute résolution pour les présentations aux clients qui n'ont pas accès à l'outil. Important de garder les couleurs des tags.
+                            </p>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<div class="size-6 rounded-full bg-cover bg-center" data-alt="Avatar of Marc" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBKXztPCxL4zWMfKHV1abFZBxFx-zJmnUbig8KNgusqtXcaM9cvJpNGpizUK8iH3Oi9wR4WE2FASW1TQecpAZ1VBT4waHSzhmJBtSFBLol_SEsAuP3-hiBaLtXkQPpIWjm7rbjkOnXKjFCnj82M7oHFPr582m5ADW5C-izkMyqsN19jBcEh4pa_R_XN4Aqppi6fL3tDv8a-kpWSCtcj3lRvbv9shG86OznMPNF0m2AMf2fvdStEjTLAucQeXynZ7HXLjIKqs31ngMCl");'></div>
+<span class="text-xs font-medium text-slate-500 dark:text-slate-400">Marc L.</span>
+</div>
+<span class="text-slate-300 dark:text-slate-600">•</span>
+<span class="text-xs text-slate-500 dark:text-slate-400">Hier</span>
+<span class="text-slate-300 dark:text-slate-600">•</span>
+<div class="flex items-center gap-1 text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-[16px]">chat_bubble</span>
+<span class="text-xs font-medium">8</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-center justify-start pt-1">
+<button class="flex flex-col items-center justify-center w-12 h-14 rounded bg-surface dark:bg-slate-800 border border-border-subtle dark:border-slate-600 text-slate-500 hover:border-primary hover:text-primary transition-all group/vote">
+<span class="material-symbols-outlined text-[24px] mb-[-2px] group-hover/vote:-translate-y-0.5 transition-transform">expand_less</span>
+<span class="text-sm font-bold">89</span>
+</button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="group bg-surface dark:bg-[#1e2736] rounded border border-border-subtle dark:border-slate-700 p-5 hover:border-primary/40 dark:hover:border-primary/40 transition-colors flex gap-5">
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-3 mb-2">
+<h3 class="text-lg font-bold text-slate-900 dark:text-white leading-tight truncate">API Webhooks pour Slack</h3>
+<span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 text-xs font-bold uppercase tracking-wider">Suggestion</span>
+</div>
+<p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed line-clamp-2 mb-4">
+                                Une intégration pour recevoir des notifications sur un channel Slack spécifique à chaque fois qu'un commentaire est posté ou qu'un statut change.
+                            </p>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<div class="size-6 rounded-full bg-cover bg-center" data-alt="Avatar of Sophie" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAmHQf-BAo5VM57E0dwDvtVyBLu5vksWPa3N5Cvah-6UtOxRoq1oYVCpJZGcgkkAGQxaaWVKTjI_3dO96JIyeVcFsmetc0xhpp5EyUZsY317Uiu2ZgAxrtB6EFeWllMIoctOxVgqM8KK7d_31oRcDAfye4_QVXEx6_cDvLSabdjccSNpgPdXW3CwaIP8JEXID6qILGyLWbMYQa5mIk6i1DPxe21FdZJ5bfrZMZBQI8qQsUvte5u9y7nS2sGigztkJPD5treYDmwQhDk");'></div>
+<span class="text-xs font-medium text-slate-500 dark:text-slate-400">Sophie M.</span>
+</div>
+<span class="text-slate-300 dark:text-slate-600">•</span>
+<span class="text-xs text-slate-500 dark:text-slate-400">Il y a 3j</span>
+<span class="text-slate-300 dark:text-slate-600">•</span>
+<div class="flex items-center gap-1 text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-[16px]">chat_bubble</span>
+<span class="text-xs font-medium">24</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-center justify-start pt-1">
+<button class="flex flex-col items-center justify-center w-12 h-14 rounded bg-surface dark:bg-slate-800 border border-border-subtle dark:border-slate-600 text-slate-500 hover:border-primary hover:text-primary transition-all group/vote">
+<span class="material-symbols-outlined text-[24px] mb-[-2px] group-hover/vote:-translate-y-0.5 transition-transform">expand_less</span>
+<span class="text-sm font-bold">56</span>
+</button>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="group bg-surface dark:bg-[#1e2736] rounded border border-border-subtle dark:border-slate-700 p-5 hover:border-primary/40 dark:hover:border-primary/40 transition-colors flex gap-5">
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-3 mb-2">
+<h3 class="text-lg font-bold text-slate-900 dark:text-white leading-tight truncate">Application Mobile iOS/Android</h3>
+<span class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 text-xs font-bold uppercase tracking-wider">En pause</span>
+</div>
+<p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed line-clamp-2 mb-4">
+                                L'expérience mobile via navigateur est correcte mais une app native permettrait des notifications push et une meilleure gestion hors ligne.
+                            </p>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<div class="size-6 rounded-full bg-cover bg-center" data-alt="Avatar of Thomas" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBXGoQqzAeUexxEWxXUUActq2w6lKP3L674joSvJyjMGMkIE-TFcU-RcaPemeEnvcJ1grF_8-llLv6tcNVBEBEqIP42bt6Yx_LqT0S1u3gPqb3x1ncRqYLroT921_k82nGfRDKf6SfpXm4DLy2rbL1t2dtVgu3XNhGwaFE5V0eR6-P6Qf33_MlnwfsiSL-eVD7Jr6YiwsGMXBzeuvGp-3Css80RwFxcPB1alhr7BE3I694mCYpHV1QtJKw_xkY3DtOjda4cnsDMVd9R");'></div>
+<span class="text-xs font-medium text-slate-500 dark:text-slate-400">Thomas R.</span>
+</div>
+<span class="text-slate-300 dark:text-slate-600">•</span>
+<span class="text-xs text-slate-500 dark:text-slate-400">14 nov.</span>
+<span class="text-slate-300 dark:text-slate-600">•</span>
+<div class="flex items-center gap-1 text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-[16px]">chat_bubble</span>
+<span class="text-xs font-medium">45</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-center justify-start pt-1">
+<button class="flex flex-col items-center justify-center w-12 h-14 rounded bg-surface dark:bg-slate-800 border border-border-subtle dark:border-slate-600 text-slate-500 hover:border-primary hover:text-primary transition-all group/vote">
+<span class="material-symbols-outlined text-[24px] mb-[-2px] group-hover/vote:-translate-y-0.5 transition-transform">expand_less</span>
+<span class="text-sm font-bold">210</span>
+</button>
+</div>
+</div>
+</div>
+<div class="mt-8 flex justify-center">
+<button class="text-sm font-semibold text-primary hover:text-primary/80 transition-colors">
+                        Charger plus de suggestions
+                    </button>
+</div>
+</section>
+</div>
+</main>
+
+<script id="stitch-dark-toggle">
+(function() {
+  var html = document.documentElement;
+  var stored = localStorage.getItem('stitch-theme');
+  if (stored === 'dark') html.classList.add('dark');
+  else if (stored === 'light') html.classList.remove('dark');
+
+  var btn = document.createElement('button');
+  btn.id = 'theme-toggle';
+  btn.setAttribute('aria-label', 'Toggle dark mode');
+  Object.assign(btn.style, {
+    position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: '9999',
+    width: '3rem', height: '3rem', borderRadius: '50%',
+    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'all 0.2s ease', fontSize: '1.25rem', border: 'none',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.15)'
+  });
+
+  function update() {
+    var isDark = html.classList.contains('dark');
+    var icon = document.createElement('span');
+    icon.className = 'material-symbols-outlined';
+    icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+    icon.style.fontSize = '1.4rem';
+    btn.textContent = '';
+    btn.appendChild(icon);
+    btn.style.backgroundColor = isDark ? '#1e293b' : '#ffffff';
+    btn.style.color = isDark ? '#fbbf24' : '#64748b';
+    btn.style.boxShadow = isDark
+      ? '0 2px 12px rgba(0,0,0,0.4), 0 0 0 1px rgba(100,116,139,0.2)'
+      : '0 2px 12px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05)';
+  }
+
+  btn.addEventListener('click', function() {
+    html.classList.toggle('dark');
+    localStorage.setItem('stitch-theme', html.classList.contains('dark') ? 'dark' : 'light');
+    update();
+  });
+
+  document.body.appendChild(btn);
+  update();
+})();
+</script>
+
+</body></html>

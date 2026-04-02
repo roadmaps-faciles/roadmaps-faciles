@@ -1,0 +1,93 @@
+---
+title: Authentification et inscription
+description: Configurez la politique d'inscription de votre espace.
+---
+
+La configuration de l'authentification est accessible via **Administration > Authentification**.
+
+<ImageWithTheme srcLight="/doc/screenshots/admin-authentication-light.png" srcDark="/doc/screenshots/admin-authentication-dark.png" alt="Paramètres d'authentification" />
+
+## Politique d'inscription
+
+Contrôlez qui peut s'inscrire sur votre espace de travail :
+
+| Politique | Description | Cas d'usage |
+|-----------|-------------|-------------|
+| **Tout le monde** | Toute personne peut créer un compte et rejoindre l'espace. | Espace ouvert au public. |
+| **Personne** | L'inscription libre est fermée. Seules les [invitations](/doc/admin/members) permettent de rejoindre l'espace. | Espace réservé à une équipe identifiée. |
+| **Domaines autorisés** | Seuls les emails correspondant aux domaines configurés sont acceptés. | Espace limité à une organisation. |
+
+### Domaines autorisés
+
+Lorsque la politique est définie sur **Domaines autorisés**, vous gérez une liste de domaines email acceptés.
+
+Par exemple, ajouter `mon-organisation.fr` autorisera toutes les adresses `*@mon-organisation.fr` à s'inscrire.
+
+1. Entrez le nom de domaine dans le champ dédié (sans le `@`).
+2. Cliquez sur **Ajouter**.
+3. Pour retirer un domaine, cliquez sur le bouton de suppression correspondant.
+
+<Callout type="info">
+  Les [invitations](/doc/admin/members) contournent toujours la politique d'inscription. Un utilisateur invité peut s'inscrire quel que soit son domaine email.
+</Callout>
+
+## Méthodes de connexion
+
+Les utilisateurs de l'espace peuvent se connecter de deux façons :
+
+- **Magic link** — Un lien de connexion envoyé par email, sans mot de passe.
+- **Pont SSO** — Si l'utilisateur est déjà connecté sur la page d'accueil de la plateforme, sa session est automatiquement transférée vers l'espace.
+
+Les deux méthodes sont toujours disponibles et ne nécessitent aucune configuration.
+
+<Callout type="info">
+  Sur les instances destinées à l'écosystème beta.gouv.fr, une méthode de connexion supplémentaire est disponible via **Espace Membre** (authentification par identifiant beta.gouv.fr). Cette méthode nécessite la configuration des variables `ESPACE_MEMBRE_*` et n'est pas activée par défaut sur les instances auto-hébergées.
+</Callout>
+
+## Fournisseurs SSO (OAuth)
+
+Si des fournisseurs OAuth sont configurés au niveau de l'instance, vous pouvez les activer pour votre espace. Les fournisseurs disponibles sont :
+
+| Fournisseur | Description |
+|-------------|-------------|
+| **GitHub** | Connexion via un compte GitHub. |
+| **Google** | Connexion via un compte Google. |
+| **ProConnect** | Connexion via le fédérateur d'identité de l'État français (OpenID Connect). |
+
+### Activer un fournisseur
+
+1. Dans **Administration > Authentification**, repérez la section **Fournisseurs OAuth**.
+2. Cochez les fournisseurs que vous souhaitez proposer à vos utilisateurs.
+3. Enregistrez les modifications.
+
+<Callout type="info">
+  Seuls les fournisseurs dont les identifiants (Client ID / Secret) ont été configurés par l'administrateur technique de l'instance apparaissent dans cette section. Si aucun fournisseur n'est visible, contactez l'équipe technique.
+</Callout>
+
+Lorsqu'un utilisateur se connecte via OAuth pour la première fois, il est automatiquement rattaché à l'espace.
+
+## Double authentification (2FA)
+
+Renforcez la sécurité de votre espace en exigeant un second facteur d'authentification.
+
+### Méthodes disponibles
+
+Chaque utilisateur peut configurer une ou plusieurs méthodes 2FA depuis son **Profil > Sécurité** :
+
+- **Clé d'accès (Passkey)** — Authentification biométrique ou clé de sécurité matérielle (WebAuthn).
+- **Application OTP** — Code temporaire généré par une application (Google Authenticator, Authy, etc.).
+- **Email** — Code de vérification envoyé par email.
+
+### Obliger la 2FA
+
+En tant qu'administrateur, vous pouvez forcer tous les membres de l'espace à configurer la 2FA :
+
+1. Activez le toggle **Obliger la double authentification**.
+2. Choisissez une **période de grâce** (0 à 5 jours) pendant laquelle les utilisateurs peuvent continuer à utiliser l'espace sans 2FA.
+3. Enregistrez.
+
+<Callout type="warn">
+  Avec une période de grâce de **0 jour** (immédiat), les utilisateurs sans 2FA seront redirigés vers la page de configuration dès leur prochaine connexion.
+</Callout>
+
+Une fois la période de grâce écoulée, les utilisateurs sans méthode 2FA configurée ne pourront plus accéder à l'espace tant qu'ils n'auront pas activé au moins une méthode.

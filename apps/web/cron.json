@@ -1,0 +1,7 @@
+{
+  "jobs": [
+    {
+      "command": "*/15 * * * * curl -sf -X POST \"${NEXT_PUBLIC_SITE_URL}/api/cron/integrations\" -H \"Authorization: Bearer ${INTEGRATION_CRON_SECRET}\" -H \"Content-Type: application/json\""
+    }
+  ]
+}

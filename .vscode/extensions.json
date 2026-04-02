@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "editorconfig.editorconfig",
+    "dbaeumer.vscode-eslint",
+    "vscode-icons-team.vscode-icons",
+    "Prisma.prisma",
+  ]
+}

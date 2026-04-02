@@ -1,0 +1,129 @@
+/* Fumadocs Theme — French Blue (shadcn tokens)
+ * Maps Fumadocs --color-fd-* to our design tokens.
+ * Light/dark switching is handled by ThemeToggle (.dark class on <html>)
+ * and tokens scoped under [data-ui-theme="Default"] in packages/ui.
+ */
+
+:root {
+    --color-fd-background: var(--background);
+    --color-fd-foreground: var(--foreground);
+    --color-fd-card: var(--card);
+    --color-fd-card-foreground: var(--card-foreground);
+    --color-fd-popover: var(--popover);
+    --color-fd-popover-foreground: var(--popover-foreground);
+    --color-fd-primary: var(--primary);
+    --color-fd-primary-foreground: var(--primary-foreground);
+    --color-fd-secondary: var(--secondary);
+    --color-fd-secondary-foreground: var(--secondary-foreground);
+    --color-fd-accent: var(--accent);
+    --color-fd-accent-foreground: var(--accent-foreground);
+    --color-fd-muted: var(--muted);
+    --color-fd-muted-foreground: var(--muted-foreground);
+    --color-fd-border: var(--border);
+    --color-fd-ring: var(--ring);
+}
+
+/* Shiki syntax highlighting dark mode */
+.dark .shiki:not(.not-fumadocs-codeblock *) {
+    background-color: var(--shiki-dark-bg);
+}
+
+.dark .shiki:not(.not-fumadocs-codeblock *) code span {
+    color: var(--shiki-dark);
+}
+
+/* ==============================
+   Theme-aware images (ImageWithTheme component)
+   Two <img> stacked via absolute positioning, crossfade via opacity.
+   ============================== */
+.image-with-theme {
+    position: relative;
+    margin: 1.5em 0;
+}
+
+.image-with-theme img[data-theme-img] {
+    display: block;
+    margin: 0;
+    border: 1px solid var(--border);
+    box-shadow:
+        0 1px 3px 0 rgb(0 0 0 / 0.1),
+        0 1px 2px -1px rgb(0 0 0 / 0.1);
+    transition: opacity 0.3s ease;
+}
+
+.image-with-theme img[data-theme-img="dark"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Default: light visible, dark hidden */
+.image-with-theme img[data-theme-img="light"] {
+    opacity: 1;
+}
+
+.image-with-theme img[data-theme-img="dark"] {
+    opacity: 0;
+}
+
+/* Dark theme: flip */
+.dark .image-with-theme img[data-theme-img="light"] {
+    opacity: 0;
+}
+
+.dark .image-with-theme img[data-theme-img="dark"] {
+    opacity: 1;
+}
+
+/* Manual override — placed AFTER theme rules so same-specificity wins by source order */
+:root[data-img-preview-override="light"] .image-with-theme img[data-theme-img="light"] {
+    opacity: 1;
+}
+
+:root[data-img-preview-override="light"] .image-with-theme img[data-theme-img="dark"] {
+    opacity: 0;
+}
+
+:root[data-img-preview-override="dark"] .image-with-theme img[data-theme-img="light"] {
+    opacity: 0;
+}
+
+:root[data-img-preview-override="dark"] .image-with-theme img[data-theme-img="dark"] {
+    opacity: 1;
+}
+
+/* Toggle button */
+.image-theme-toggle {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border);
+    background: var(--background);
+    color: var(--foreground);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s ease, background 0.15s ease;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.15);
+}
+
+.image-with-theme:hover .image-theme-toggle,
+.image-with-theme:focus-within .image-theme-toggle,
+.image-theme-toggle:focus-visible {
+    opacity: 0.85;
+}
+
+.image-theme-toggle:hover,
+.image-theme-toggle:focus-visible {
+    opacity: 1 !important;
+    background: var(--accent);
+}

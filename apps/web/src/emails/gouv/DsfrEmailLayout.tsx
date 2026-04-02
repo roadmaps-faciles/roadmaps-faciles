@@ -1,0 +1,293 @@
+/* eslint-disable @next/next/no-img-element -- email templates use <img>, not next/image */
+import { Body, Head, Html, Preview } from "@react-email/components";
+import { type ReactNode } from "react";
+
+import { DsfrSpacer } from "../components";
+
+const FONT_FAMILY = "'Marianne', Arial, Helvetica, sans-serif";
+
+const darkModeStyles = `
+:root {
+  color-scheme: light dark;
+  supported-color-schemes: light dark;
+}
+.hide-white { display: none !important; }
+.hide-black { display: block !important; }
+@media (prefers-color-scheme: dark) {
+  body { background: #161616 !important; }
+  .hide-black { display: none !important; }
+  .hide-white { display: block !important; }
+  .darkmode { background-color: #161616 !important; color: #ffffff !important; background: none !important; border-color: #2A2A2A !important; }
+  .darkmode-1 { background-color: #161616 !important; color: #CECECE !important; background: none !important; }
+  .darkmode-3 { background-color: #1E1E1E !important; color: #ffffff !important; border-color: #2A2A2A !important; }
+  a[href] { color: #8585F6 !important; }
+  a.darkmode-button-color-primary[href] { color: #000091 !important; }
+  .darkmode-button-primary { background-color: #8585F6 !important; color: #000091 !important; border: solid 1px #8585F6 !important; }
+}
+@media only screen and (max-width: 600px) {
+  .wlkm-mw { width: 100% !important; padding-left: 0 !important; padding-right: 0 !important; }
+  .wlkm-cl { width: 90% !important; margin: 0 auto; }
+}
+`;
+
+interface DsfrEmailLayoutProps {
+  baseUrl: string;
+  children: ReactNode;
+  footerText: string;
+  locale?: string;
+  previewText?: string;
+  serviceName: string;
+}
+
+export const DsfrEmailLayout = ({
+  baseUrl,
+  children,
+  footerText,
+  locale = "fr",
+  previewText,
+  serviceName,
+}: DsfrEmailLayoutProps) => (
+  <Html lang={locale}>
+    <Head>
+      <meta content="text/html; charset=UTF-8" httpEquiv="Content-Type" />
+      <meta content="width=device-width; initial-scale=1.0; maximum-scale=1.0;" name="viewport" />
+      <style dangerouslySetInnerHTML={{ __html: darkModeStyles }} />
+    </Head>
+    {previewText && <Preview>{previewText}</Preview>}
+    <Body
+      style={{
+        width: "100%",
+        backgroundColor: "#ffffff",
+        margin: 0,
+        padding: 0,
+        WebkitTextSizeAdjust: "none",
+        fontFamily: "Tahoma, Geneva, sans-serif",
+      }}
+    >
+      {/* Outer wrapper */}
+      <table
+        border={0}
+        cellPadding={0}
+        cellSpacing={0}
+        className="darkmode"
+        role="presentation"
+        style={{ minWidth: "100%", width: "100%" }}
+        width="100%"
+      >
+        <tbody>
+          <tr>
+            <td align="center">
+              {/* 600px bordered container */}
+              <table
+                align="center"
+                border={0}
+                cellPadding={0}
+                cellSpacing={0}
+                className="wlkm-mw darkmode-3"
+                role="presentation"
+                style={{
+                  margin: "0 auto",
+                  borderCollapse: "collapse",
+                  width: "600px",
+                  borderLeft: "1px #e5e5e5 solid",
+                  borderRight: "1px #e5e5e5 solid",
+                  borderTop: "1px #e5e5e5 solid",
+                }}
+                width={600}
+              >
+                <tbody>
+                  {/* Header spacer */}
+                  <DsfrSpacer height={12} />
+
+                  {/* Header: Marianne logo + service name */}
+                  <tr>
+                    <td align="center">
+                      <table
+                        align="center"
+                        border={0}
+                        cellPadding={0}
+                        cellSpacing={0}
+                        className="wlkm-cl darkmode"
+                        role="presentation"
+                        style={{ margin: "0 auto", borderCollapse: "collapse", width: "496px" }}
+                        width={496}
+                      >
+                        <tbody>
+                          <tr>
+                            {/* Marianne logo */}
+                            <td style={{ width: "76px" }} valign="middle" width={76}>
+                              {/* Light mode logo */}
+                              <img
+                                alt="Marianne"
+                                className="hide-black"
+                                height={48}
+                                src={`${baseUrl}/img/email/marianne-light.png`}
+                                style={{ display: "block", border: 0, outline: "none" }}
+                                width={76}
+                              />
+                              {/* Dark mode logo */}
+                              <img
+                                alt="Marianne"
+                                className="hide-white"
+                                height={48}
+                                src={`${baseUrl}/img/email/marianne-dark.png`}
+                                style={{ display: "none", border: 0, outline: "none" }}
+                                width={76}
+                              />
+                            </td>
+                            {/* Service name */}
+                            <td
+                              align="right"
+                              className="darkmode"
+                              style={{
+                                fontSize: "12px",
+                                lineHeight: "20px",
+                                fontFamily: FONT_FAMILY,
+                                fontWeight: "bold",
+                                color: "#161616",
+                              }}
+                              valign="middle"
+                            >
+                              {serviceName}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+
+                  {/* Header bottom spacer */}
+                  <DsfrSpacer height={12} />
+
+                  {/* Separator */}
+                  <tr>
+                    <td style={{ borderTop: "1px #e5e5e5 solid", fontSize: "1px", lineHeight: "1px" }}>&nbsp;</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              {/* Content area */}
+              <table
+                align="center"
+                border={0}
+                cellPadding={0}
+                cellSpacing={0}
+                className="wlkm-mw darkmode-3"
+                role="presentation"
+                style={{
+                  margin: "0 auto",
+                  borderCollapse: "collapse",
+                  width: "600px",
+                  borderLeft: "1px #e5e5e5 solid",
+                  borderRight: "1px #e5e5e5 solid",
+                }}
+                width={600}
+              >
+                <tbody>
+                  <tr>
+                    <td align="center">
+                      <table
+                        align="center"
+                        border={0}
+                        cellPadding={0}
+                        cellSpacing={0}
+                        className="wlkm-cl darkmode"
+                        role="presentation"
+                        style={{ margin: "0 auto", borderCollapse: "collapse", width: "496px" }}
+                        width={496}
+                      >
+                        <tbody>{children}</tbody>
+                      </table>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              {/* Footer */}
+              <table
+                align="center"
+                border={0}
+                cellPadding={0}
+                cellSpacing={0}
+                className="wlkm-mw darkmode-3"
+                role="presentation"
+                style={{
+                  margin: "0 auto",
+                  borderCollapse: "collapse",
+                  width: "600px",
+                  borderLeft: "1px #e5e5e5 solid",
+                  borderRight: "1px #e5e5e5 solid",
+                  borderBottom: "1px #e5e5e5 solid",
+                }}
+                width={600}
+              >
+                <tbody>
+                  {/* Separator */}
+                  <tr>
+                    <td style={{ borderTop: "1px #e5e5e5 solid", fontSize: "1px", lineHeight: "1px" }}>&nbsp;</td>
+                  </tr>
+
+                  <DsfrSpacer height={12} />
+
+                  {/* Footer: Marianne logo + service name */}
+                  <tr>
+                    <td align="center">
+                      <table
+                        align="center"
+                        border={0}
+                        cellPadding={0}
+                        cellSpacing={0}
+                        className="wlkm-cl darkmode"
+                        role="presentation"
+                        style={{ margin: "0 auto", borderCollapse: "collapse", width: "496px" }}
+                        width={496}
+                      >
+                        <tbody>
+                          <tr>
+                            <td style={{ width: "76px" }} valign="middle" width={76}>
+                              <img
+                                alt="Marianne"
+                                className="hide-black"
+                                height={48}
+                                src={`${baseUrl}/img/email/marianne-light.png`}
+                                style={{ display: "block", border: 0, outline: "none" }}
+                                width={76}
+                              />
+                              <img
+                                alt="Marianne"
+                                className="hide-white"
+                                height={48}
+                                src={`${baseUrl}/img/email/marianne-dark.png`}
+                                style={{ display: "none", border: 0, outline: "none" }}
+                                width={76}
+                              />
+                            </td>
+                            <td
+                              align="right"
+                              className="darkmode-1"
+                              style={{
+                                fontSize: "12px",
+                                lineHeight: "20px",
+                                fontFamily: FONT_FAMILY,
+                                color: "#6b6b6b",
+                              }}
+                              valign="middle"
+                            >
+                              {footerText}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+
+                  <DsfrSpacer height={12} />
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </Body>
+  </Html>
+);
