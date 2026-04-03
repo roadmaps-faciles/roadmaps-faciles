@@ -1,4 +1,5 @@
 import { type Metadata } from "next";
+import Link from "next/link";
 
 import { config } from "@/config";
 
@@ -88,7 +89,7 @@ const CguPage = () => {
       </ul>
       <p>Les prix sont indiqués en euros TTC. TVA non applicable, article 293 B du Code Général des Impôts.</p>
       <p>
-        Les tarifs en vigueur sont disponibles sur la page <a href="/pricing">Tarifs</a>.
+        Les tarifs en vigueur sont disponibles sur la page <Link href="/pricing">Tarifs</Link>.
       </p>
 
       <h2>5. Paiement et facturation</h2>
@@ -146,7 +147,7 @@ const CguPage = () => {
       <h2>9. Protection des données personnelles</h2>
       <p>
         Le traitement des données personnelles est décrit dans notre{" "}
-        <a href="/politique-de-confidentialite">Politique de confidentialité</a>.
+        <Link href="/politique-de-confidentialite">Politique de confidentialité</Link>.
       </p>
 
       <h2>10. Modification des conditions</h2>

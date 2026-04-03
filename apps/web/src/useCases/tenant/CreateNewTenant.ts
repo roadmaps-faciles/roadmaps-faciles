@@ -3,7 +3,6 @@ import { z } from "zod";
 import { config } from "@/config";
 import { prisma } from "@/lib/db/prisma";
 import { getDnsProvider } from "@/lib/ee/dns-provider";
-import { isReservedSubdomain } from "@/utils/reservedSubdomains";
 import { type DnsProvisionResult } from "@/lib/ee/dns-provider/IDnsProvider";
 import { getDomainProvider } from "@/lib/ee/domain-provider";
 import { canCreateTenant } from "@/lib/ee/entitlements";
@@ -18,6 +17,7 @@ import { type IUserOnTenantRepo } from "@/lib/repo/IUserOnTenantRepo";
 import { type IUserRepo } from "@/lib/repo/IUserRepo";
 import { OrgPlan, OrgRole, UserRole, UserStatus } from "@/prisma/enums";
 import { SendInvitation } from "@/useCases/invitations/SendInvitation";
+import { isReservedSubdomain } from "@/utils/reservedSubdomains";
 
 import { type UseCase } from "../types";
 

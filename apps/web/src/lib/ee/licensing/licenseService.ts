@@ -3,7 +3,8 @@ import "server-only";
 import { config } from "@/config";
 import { logger } from "@/lib/logger";
 
-import { verifyLicenseOnline } from "./licenseFetcher";
+import { getOrCreateInstanceId } from "./instanceId";
+import { activateLicenseOnline, verifyLicenseOnline } from "./licenseFetcher";
 import { isLicenseExpired, parseLicenseKey } from "./licenseVerifier";
 import { type LicenseStatus } from "./types";
 
@@ -12,7 +13,7 @@ const GRACE_PERIOD_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 let cachedStatus: LicenseStatus | null = null;
 let lastOnlineCheck: Date | null = null;
-let offlineOnlyWarned = false;
+let activationAttempted = false;
 
 function shouldRefreshOnline(): boolean {
   if (!lastOnlineCheck) return true;
@@ -37,8 +38,9 @@ function applyGracePeriod(plan: "GOV_LICENSED" | "LICENSED", expiresAt: Date): L
 /**
  * Get the current license status. Performs online refresh if needed.
  * This is the primary entrypoint for entitlement checks.
+ * @param forceRefresh - bypass the 24h cooldown and force an online check
  */
-export async function getLicenseStatus(): Promise<LicenseStatus> {
+export async function getLicenseStatus(forceRefresh = false): Promise<LicenseStatus> {
   if (!config.licenseKey) {
     return { mode: "community", valid: false };
   }
@@ -58,14 +60,12 @@ export async function getLicenseStatus(): Promise<LicenseStatus> {
     };
   }
 
-  // Check if online refresh needed
-  if (shouldRefreshOnline() && !config.instanceId && !offlineOnlyWarned) {
-    offlineOnlyWarned = true;
-    logger.warn("INSTANCE_ID not configured — online license verification disabled, running in offline-only mode");
-  }
-  if (shouldRefreshOnline() && config.instanceId) {
-    const online = await verifyLicenseOnline(config.licenseKey, config.instanceId);
+  // Online refresh
+  if (forceRefresh || shouldRefreshOnline()) {
+    const instanceId = await getOrCreateInstanceId();
+    const online = await verifyLicenseOnline(config.licenseKey, instanceId);
     if (online) {
+      const wasFirstVerify = !lastOnlineCheck;
       lastOnlineCheck = new Date();
       cachedStatus = {
         mode: "licensed",
@@ -74,6 +74,18 @@ export async function getLicenseStatus(): Promise<LicenseStatus> {
         expiresAt: new Date(payload.expiresAt),
         lastVerified: lastOnlineCheck,
       };
+
+      // Auto-activate on first successful verify (fire-and-forget)
+      if (wasFirstVerify && !activationAttempted) {
+        activationAttempted = true;
+        void activateLicenseOnline(config.licenseKey, instanceId).then(result => {
+          if (result?.alreadyBound) {
+            logger.warn("License already bound to a different instance");
+          } else if (result?.activated) {
+            logger.info("License activated for this instance");
+          }
+        });
+      }
     } else {
       // Server unreachable — apply grace period
       cachedStatus = applyGracePeriod(payload.plan, new Date(payload.expiresAt));

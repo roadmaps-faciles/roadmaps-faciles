@@ -14,9 +14,11 @@ vi.mock("@/lib/ee/licensing/licenseService", () => ({
   getLicenseStatus: mockGetLicenseStatus,
 }));
 
+const mockFindByTenantId = vi.fn();
+const mockIsActiveForTenant = vi.fn();
 vi.mock("@/lib/repo", () => ({
-  organizationRepo: { findByTenantId: vi.fn() },
-  orgAddonRepo: { isActiveForTenant: vi.fn() },
+  organizationRepo: { findByTenantId: mockFindByTenantId },
+  orgAddonRepo: { isActiveForTenant: mockIsActiveForTenant },
 }));
 
 vi.mock("next/navigation", () => ({
@@ -71,12 +73,11 @@ describe("hasEntitlement — self-host (license mode)", () => {
   });
 
   it("does not call DB repos in self-host mode", async () => {
-    const { organizationRepo, orgAddonRepo } = await import("@/lib/repo");
     mockGetLicenseStatus.mockResolvedValue({ mode: "licensed", valid: true, plan: "LICENSED" });
 
     await hasEntitlement(1, ADDON_TYPE.TRACKING);
 
-    expect(organizationRepo.findByTenantId).not.toHaveBeenCalled();
-    expect(orgAddonRepo.isActiveForTenant).not.toHaveBeenCalled();
+    expect(mockFindByTenantId).not.toHaveBeenCalled();
+    expect(mockIsActiveForTenant).not.toHaveBeenCalled();
   });
 });

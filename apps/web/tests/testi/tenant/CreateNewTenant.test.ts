@@ -107,7 +107,7 @@ describe("CreateNewTenant", () => {
   it("creates a tenant with settings and provisions domain/DNS", async () => {
     const org = fakeOrganization({ id: 10 });
     const tenant = fakeTenant({ id: 1, organizationId: 10 });
-    const settings = fakeTenantSettings({ tenantId: 1, name: "Test", subdomain: "test" });
+    const settings = fakeTenantSettings({ tenantId: 1, name: "Test", subdomain: "my-test" });
 
     mockOrganizationRepo.create.mockResolvedValue(org);
     mockTenantRepo.create.mockResolvedValue(tenant);
@@ -116,27 +116,27 @@ describe("CreateNewTenant", () => {
     mockUserOnTenantRepo.create.mockResolvedValue({});
     mockOrgMemberRepo.create.mockResolvedValue({});
     mockAddDomain.mockResolvedValue(undefined);
-    mockAddRecord.mockResolvedValue({ type: "CNAME", name: "test" });
+    mockAddRecord.mockResolvedValue({ type: "CNAME", name: "my-test" });
     mockSendInvitationExecute.mockResolvedValue({});
 
     const result = await useCase.execute({
       name: "Test",
-      subdomain: "test",
+      subdomain: "my-test",
       creatorId: "user-1",
       ownerEmails: ["owner@test.com"],
     });
 
     expect(mockOrganizationRepo.create).toHaveBeenCalledWith(
-      expect.objectContaining({ name: "Test", slug: "test", plan: "BASE" }),
+      expect.objectContaining({ name: "Test", slug: "my-test", plan: "BASE" }),
     );
     expect(mockTenantRepo.create).toHaveBeenCalledWith({ organizationId: 10 });
     expect(mockSettingsRepo.create).toHaveBeenCalledWith(
-      expect.objectContaining({ tenantId: 1, name: "Test", subdomain: "test" }),
+      expect.objectContaining({ tenantId: 1, name: "Test", subdomain: "my-test" }),
     );
-    expect(mockAddDomain).toHaveBeenCalledWith("test.localhost:3000", "subdomain");
-    expect(mockAddRecord).toHaveBeenCalledWith("test");
+    expect(mockAddDomain).toHaveBeenCalledWith("my-test.localhost:3000", "subdomain");
+    expect(mockAddRecord).toHaveBeenCalledWith("my-test");
     expect(result.tenant).toEqual({ ...tenant, settings });
-    expect(result.dns).toEqual({ type: "CNAME", name: "test" });
+    expect(result.dns).toEqual({ type: "CNAME", name: "my-test" });
     expect(result.organization).toEqual({ id: 10 });
   });
 

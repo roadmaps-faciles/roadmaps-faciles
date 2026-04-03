@@ -122,7 +122,7 @@ export const NewTenantForm = ({ adminOrgs = [] }: { adminOrgs?: AdminOrg[] }) =>
             placeholder="Mon espace"
             aria-invalid={!!errors.name}
             {...register("name", {
-              onChange: e => {
+              onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
                 const slug = e.target.value
                   .toLowerCase()
                   .replace(/[^a-z0-9-]/g, "-")
@@ -171,7 +171,7 @@ export const NewTenantForm = ({ adminOrgs = [] }: { adminOrgs?: AdminOrg[] }) =>
                 id="organizationName"
                 placeholder="Mon organisation"
                 {...register("organizationName", {
-                  onChange: e => {
+                  onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
                     markDirty("organizationName");
                     if (!isDirty("organizationSlug")) {
                       setValue(

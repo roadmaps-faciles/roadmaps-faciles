@@ -1,13 +1,14 @@
 import { TenantRepoPrisma } from "@/lib/repo/impl/TenantRepoPrisma";
 
-import { createTestMembership, createTestTenantWithSettings, createTestUser } from "../helpers";
+import { createTestMembership, createTestOrganization, createTestTenantWithSettings, createTestUser } from "../helpers";
 
 const repo = new TenantRepoPrisma();
 
 describe("TenantRepoPrisma", () => {
   describe("create", () => {
     it("creates a tenant with autoincrement id", async () => {
-      const tenant = await repo.create({});
+      const org = await createTestOrganization();
+      const tenant = await repo.create({ organizationId: org.id });
 
       expect(tenant.id).toBeGreaterThan(0);
       expect(tenant.deletedAt).toBeNull();
@@ -17,7 +18,7 @@ describe("TenantRepoPrisma", () => {
 
   describe("findById", () => {
     it("returns tenant when found", async () => {
-      const created = await repo.create({});
+      const created = await repo.create({ organizationId: (await createTestOrganization()).id });
 
       const found = await repo.findById(created.id);
 
@@ -44,7 +45,7 @@ describe("TenantRepoPrisma", () => {
     });
 
     it("returns null settings when no settings exist", async () => {
-      const tenant = await repo.create({});
+      const tenant = await repo.create({ organizationId: (await createTestOrganization()).id });
 
       const found = await repo.findByIdWithSettings(tenant.id);
 
@@ -105,7 +106,7 @@ describe("TenantRepoPrisma", () => {
     });
 
     it("excludes tenants without settings", async () => {
-      await repo.create({});
+      await repo.create({ organizationId: (await createTestOrganization()).id });
       const { tenant } = await createTestTenantWithSettings();
 
       const results = await repo.findAllWithSettings();
@@ -141,7 +142,7 @@ describe("TenantRepoPrisma", () => {
 
   describe("update", () => {
     it("updates tenant deletedAt", async () => {
-      const created = await repo.create({});
+      const created = await repo.create({ organizationId: (await createTestOrganization()).id });
       const now = new Date();
 
       const updated = await repo.update(created.id, { deletedAt: now });

@@ -8,6 +8,13 @@ docs/deploy/** filter=git-crypt diff=git-crypt export-ignore
 .env.development filter=git-crypt diff=git-crypt
 TODO.md filter=git-crypt diff=git-crypt
 apps/licensing/** filter=git-crypt diff=git-crypt
+apps/licensing/.gitignore !filter !diff
+apps/licensing/package.json !filter !diff
+apps/licensing/turbo.json !filter !diff
+apps/licensing/tsconfig.json !filter !diff
+apps/licensing/tsconfig.build.json !filter !diff
+apps/licensing/eslint.config.ts !filter !diff
+apps/licensing/vitest.config.ts !filter !diff
 CLAUDE.md export-ignore
 CLAUDE.local.md export-ignore
 .git-crypt export-ignore

@@ -11,14 +11,24 @@ export async function createTestUser(overrides: Partial<Prisma.UserUncheckedCrea
   return prisma.user.create({ data: { ...defaults, ...overrides } });
 }
 
+export async function createTestOrganization(overrides: Partial<Prisma.OrganizationUncheckedCreateInput> = {}) {
+  const defaults: Prisma.OrganizationUncheckedCreateInput = {
+    name: faker.company.name(),
+    slug: `org-${faker.string.alphanumeric(10).toLowerCase()}`,
+  };
+  return prisma.organization.create({ data: { ...defaults, ...overrides } });
+}
+
 export async function createTestTenant() {
-  return prisma.tenant.create({ data: {} });
+  const org = await createTestOrganization();
+  return prisma.tenant.create({ data: { organizationId: org.id } });
 }
 
 export async function createTestTenantWithSettings(
   settingsOverrides: Partial<Prisma.TenantSettingsUncheckedCreateInput> = {},
 ) {
-  const tenant = await prisma.tenant.create({ data: {} });
+  const org = await createTestOrganization();
+  const tenant = await prisma.tenant.create({ data: { organizationId: org.id } });
   const defaults: Prisma.TenantSettingsUncheckedCreateInput = {
     tenantId: tenant.id,
     name: faker.company.name(),

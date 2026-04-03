@@ -68,7 +68,7 @@ export const OrgGeneralForm = ({ org, canEdit = false }: OrgGeneralFormProps) =>
           <AlertTitle>{t("saved")}</AlertTitle>
         </Alert>
       )}
-      <form action={onSubmit} className="space-y-4">
+      <form action={formData => void onSubmit(formData)} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="name">{t("name")}</Label>
           <Input id="name" name="name" defaultValue={org.name} required />
@@ -116,16 +116,17 @@ export const OrgGeneralForm = ({ org, canEdit = false }: OrgGeneralFormProps) =>
           <Button
             variant="destructive"
             disabled={deleteConfirm !== org.slug || deletePending}
-            onClick={async () => {
+            onClick={() => {
               setDeleteError(null);
               setDeletePending(true);
-              const result = await deleteOrganization(org.id, deleteConfirm);
-              if (result.ok) {
-                window.location.href = "/";
-              } else {
-                setDeleteError(result.error);
-              }
-              setDeletePending(false);
+              void deleteOrganization(org.id, deleteConfirm).then(result => {
+                if (result.ok) {
+                  window.location.href = "/";
+                } else {
+                  setDeleteError(result.error);
+                }
+                setDeletePending(false);
+              });
             }}
           >
             {t("delete")}

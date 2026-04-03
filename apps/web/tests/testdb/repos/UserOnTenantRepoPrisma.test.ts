@@ -1,6 +1,6 @@
 import { UserOnTenantRepoPrisma } from "@/lib/repo/impl/UserOnTenantRepoPrisma";
 
-import { createTestMembership, createTestTenantWithSettings, createTestUser } from "../helpers";
+import { createTestMembership, createTestTenant, createTestTenantWithSettings, createTestUser } from "../helpers";
 
 const repo = new UserOnTenantRepoPrisma();
 
@@ -80,8 +80,7 @@ describe("UserOnTenantRepoPrisma", () => {
       const { tenant: t1 } = await createTestTenantWithSettings();
       const { tenant: t2 } = await createTestTenantWithSettings();
       // Tenant without settings
-      const { prisma } = await import("@/lib/db/prisma");
-      const plainTenant = await prisma.tenant.create({ data: {} });
+      const plainTenant = await createTestTenant();
 
       await createTestMembership(user.id, t1.id);
       await createTestMembership(user.id, t2.id, { status: "BLOCKED" });

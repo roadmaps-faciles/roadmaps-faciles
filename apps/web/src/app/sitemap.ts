@@ -1,10 +1,13 @@
 import { type MetadataRoute } from "next";
+import { connection } from "next/server";
 
 import { config } from "@/config";
 import { prisma } from "@/lib/db/prisma";
 import { POST_APPROVAL_STATUS } from "@/lib/model/Post";
 
 const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
+  await connection();
+
   if (config.env !== "prod") {
     return [];
   }

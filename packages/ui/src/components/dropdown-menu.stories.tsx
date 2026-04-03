@@ -1,7 +1,7 @@
 import {
   Cloud,
   CreditCard,
-  Github,
+  GitFork,
   Keyboard,
   LifeBuoy,
   LogOut,
@@ -119,7 +119,7 @@ export const Default: Story = {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
-          <Github />
+          <GitFork />
           <span>GitHub</span>
         </DropdownMenuItem>
         <DropdownMenuItem>

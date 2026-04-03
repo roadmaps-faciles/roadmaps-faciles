@@ -22,7 +22,7 @@ interface StripePriceConfig {
  * Price IDs are NOT secrets — they're public identifiers.
  */
 const STRIPE_PRICES: Record<string, Record<string, StripePriceConfig>> = {
-  // Test mode (Roadmaps Faciles Stripe account)
+  // Test mode — dev (Roadmaps Faciles Stripe account)
   test: {
     customDomain: { monthly: "price_1TGKtmRuBCVNYdmeeBsKsK4F", yearly: "price_1TGKtmRuBCVNYdmeOCMYo5No" },
     multiTenant: { monthly: "price_1TGKyBRuBCVNYdmeFXgY5I9O", yearly: "price_1TGKyBRuBCVNYdmeGAkXVMpD" },
@@ -34,13 +34,25 @@ const STRIPE_PRICES: Record<string, Record<string, StripePriceConfig>> = {
     bundlePro: { monthly: "price_1TGMVqRuBCVNYdmeGtwv2w9R", yearly: "price_1TGMVqRuBCVNYdmeUTP1OlJC" },
     bundleComplete: { monthly: "price_1TGMYeRuBCVNYdmeEK6rcM3X", yearly: "price_1TGMYeRuBCVNYdmebm5coBO0" },
   },
+  // Test mode — staging (cloned from dev via scripts/stripe-clone-env.ts)
+  staging: {
+    customDomain: { monthly: "price_1TIAkgRx4fpqvFkyl3UzlQQW", yearly: "price_1TIAkgRx4fpqvFkyAm3yCJMw" },
+    multiTenant: { monthly: "price_1TIAkfRx4fpqvFky1qhGqtf6", yearly: "price_1TIAkgRx4fpqvFkypIgEFsRs" },
+    integrations: { monthly: "price_1TIAkfRx4fpqvFkyqPdu5a6o", yearly: "price_1TIAkfRx4fpqvFkyiNinvSKY" },
+    apiWebhooks: { monthly: "price_1TIAkeRx4fpqvFky0VNuvZuO", yearly: "price_1TIAkeRx4fpqvFkyyaGbzkF4" },
+    auditCompliance: { monthly: "price_1TIAkeRx4fpqvFkyqOUyJNZh", yearly: "price_1TIAkeRx4fpqvFkyArvxzObd" },
+    analytics: { monthly: "price_1TIAkdRx4fpqvFkyJe5aFBkn", yearly: "price_1TIAkdRx4fpqvFkyZBlrcjnn" },
+    ssoEnterprise: { monthly: "price_1TIAkcRx4fpqvFkyAbF5pyQ4", yearly: "price_1TIAkdRx4fpqvFkyHQVa5EiK" },
+    bundlePro: { monthly: "price_1TIAkcRx4fpqvFkynAb5LkIe", yearly: "price_1TIAkcRx4fpqvFkyIrzwKOvu" },
+    bundleComplete: { monthly: "price_1TIAkbRx4fpqvFkyMfKm3DSR", yearly: "price_1TIAkbRx4fpqvFkyw54HB4Le" },
+  },
   // Production — TODO: create live mode prices and fill in
   prod: {},
 };
 
 function getPriceConfig(): Record<string, StripePriceConfig> {
-  const env = config.env === "prod" ? "prod" : "test";
-  return STRIPE_PRICES[env] ?? {};
+  const priceEnv = config.env === "prod" ? "prod" : config.env === "staging" ? "staging" : "test";
+  return STRIPE_PRICES[priceEnv] ?? {};
 }
 
 // --- Dev mode fallback (no Stripe) ---

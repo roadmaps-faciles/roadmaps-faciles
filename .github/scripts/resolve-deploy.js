@@ -13,8 +13,13 @@ const CI_WORKFLOWS = [
 ];
 
 const APPS = {
-  production: "roadmaps-faciles",
-  staging: "roadmaps-faciles-staging",
+  web: {
+    production: process.env.SCALINGO_APP_WEB_PRODUCTION || "roadmaps-faciles",
+    staging: process.env.SCALINGO_APP_WEB_STAGING || "roadmaps-faciles-staging",
+  },
+  licensing: {
+    production: process.env.SCALINGO_APP_LICENSING_PRODUCTION || "roadmaps-faciles-licensing",
+  },
 };
 
 /**
@@ -56,11 +61,11 @@ async function allCiPassed(github, owner, repo, headSha, core) {
  * @param {GitHub} params.github
  * @param {Context} params.context
  * @param {Core} params.core
- * @param {keyof typeof APPS} params.dispatchEnvironment
+ * @param {keyof typeof APPS.web} params.dispatchEnvironment
  */
 module.exports = async ({ github, context, core, dispatchEnvironment }) => {
   const eventName = context.eventName;
-  /** @type {keyof typeof APPS} */
+  /** @type {keyof typeof APPS.web} */
   let environment = "staging";
   let ref = context.sha;
   let shouldDeploy = false;
@@ -92,10 +97,12 @@ module.exports = async ({ github, context, core, dispatchEnvironment }) => {
     }
   }
 
-  const appName = APPS[environment] ?? APPS.staging;
+  const webAppName = APPS.web[environment] ?? APPS.web.staging;
+  const licensingAppName = APPS.licensing[environment] ?? "";
 
   core.setOutput("environment", environment);
-  core.setOutput("app_name", appName);
+  core.setOutput("web_app_name", webAppName);
+  core.setOutput("licensing_app_name", licensingAppName);
   core.setOutput("ref", ref);
   core.setOutput("should_deploy", String(shouldDeploy));
 
@@ -107,7 +114,8 @@ module.exports = async ({ github, context, core, dispatchEnvironment }) => {
         { data: "Value", header: true },
       ],
       ["Environment", environment],
-      ["App", appName],
+      ["Web app", webAppName],
+      ["Licensing app", licensingAppName],
       ["Ref", ref],
       ["Should deploy", String(shouldDeploy)],
     ])

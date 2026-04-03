@@ -4,7 +4,10 @@ export interface IAppSettingsRepo {
   get(): Promise<AppSettings>;
   update(
     data: Partial<
-      Pick<AppSettings, "featureFlags" | "force2FA" | "force2FAGraceDays" | "pinnedTenantId" | "rootOAuthProviders">
+      Pick<
+        AppSettings,
+        "featureFlags" | "force2FA" | "force2FAGraceDays" | "instanceId" | "pinnedTenantId" | "rootOAuthProviders"
+      >
     >,
   ): Promise<AppSettings>;
 }
