@@ -1184,6 +1184,7 @@
       "currentUser": "you",
       "template": "Template",
       "theme": "Theme",
+      "colorMode": "Color mode",
       "send": "Send",
       "sending": "Sending...",
       "sent": "Test email sent."

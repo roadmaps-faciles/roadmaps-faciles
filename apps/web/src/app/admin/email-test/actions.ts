@@ -15,8 +15,34 @@ import { assertAdmin } from "@/utils/auth";
 import { type ServerActionResponse } from "@/utils/next";
 
 export type EmailTemplate = "emLinkConfirm" | "invitation" | "magicLink" | "resetPassword" | "verifyEmail";
+export type ColorMode = "auto" | "dark" | "light";
+
+function forceColorMode(html: string, mode: ColorMode): string {
+  if (mode === "auto") return html;
+
+  if (mode === "dark") {
+    return html.replace(
+      "</head>",
+      `<style>
+        :root { color-scheme: dark !important; }
+        body { background: #161616 !important; }
+        .hide-black { display: none !important; }
+        .hide-white { display: block !important; }
+        .darkmode { background-color: #161616 !important; color: #ffffff !important; background: none !important; border-color: #2A2A2A !important; }
+        .darkmode-1 { background-color: #161616 !important; color: #CECECE !important; background: none !important; }
+        .darkmode-3 { background-color: #1E1E1E !important; color: #ffffff !important; border-color: #2A2A2A !important; }
+        a[href] { color: #8585F6 !important; }
+        a.darkmode-button-color-primary[href] { color: #000091 !important; }
+        .darkmode-button-primary { background-color: #8585F6 !important; color: #000091 !important; border: solid 1px #8585F6 !important; }
+      </style></head>`,
+    );
+  }
+
+  return html.replace("</head>", `<style>:root { color-scheme: light only !important; }</style></head>`);
+}
 
 export const sendTestEmail = async (data: {
+  colorMode: ColorMode;
   template: EmailTemplate;
   theme: UiTheme;
 }): Promise<ServerActionResponse> => {
@@ -24,7 +50,7 @@ export const sendTestEmail = async (data: {
   const email = session.user.email;
   if (!email) return { ok: false, error: "No email on session" };
 
-  const { template, theme } = data;
+  const { template, theme, colorMode } = data;
   const baseUrl = config.host;
 
   const [tFooter] = await Promise.all([getEmailTranslations("fr", "emails", ["footer"])]);
@@ -136,7 +162,8 @@ export const sendTestEmail = async (data: {
     }
   }
 
-  await sendEmail({ to: email, subject, html, text: subject });
+  const finalHtml = forceColorMode(html, colorMode);
+  await sendEmail({ to: email, subject, html: finalHtml, text: subject });
 
   return { ok: true };
 };

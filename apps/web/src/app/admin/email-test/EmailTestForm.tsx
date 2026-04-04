@@ -21,7 +21,7 @@ import { useState, useTransition } from "react";
 
 import { type UiTheme } from "@/ui/types";
 
-import { type EmailTemplate, sendTestEmail } from "./actions";
+import { type ColorMode, type EmailTemplate, sendTestEmail } from "./actions";
 
 const TEMPLATES: Array<{ label: string; value: EmailTemplate }> = [
   { value: "magicLink", label: "Magic Link" },
@@ -36,6 +36,12 @@ const THEMES: Array<{ label: string; value: UiTheme }> = [
   { value: "Dsfr", label: "DSFR (Gouvernemental)" },
 ];
 
+const COLOR_MODES: Array<{ label: string; value: ColorMode }> = [
+  { value: "auto", label: "Auto (préférence client)" },
+  { value: "light", label: "Light" },
+  { value: "dark", label: "Dark" },
+];
+
 interface EmailTestFormProps {
   userEmail: string;
 }
@@ -45,10 +51,11 @@ export const EmailTestForm = ({ userEmail }: EmailTestFormProps) => {
   const [isPending, startTransition] = useTransition();
   const [template, setTemplate] = useState<EmailTemplate>("magicLink");
   const [theme, setTheme] = useState<UiTheme>("Default");
+  const [colorMode, setColorMode] = useState<ColorMode>("auto");
 
   const handleSubmit = () => {
     startTransition(async () => {
-      const result = await sendTestEmail({ template, theme });
+      const result = await sendTestEmail({ template, theme, colorMode });
       if (result.ok) {
         toast.success(t("sent"));
       } else {
@@ -98,6 +105,22 @@ export const EmailTestForm = ({ userEmail }: EmailTestFormProps) => {
               </SelectTrigger>
               <SelectContent>
                 {THEMES.map(({ value, label }) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>{t("colorMode")}</Label>
+            <Select value={colorMode} onValueChange={v => setColorMode(v as ColorMode)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {COLOR_MODES.map(({ value, label }) => (
                   <SelectItem key={value} value={value}>
                     {label}
                   </SelectItem>
