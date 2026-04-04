@@ -9,6 +9,7 @@ import { type IInvitationRepo } from "@/lib/repo/IInvitationRepo";
 import { type IUserOnTenantRepo } from "@/lib/repo/IUserOnTenantRepo";
 import { type IUserRepo } from "@/lib/repo/IUserRepo";
 import { type Invitation } from "@/prisma/client";
+import { type UiTheme } from "@/ui/types";
 import { type Locale } from "@/utils/i18n";
 
 import { type UseCase } from "../types";
@@ -26,6 +27,7 @@ export const SendInvitationInput = z.object({
 // eslint-disable-next-line import/namespace -- false positive: z.infer exists in Zod 4
 export interface SendInvitationExecuteInput extends z.infer<typeof SendInvitationInput> {
   locale?: Locale;
+  uiTheme?: UiTheme;
 }
 export type SendInvitationOutput = Invitation;
 
@@ -101,6 +103,7 @@ export class SendInvitation implements UseCase<SendInvitationExecuteInput, SendI
       baseUrl: config.host,
       invitationLink,
       locale,
+      theme: input.uiTheme,
       translations: {
         title: t.title,
         body: bodyText,

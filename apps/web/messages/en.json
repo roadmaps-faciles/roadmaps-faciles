@@ -1058,7 +1058,8 @@
     "groups": {
       "management": "Management",
       "security": "Security",
-      "developers": "Developers"
+      "developers": "Developers",
+      "tools": "Tools"
     },
     "tenants": "Tenants",
     "organizations": "Organizations",
@@ -1166,6 +1167,26 @@
           "description": "Allows tenants to switch between DSFR theme (gouv.fr) and default theme (shadcn/ui)."
         }
       }
+    },
+    "config": {
+      "menu": "Configuration",
+      "title": "Environment configuration",
+      "description": "Environment variables and instance settings. Sensitive values are masked.",
+      "masked": "masked",
+      "empty": "(empty)"
+    },
+    "emailTest": {
+      "menu": "Email test",
+      "title": "Email testing",
+      "description": "Send test emails to verify template rendering for each theme.",
+      "sendTest": "Send a test email",
+      "recipient": "Recipient",
+      "currentUser": "you",
+      "template": "Template",
+      "theme": "Theme",
+      "send": "Send",
+      "sending": "Sending...",
+      "sent": "Test email sent."
     }
   },
   "emails": {

@@ -1,4 +1,5 @@
 import { getEmailTranslations } from "@/emails/getEmailTranslations";
+import { renderInvitationEmail } from "@/emails/renderEmails";
 import { SendInvitation } from "@/useCases/invitations/SendInvitation";
 
 import {
@@ -162,5 +163,16 @@ describe("SendInvitation", () => {
     expect(getEmailTranslations).toHaveBeenCalledTimes(2);
     expect(getEmailTranslations).toHaveBeenNthCalledWith(1, "fr", expect.any(String), expect.any(Array));
     expect(getEmailTranslations).toHaveBeenNthCalledWith(2, "fr", expect.any(String), expect.any(Array));
+  });
+
+  it("passes uiTheme to the email render function", async () => {
+    mockUserRepo.findByEmail.mockResolvedValue(null);
+    mockInvitationRepo.findByEmailAndTenant.mockResolvedValue(null);
+    mockInvitationRepo.create.mockResolvedValue(fakeInvitation());
+    mockSendEmail.mockResolvedValue(undefined);
+
+    await useCase.execute({ ...validInput, uiTheme: "Dsfr" });
+
+    expect(renderInvitationEmail).toHaveBeenCalledWith(expect.objectContaining({ theme: "Dsfr" }));
   });
 });
