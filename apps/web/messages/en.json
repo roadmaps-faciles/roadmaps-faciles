@@ -9,7 +9,9 @@
     "notRegistered": "Not registered",
     "orgAdmin": "Org admin",
     "tenantAdmin": "Workspace admin",
-    "switchWorkspace": "Switch workspace"
+    "switchWorkspace": "Switch workspace",
+    "searchWorkspace": "Search for a workspace...",
+    "noResults": "No results"
   },
   "validation": {
     "nameRequired": "Name is required.",

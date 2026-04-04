@@ -3,7 +3,6 @@
 import {
   Badge,
   Button,
-  cn,
   DropdownMenu,
   DropdownMenuArrow,
   DropdownMenuContent,
@@ -14,15 +13,17 @@ import {
   DropdownMenuTrigger,
   Skeleton,
 } from "@roadmaps-faciles/ui";
-import { ArrowRight, Building2, ChevronsUpDown, LayoutDashboard, LogOut, Monitor, User } from "lucide-react";
+import { ArrowRight, Building2, ChevronsUpDown, LayoutDashboard, LogOut, Monitor, Repeat, User } from "lucide-react";
 import { motion } from "motion/react";
 import { signOut, useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useState } from "react";
 
 import { InitialsAvatar } from "@/components/img/InitialsAvatar";
 import { type UserMenuData } from "@/ui/AdminSidebar";
 import { useRovingHighlight } from "@/ui/useRovingHighlight";
+import { WorkspaceSwitcher } from "@/ui/WorkspaceSwitcher";
 
 export interface ShadcnUserHeaderItemProps {
   /** "dropdown" = desktop DropdownMenu, "sheet" = inline items for mobile Sheet */
@@ -37,24 +38,49 @@ export interface ShadcnUserHeaderItemProps {
 const itemStyle = { backgroundColor: "transparent", color: "inherit" } as const;
 const itemClass = "relative flex items-center gap-2 outline-none px-2 py-1.5 text-sm";
 
-const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-  <DropdownMenuLabel className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">
-    {children}
-  </DropdownMenuLabel>
-);
-
-const RoleBadge = ({ role }: { role: string }) => {
-  const tr = useTranslations("roles");
-  return (
-    <Badge variant="outline" className="ml-auto shrink-0 px-1.5 py-0 text-[10px]">
-      {tr(role as "OWNER")}
-    </Badge>
-  );
-};
-
 const MenuItemContent = ({ children }: { children: React.ReactNode }) => (
   <span className="relative z-10 flex items-center gap-2">{children}</span>
 );
+
+const DropdownMenuSwitcherTrigger = ({ userMenu }: { userMenu: UserMenuData }) => {
+  const t = useTranslations("sidebar");
+  const [switcherOpen, setSwitcherOpen] = useState(false);
+
+  return (
+    <>
+      <DropdownMenuItem
+        className={itemClass}
+        style={itemStyle}
+        onSelect={e => {
+          e.preventDefault();
+          setSwitcherOpen(true);
+        }}
+      >
+        <MenuItemContent>
+          <Repeat className="size-4 shrink-0 text-muted-foreground" />
+          <span>{t("switchWorkspace")}</span>
+          <kbd className="ml-auto rounded border bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">⌘K</kbd>
+        </MenuItemContent>
+      </DropdownMenuItem>
+      <WorkspaceSwitcher userMenu={userMenu} open={switcherOpen} onOpenChangeAction={setSwitcherOpen} />
+    </>
+  );
+};
+
+const SheetWorkspaceSwitcherTrigger = ({ userMenu, className }: { className: string; userMenu: UserMenuData }) => {
+  const t = useTranslations("sidebar");
+  const [switcherOpen, setSwitcherOpen] = useState(false);
+
+  return (
+    <>
+      <button type="button" onClick={() => setSwitcherOpen(true)} className={className}>
+        <Repeat className="size-4 shrink-0 text-muted-foreground" />
+        <span className="flex-1">{t("switchWorkspace")}</span>
+      </button>
+      <WorkspaceSwitcher userMenu={userMenu} open={switcherOpen} onOpenChangeAction={setSwitcherOpen} />
+    </>
+  );
+};
 
 export const ShadcnUserHeaderItem = ({
   mode = "dropdown",
@@ -93,58 +119,51 @@ export const ShadcnUserHeaderItem = ({
               </div>
             </div>
 
-            {/* Root admin */}
-            {userMenu?.isSuperAdmin && (
-              <div className="mt-2">
+            {/* Current tenant context */}
+            {userMenu?.currentTenant && (
+              <div className="mt-2 rounded-lg border bg-muted/30 p-3">
+                <div className="flex items-center gap-2">
+                  <LayoutDashboard className="size-4 shrink-0 text-muted-foreground" />
+                  <span className="truncate text-sm font-semibold">{userMenu.currentTenant.name}</span>
+                </div>
+                <div className="mt-1 flex items-center gap-2 pl-6">
+                  <Building2 className="size-3.5 shrink-0 text-muted-foreground" />
+                  <span className="truncate text-xs text-muted-foreground">{userMenu.currentTenant.org.name}</span>
+                </div>
+                {(userMenu.currentTenant.adminHref || userMenu.currentTenant.org.adminHref) && (
+                  <div className="mt-2 flex gap-2 pl-6">
+                    {userMenu.currentTenant.adminHref && (
+                      <Link href={userMenu.currentTenant.adminHref} className="text-xs text-primary hover:underline">
+                        {t("tenantAdmin")}
+                      </Link>
+                    )}
+                    {userMenu.currentTenant.org.adminHref && (
+                      <Link
+                        href={userMenu.currentTenant.org.adminHref}
+                        className="text-xs text-primary hover:underline"
+                      >
+                        {t("orgAdmin")}
+                      </Link>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="mt-2">
+              {/* Switch workspace */}
+              {userMenu && userMenu.organizations.length > 0 && (
+                <SheetWorkspaceSwitcherTrigger userMenu={userMenu} className={sheetItemClass} />
+              )}
+
+              {/* Root admin */}
+              {userMenu?.isSuperAdmin && (
                 <Link href="/admin" className={sheetItemClass}>
                   <Monitor className="size-4 shrink-0 text-muted-foreground" />
                   <span className="flex-1">{t("administration")}</span>
                 </Link>
-              </div>
-            )}
-
-            {/* Organizations + Tenants */}
-            {userMenu && userMenu.organizations.length > 0 && (
-              <div className="mt-2">
-                <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">
-                  {t("workspaces")}
-                </p>
-                {userMenu.organizations.map(org => (
-                  <div key={org.id}>
-                    <Link
-                      href={org.orgAdminHref ?? "#"}
-                      className={cn(sheetItemClass, !org.orgAdminHref && "pointer-events-none")}
-                    >
-                      <Building2 className="size-4 shrink-0 text-muted-foreground" />
-                      <span className="flex-1 truncate font-medium">{org.name}</span>
-                      <RoleBadge role={org.role} />
-                    </Link>
-                    {org.tenants.map(tenant => (
-                      <Link
-                        key={tenant.id}
-                        href={tenant.isMember ? tenant.href : "#"}
-                        className={cn(
-                          sheetItemClass,
-                          "pl-10 text-sm",
-                          tenant.id === userMenu.currentTenantId && "bg-accent",
-                          !tenant.isMember && "opacity-50",
-                        )}
-                      >
-                        <LayoutDashboard className="size-3.5 shrink-0 text-muted-foreground" />
-                        <span className="flex-1 truncate">{tenant.name}</span>
-                        {tenant.isMember ? (
-                          <RoleBadge role={tenant.role ?? "MEMBER"} />
-                        ) : (
-                          <Badge variant="outline" className="text-[10px]">
-                            {t("notRegistered")}
-                          </Badge>
-                        )}
-                      </Link>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            )}
+              )}
+            </div>
 
             {/* Account section */}
             <div className="mt-1 border-t pt-2">
@@ -201,83 +220,68 @@ export const ShadcnUserHeaderItem = ({
               </div>
             </DropdownMenuLabel>
 
-            {/* Root admin */}
-            {userMenu?.isSuperAdmin && (
+            {/* Current tenant context */}
+            {userMenu?.currentTenant && (
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/admin"
-                      className={itemClass}
-                      style={itemStyle}
-                      onMouseEnter={handleItemHover}
-                      onMouseLeave={clearHighlight}
-                    >
-                      <MenuItemContent>
-                        <Monitor className="size-4 shrink-0 text-muted-foreground" />
-                        <span>{t("administration")}</span>
-                      </MenuItemContent>
-                    </Link>
-                  </DropdownMenuItem>
+                  <div className="px-3 py-2">
+                    <div className="flex items-center gap-2">
+                      <LayoutDashboard className="size-4 shrink-0 text-muted-foreground" />
+                      <span className="truncate text-sm font-semibold">{userMenu.currentTenant.name}</span>
+                    </div>
+                    <div className="mt-1 flex items-center gap-2 pl-6">
+                      <Building2 className="size-3.5 shrink-0 text-muted-foreground" />
+                      <span className="truncate text-xs text-muted-foreground">{userMenu.currentTenant.org.name}</span>
+                    </div>
+                    {(userMenu.currentTenant.adminHref || userMenu.currentTenant.org.adminHref) && (
+                      <div className="mt-1.5 flex gap-3 pl-6">
+                        {userMenu.currentTenant.adminHref && (
+                          <Link
+                            href={userMenu.currentTenant.adminHref}
+                            className="text-xs text-primary hover:underline"
+                          >
+                            {t("tenantAdmin")}
+                          </Link>
+                        )}
+                        {userMenu.currentTenant.org.adminHref && (
+                          <Link
+                            href={userMenu.currentTenant.org.adminHref}
+                            className="text-xs text-primary hover:underline"
+                          >
+                            {t("orgAdmin")}
+                          </Link>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </DropdownMenuGroup>
               </>
             )}
 
-            {/* Organizations + Tenants grouped */}
-            {userMenu && userMenu.organizations.length > 0 && (
-              <>
-                <DropdownMenuSeparator />
-                <SectionLabel>{t("workspaces")}</SectionLabel>
-                {userMenu.organizations.map(org => (
-                  <DropdownMenuGroup key={org.id}>
-                    <DropdownMenuItem asChild>
-                      <Link
-                        href={org.orgAdminHref ?? "#"}
-                        className={cn(itemClass, !org.orgAdminHref && "pointer-events-none")}
-                        style={itemStyle}
-                        onMouseEnter={handleItemHover}
-                        onMouseLeave={clearHighlight}
-                      >
-                        <MenuItemContent>
-                          <Building2 className="size-4 shrink-0 text-muted-foreground" />
-                          <span className="flex-1 truncate font-medium">{org.name}</span>
-                          <RoleBadge role={org.role} />
-                        </MenuItemContent>
-                      </Link>
-                    </DropdownMenuItem>
-                    {org.tenants.map(tenant => (
-                      <DropdownMenuItem key={tenant.id} asChild>
-                        <Link
-                          href={tenant.isMember ? tenant.href : "#"}
-                          className={cn(
-                            itemClass,
-                            "pl-6",
-                            tenant.id === userMenu.currentTenantId && "bg-accent/50",
-                            !tenant.isMember && "opacity-50",
-                          )}
-                          style={itemStyle}
-                          onMouseEnter={handleItemHover}
-                          onMouseLeave={clearHighlight}
-                        >
-                          <MenuItemContent>
-                            <LayoutDashboard className="size-3.5 shrink-0 text-muted-foreground" />
-                            <span className="flex-1 truncate text-sm">{tenant.name}</span>
-                            {tenant.isMember ? (
-                              <RoleBadge role={tenant.role ?? "MEMBER"} />
-                            ) : (
-                              <Badge variant="outline" className="ml-auto shrink-0 px-1.5 py-0 text-[10px]">
-                                {t("notRegistered")}
-                              </Badge>
-                            )}
-                          </MenuItemContent>
-                        </Link>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuGroup>
-                ))}
-              </>
-            )}
+            {/* Switch workspace + admin */}
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              {userMenu && userMenu.organizations.length > 0 && <DropdownMenuSwitcherTrigger userMenu={userMenu} />}
+
+              {/* Root admin */}
+              {userMenu?.isSuperAdmin && (
+                <DropdownMenuItem asChild>
+                  <Link
+                    href="/admin"
+                    className={itemClass}
+                    style={itemStyle}
+                    onMouseEnter={handleItemHover}
+                    onMouseLeave={clearHighlight}
+                  >
+                    <MenuItemContent>
+                      <Monitor className="size-4 shrink-0 text-muted-foreground" />
+                      <span>{t("administration")}</span>
+                    </MenuItemContent>
+                  </Link>
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuGroup>
 
             {/* Account section */}
             <DropdownMenuSeparator />

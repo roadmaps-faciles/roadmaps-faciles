@@ -16,6 +16,102 @@ import { config } from "@/config";
 import { Icon } from "@/gouv/dsfr";
 import { Link } from "@/i18n/navigation";
 import { type UserMenuData } from "@/ui/AdminSidebar";
+import { WorkspaceSwitcher } from "@/ui/WorkspaceSwitcher";
+
+const AuthenticatedUserMenu = ({
+  pendingModerationCount,
+  user,
+  userMenu,
+}: {
+  pendingModerationCount: number;
+  user: { email: string; image?: null | string; name?: null | string };
+  userMenu?: UserMenuData;
+}) => {
+  const t = useTranslations("auth");
+  const ts = useTranslations("sidebar");
+  const [switcherOpen, setSwitcherOpen] = useState(false);
+
+  const menuItems: UserMenuItem[] = [];
+
+  if (userMenu?.currentTenant) {
+    menuItems.push({
+      label: (
+        <>
+          {userMenu.currentTenant.name}
+          <span className="ml-auto text-xs opacity-60">{userMenu.currentTenant.org.name}</span>
+        </>
+      ),
+      iconId: "fr-icon-layout-grid-line",
+      linkProps: { href: userMenu.currentTenant.adminHref ?? "#" },
+      isCurrent: true,
+    });
+  }
+
+  if (userMenu && userMenu.organizations.length > 0) {
+    menuItems.push({
+      label: ts("switchWorkspace"),
+      iconId: "fr-icon-refresh-line",
+      linkProps: { href: "#" },
+      onClick: () => setSwitcherOpen(true),
+    });
+  }
+
+  if (userMenu?.isSuperAdmin) {
+    menuItems.push({
+      label: ts("administration"),
+      iconId: "fr-icon-settings-5-line",
+      linkProps: { href: "/admin" },
+    });
+  }
+
+  menuItems.push({
+    label: ts("profile"),
+    iconId: "fr-icon-user-line",
+    linkProps: { href: "/profile" },
+  });
+
+  return (
+    <>
+      <UserMenuHeaderItem
+        showLogout
+        showUserInfo
+        withOutline
+        buttonLabel={t("mySpace")}
+        notification={
+          pendingModerationCount > 0 ? (
+            <Badge as="span" small noIcon severity="new" className="ml-1">
+              {t("new")}
+            </Badge>
+          ) : undefined
+        }
+        userName={
+          <>
+            {user.name}
+            {user.image ? (
+              <Image
+                src={new URL(user.image, config.espaceMembre.url).toString()}
+                alt="Avatar"
+                width={40}
+                height={40}
+                className="rounded-full float-right"
+              />
+            ) : (
+              <InitialsAvatar as="span" className="float-right" name={user.name || user.email.toLocaleUpperCase()} />
+            )}
+          </>
+        }
+        userEmail={user.email}
+        onLogout={() => {
+          void signOut({ redirectTo: "/" });
+        }}
+        items={menuItems}
+      />
+      {userMenu && userMenu.organizations.length > 0 && (
+        <WorkspaceSwitcher userMenu={userMenu} open={switcherOpen} onOpenChangeAction={setSwitcherOpen} />
+      )}
+    </>
+  );
+};
 
 export const UserHeaderItem = ({
   pendingModerationCount = 0,
@@ -26,130 +122,16 @@ export const UserHeaderItem = ({
 }) => {
   const session = useSession();
   const t = useTranslations("auth");
-  const ts = useTranslations("sidebar");
-  const tr = useTranslations("roles");
 
   switch (session.status) {
-    case "authenticated": {
-      const { user } = session.data;
-
-      const menuSections: UserMenuSection[] = [];
-
-      // Root admin
-      if (userMenu?.isSuperAdmin) {
-        menuSections.push({
-          items: [
-            {
-              label: ts("administration"),
-              iconId: "fr-icon-settings-5-line",
-              linkProps: { href: "/admin" },
-            },
-          ],
-        });
-      }
-
-      // Organizations + Tenants grouped
-      if (userMenu && userMenu.organizations.length > 0) {
-        const orgItems: UserMenuItem[] = [];
-        for (const org of userMenu.organizations) {
-          orgItems.push({
-            label: (
-              <>
-                {org.name}
-                <Badge as="span" small noIcon severity="info" className="ml-auto">
-                  {tr(org.role as "OWNER")}
-                </Badge>
-              </>
-            ),
-            iconId: "fr-icon-building-line",
-            linkProps: { href: org.orgAdminHref ?? "#" },
-          });
-          for (const tenant of org.tenants) {
-            orgItems.push({
-              label: (
-                <>
-                  <span className={!tenant.isMember ? "opacity-50" : ""}>{tenant.name}</span>
-                  {tenant.isMember ? (
-                    <Badge as="span" small noIcon severity="info" className="ml-auto">
-                      {tr((tenant.role ?? "MEMBER") as "OWNER")}
-                    </Badge>
-                  ) : (
-                    <Badge as="span" small noIcon severity="warning" className="ml-auto">
-                      {ts("notRegistered")}
-                    </Badge>
-                  )}
-                </>
-              ),
-              iconId: "fr-icon-layout-grid-line",
-              linkProps: { href: tenant.isMember ? tenant.href : "#" },
-            });
-          }
-        }
-        menuSections.push({
-          label: ts("workspaces"),
-          items: orgItems,
-        });
-      }
-
-      // Account section — always present
-      menuSections.push({
-        items: [
-          {
-            label: ts("profile"),
-            iconId: "fr-icon-user-line",
-            linkProps: { href: "/profile" },
-          },
-        ],
-      });
-
-      // Flatten sections into items with separators for UserMenuHeaderItem
-      const allItems: UserMenuItem[] = menuSections.flatMap((section, i) => {
-        const items = section.items.map(item => ({ ...item }));
-        if (i > 0 && items.length > 0) {
-          items[0] = { ...items[0], sectionLabel: section.label };
-        } else if (i === 0 && section.label) {
-          items[0] = { ...items[0], sectionLabel: section.label };
-        }
-        return items;
-      });
-
+    case "authenticated":
       return (
-        <UserMenuHeaderItem
-          showLogout
-          showUserInfo
-          withOutline
-          buttonLabel={t("mySpace")}
-          notification={
-            pendingModerationCount > 0 ? (
-              <Badge as="span" small noIcon severity="new" className="ml-1">
-                {t("new")}
-              </Badge>
-            ) : undefined
-          }
-          userName={
-            <>
-              {user.name}
-              {user.image ? (
-                <Image
-                  src={new URL(user.image, config.espaceMembre.url).toString()}
-                  alt="Avatar"
-                  width={40}
-                  height={40}
-                  className="rounded-full float-right"
-                />
-              ) : (
-                <InitialsAvatar as="span" className="float-right" name={user.name || user.email.toLocaleUpperCase()} />
-              )}
-            </>
-          }
-          userEmail={user.email}
-          onLogout={() => {
-            void signOut({ redirectTo: "/" });
-          }}
-          items={allItems}
+        <AuthenticatedUserMenu
+          pendingModerationCount={pendingModerationCount}
+          user={session.data.user}
+          userMenu={userMenu}
         />
       );
-    }
     case "loading":
       return (
         <HeaderQuickAccessItem
@@ -182,11 +164,6 @@ export const UserHeaderItem = ({
       );
   }
 };
-
-interface UserMenuSection {
-  items: UserMenuItem[];
-  label?: string;
-}
 
 export interface UserMenuItem {
   iconId: FrIconClassName;

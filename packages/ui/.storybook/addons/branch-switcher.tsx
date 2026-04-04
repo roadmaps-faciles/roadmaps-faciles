@@ -1,4 +1,5 @@
 import { BranchIcon } from "@storybook/icons";
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import React, { Fragment } from "react";
 
 // Workaround: SB 10.3 manager bundler maps "react" to __REACT__ destructured,

@@ -9,7 +9,9 @@
     "notRegistered": "Non inscrit",
     "orgAdmin": "Admin organisation",
     "tenantAdmin": "Admin espace",
-    "switchWorkspace": "Changer d'espace"
+    "switchWorkspace": "Changer d'espace",
+    "searchWorkspace": "Rechercher un espace...",
+    "noResults": "Aucun résultat"
   },
   "validation": {
     "nameRequired": "Le nom est requis.",

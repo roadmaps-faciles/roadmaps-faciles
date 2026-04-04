@@ -42,6 +42,7 @@ import {
   Monitor,
   Moon,
   PanelLeftClose,
+  Repeat,
   Sun,
   User,
 } from "lucide-react";
@@ -50,10 +51,11 @@ import { signOut } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 
 import { InitialsAvatar } from "@/components/img/InitialsAvatar";
 import { useRovingHighlight } from "@/ui/useRovingHighlight";
+import { WorkspaceSwitcher } from "@/ui/WorkspaceSwitcher";
 
 interface SubItem {
   href: string;
@@ -99,7 +101,17 @@ export interface OrgMenuGroup {
   tenants: TenantMenuItem[];
 }
 
+export interface CurrentTenantContext {
+  adminHref?: string;
+  name: string;
+  org: {
+    adminHref?: string;
+    name: string;
+  };
+}
+
 export interface UserMenuData {
+  currentTenant?: CurrentTenantContext;
   currentTenantId?: number;
   isSuperAdmin?: boolean;
   organizations: OrgMenuGroup[];
@@ -244,28 +256,14 @@ const DarkModeToggle = ({ collapsed }: { collapsed?: boolean }) => {
   );
 };
 
-// --- Sidebar user menu (PostHog-style footer dropdown) ---
-
-const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-  <DropdownMenuLabel className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">
-    {children}
-  </DropdownMenuLabel>
-);
-
-const RoleBadge = ({ role }: { role: string }) => {
-  const tr = useTranslations("roles");
-  return (
-    <Badge variant="outline" className="ml-auto shrink-0 px-1.5 py-0 text-[10px]">
-      {tr(role as "OWNER")}
-    </Badge>
-  );
-};
+// --- Sidebar user menu (compact with workspace switcher) ---
 
 const SidebarUserMenu = ({ userMenu }: { userMenu: UserMenuData }) => {
   const t = useTranslations("sidebar");
   const { isMobile, state } = useSidebar();
   const collapsed = !isMobile && state === "collapsed";
   const displayName = userMenu.user.name || userMenu.user.email;
+  const [switcherOpen, setSwitcherOpen] = useState(false);
 
   return (
     <SidebarMenu>
@@ -292,7 +290,7 @@ const SidebarUserMenu = ({ userMenu }: { userMenu: UserMenuData }) => {
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
-            className="w-[--radix-dropdown-menu-trigger-width] min-w-72 max-h-[70vh] overflow-y-auto"
+            className="w-[--radix-dropdown-menu-trigger-width] min-w-72"
           >
             {/* User info header */}
             <DropdownMenuLabel className="flex items-center gap-3 p-3 font-normal">
@@ -303,64 +301,68 @@ const SidebarUserMenu = ({ userMenu }: { userMenu: UserMenuData }) => {
               </div>
             </DropdownMenuLabel>
 
-            {/* Root admin */}
-            {userMenu.isSuperAdmin && (
+            {/* Current tenant context */}
+            {userMenu.currentTenant && (
               <>
                 <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem asChild>
-                    <Link href="/admin" className="flex items-center gap-2 px-3">
-                      <Monitor className="size-4 shrink-0 text-muted-foreground" />
-                      <span>{t("administration")}</span>
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
+                <div className="px-3 py-2">
+                  <div className="flex items-center gap-2">
+                    <LayoutDashboard className="size-4 shrink-0 text-muted-foreground" />
+                    <span className="truncate text-sm font-semibold">{userMenu.currentTenant.name}</span>
+                  </div>
+                  <div className="mt-1 flex items-center gap-2 pl-6">
+                    <Building2 className="size-3.5 shrink-0 text-muted-foreground" />
+                    <span className="truncate text-xs text-muted-foreground">{userMenu.currentTenant.org.name}</span>
+                  </div>
+                  {(userMenu.currentTenant.adminHref || userMenu.currentTenant.org.adminHref) && (
+                    <div className="mt-1.5 flex gap-3 pl-6">
+                      {userMenu.currentTenant.adminHref && (
+                        <Link href={userMenu.currentTenant.adminHref} className="text-xs text-primary hover:underline">
+                          {t("tenantAdmin")}
+                        </Link>
+                      )}
+                      {userMenu.currentTenant.org.adminHref && (
+                        <Link
+                          href={userMenu.currentTenant.org.adminHref}
+                          className="text-xs text-primary hover:underline"
+                        >
+                          {t("orgAdmin")}
+                        </Link>
+                      )}
+                    </div>
+                  )}
+                </div>
               </>
             )}
 
-            {/* Organizations + Tenants grouped */}
-            {userMenu.organizations.length > 0 && (
-              <>
-                <DropdownMenuSeparator />
-                <SectionLabel>{t("workspaces")}</SectionLabel>
-                {userMenu.organizations.map(org => (
-                  <DropdownMenuGroup key={org.id}>
-                    <DropdownMenuItem asChild>
-                      <Link
-                        href={org.orgAdminHref ?? "#"}
-                        className={cn("flex items-center gap-2 px-3", !org.orgAdminHref && "pointer-events-none")}
-                      >
-                        <Building2 className="size-4 shrink-0 text-muted-foreground" />
-                        <span className="flex-1 truncate font-medium">{org.name}</span>
-                        <RoleBadge role={org.role} />
-                      </Link>
-                    </DropdownMenuItem>
-                    {org.tenants.map(tenant => (
-                      <DropdownMenuItem key={tenant.id} asChild>
-                        <Link
-                          href={tenant.isMember ? tenant.href : "#"}
-                          className={cn(
-                            "flex items-center gap-2 pl-8 pr-3",
-                            tenant.id === userMenu.currentTenantId && "bg-accent",
-                            !tenant.isMember && "opacity-50",
-                          )}
-                        >
-                          <LayoutDashboard className="size-3.5 shrink-0 text-muted-foreground" />
-                          <span className="flex-1 truncate text-sm">{tenant.name}</span>
-                          {tenant.isMember ? (
-                            <RoleBadge role={tenant.role ?? "MEMBER"} />
-                          ) : (
-                            <Badge variant="outline" className="text-[10px]">
-                              {t("notRegistered")}
-                            </Badge>
-                          )}
-                        </Link>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuGroup>
-                ))}
-              </>
-            )}
+            {/* Switch workspace + admin */}
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              {userMenu.organizations.length > 0 && (
+                <DropdownMenuItem
+                  className="flex items-center gap-2 px-3"
+                  onSelect={e => {
+                    e.preventDefault();
+                    setSwitcherOpen(true);
+                  }}
+                >
+                  <Repeat className="size-4 shrink-0 text-muted-foreground" />
+                  <span>{t("switchWorkspace")}</span>
+                  <kbd className="ml-auto rounded border bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                    ⌘K
+                  </kbd>
+                </DropdownMenuItem>
+              )}
+
+              {userMenu.isSuperAdmin && (
+                <DropdownMenuItem asChild>
+                  <Link href="/admin" className="flex items-center gap-2 px-3">
+                    <Monitor className="size-4 shrink-0 text-muted-foreground" />
+                    <span>{t("administration")}</span>
+                  </Link>
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuGroup>
 
             {/* Account section */}
             <DropdownMenuSeparator />
@@ -381,6 +383,8 @@ const SidebarUserMenu = ({ userMenu }: { userMenu: UserMenuData }) => {
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        <WorkspaceSwitcher userMenu={userMenu} open={switcherOpen} onOpenChangeAction={setSwitcherOpen} />
       </SidebarMenuItem>
     </SidebarMenu>
   );
