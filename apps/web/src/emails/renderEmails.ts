@@ -1,5 +1,6 @@
 import "server-only";
 import { render } from "@react-email/render";
+import { createElement } from "react";
 
 import { type UiTheme } from "@/ui/types";
 
@@ -24,7 +25,7 @@ export const renderMagicLinkEmail = (props: {
   theme?: UiTheme;
   translations: MagicLinkEmailTranslations;
   url: string;
-}) => render(<MagicLinkEmail {...props} />);
+}) => render(createElement(MagicLinkEmail, props));
 
 type InvitationEmailTranslations = {
   body: string;
@@ -40,7 +41,7 @@ export const renderInvitationEmail = (props: {
   locale?: string;
   theme?: UiTheme;
   translations: InvitationEmailTranslations;
-}) => render(<InvitationEmail {...props} />);
+}) => render(createElement(InvitationEmail, props));
 
 type EmLinkConfirmEmailTranslations = {
   body: string;
@@ -58,7 +59,7 @@ export const renderEmLinkConfirmEmail = (props: {
   locale?: string;
   theme?: UiTheme;
   translations: EmLinkConfirmEmailTranslations;
-}) => render(<EmLinkConfirmEmail {...props} />);
+}) => render(createElement(EmLinkConfirmEmail, props));
 
 type VerifyEmailTranslations = {
   body: string;
@@ -75,7 +76,7 @@ export const renderVerifyEmailEmail = (props: {
   theme?: UiTheme;
   translations: VerifyEmailTranslations;
   url: string;
-}) => render(<VerifyEmailEmail {...props} />);
+}) => render(createElement(VerifyEmailEmail, props));
 
 type ResetPasswordTranslations = {
   body: string;
@@ -92,4 +93,4 @@ export const renderResetPasswordEmail = (props: {
   theme?: UiTheme;
   translations: ResetPasswordTranslations;
   url: string;
-}) => render(<ResetPasswordEmail {...props} />);
+}) => render(createElement(ResetPasswordEmail, props));
