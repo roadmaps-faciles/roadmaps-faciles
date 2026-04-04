@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Roadmaps Faciles - Board</title>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#173e92",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#121620",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.625rem", // 10px as requested
+                        "lg": "0.625rem",
+                        "xl": "0.625rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #94a3b8;
+        }
+    </style>
+
+<style id="stitch-dark-overrides">
+/* === Dark Mode Global Overrides === */
+/* Unlayered styles beat @layer base/utilities from Tailwind CDN */
+
+/* Page backgrounds */
+html.dark body {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+html.dark .bg-white,
+html.dark .bg-surface {
+  background-color: #1e293b;
+}
+html.dark .bg-background-light,
+html.dark .bg-\[\#f6f6f8\],
+html.dark .bg-background {
+  background-color: #0f172a;
+}
+html.dark .bg-slate-50,
+html.dark .bg-slate-100 {
+  background-color: #1e293b;
+}
+html.dark .bg-slate-50\/50,
+html.dark .bg-slate-100\/50,
+html.dark .bg-slate-50\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-sidebar-bg {
+  background-color: #1a2035;
+}
+html.dark .bg-white\/50,
+html.dark .bg-white\/60,
+html.dark .bg-white\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+html.dark .bg-background\/95,
+html.dark .bg-background\/60 {
+  background-color: rgba(15, 23, 42, 0.95);
+}
+
+/* Text colors */
+html.dark .text-slate-900 { color: #f1f5f9; }
+html.dark .text-slate-800 { color: #e2e8f0; }
+html.dark .text-slate-700 { color: #cbd5e1; }
+html.dark .text-slate-600 { color: #94a3b8; }
+html.dark .text-slate-500 { color: #64748b; }
+html.dark .text-slate-400 { color: #64748b; }
+html.dark .text-foreground { color: #e2e8f0; }
+html.dark .text-muted-foreground { color: #8b9ec8; }
+html.dark h1, html.dark h2, html.dark h3, html.dark h4 {
+  color: #f1f5f9;
+}
+
+/* Border colors */
+html.dark .border-slate-200,
+html.dark .border-slate-300,
+html.dark .border-border,
+html.dark .border-slate-200\/40,
+html.dark .border-slate-200\/60,
+html.dark .border-slate-300\/40 {
+  border-color: #334155;
+}
+html.dark .border-slate-100 {
+  border-color: #1e293b;
+}
+html.dark .border-primary\/40,
+html.dark .border-primary\/20 {
+  border-color: rgba(93, 131, 212, 0.3);
+}
+html.dark .border-border\/40 {
+  border-color: rgba(51, 65, 85, 0.4);
+}
+
+/* Dividers */
+html.dark .divide-slate-100 > * + *,
+html.dark .divide-slate-200 > * + * {
+  border-color: #334155;
+}
+html.dark .border-t { border-top-color: #334155; }
+html.dark .border-b { border-bottom-color: #334155; }
+html.dark .border-r { border-right-color: #334155; }
+html.dark .border-l { border-left-color: #334155; }
+
+/* Form elements */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b;
+}
+
+/* Cards and surfaces */
+html.dark .shadcn-card {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+html.dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+
+/* Badges, pills */
+html.dark .bg-green-100 { background-color: rgba(34, 197, 94, 0.15); }
+html.dark .bg-blue-100, html.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.15); }
+html.dark .bg-orange-100, html.dark .bg-orange-50 { background-color: rgba(249, 115, 22, 0.15); }
+html.dark .bg-purple-100 { background-color: rgba(168, 85, 247, 0.15); }
+html.dark .bg-red-100, html.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.15); }
+html.dark .bg-amber-100 { background-color: rgba(245, 158, 11, 0.15); }
+html.dark .bg-emerald-100 { background-color: rgba(16, 185, 129, 0.15); }
+
+/* Hover states */
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-100:hover {
+  background-color: rgba(51, 65, 85, 0.5);
+}
+html.dark .hover\:bg-slate-200\/50:hover {
+  background-color: rgba(51, 65, 85, 0.3);
+}
+
+/* Ring */
+html.dark .ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+html.dark .ring-1.ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+
+/* Glass / backdrop */
+html.dark .glass-header {
+  background-color: rgba(15, 23, 42, 0.85);
+}
+html.dark .backdrop-blur-md {
+  background-color: rgba(15, 23, 42, 0.8);
+}
+
+/* Scrollbar line in h-px */
+html.dark .h-px { background-color: #334155; }
+html.dark .bg-slate-200 { background-color: #334155; }
+
+/* Primary adjustments for dark */
+html.dark .bg-primary\/10 { background-color: rgba(93, 131, 212, 0.15); }
+html.dark .bg-primary\/5 { background-color: rgba(93, 131, 212, 0.08); }
+html.dark .text-primary { color: #7ba3e8; }
+html.dark .bg-primary { background-color: #4a73c4; }
+html.dark .hover\:bg-primary\/5:hover { background-color: rgba(93, 131, 212, 0.1); }
+html.dark .hover\:bg-primary\/10:hover { background-color: rgba(93, 131, 212, 0.15); }
+
+/* Table */
+html.dark table { color: #e2e8f0; }
+html.dark thead { background-color: #1e293b; }
+html.dark th { color: #94a3b8; border-color: #334155; }
+html.dark td { border-color: #334155; }
+html.dark tr:hover { background-color: rgba(51, 65, 85, 0.3); }
+
+/* Specific admin patterns */
+html.dark .bg-white.rounded-custom,
+html.dark .bg-white.rounded-\[10px\],
+html.dark .bg-white.rounded-lg,
+html.dark .bg-white.rounded-xl {
+  background-color: #1e293b;
+}
+
+/* Footer adjustments */
+html.dark footer {
+  background-color: #0f172a;
+  border-color: #334155;
+}
+</style>
+
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col overflow-x-hidden">
+<!-- Top Navigation -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-10 py-3 sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4">
+<div class="size-8 text-primary">
+<span class="material-symbols-outlined text-3xl">token</span>
+</div>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight">Roadmaps Faciles</h2>
+</div>
+<label class="hidden md:flex flex-col min-w-40 !h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-xl h-full border border-slate-200 dark:border-slate-700 focus-within:border-primary/50 transition-colors">
+<div class="text-slate-400 dark:text-slate-500 flex border-none bg-slate-50 dark:bg-slate-800 items-center justify-center pl-3 rounded-l-xl border-r-0">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-slate-900 dark:text-white focus:outline-0 focus:ring-0 border-none bg-slate-50 dark:bg-slate-800 focus:border-none h-full placeholder:text-slate-400 dark:placeholder:text-slate-500 px-3 rounded-l-none border-l-0 pl-2 text-sm font-normal leading-normal" placeholder="Search boards..." value=""/>
+</div>
+</label>
+</div>
+<div class="flex flex-1 justify-end gap-6">
+<nav class="hidden lg:flex items-center gap-6">
+<a class="text-slate-900 dark:text-white text-sm font-medium hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="text-slate-900 dark:text-white text-sm font-medium hover:text-primary transition-colors" href="#">Boards</a>
+<a class="text-slate-900 dark:text-white text-sm font-medium hover:text-primary transition-colors" href="#">Team</a>
+<a class="text-slate-900 dark:text-white text-sm font-medium hover:text-primary transition-colors" href="#">Settings</a>
+</nav>
+<div class="flex items-center gap-3">
+<button class="relative p-2 text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1.5 right-1.5 size-2 bg-red-500 rounded-full"></span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-9 border border-slate-200 dark:border-slate-700" data-alt="User avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBYmhYHmk9Bi6YXTeUSCh40yIf3ujt9FMm_d3N9Un_708oSran1e6eSZbwrI_mr3be7BIAWa3sg9QRfWdQInXFK-sMfvRqURFISlBW717GMib3mR-IiCqGBiACDEHTZfYvNez-J4YM4u1DWEfvRw8W_f7-qD9l0NLwJ95FNRGihgdG7SOHJDZCt5VMpGpMeDd3dcwJsOKZ42CsumowsCGETgVoPVeC--Ds6spnq3N_nKRdkzx6UTpa3pvIlmuR19VziSVj8xEAJ1j4A");'></div>
+</div>
+</div>
+</header>
+<main class="flex-1 w-full max-w-[1440px] mx-auto p-6 lg:p-8">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full">
+<!-- Left Column: Side Menu -->
+<aside class="lg:col-span-3 hidden lg:flex flex-col gap-6">
+<!-- Board Info -->
+<div class="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200/60 dark:border-slate-800/60">
+<div class="flex items-start gap-4 mb-4">
+<div class="size-12 rounded-lg bg-gradient-to-br from-primary to-blue-400 flex items-center justify-center text-white shrink-0">
+<span class="material-symbols-outlined text-2xl">rocket_launch</span>
+</div>
+<div>
+<h1 class="text-slate-900 dark:text-white text-base font-bold">Product Roadmap</h1>
+<p class="text-slate-500 dark:text-slate-400 text-xs mt-1">Public Board • v2.4</p>
+</div>
+</div>
+<p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+                        Track our progress and vote on the features you want to see next in the upcoming release cycle.
+                    </p>
+</div>
+<!-- Navigation Menu -->
+<nav class="flex flex-col gap-1">
+<p class="px-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Categories</p>
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg bg-primary/10 text-primary font-medium group transition-all" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[20px] text-primary" style="font-variation-settings: 'FILL' 1;">lightbulb</span>
+<span class="text-sm">Feature Requests</span>
+</div>
+<span class="bg-white dark:bg-slate-800 text-primary text-xs font-bold px-2 py-0.5 rounded shadow-sm border border-primary/10">24</span>
+</a>
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium group transition-all" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-red-500 transition-colors">bug_report</span>
+<span class="text-sm">Bugs</span>
+</div>
+<span class="bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs font-bold px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">8</span>
+</a>
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium group transition-all" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-green-500 transition-colors">trending_up</span>
+<span class="text-sm">Improvements</span>
+</div>
+<span class="bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs font-bold px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">12</span>
+</a>
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium group transition-all" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-purple-500 transition-colors">lock</span>
+<span class="text-sm">Internal</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-slate-300">lock</span>
+</a>
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium group transition-all" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[20px] text-slate-400">archive</span>
+<span class="text-sm">Archived</span>
+</div>
+</a>
+</nav>
+<!-- Status Legend -->
+<div class="mt-4 border-t border-slate-200 dark:border-slate-800 pt-4">
+<p class="px-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">Status Legend</p>
+<div class="flex flex-wrap gap-2 px-3">
+<div class="flex items-center gap-2">
+<div class="size-2 rounded-full bg-blue-500"></div>
+<span class="text-xs text-slate-600 dark:text-slate-400">Planned</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="size-2 rounded-full bg-amber-500"></div>
+<span class="text-xs text-slate-600 dark:text-slate-400">In Progress</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="size-2 rounded-full bg-green-500"></div>
+<span class="text-xs text-slate-600 dark:text-slate-400">Complete</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Center Column: Content List -->
+<section class="col-span-1 lg:col-span-6 flex flex-col gap-4">
+<!-- Filters Bar -->
+<div class="flex items-center justify-between bg-white dark:bg-slate-900 p-2 pl-4 rounded-xl border border-slate-200/60 dark:border-slate-800/60 sticky top-[72px] z-20 shadow-sm">
+<div class="flex items-center gap-1 overflow-x-auto no-scrollbar">
+<button class="px-3 py-1.5 text-sm font-medium text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 rounded-lg whitespace-nowrap">Trending</button>
+<button class="px-3 py-1.5 text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg whitespace-nowrap transition-colors">Newest</button>
+<button class="px-3 py-1.5 text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg whitespace-nowrap transition-colors">Planned</button>
+</div>
+<div class="flex items-center border-l border-slate-200 dark:border-slate-700 pl-2">
+<button class="p-2 text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+</button>
+</div>
+</div>
+<!-- List Items -->
+<div class="flex flex-col gap-3">
+<!-- Item 1 -->
+<div class="group flex items-center bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200/60 dark:border-slate-800/60 hover:border-primary/40 hover:shadow-md transition-all cursor-pointer">
+<div class="flex flex-col items-center justify-center min-w-[50px] p-1 mr-4 border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-lg group-hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-lg text-slate-400 group-hover:text-primary mb-0.5">expand_less</span>
+<span class="text-sm font-bold text-slate-700 dark:text-slate-300 group-hover:text-primary">125</span>
+</div>
+<div class="flex-1 min-w-0 pr-4">
+<div class="flex items-center gap-2 mb-1">
+<h3 class="text-sm font-semibold text-slate-900 dark:text-white truncate">Dark mode support for mobile app</h3>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">Planned</span>
+</div>
+<p class="text-xs text-slate-500 dark:text-slate-400 truncate">We really need a dark mode for the iOS application, current theme is too bright at night.</p>
+</div>
+<div class="hidden sm:flex items-center gap-2 text-slate-400">
+<span class="material-symbols-outlined text-[18px]">chat_bubble_outline</span>
+<span class="text-xs font-medium">12</span>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="group flex items-center bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200/60 dark:border-slate-800/60 hover:border-primary/40 hover:shadow-md transition-all cursor-pointer">
+<div class="flex flex-col items-center justify-center min-w-[50px] p-1 mr-4 border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-lg group-hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-lg text-slate-400 group-hover:text-primary mb-0.5">expand_less</span>
+<span class="text-sm font-bold text-slate-700 dark:text-slate-300 group-hover:text-primary">89</span>
+</div>
+<div class="flex-1 min-w-0 pr-4">
+<div class="flex items-center gap-2 mb-1">
+<h3 class="text-sm font-semibold text-slate-900 dark:text-white truncate">Export roadmap to PDF</h3>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">Reviewing</span>
+</div>
+<p class="text-xs text-slate-500 dark:text-slate-400 truncate">Allow exporting the public roadmap to share with stakeholders offline.</p>
+</div>
+<div class="hidden sm:flex items-center gap-2 text-slate-400">
+<span class="material-symbols-outlined text-[18px]">chat_bubble_outline</span>
+<span class="text-xs font-medium">5</span>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="group flex items-center bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200/60 dark:border-slate-800/60 hover:border-primary/40 hover:shadow-md transition-all cursor-pointer">
+<div class="flex flex-col items-center justify-center min-w-[50px] p-1 mr-4 border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-lg group-hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-lg text-slate-400 group-hover:text-primary mb-0.5">expand_less</span>
+<span class="text-sm font-bold text-slate-700 dark:text-slate-300 group-hover:text-primary">64</span>
+</div>
+<div class="flex-1 min-w-0 pr-4">
+<div class="flex items-center gap-2 mb-1">
+<h3 class="text-sm font-semibold text-slate-900 dark:text-white truncate">Integration with Slack</h3>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">In Progress</span>
+</div>
+<p class="text-xs text-slate-500 dark:text-slate-400 truncate">Receive notifications in Slack channels when a new feature is requested.</p>
+</div>
+<div class="hidden sm:flex items-center gap-2 text-slate-400">
+<span class="material-symbols-outlined text-[18px]">chat_bubble_outline</span>
+<span class="text-xs font-medium">28</span>
+</div>
+</div>
+<!-- Item 4 -->
+<div class="group flex items-center bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200/60 dark:border-slate-800/60 hover:border-primary/40 hover:shadow-md transition-all cursor-pointer">
+<div class="flex flex-col items-center justify-center min-w-[50px] p-1 mr-4 border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-lg group-hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-lg text-slate-400 group-hover:text-primary mb-0.5">expand_less</span>
+<span class="text-sm font-bold text-slate-700 dark:text-slate-300 group-hover:text-primary">42</span>
+</div>
+<div class="flex-1 min-w-0 pr-4">
+<div class="flex items-center gap-2 mb-1">
+<h3 class="text-sm font-semibold text-slate-900 dark:text-white truncate">Custom Branding Options</h3>
+</div>
+<p class="text-xs text-slate-500 dark:text-slate-400 truncate">Ability to upload logo and change primary colors of the public board.</p>
+</div>
+<div class="hidden sm:flex items-center gap-2 text-slate-400">
+<span class="material-symbols-outlined text-[18px]">chat_bubble_outline</span>
+<span class="text-xs font-medium">3</span>
+</div>
+</div>
+<!-- Item 5 -->
+<div class="group flex items-center bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200/60 dark:border-slate-800/60 hover:border-primary/40 hover:shadow-md transition-all cursor-pointer">
+<div class="flex flex-col items-center justify-center min-w-[50px] p-1 mr-4 border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-lg group-hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-lg text-slate-400 group-hover:text-primary mb-0.5">expand_less</span>
+<span class="text-sm font-bold text-slate-700 dark:text-slate-300 group-hover:text-primary">31</span>
+</div>
+<div class="flex-1 min-w-0 pr-4">
+<div class="flex items-center gap-2 mb-1">
+<h3 class="text-sm font-semibold text-slate-900 dark:text-white truncate">Single Sign-On (SSO)</h3>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">Complete</span>
+</div>
+<p class="text-xs text-slate-500 dark:text-slate-400 truncate">Implement SAML SSO for enterprise customers.</p>
+</div>
+<div class="hidden sm:flex items-center gap-2 text-slate-400">
+<span class="material-symbols-outlined text-[18px]">chat_bubble_outline</span>
+<span class="text-xs font-medium">42</span>
+</div>
+</div>
+</div>
+<!-- Empty State (Hidden by default, structure for dev) -->
+<div class="hidden flex flex-col items-center justify-center py-16 bg-white dark:bg-slate-900 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
+<div class="size-16 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-4xl text-slate-300">search_off</span>
+</div>
+<h3 class="text-slate-900 dark:text-white text-lg font-bold mb-2">Aucune suggestion</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm text-center max-w-xs mb-6">
+                        We couldn't find any suggestions matching your current filters. Try changing them or create a new one.
+                    </p>
+<button class="px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-bold hover:bg-primary/90 transition-colors">
+                        Clear Filters
+                    </button>
+</div>
+</section>
+<!-- Right Column: Submission & Guidelines -->
+<aside class="lg:col-span-3 flex flex-col gap-6">
+<!-- Direct Submission Card -->
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800/60 overflow-hidden shadow-sm">
+<div class="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+<h3 class="font-bold text-slate-900 dark:text-white">New Suggestion</h3>
+</div>
+<div class="p-4 flex flex-col gap-4">
+<div>
+<label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5 uppercase">Title</label>
+<input class="w-full text-sm bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-1 focus:ring-primary focus:border-primary" placeholder="Short &amp; descriptive" type="text"/>
+</div>
+<div>
+<div class="flex justify-between items-end mb-1.5">
+<label class="block text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Details</label>
+<span class="text-[10px] text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">Markdown supported</span>
+</div>
+<div class="relative">
+<textarea class="w-full text-sm bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white placeholder:text-slate-400 min-h-[120px] focus:ring-1 focus:ring-primary focus:border-primary resize-y" placeholder="Describe your idea..."></textarea>
+<!-- Simple markdown toolbar simulation -->
+<div class="absolute bottom-2 left-2 flex gap-1">
+<button class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+<span class="material-symbols-outlined text-[16px]">format_bold</span>
+</button>
+<button class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+<span class="material-symbols-outlined text-[16px]">format_italic</span>
+</button>
+<button class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+<span class="material-symbols-outlined text-[16px]">link</span>
+</button>
+<button class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+<span class="material-symbols-outlined text-[16px]">image</span>
+</button>
+</div>
+</div>
+</div>
+<button class="w-full bg-primary hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition-colors shadow-sm flex items-center justify-center gap-2">
+<span>Submit Feedback</span>
+<span class="material-symbols-outlined text-[18px]">send</span>
+</button>
+</div>
+</div>
+<!-- Guidelines Accordion -->
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800/60 overflow-hidden">
+<div class="p-4 border-b border-slate-100 dark:border-slate-800 bg-yellow-50/50 dark:bg-yellow-900/10 flex items-start gap-3">
+<span class="material-symbols-outlined text-amber-500 mt-0.5">info</span>
+<div>
+<h4 class="text-sm font-bold text-slate-900 dark:text-white">Posting Guidelines</h4>
+<p class="text-xs text-slate-500 mt-0.5">Please read before posting</p>
+</div>
+</div>
+<div class="divide-y divide-slate-100 dark:divide-slate-800">
+<details class="group p-3 cursor-pointer">
+<summary class="flex justify-between items-center text-sm font-medium text-slate-700 dark:text-slate-300 list-none">
+<span>Check for duplicates</span>
+<span class="material-symbols-outlined text-slate-400 transition group-open:rotate-180">expand_more</span>
+</summary>
+<p class="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed pl-1">
+                                Before posting, please use the search bar to ensure your idea hasn't already been suggested. Duplicate posts will be merged.
+                            </p>
+</details>
+<details class="group p-3 cursor-pointer">
+<summary class="flex justify-between items-center text-sm font-medium text-slate-700 dark:text-slate-300 list-none">
+<span>One idea per post</span>
+<span class="material-symbols-outlined text-slate-400 transition group-open:rotate-180">expand_more</span>
+</summary>
+<p class="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed pl-1">
+                                Keep posts focused. If you have multiple ideas, please create separate posts for each one so users can vote accurately.
+                            </p>
+</details>
+<details class="group p-3 cursor-pointer">
+<summary class="flex justify-between items-center text-sm font-medium text-slate-700 dark:text-slate-300 list-none">
+<span>Be respectful</span>
+<span class="material-symbols-outlined text-slate-400 transition group-open:rotate-180">expand_more</span>
+</summary>
+<p class="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed pl-1">
+                                We value all feedback, but please keep the conversation constructive and respectful to our team and other users.
+                            </p>
+</details>
+</div>
+</div>
+</aside>
+</div>
+</main>
+
+<script id="stitch-dark-toggle">
+(function() {
+  var html = document.documentElement;
+  var stored = localStorage.getItem('stitch-theme');
+  if (stored === 'dark') html.classList.add('dark');
+  else if (stored === 'light') html.classList.remove('dark');
+
+  var btn = document.createElement('button');
+  btn.id = 'theme-toggle';
+  btn.setAttribute('aria-label', 'Toggle dark mode');
+  Object.assign(btn.style, {
+    position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: '9999',
+    width: '3rem', height: '3rem', borderRadius: '50%',
+    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'all 0.2s ease', fontSize: '1.25rem', border: 'none',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.15)'
+  });
+
+  function update() {
+    var isDark = html.classList.contains('dark');
+    var icon = document.createElement('span');
+    icon.className = 'material-symbols-outlined';
+    icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+    icon.style.fontSize = '1.4rem';
+    btn.textContent = '';
+    btn.appendChild(icon);
+    btn.style.backgroundColor = isDark ? '#1e293b' : '#ffffff';
+    btn.style.color = isDark ? '#fbbf24' : '#64748b';
+    btn.style.boxShadow = isDark
+      ? '0 2px 12px rgba(0,0,0,0.4), 0 0 0 1px rgba(100,116,139,0.2)'
+      : '0 2px 12px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05)';
+  }
+
+  btn.addEventListener('click', function() {
+    html.classList.toggle('dark');
+    localStorage.setItem('stitch-theme', html.classList.contains('dark') ? 'dark' : 'light');
+    update();
+  });
+
+  document.body.appendChild(btn);
+  update();
+})();
+</script>
+
+</body></html>

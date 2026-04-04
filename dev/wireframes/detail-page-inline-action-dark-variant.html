@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html class="" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Roadmaps Faciles - Suggestion Detail</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#5D83D4",
+                        "primary-hover": "#4a69aa",
+                        "primary-focus": "#7a9ae0",
+                        "background-dark": "#181B1F",
+                        "surface-dark": "#1D2433",
+                        "surface-darker": "#151922",
+                        "border-dark": "#2D3A55",
+                        "border-dark-opacity": "rgba(45, 58, 85, 0.4)",
+                        "muted-dark": "#1C2F59",
+                        "text-light": "#E0E5EF",
+                        "text-muted": "#94A3B8",
+                        error: "#ef4444",
+                        success: "#10b981",
+                        warning: "#f59e0b",
+                    },
+                    fontFamily: {
+                        sans: ['"Public Sans"', "sans-serif"],
+                        display: ['"Public Sans"', "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "10px",
+                        lg: "10px",
+                        xl: "12px",
+                        full: "9999px",
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                font-family: "Public Sans", sans-serif;
+                background-color: #181B1F;
+                color: #E0E5EF;
+            }
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .font-variation-settings-filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }.tooltip-trigger:hover .tooltip-content {
+            opacity: 1;
+            transform: translate(-50%, -8px);
+            visibility: visible;
+        }
+        .tooltip-content {
+            opacity: 0;
+            visibility: hidden;
+            transform: translate(-50%, 0);
+            transition: all 0.2s ease;
+        }
+    </style>
+
+<style id="stitch-dark-overrides">
+/* === Dark Mode Global Overrides === */
+/* Unlayered styles beat @layer base/utilities from Tailwind CDN */
+
+/* Page backgrounds */
+html.dark body {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+html.dark .bg-white,
+html.dark .bg-surface {
+  background-color: #1e293b;
+}
+html.dark .bg-background-light,
+html.dark .bg-\[\#f6f6f8\],
+html.dark .bg-background {
+  background-color: #0f172a;
+}
+html.dark .bg-slate-50,
+html.dark .bg-slate-100 {
+  background-color: #1e293b;
+}
+html.dark .bg-slate-50\/50,
+html.dark .bg-slate-100\/50,
+html.dark .bg-slate-50\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-sidebar-bg {
+  background-color: #1a2035;
+}
+html.dark .bg-white\/50,
+html.dark .bg-white\/60,
+html.dark .bg-white\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+html.dark .bg-background\/95,
+html.dark .bg-background\/60 {
+  background-color: rgba(15, 23, 42, 0.95);
+}
+
+/* Text colors */
+html.dark .text-slate-900 { color: #f1f5f9; }
+html.dark .text-slate-800 { color: #e2e8f0; }
+html.dark .text-slate-700 { color: #cbd5e1; }
+html.dark .text-slate-600 { color: #94a3b8; }
+html.dark .text-slate-500 { color: #64748b; }
+html.dark .text-slate-400 { color: #64748b; }
+html.dark .text-foreground { color: #e2e8f0; }
+html.dark .text-muted-foreground { color: #8b9ec8; }
+html.dark h1, html.dark h2, html.dark h3, html.dark h4 {
+  color: #f1f5f9;
+}
+
+/* Border colors */
+html.dark .border-slate-200,
+html.dark .border-slate-300,
+html.dark .border-border,
+html.dark .border-slate-200\/40,
+html.dark .border-slate-200\/60,
+html.dark .border-slate-300\/40 {
+  border-color: #334155;
+}
+html.dark .border-slate-100 {
+  border-color: #1e293b;
+}
+html.dark .border-primary\/40,
+html.dark .border-primary\/20 {
+  border-color: rgba(93, 131, 212, 0.3);
+}
+html.dark .border-border\/40 {
+  border-color: rgba(51, 65, 85, 0.4);
+}
+
+/* Dividers */
+html.dark .divide-slate-100 > * + *,
+html.dark .divide-slate-200 > * + * {
+  border-color: #334155;
+}
+html.dark .border-t { border-top-color: #334155; }
+html.dark .border-b { border-bottom-color: #334155; }
+html.dark .border-r { border-right-color: #334155; }
+html.dark .border-l { border-left-color: #334155; }
+
+/* Form elements */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b;
+}
+
+/* Cards and surfaces */
+html.dark .shadcn-card {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+html.dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+
+/* Badges, pills */
+html.dark .bg-green-100 { background-color: rgba(34, 197, 94, 0.15); }
+html.dark .bg-blue-100, html.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.15); }
+html.dark .bg-orange-100, html.dark .bg-orange-50 { background-color: rgba(249, 115, 22, 0.15); }
+html.dark .bg-purple-100 { background-color: rgba(168, 85, 247, 0.15); }
+html.dark .bg-red-100, html.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.15); }
+html.dark .bg-amber-100 { background-color: rgba(245, 158, 11, 0.15); }
+html.dark .bg-emerald-100 { background-color: rgba(16, 185, 129, 0.15); }
+
+/* Hover states */
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-100:hover {
+  background-color: rgba(51, 65, 85, 0.5);
+}
+html.dark .hover\:bg-slate-200\/50:hover {
+  background-color: rgba(51, 65, 85, 0.3);
+}
+
+/* Ring */
+html.dark .ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+html.dark .ring-1.ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+
+/* Glass / backdrop */
+html.dark .glass-header {
+  background-color: rgba(15, 23, 42, 0.85);
+}
+html.dark .backdrop-blur-md {
+  background-color: rgba(15, 23, 42, 0.8);
+}
+
+/* Scrollbar line in h-px */
+html.dark .h-px { background-color: #334155; }
+html.dark .bg-slate-200 { background-color: #334155; }
+
+/* Primary adjustments for dark */
+html.dark .bg-primary\/10 { background-color: rgba(93, 131, 212, 0.15); }
+html.dark .bg-primary\/5 { background-color: rgba(93, 131, 212, 0.08); }
+html.dark .text-primary { color: #7ba3e8; }
+html.dark .bg-primary { background-color: #4a73c4; }
+html.dark .hover\:bg-primary\/5:hover { background-color: rgba(93, 131, 212, 0.1); }
+html.dark .hover\:bg-primary\/10:hover { background-color: rgba(93, 131, 212, 0.15); }
+
+/* Table */
+html.dark table { color: #e2e8f0; }
+html.dark thead { background-color: #1e293b; }
+html.dark th { color: #94a3b8; border-color: #334155; }
+html.dark td { border-color: #334155; }
+html.dark tr:hover { background-color: rgba(51, 65, 85, 0.3); }
+
+/* Specific admin patterns */
+html.dark .bg-white.rounded-custom,
+html.dark .bg-white.rounded-\[10px\],
+html.dark .bg-white.rounded-lg,
+html.dark .bg-white.rounded-xl {
+  background-color: #1e293b;
+}
+
+/* Footer adjustments */
+html.dark footer {
+  background-color: #0f172a;
+  border-color: #334155;
+}
+</style>
+
+</head>
+<body class="flex min-h-screen bg-background-dark text-text-light font-sans selection:bg-primary selection:text-white">
+<main class="flex-1 p-8 lg:px-12 lg:py-10 max-w-5xl mx-auto">
+<header class="mb-8">
+<div class="flex items-center gap-2 text-sm text-text-muted mb-6">
+<a class="hover:text-primary transition-colors" href="#">Suggestions</a>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-text-light font-medium">Détail #4923</span>
+</div>
+<div class="flex items-start justify-between gap-6">
+<div class="flex-1">
+<div class="flex items-center gap-3 mb-3">
+<span class="inline-flex items-center rounded-full bg-primary/20 px-2.5 py-0.5 text-xs font-semibold text-primary border border-primary/30">
+                            Fonctionnalité
+                        </span>
+<span class="text-text-muted text-sm">Il y a 2 jours</span>
+</div>
+<h1 class="text-3xl font-black tracking-tight text-text-light mb-4 leading-tight">
+                        Intégration native avec Jira pour la synchro bidirectionnelle
+                    </h1>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center rounded-lg bg-surface-dark border border-border-dark p-1">
+<button class="flex h-9 w-9 items-center justify-center rounded text-text-muted hover:bg-white/5 hover:text-text-light transition-colors tooltip-trigger relative">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+<div class="tooltip-content absolute bottom-full left-1/2 mb-2 px-2 py-1 bg-surface-darker border border-border-dark text-xs rounded text-text-light whitespace-nowrap z-50">
+                                Éditer la suggestion
+                            </div>
+</button>
+<div class="w-px h-5 bg-border-dark mx-1"></div>
+<button class="flex h-9 w-9 items-center justify-center rounded text-text-muted hover:bg-red-500/10 hover:text-error transition-colors tooltip-trigger relative">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+<div class="tooltip-content absolute bottom-full left-1/2 mb-2 px-2 py-1 bg-surface-darker border border-border-dark text-xs rounded text-text-light whitespace-nowrap z-50">
+                                Supprimer
+                            </div>
+</button>
+</div>
+<div class="h-10 w-px bg-border-dark"></div>
+<button class="h-10 px-4 bg-primary hover:bg-primary-hover text-white rounded font-medium text-sm transition-colors shadow-[0_0_15px_rgba(93,131,212,0.15)] flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add_task</span>
+                        Ajouter à la Roadmap
+                    </button>
+</div>
+</div>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<div class="lg:col-span-8 flex flex-col gap-8">
+<article class="rounded-xl border border-border-dark/60 bg-surface-dark p-8 relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-16 bg-surface-darker/50 border-r border-border-dark/40 flex flex-col items-center py-8 gap-1">
+<button class="group flex flex-col items-center gap-1 text-text-muted hover:text-primary transition-colors focus:outline-none tooltip-trigger relative">
+<div class="p-2 rounded-lg hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-[28px] group-hover:-translate-y-0.5 transition-transform">keyboard_arrow_up</span>
+</div>
+<span class="font-bold text-lg text-text-light group-hover:text-primary">142</span>
+<div class="tooltip-content absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 bg-surface-darker border border-border-dark text-xs rounded text-text-light whitespace-nowrap z-50">
+                                Voter pour
+                            </div>
+</button>
+</div>
+<div class="pl-16">
+<div class="prose prose-invert prose-sm max-w-none text-text-light/90">
+<p class="mb-4">
+                                Actuellement, nous devons copier manuellement les tickets depuis Jira vers Roadmaps Faciles. Cela crée des frictions énormes pour l'équipe produit qui doit maintenir deux sources de vérité.
+                            </p>
+<p class="mb-4">
+                                La fonctionnalité idéale permettrait de :
+                            </p>
+<ul class="list-disc pl-5 mb-4 space-y-1 text-text-muted">
+<li>Importer des épiques Jira en un clic.</li>
+<li>Synchroniser le statut (To Do -&gt; In Progress -&gt; Done).</li>
+<li>Avoir un lien direct vers le ticket Jira depuis la carte Roadmap.</li>
+</ul>
+<div class="mt-6 p-4 rounded-lg bg-background-dark border border-border-dark flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">link</span>
+<span class="text-sm text-text-muted">Lien connexe :</span>
+<a class="text-sm text-primary hover:underline" href="#">atlassian.com/marketplace/roadmaps-plugin</a>
+</div>
+</div>
+<div class="mt-8 flex items-center gap-4 pt-6 border-t border-border-dark/40">
+<div class="flex items-center gap-3">
+<img alt="Sarah" class="h-8 w-8 rounded-full border border-border-dark" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAF-O_LCtbTOKIqHizFLRF1w3CY6UQ2DT9kH0NlsaNgejXQ4nJwx-Vw4D-bQoxR6VgcqsjAiMPlc6OPcwE-1kRRGDsgXhosKL5RmeNxiZidxUDMeK18Krf2s0zP5iZHzoBhBQySK4g_ezqJKGtV8sg-XgJjGHGVJStrhZNt9zQeM1ZJKZeOyuarqsTiATZc7Utu9mECtPYZe4E88NcX5YXmxMwYF05rBPKxP1Wfyk1JdeesLT_7uD5Ywvfss4lZQWxfVzSpn-QIXJsa"/>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-text-light">Sarah Connor</span>
+<span class="text-xs text-text-muted">Product Manager @ Skynet</span>
+</div>
+</div>
+<div class="ml-auto flex items-center gap-2">
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium text-text-muted hover:bg-white/5 hover:text-text-light transition-colors tooltip-trigger relative">
+<span class="material-symbols-outlined text-[16px]">share</span>
+                                    Partager
+                                    <div class="tooltip-content absolute bottom-full left-1/2 mb-2 px-2 py-1 bg-surface-darker border border-border-dark text-xs rounded text-text-light whitespace-nowrap z-50">
+                                        Copier le lien
+                                    </div>
+</button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium text-text-muted hover:bg-white/5 hover:text-text-light transition-colors tooltip-trigger relative">
+<span class="material-symbols-outlined text-[16px]">flag</span>
+                                    Signaler
+                                    <div class="tooltip-content absolute bottom-full left-1/2 mb-2 px-2 py-1 bg-surface-darker border border-border-dark text-xs rounded text-text-light whitespace-nowrap z-50">
+                                        Signaler comme spam
+                                    </div>
+</button>
+</div>
+</div>
+</div>
+</article>
+<section>
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-lg font-bold text-text-light flex items-center gap-2">
+                            Commentaires <span class="px-2 py-0.5 rounded-full bg-surface-dark border border-border-dark text-xs text-text-muted">8</span>
+</h3>
+<div class="flex items-center gap-2 text-sm text-text-muted">
+<span>Trier par:</span>
+<select class="bg-transparent border-none text-text-light font-medium focus:ring-0 p-0 pr-6 cursor-pointer">
+<option>Plus pertinents</option>
+<option>Plus récents</option>
+</select>
+</div>
+</div>
+<div class="flex gap-4 mb-10">
+<img alt="Current User" class="h-10 w-10 rounded-full border border-border-dark flex-shrink-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQUqckvM_okR-nm-kojfM8DlEv3xLofv-7rOTjDoWHPv4DP3IvrrS-c7KUaiYVzPYI1CzH1tUWM8AKV3hkYl87ANnP__N0VRlfXu46181qIQ5Foc2M1In5SDJBfWq6xog3_ucRB5glCRkyCes4_YUKjDb2nMOiWUQIRazy3IIkG-Slbv33YvUYS6wBnAtmh7NiswdgwebKuo1b_FFhfPUBPyQWysCelSEbvP3aAeUArV7JZZNVwA_c9KakDDMfTOA1ypYk7uKJVxOG"/>
+<div class="flex-1 relative group">
+<textarea class="w-full bg-surface-dark border border-border-dark rounded-lg p-4 text-sm text-text-light placeholder-text-muted/50 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none min-h-[100px]" placeholder="Participez à la discussion..."></textarea>
+<div class="absolute bottom-3 right-3 flex gap-2 opacity-0 group-focus-within:opacity-100 transition-opacity">
+<button class="px-3 py-1.5 rounded text-xs font-medium text-text-muted hover:bg-white/5">Annuler</button>
+<button class="px-3 py-1.5 rounded bg-primary text-white text-xs font-medium hover:bg-primary-hover">Commenter</button>
+</div>
+</div>
+</div>
+<div class="space-y-6">
+<div class="flex gap-4">
+<div class="flex flex-col items-center gap-1">
+<img alt="Mike" class="h-10 w-10 rounded-full border border-border-dark" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD192wKoVb0ZRG16o2rTqz94zn6BFZZsl237nY8G-kBib8vBaBxrjgSjEgGOP0GcOnyHgEyYl1TJuB4djE2PPrxFA1v_S5JNgGFn9UXXhwrLDsxFkyS0a6xfNEab_3dxd7l0kcDjk8gSyM9leWA6aTPdWc2JDukJbg9yTYSYSWXj1xYG0NO5Z3ctmy7imfwx8AXgvINDECLeJ76FJE2xj1g3MbksgcOm-PHMVMq-mau6m_aX_fgDYlVRCmoNBQOOoMh7lZsKGVMaB1I"/>
+<div class="w-0.5 h-full bg-border-dark/30 mt-2 mb-2"></div>
+</div>
+<div class="flex-1 pb-6">
+<div class="bg-surface-dark border border-border-dark/60 rounded-lg p-5 hover:border-border-dark transition-colors">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-2">
+<span class="font-bold text-sm text-text-light">Mike Ross</span>
+<span class="text-xs text-text-muted">• Hier à 14:30</span>
+</div>
+</div>
+<p class="text-sm text-text-muted mb-4">
+                                        C'est une excellente idée. Nous utilisons Jira Cloud, est-ce que l'intégration supportera aussi la version Server/Data Center ? C'est critique pour les banques comme nous.
+                                    </p>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-1.5 text-xs font-medium text-text-muted hover:text-primary transition-colors tooltip-trigger relative">
+<span class="material-symbols-outlined text-[16px]">thumb_up</span>
+                                            12
+                                            <div class="tooltip-content absolute bottom-full left-1/2 mb-2 px-2 py-1 bg-surface-darker border border-border-dark text-xs rounded text-text-light whitespace-nowrap z-50">
+                                                J'aime
+                                            </div>
+</button>
+<button class="flex items-center gap-1.5 text-xs font-medium text-text-muted hover:text-text-light transition-colors tooltip-trigger relative">
+<span class="material-symbols-outlined text-[16px]">chat_bubble</span>
+                                            Répondre
+                                            <div class="tooltip-content absolute bottom-full left-1/2 mb-2 px-2 py-1 bg-surface-darker border border-border-dark text-xs rounded text-text-light whitespace-nowrap z-50">
+                                                Répondre au fil
+                                            </div>
+</button>
+</div>
+</div>
+<div class="mt-4 flex gap-4">
+<img alt="Jessica" class="h-8 w-8 rounded-full border border-border-dark" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfhW9NwF49MO7C0pLPbv2hjtZwKzR7NPHgQrZfwKLBO4wBhN5ViRzfRR6l1wVD2gX2QsSBwct0sTn9KUOw7debURtRku0esM4xY6mM3ca_S6VQe2UqE48tTFemHagL6U6JhKTdnQ3Q6e2a5MUV3dnowVUdamaP4XWaguC-G70lLYwZW_84O90skvaVdr79d8SudDgOTwwlvx6qyexBRSjydRO4bZexFWZsiu5JcZl5xQNDxBASGMpX2HxlZeb1pmiVDf78k2eHirgg"/>
+<div class="flex-1">
+<div class="bg-surface-darker border border-border-dark/60 rounded-lg p-4">
+<div class="flex items-center gap-2 mb-1">
+<span class="font-bold text-xs text-primary">Jessica Pearson</span>
+<span class="px-1.5 py-0.5 rounded bg-primary/20 text-[10px] font-bold text-primary border border-primary/20">TEAM</span>
+<span class="text-xs text-text-muted">• Il y a 2h</span>
+</div>
+<p class="text-sm text-text-muted mb-3">
+                                                Bonjour Mike ! Oui, la roadmap technique inclut le support des instances self-hosted via un tunnel sécurisé.
+                                            </p>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-1.5 text-xs font-medium text-text-muted hover:text-primary transition-colors tooltip-trigger relative">
+<span class="material-symbols-outlined text-[16px]">thumb_up</span>
+                                                    4
+                                                    <div class="tooltip-content absolute bottom-full left-1/2 mb-2 px-2 py-1 bg-surface-darker border border-border-dark text-xs rounded text-text-light whitespace-nowrap z-50">
+                                                        J'aime
+                                                    </div>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="flex flex-col items-center gap-1">
+<img alt="Harvey" class="h-10 w-10 rounded-full border border-border-dark" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQrsV1QP5EwFfigNA6YVda2Igo3WWfbXilLasoURCZtkKWaSLrrS6lYMuwOUe-_qI-kDwchchXCksMzwZEesyXEaDauItZBySFARY16K_WksjFUGwbQxHWfHplt2Q3KVC4RwBu4smWLHV766wQaLg_pf9T_ts_T1KhWedLKeC751c97f30KfZ1RjVNI3PIKrDAH9N31zLO9pEVjaYwpxt6RWCZgyLtPsjwk7jk1KFXruVWW3GSxUlN3RvWFflembHC15UjC1bNqKUE"/>
+</div>
+<div class="flex-1">
+<div class="bg-surface-dark border border-border-dark/60 rounded-lg p-5 hover:border-border-dark transition-colors">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-2">
+<span class="font-bold text-sm text-text-light">Harvey Specter</span>
+<span class="text-xs text-text-muted">• Il y a 5h</span>
+</div>
+</div>
+<p class="text-sm text-text-muted mb-4">
+                                        Ne perdez pas de temps avec Jira, tout le monde passe sur Linear. Faites une intégration Linear d'abord !
+                                    </p>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-1.5 text-xs font-medium text-text-muted hover:text-primary transition-colors tooltip-trigger relative">
+<span class="material-symbols-outlined text-[16px]">thumb_up</span>
+                                            2
+                                            <div class="tooltip-content absolute bottom-full left-1/2 mb-2 px-2 py-1 bg-surface-darker border border-border-dark text-xs rounded text-text-light whitespace-nowrap z-50">
+                                                J'aime
+                                            </div>
+</button>
+<button class="flex items-center gap-1.5 text-xs font-medium text-text-muted hover:text-text-light transition-colors tooltip-trigger relative">
+<span class="material-symbols-outlined text-[16px]">chat_bubble</span>
+                                            Répondre
+                                            <div class="tooltip-content absolute bottom-full left-1/2 mb-2 px-2 py-1 bg-surface-darker border border-border-dark text-xs rounded text-text-light whitespace-nowrap z-50">
+                                                Répondre
+                                            </div>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<div class="lg:col-span-4 flex flex-col gap-6">
+<div class="rounded-xl border border-border-dark/60 bg-surface-dark p-6">
+<h3 class="text-xs font-bold uppercase tracking-wider text-text-muted mb-4">Statut actuel</h3>
+<div class="relative pl-4 border-l-2 border-border-dark space-y-6">
+<div class="relative">
+<div class="absolute -left-[21px] top-1 h-3 w-3 rounded-full bg-border-dark ring-4 ring-surface-dark"></div>
+<p class="text-sm text-text-muted">Suggéré</p>
+<p class="text-xs text-text-muted opacity-50">12 Oct 2023</p>
+</div>
+<div class="relative">
+<div class="absolute -left-[21px] top-1 h-3 w-3 rounded-full bg-primary ring-4 ring-surface-dark shadow-[0_0_10px_rgba(93,131,212,0.4)]"></div>
+<p class="text-sm font-bold text-primary">En examen</p>
+<p class="text-xs text-text-muted">Depuis hier</p>
+</div>
+<div class="relative opacity-50">
+<div class="absolute -left-[21px] top-1 h-3 w-3 rounded-full bg-border-dark ring-4 ring-surface-dark"></div>
+<p class="text-sm text-text-muted">Planifié</p>
+</div>
+</div>
+<div class="mt-6 pt-6 border-t border-border-dark/40">
+<label class="block text-xs font-medium text-text-muted mb-2">Changer le statut</label>
+<div class="relative">
+<select class="w-full appearance-none bg-background-dark border border-border-dark text-text-light text-sm rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary">
+<option>En examen</option>
+<option>Planifié</option>
+<option>En cours</option>
+<option>Terminé</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-text-muted">
+<span class="material-symbols-outlined text-[20px]">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<div class="rounded-xl border border-border-dark/60 bg-surface-dark p-6">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-xs font-bold uppercase tracking-wider text-text-muted">Top Voteurs</h3>
+<a class="text-xs text-primary hover:text-primary-hover hover:underline" href="#">Voir tout</a>
+</div>
+<div class="flex -space-x-3 overflow-hidden mb-4 p-1">
+<img alt="" class="inline-block h-10 w-10 rounded-full ring-2 ring-surface-dark" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmJ8xGf8l01m6nPWgrjcm3HdnItbFWH5uVVvdBFThidYFOlwtZVybZH18B2EqQOe7u3YB0scCajpcHbzFIsuH2v5w1HZugcvQm-umTENbgBJGwfz2pGf0BxZNZwZ-2RQfZHN6wUbjCQS63_9ACnhhj5DIxVBLMxxkVTWUsuZqVikNNSYLG-r1SQ8gmQrjrZ-NbCCl9Nii7NrMU7Uhvm5qtm5hy8tF8d-j_r0rr52gM1245oD3H61IkdRwt37cbCFJvTbTWJJpsnhrj"/>
+<img alt="" class="inline-block h-10 w-10 rounded-full ring-2 ring-surface-dark" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWsECBX4SaDYXdKjlcvJ7cNjKc8GsufQ3zGGRmCcvIIxJvkExzoDTE5H6dcHrfwKTWKuO30ktzG93-C-wLue2TL0kkbWoR05v-k_JZDUgiCMuKN10VSvlE-2hCXXUkmJOmLBKeyRFQOzZxQ-3ybYePt0m7zCdXMwsrGAZ8RjMFotySSQK4zVgMfgwdKLjF26HumdeCxzQGiU-1qojqpRJ864ZBbh3XMh586eaoqNIvQDJUUTBlnIXLo_Ie5M6k33_WctIA4z2HP14a"/>
+<img alt="" class="inline-block h-10 w-10 rounded-full ring-2 ring-surface-dark" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCu7lfx2vmmRpX6IkxUF0fDTk939AA5kgm_DVt_oWY_Ai5JK42vB0541qSNU07Bxjrilux2zhE2O5j9Cbsz2vmO5K89oGrUE7jRbvrG-LESFcqpvMtmhcCNwstEjVjR7WaO2StKOXMAeHidwKDJ0o6I2ghJxahXokbN4FcBxJjOSOhfc2j75HQFz2rE1YB9nbQNR1C6ZzPHetCKdBNpzofZ2hBkjOYvTRpM3l1wJMNwF-p-oaQ9QSypDvbGDbMjYLpX5xvAvHR54VQv"/>
+<img alt="" class="inline-block h-10 w-10 rounded-full ring-2 ring-surface-dark" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9Yt9lBmo8azR1XJ4DdSq7HWMK3PnPQ0Jc15hfiNqe_E-wAsrZvkZ33LcKyh6oWOQi1mxldUDdU69ZtTXuPTn4YzXT3pvNMFyxN2yG31PSharDtFVLFeeFdxit197hmVVudep9dBYUOSygKzioRdltQkElL0eLAObwnF41lJABDufYHQxmBDz52iNmvgK1cHtKlCnm2TxyojGPB0CNxvzXlhunErwF2ktqAQ1-Y9kHZj1atynJDRaJ4qIABuI3Z158IK22YyIsuqxk"/>
+<div class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-surface-darker ring-2 ring-surface-dark border border-border-dark text-xs font-medium text-text-muted">
+                             +138
+                         </div>
+</div>
+<button class="w-full py-2 rounded-lg border border-border-dark text-sm font-medium text-text-light hover:bg-white/5 transition-colors">
+                        Notifier les voteurs
+                    </button>
+</div>
+<div class="rounded-xl border border-border-dark/60 bg-surface-dark p-6">
+<h3 class="text-xs font-bold uppercase tracking-wider text-text-muted mb-4">Détails</h3>
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<span class="text-sm text-text-muted">Catégorie</span>
+<span class="text-sm font-medium text-text-light">Intégrations</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-sm text-text-muted">Tags</span>
+<div class="flex gap-1">
+<span class="px-2 py-0.5 rounded text-[10px] font-medium bg-blue-900/30 text-blue-300 border border-blue-800/50">Jira</span>
+<span class="px-2 py-0.5 rounded text-[10px] font-medium bg-purple-900/30 text-purple-300 border border-purple-800/50">API</span>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-sm text-text-muted">Impact estimé</span>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-warning text-[16px] font-variation-settings-filled">bolt</span>
+<span class="text-sm font-medium text-text-light">Élevé</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+
+
+<script id="stitch-dark-toggle">
+(function() {
+  var html = document.documentElement;
+  var stored = localStorage.getItem('stitch-theme');
+  if (stored === 'dark') html.classList.add('dark');
+  else if (stored === 'light') html.classList.remove('dark');
+
+  var btn = document.createElement('button');
+  btn.id = 'theme-toggle';
+  btn.setAttribute('aria-label', 'Toggle dark mode');
+  Object.assign(btn.style, {
+    position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: '9999',
+    width: '3rem', height: '3rem', borderRadius: '50%',
+    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'all 0.2s ease', fontSize: '1.25rem', border: 'none',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.15)'
+  });
+
+  function update() {
+    var isDark = html.classList.contains('dark');
+    var icon = document.createElement('span');
+    icon.className = 'material-symbols-outlined';
+    icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+    icon.style.fontSize = '1.4rem';
+    btn.textContent = '';
+    btn.appendChild(icon);
+    btn.style.backgroundColor = isDark ? '#1e293b' : '#ffffff';
+    btn.style.color = isDark ? '#fbbf24' : '#64748b';
+    btn.style.boxShadow = isDark
+      ? '0 2px 12px rgba(0,0,0,0.4), 0 0 0 1px rgba(100,116,139,0.2)'
+      : '0 2px 12px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05)';
+  }
+
+  btn.addEventListener('click', function() {
+    html.classList.toggle('dark');
+    localStorage.setItem('stitch-theme', html.classList.contains('dark') ? 'dark' : 'light');
+    update();
+  });
+
+  document.body.appendChild(btn);
+  update();
+})();
+</script>
+
+</body></html>

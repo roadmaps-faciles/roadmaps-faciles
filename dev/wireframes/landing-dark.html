@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html class="" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Roadmaps Faciles - Plateforme Collaborative Open Source</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#5D83D4",
+                        "card": "#1D2433",
+                        "border": "#2D3A55",
+                        "background": "#181B1F",
+                        "muted": {
+                            DEFAULT: "#1D2433",
+                            foreground: "#8B9EC8"
+                        },
+                        "foreground": "#E0E5EF",
+                    },
+                    fontFamily: {
+                        "sans": ["Inter", "sans-serif"]
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply bg-background text-foreground font-sans antialiased;
+            }
+        }
+        .shadcn-card {
+            background-color: #1D2433;
+            border: 1px solid #2D3A55;
+            @apply rounded-xl overflow-hidden shadow-sm;
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #5D83D4, #A5B4FC);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .secondary-icon-container {
+            @apply bg-[#2D3A55]/30 border border-[#2D3A55] rounded-lg flex items-center justify-center;
+        }
+    </style>
+
+<style id="stitch-dark-overrides">
+/* === Dark Mode Global Overrides === */
+/* Unlayered styles beat @layer base/utilities from Tailwind CDN */
+
+/* Page backgrounds */
+html.dark body {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+html.dark .bg-white,
+html.dark .bg-surface {
+  background-color: #1e293b;
+}
+html.dark .bg-background-light,
+html.dark .bg-\[\#f6f6f8\],
+html.dark .bg-background {
+  background-color: #0f172a;
+}
+html.dark .bg-slate-50,
+html.dark .bg-slate-100 {
+  background-color: #1e293b;
+}
+html.dark .bg-slate-50\/50,
+html.dark .bg-slate-100\/50,
+html.dark .bg-slate-50\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-sidebar-bg {
+  background-color: #1a2035;
+}
+html.dark .bg-white\/50,
+html.dark .bg-white\/60,
+html.dark .bg-white\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+html.dark .bg-background\/95,
+html.dark .bg-background\/60 {
+  background-color: rgba(15, 23, 42, 0.95);
+}
+
+/* Text colors */
+html.dark .text-slate-900 { color: #f1f5f9; }
+html.dark .text-slate-800 { color: #e2e8f0; }
+html.dark .text-slate-700 { color: #cbd5e1; }
+html.dark .text-slate-600 { color: #94a3b8; }
+html.dark .text-slate-500 { color: #64748b; }
+html.dark .text-slate-400 { color: #64748b; }
+html.dark .text-foreground { color: #e2e8f0; }
+html.dark .text-muted-foreground { color: #8b9ec8; }
+html.dark h1, html.dark h2, html.dark h3, html.dark h4 {
+  color: #f1f5f9;
+}
+
+/* Border colors */
+html.dark .border-slate-200,
+html.dark .border-slate-300,
+html.dark .border-border,
+html.dark .border-slate-200\/40,
+html.dark .border-slate-200\/60,
+html.dark .border-slate-300\/40 {
+  border-color: #334155;
+}
+html.dark .border-slate-100 {
+  border-color: #1e293b;
+}
+html.dark .border-primary\/40,
+html.dark .border-primary\/20 {
+  border-color: rgba(93, 131, 212, 0.3);
+}
+html.dark .border-border\/40 {
+  border-color: rgba(51, 65, 85, 0.4);
+}
+
+/* Dividers */
+html.dark .divide-slate-100 > * + *,
+html.dark .divide-slate-200 > * + * {
+  border-color: #334155;
+}
+html.dark .border-t { border-top-color: #334155; }
+html.dark .border-b { border-bottom-color: #334155; }
+html.dark .border-r { border-right-color: #334155; }
+html.dark .border-l { border-left-color: #334155; }
+
+/* Form elements */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b;
+}
+
+/* Cards and surfaces */
+html.dark .shadcn-card {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+html.dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+
+/* Badges, pills */
+html.dark .bg-green-100 { background-color: rgba(34, 197, 94, 0.15); }
+html.dark .bg-blue-100, html.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.15); }
+html.dark .bg-orange-100, html.dark .bg-orange-50 { background-color: rgba(249, 115, 22, 0.15); }
+html.dark .bg-purple-100 { background-color: rgba(168, 85, 247, 0.15); }
+html.dark .bg-red-100, html.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.15); }
+html.dark .bg-amber-100 { background-color: rgba(245, 158, 11, 0.15); }
+html.dark .bg-emerald-100 { background-color: rgba(16, 185, 129, 0.15); }
+
+/* Hover states */
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-100:hover {
+  background-color: rgba(51, 65, 85, 0.5);
+}
+html.dark .hover\:bg-slate-200\/50:hover {
+  background-color: rgba(51, 65, 85, 0.3);
+}
+
+/* Ring */
+html.dark .ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+html.dark .ring-1.ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+
+/* Glass / backdrop */
+html.dark .glass-header {
+  background-color: rgba(15, 23, 42, 0.85);
+}
+html.dark .backdrop-blur-md {
+  background-color: rgba(15, 23, 42, 0.8);
+}
+
+/* Scrollbar line in h-px */
+html.dark .h-px { background-color: #334155; }
+html.dark .bg-slate-200 { background-color: #334155; }
+
+/* Primary adjustments for dark */
+html.dark .bg-primary\/10 { background-color: rgba(93, 131, 212, 0.15); }
+html.dark .bg-primary\/5 { background-color: rgba(93, 131, 212, 0.08); }
+html.dark .text-primary { color: #7ba3e8; }
+html.dark .bg-primary { background-color: #4a73c4; }
+html.dark .hover\:bg-primary\/5:hover { background-color: rgba(93, 131, 212, 0.1); }
+html.dark .hover\:bg-primary\/10:hover { background-color: rgba(93, 131, 212, 0.15); }
+
+/* Table */
+html.dark table { color: #e2e8f0; }
+html.dark thead { background-color: #1e293b; }
+html.dark th { color: #94a3b8; border-color: #334155; }
+html.dark td { border-color: #334155; }
+html.dark tr:hover { background-color: rgba(51, 65, 85, 0.3); }
+
+/* Specific admin patterns */
+html.dark .bg-white.rounded-custom,
+html.dark .bg-white.rounded-\[10px\],
+html.dark .bg-white.rounded-lg,
+html.dark .bg-white.rounded-xl {
+  background-color: #1e293b;
+}
+
+/* Footer adjustments */
+html.dark footer {
+  background-color: #0f172a;
+  border-color: #334155;
+}
+</style>
+
+</head>
+<body class="selection:bg-primary/30 selection:text-primary-foreground">
+<div class="relative flex min-h-screen flex-col">
+<header class="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+<div class="container mx-auto flex h-16 items-center justify-between px-6 md:px-10 max-w-7xl">
+<div class="flex items-center gap-8">
+<a class="flex items-center gap-2 font-bold text-foreground" href="/">
+<span class="material-symbols-outlined text-primary text-2xl">alt_route</span>
+<span class="tracking-tight">Roadmaps Faciles</span>
+</a>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-sm font-medium text-muted-foreground transition-colors hover:text-primary" href="#">Produit</a>
+<a class="text-sm font-medium text-muted-foreground transition-colors hover:text-primary" href="#">Collectivités</a>
+<a class="text-sm font-medium text-muted-foreground transition-colors hover:text-primary" href="#">Open Source</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="hidden md:inline-flex text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Connexion</button>
+<button class="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-white shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                    Commencer →
+                </button>
+</div>
+</div>
+</header>
+<main class="flex-1">
+<section class="container mx-auto max-w-7xl px-6 py-24 md:py-32 text-center flex flex-col items-center">
+<div class="inline-flex items-center rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-semibold text-primary mb-8 transition-colors hover:bg-muted">
+<span class="mr-1 flex h-2 w-2 rounded-full bg-primary animate-pulse"></span>
+                BETA — Plateforme open source
+            </div>
+<h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl mb-6 max-w-4xl text-foreground">
+                Créez des feuilles de route que vos <br class="hidden md:block"/>
+<span class="italic gradient-text">usagers adorent</span>
+</h1>
+<p class="mx-auto max-w-[700px] text-muted-foreground md:text-xl mb-10 leading-relaxed">
+                Recueillez les retours, priorisez par le vote, et partagez votre roadmap publique. 
+                Construit pour les collectivités et les équipes produit.
+            </p>
+<div class="flex flex-col sm:flex-row items-center gap-4">
+<button class="inline-flex h-12 items-center justify-center rounded-md bg-primary px-8 text-base font-semibold text-white shadow transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]">
+                    Commencer →
+                </button>
+<button class="inline-flex h-12 items-center justify-center rounded-md border border-border bg-transparent px-8 text-base font-semibold text-foreground transition-all hover:bg-muted active:scale-[0.98]">
+                    Voir la documentation
+                </button>
+</div>
+</section>
+<section class="container mx-auto max-w-7xl px-6 py-12">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+<div class="shadcn-card md:col-span-8 p-6 flex flex-col justify-between min-h-[400px]">
+<div class="flex justify-between items-start mb-8">
+<div>
+<h3 class="text-xl font-bold text-foreground">Roadmap collaborative</h3>
+<p class="text-sm text-muted-foreground mt-1">Gérez vos priorités en toute transparence avec vos équipes.</p>
+</div>
+<div class="secondary-icon-container w-10 h-10">
+<span class="material-symbols-outlined text-primary text-xl">dashboard</span>
+</div>
+</div>
+<div class="flex-1 grid grid-cols-3 gap-4">
+<div class="space-y-3">
+<span class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">À étudier</span>
+<div class="bg-background/40 border border-border/50 p-4 rounded-lg space-y-2">
+<div class="h-2 w-1/2 bg-muted-foreground/20 rounded"></div>
+<div class="h-2 w-full bg-muted-foreground/10 rounded"></div>
+</div>
+<div class="bg-background/40 border border-border/50 p-4 rounded-lg space-y-2">
+<div class="h-2 w-2/3 bg-muted-foreground/20 rounded"></div>
+<div class="h-2 w-full bg-muted-foreground/10 rounded"></div>
+</div>
+</div>
+<div class="space-y-3">
+<span class="text-[10px] font-bold text-primary uppercase tracking-widest">En cours</span>
+<div class="bg-primary/5 border border-primary/30 p-4 rounded-lg space-y-2 shadow-[0_0_15px_rgba(93,131,212,0.1)]">
+<div class="h-2 w-3/4 bg-primary rounded"></div>
+<div class="h-2 w-full bg-primary/20 rounded"></div>
+</div>
+<div class="bg-background/40 border border-border/50 p-4 rounded-lg space-y-2">
+<div class="h-2 w-1/3 bg-muted-foreground/20 rounded"></div>
+<div class="h-2 w-full bg-muted-foreground/10 rounded"></div>
+</div>
+</div>
+<div class="space-y-3">
+<span class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Livré</span>
+<div class="bg-emerald-500/5 border border-emerald-500/20 p-4 rounded-lg space-y-2">
+<div class="h-2 w-4/5 bg-emerald-500/40 rounded"></div>
+<div class="h-2 w-full bg-emerald-500/10 rounded"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="shadcn-card md:col-span-4 p-6 flex flex-col">
+<div class="mb-8">
+<div class="secondary-icon-container w-10 h-10 mb-4">
+<span class="material-symbols-outlined text-primary text-xl">how_to_vote</span>
+</div>
+<h3 class="text-xl font-bold text-foreground">Vote citoyen</h3>
+<p class="text-sm text-muted-foreground mt-1">Laissez vos usagers voter pour les fonctionnalités.</p>
+</div>
+<div class="space-y-3 mt-auto">
+<div class="flex items-center justify-between p-3 bg-background/60 rounded-lg border border-border">
+<span class="text-sm font-medium">Interface Dark Mode</span>
+<div class="flex flex-col items-center leading-none text-primary">
+<span class="material-symbols-outlined text-base">expand_less</span>
+<span class="text-[10px] font-bold">284</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-3 bg-background/60 rounded-lg border border-border opacity-60">
+<span class="text-sm font-medium">Export CSV</span>
+<div class="flex flex-col items-center leading-none text-muted-foreground">
+<span class="material-symbols-outlined text-base">expand_less</span>
+<span class="text-[10px] font-bold">142</span>
+</div>
+</div>
+</div>
+</div>
+<div class="shadcn-card md:col-span-4 p-6 flex flex-col justify-between">
+<div>
+<h3 class="text-xl font-bold text-foreground">Satisfaction</h3>
+<p class="text-xs text-muted-foreground mt-1">NPS mensuel des usagers</p>
+</div>
+<div class="flex items-end gap-2.5 h-32 mb-6 px-2">
+<div class="flex-1 bg-muted/60 rounded-sm h-[45%] hover:bg-muted transition-colors"></div>
+<div class="flex-1 bg-muted/60 rounded-sm h-[60%] hover:bg-muted transition-colors"></div>
+<div class="flex-1 bg-primary rounded-sm h-[90%] shadow-[0_0_15px_rgba(93,131,212,0.2)]"></div>
+<div class="flex-1 bg-muted/60 rounded-sm h-[55%] hover:bg-muted transition-colors"></div>
+<div class="flex-1 bg-muted/60 rounded-sm h-[75%] hover:bg-muted transition-colors"></div>
+<div class="flex-1 bg-muted/60 rounded-sm h-[65%] hover:bg-muted transition-colors"></div>
+</div>
+<div class="flex justify-between items-center pt-4 border-t border-border/40">
+<span class="text-2xl font-bold text-foreground">4.8/5</span>
+<span class="text-xs font-semibold text-emerald-500">+12% vs m-1</span>
+</div>
+</div>
+<div class="shadcn-card md:col-span-8 p-6 flex flex-col md:flex-row items-center gap-8">
+<div class="flex-1">
+<h3 class="text-xl font-bold text-foreground mb-2">Intégrations</h3>
+<p class="text-sm text-muted-foreground leading-relaxed">
+                            Connectez vos outils favoris. <b>Notion</b> est déjà intégré nativement pour synchroniser vos bases de données en temps réel.
+                        </p>
+</div>
+<div class="flex gap-4">
+<div class="secondary-icon-container w-16 h-16 bg-white/5 relative ring-2 ring-primary/20">
+<span class="material-symbols-outlined text-foreground text-3xl">description</span>
+<div class="absolute -top-1 -right-1 bg-primary text-white w-5 h-5 rounded-full flex items-center justify-center border-2 border-card">
+<span class="material-symbols-outlined text-[12px] font-bold">check</span>
+</div>
+</div>
+<div class="secondary-icon-container w-16 h-16 opacity-30 grayscale cursor-not-allowed">
+<span class="material-symbols-outlined text-foreground text-3xl">alternate_email</span>
+</div>
+<div class="secondary-icon-container w-16 h-16 opacity-30 grayscale cursor-not-allowed">
+<span class="material-symbols-outlined text-foreground text-3xl">campaign</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="container mx-auto max-w-7xl px-6 py-24">
+<div class="bg-primary rounded-3xl p-10 md:p-20 text-center relative overflow-hidden shadow-2xl">
+<div class="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent"></div>
+<div class="relative z-10 max-w-2xl mx-auto">
+<h2 class="text-3xl md:text-5xl font-extrabold text-white mb-6">Prêt à transformer votre relation usagers ?</h2>
+<p class="text-white/80 text-lg mb-10">Rejoignez les équipes qui construisent le futur des services publics en toute transparence.</p>
+<button class="inline-flex h-14 items-center justify-center rounded-xl bg-white px-10 text-lg font-bold text-primary shadow-xl transition-all hover:scale-105 active:scale-95">
+                        Commencer gratuitement
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<footer class="border-t border-border bg-background py-16">
+<div class="container mx-auto max-w-7xl px-6 md:px-10">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-12">
+<div class="col-span-2 md:col-span-1">
+<div class="flex items-center gap-2 text-primary mb-6">
+<span class="material-symbols-outlined text-2xl">alt_route</span>
+<span class="font-bold text-foreground text-lg tracking-tight">Roadmaps Faciles</span>
+</div>
+<p class="text-muted-foreground text-sm leading-relaxed mb-6">
+                        Plateforme open source de gestion de roadmap collaborative pour le secteur public.
+                    </p>
+<div class="flex gap-2">
+<span class="px-2 py-0.5 rounded border border-border bg-muted/50 text-[10px] font-mono text-muted-foreground">Apache 2.0</span>
+<span class="px-2 py-0.5 rounded border border-border bg-muted/50 text-[10px] font-mono text-muted-foreground">v1.0.0-alpha</span>
+</div>
+</div>
+<div>
+<h4 class="text-foreground font-semibold mb-6">Produit</h4>
+<ul class="space-y-4 text-sm text-muted-foreground">
+<li><a class="hover:text-primary transition-colors" href="#">Fonctionnalités</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Roadmap publique</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Documentation</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-foreground font-semibold mb-6">Communauté</h4>
+<ul class="space-y-4 text-sm text-muted-foreground">
+<li><a class="hover:text-primary transition-colors" href="#">Contribuer</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">GitHub</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Discord</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-foreground font-semibold mb-6">Légal</h4>
+<ul class="space-y-4 text-sm text-muted-foreground">
+<li><a class="hover:text-primary transition-colors" href="#">Confidentialité</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Mentions légales</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Accessibilité</a></li>
+</ul>
+</div>
+</div>
+<div class="mt-16 pt-8 border-t border-border/40 text-center text-xs text-muted-foreground/50">
+                © 2024 Roadmaps Faciles. Fièrement propulsé par l'open source.
+            </div>
+</div>
+</footer>
+</div>
+
+
+<script id="stitch-dark-toggle">
+(function() {
+  var html = document.documentElement;
+  var stored = localStorage.getItem('stitch-theme');
+  if (stored === 'dark') html.classList.add('dark');
+  else if (stored === 'light') html.classList.remove('dark');
+
+  var btn = document.createElement('button');
+  btn.id = 'theme-toggle';
+  btn.setAttribute('aria-label', 'Toggle dark mode');
+  Object.assign(btn.style, {
+    position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: '9999',
+    width: '3rem', height: '3rem', borderRadius: '50%',
+    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'all 0.2s ease', fontSize: '1.25rem', border: 'none',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.15)'
+  });
+
+  function update() {
+    var isDark = html.classList.contains('dark');
+    var icon = document.createElement('span');
+    icon.className = 'material-symbols-outlined';
+    icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+    icon.style.fontSize = '1.4rem';
+    btn.textContent = '';
+    btn.appendChild(icon);
+    btn.style.backgroundColor = isDark ? '#1e293b' : '#ffffff';
+    btn.style.color = isDark ? '#fbbf24' : '#64748b';
+    btn.style.boxShadow = isDark
+      ? '0 2px 12px rgba(0,0,0,0.4), 0 0 0 1px rgba(100,116,139,0.2)'
+      : '0 2px 12px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05)';
+  }
+
+  btn.addEventListener('click', function() {
+    html.classList.toggle('dark');
+    localStorage.setItem('stitch-theme', html.classList.contains('dark') ? 'dark' : 'light');
+    update();
+  });
+
+  document.body.appendChild(btn);
+  update();
+})();
+</script>
+
+</body></html>

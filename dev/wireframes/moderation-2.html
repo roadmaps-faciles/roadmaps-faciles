@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html class="" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin - Modération (Dark)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#163C90",
+                        "primary-hover": "#102a66",
+                        "primary-focus": "#1e4bb3",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#0B0E14",
+                        "surface-dark": "#151B28",
+                        "surface-darker": "#0F1219",
+                        "border-dark": "#2D3748",
+                        error: "#E7000B",
+                        "success-dark": "#059669",
+                        "warning-dark": "#D97706",
+                    },
+                    fontFamily: {
+                        sans: ['"Public Sans"', "sans-serif"],
+                        display: ['"Geist"', "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "10px",
+                        lg: "10px",
+                        xl: "12px",
+                        full: "9999px",
+                    },
+                    boxShadow: {
+                        'glow': '0 0 15px rgba(22, 60, 144, 0.5)',
+                        'none': 'none',
+                    }
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                font-family: "Geist", "Public Sans", sans-serif;
+                background-color: #0B0E14;
+                color: #F8FAFC;
+            }
+        }
+        .focus-visible-ring:focus-visible {
+            outline: 2px solid #163C90;
+            outline-offset: 2px;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B0E14; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2D3748; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4A5568; 
+        }
+    </style>
+
+<style id="stitch-dark-overrides">
+/* === Dark Mode Global Overrides === */
+/* Unlayered styles beat @layer base/utilities from Tailwind CDN */
+
+/* Page backgrounds */
+html.dark body {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+html.dark .bg-white,
+html.dark .bg-surface {
+  background-color: #1e293b;
+}
+html.dark .bg-background-light,
+html.dark .bg-\[\#f6f6f8\],
+html.dark .bg-background {
+  background-color: #0f172a;
+}
+html.dark .bg-slate-50,
+html.dark .bg-slate-100 {
+  background-color: #1e293b;
+}
+html.dark .bg-slate-50\/50,
+html.dark .bg-slate-100\/50,
+html.dark .bg-slate-50\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-sidebar-bg {
+  background-color: #1a2035;
+}
+html.dark .bg-white\/50,
+html.dark .bg-white\/60,
+html.dark .bg-white\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+html.dark .bg-background\/95,
+html.dark .bg-background\/60 {
+  background-color: rgba(15, 23, 42, 0.95);
+}
+
+/* Text colors */
+html.dark .text-slate-900 { color: #f1f5f9; }
+html.dark .text-slate-800 { color: #e2e8f0; }
+html.dark .text-slate-700 { color: #cbd5e1; }
+html.dark .text-slate-600 { color: #94a3b8; }
+html.dark .text-slate-500 { color: #64748b; }
+html.dark .text-slate-400 { color: #64748b; }
+html.dark .text-foreground { color: #e2e8f0; }
+html.dark .text-muted-foreground { color: #8b9ec8; }
+html.dark h1, html.dark h2, html.dark h3, html.dark h4 {
+  color: #f1f5f9;
+}
+
+/* Border colors */
+html.dark .border-slate-200,
+html.dark .border-slate-300,
+html.dark .border-border,
+html.dark .border-slate-200\/40,
+html.dark .border-slate-200\/60,
+html.dark .border-slate-300\/40 {
+  border-color: #334155;
+}
+html.dark .border-slate-100 {
+  border-color: #1e293b;
+}
+html.dark .border-primary\/40,
+html.dark .border-primary\/20 {
+  border-color: rgba(93, 131, 212, 0.3);
+}
+html.dark .border-border\/40 {
+  border-color: rgba(51, 65, 85, 0.4);
+}
+
+/* Dividers */
+html.dark .divide-slate-100 > * + *,
+html.dark .divide-slate-200 > * + * {
+  border-color: #334155;
+}
+html.dark .border-t { border-top-color: #334155; }
+html.dark .border-b { border-bottom-color: #334155; }
+html.dark .border-r { border-right-color: #334155; }
+html.dark .border-l { border-left-color: #334155; }
+
+/* Form elements */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b;
+}
+
+/* Cards and surfaces */
+html.dark .shadcn-card {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+html.dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+
+/* Badges, pills */
+html.dark .bg-green-100 { background-color: rgba(34, 197, 94, 0.15); }
+html.dark .bg-blue-100, html.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.15); }
+html.dark .bg-orange-100, html.dark .bg-orange-50 { background-color: rgba(249, 115, 22, 0.15); }
+html.dark .bg-purple-100 { background-color: rgba(168, 85, 247, 0.15); }
+html.dark .bg-red-100, html.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.15); }
+html.dark .bg-amber-100 { background-color: rgba(245, 158, 11, 0.15); }
+html.dark .bg-emerald-100 { background-color: rgba(16, 185, 129, 0.15); }
+
+/* Hover states */
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-100:hover {
+  background-color: rgba(51, 65, 85, 0.5);
+}
+html.dark .hover\:bg-slate-200\/50:hover {
+  background-color: rgba(51, 65, 85, 0.3);
+}
+
+/* Ring */
+html.dark .ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+html.dark .ring-1.ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+
+/* Glass / backdrop */
+html.dark .glass-header {
+  background-color: rgba(15, 23, 42, 0.85);
+}
+html.dark .backdrop-blur-md {
+  background-color: rgba(15, 23, 42, 0.8);
+}
+
+/* Scrollbar line in h-px */
+html.dark .h-px { background-color: #334155; }
+html.dark .bg-slate-200 { background-color: #334155; }
+
+/* Primary adjustments for dark */
+html.dark .bg-primary\/10 { background-color: rgba(93, 131, 212, 0.15); }
+html.dark .bg-primary\/5 { background-color: rgba(93, 131, 212, 0.08); }
+html.dark .text-primary { color: #7ba3e8; }
+html.dark .bg-primary { background-color: #4a73c4; }
+html.dark .hover\:bg-primary\/5:hover { background-color: rgba(93, 131, 212, 0.1); }
+html.dark .hover\:bg-primary\/10:hover { background-color: rgba(93, 131, 212, 0.15); }
+
+/* Table */
+html.dark table { color: #e2e8f0; }
+html.dark thead { background-color: #1e293b; }
+html.dark th { color: #94a3b8; border-color: #334155; }
+html.dark td { border-color: #334155; }
+html.dark tr:hover { background-color: rgba(51, 65, 85, 0.3); }
+
+/* Specific admin patterns */
+html.dark .bg-white.rounded-custom,
+html.dark .bg-white.rounded-\[10px\],
+html.dark .bg-white.rounded-lg,
+html.dark .bg-white.rounded-xl {
+  background-color: #1e293b;
+}
+
+/* Footer adjustments */
+html.dark footer {
+  background-color: #0f172a;
+  border-color: #334155;
+}
+</style>
+
+</head>
+<body class="flex min-h-screen bg-background-dark text-slate-100 font-display">
+<aside class="fixed left-0 top-0 z-40 h-screen w-64 border-r border-slate-700/40 bg-surface-darker flex flex-col justify-between p-4">
+<div class="flex flex-col gap-8">
+<div class="flex items-center gap-3 px-2">
+<div class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white shadow-glow">
+<span class="material-symbols-outlined">shield_person</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-base font-bold text-slate-100 leading-tight">Admin Panel</h1>
+<p class="text-slate-500 text-xs font-normal">Modération • v5.0</p>
+</div>
+</div>
+<nav class="flex flex-col gap-1.5">
+<div class="px-3 mb-2 text-xs font-bold text-slate-500 uppercase tracking-wider">Général</div>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-colors focus-visible-ring" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<div class="px-3 mt-4 mb-2 text-xs font-bold text-slate-500 uppercase tracking-wider">Modération</div>
+<a class="flex items-center justify-between rounded-lg bg-primary/20 px-3 py-2.5 text-blue-300 border border-primary/40 shadow-glow transition-all focus-visible-ring" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[20px]">gavel</span>
+<span class="text-sm font-medium">À traiter</span>
+</div>
+<span class="flex h-5 w-5 items-center justify-center rounded-full bg-error text-[10px] font-bold text-white">12</span>
+</a>
+<a class="flex items-center justify-between rounded-lg px-3 py-2.5 text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-colors focus-visible-ring" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[20px]">history</span>
+<span class="text-sm font-medium">Historique</span>
+</div>
+</a>
+<a class="flex items-center justify-between rounded-lg px-3 py-2.5 text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-colors focus-visible-ring" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[20px]">report</span>
+<span class="text-sm font-medium">Signalements</span>
+</div>
+<span class="flex h-5 w-5 items-center justify-center rounded-full bg-surface-dark border border-slate-600 text-[10px] font-bold text-slate-400">5</span>
+</a>
+<div class="px-3 mt-4 mb-2 text-xs font-bold text-slate-500 uppercase tracking-wider">Système</div>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-colors focus-visible-ring" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span class="text-sm font-medium">Configuration</span>
+</a>
+</nav>
+</div>
+<div class="px-2 pb-2">
+<div class="rounded-lg bg-surface-dark p-4 border border-slate-700/40">
+<div class="flex items-center gap-3 mb-3">
+<div class="relative">
+<img alt="Admin" class="h-9 w-9 rounded-full object-cover border border-slate-600" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoy1P_W9CEshUKBr0t1bqyaOJkenoyJaiHVFE8Fpk4BqOEdCIMBpZ22_AU5rJPrxvafKmAokhxgSz4lox2EfWxfxWxN7EUFfE_ymCpQ_mxLjomcKR-wZFlH5SqAy5L_aQjh-YpdVy16_qxeI8kaRqZ5wUv1oz6dFPdh4tAMFdqDfvpDqcgVfWNY0hGte3Q_-ex1vzcWnD0ffTMMD4YlqRSFew8JaRm0yIHP0WAuqlC54REUFysr6q06IW-mDabg-0fPolVAjdL17UM"/>
+<span class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-green-500 border-2 border-surface-dark"></span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-bold text-slate-200">Alex M.</span>
+<span class="text-xs text-slate-500">Super Admin</span>
+</div>
+</div>
+<button class="w-full flex items-center justify-center gap-2 rounded bg-white/5 hover:bg-white/10 p-1.5 text-xs text-slate-300 transition-colors">
+<span class="material-symbols-outlined text-[14px]">logout</span>
+                Déconnexion
+            </button>
+</div>
+</div>
+</aside>
+<main class="ml-64 flex-1 p-8 lg:px-12 lg:py-10 bg-background-dark min-h-screen relative">
+<header class="mb-10 flex items-center justify-between">
+<div>
+<div class="flex items-center gap-2 text-sm text-slate-500 mb-2">
+<span>Admin</span>
+<span class="material-symbols-outlined text-xs text-slate-600">chevron_right</span>
+<span class="text-blue-400 font-medium">File d'attente de modération</span>
+</div>
+<h1 class="text-3xl font-bold tracking-tight text-white mb-2">Contenus en attente</h1>
+<p class="text-slate-400 text-sm max-w-2xl">
+                Veuillez examiner les contenus signalés ou soumis récemment par les utilisateurs.
+            </p>
+</div>
+<div class="flex gap-4">
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-dark border border-slate-600/40 hover:border-slate-500 text-slate-300 rounded-lg text-sm font-medium transition-colors">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                Filtres
+            </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg text-sm font-medium transition-colors shadow-glow">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+                Actualiser
+            </button>
+</div>
+</header>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+<div class="rounded-xl border border-slate-700/40 bg-surface-dark p-5 flex items-start justify-between">
+<div>
+<p class="text-slate-500 text-xs font-medium uppercase tracking-wider mb-1">En attente</p>
+<h3 class="text-2xl font-bold text-white">12</h3>
+</div>
+<div class="h-8 w-8 rounded bg-blue-500/10 flex items-center justify-center text-blue-400">
+<span class="material-symbols-outlined">hourglass_empty</span>
+</div>
+</div>
+<div class="rounded-xl border border-slate-700/40 bg-surface-dark p-5 flex items-start justify-between">
+<div>
+<p class="text-slate-500 text-xs font-medium uppercase tracking-wider mb-1">Approuvés (24h)</p>
+<h3 class="text-2xl font-bold text-emerald-400">45</h3>
+</div>
+<div class="h-8 w-8 rounded bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+</div>
+<div class="rounded-xl border border-slate-700/40 bg-surface-dark p-5 flex items-start justify-between">
+<div>
+<p class="text-slate-500 text-xs font-medium uppercase tracking-wider mb-1">Rejetés (24h)</p>
+<h3 class="text-2xl font-bold text-red-400">8</h3>
+</div>
+<div class="h-8 w-8 rounded bg-red-500/10 flex items-center justify-center text-red-400">
+<span class="material-symbols-outlined">block</span>
+</div>
+</div>
+<div class="rounded-xl border border-slate-700/40 bg-surface-dark p-5 flex items-start justify-between">
+<div>
+<p class="text-slate-500 text-xs font-medium uppercase tracking-wider mb-1">Temps moyen</p>
+<h3 class="text-2xl font-bold text-slate-200">2.5h</h3>
+</div>
+<div class="h-8 w-8 rounded bg-slate-700/30 flex items-center justify-center text-slate-400">
+<span class="material-symbols-outlined">schedule</span>
+</div>
+</div>
+</div>
+<div class="rounded-xl border border-slate-700/40 bg-surface-dark overflow-hidden">
+<div class="flex items-center justify-between px-6 py-4 border-b border-slate-700/40">
+<h3 class="text-lg font-bold text-white">File d'attente prioritaire</h3>
+<div class="flex gap-2">
+<span class="px-2 py-1 text-xs font-medium rounded bg-red-500/10 text-red-400 border border-red-500/20">Haute priorité: 4</span>
+<span class="px-2 py-1 text-xs font-medium rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">Standard: 8</span>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-sm text-left">
+<thead class="text-xs text-slate-400 uppercase bg-white/5 border-b border-slate-700/40">
+<tr>
+<th class="px-6 py-4 font-semibold w-12">
+<input class="rounded border-slate-600 bg-surface-darker text-primary focus:ring-primary focus:ring-offset-surface-dark" type="checkbox"/>
+</th>
+<th class="px-6 py-4 font-semibold">Auteur</th>
+<th class="px-6 py-4 font-semibold">Type</th>
+<th class="px-6 py-4 font-semibold">Contenu (Extrait)</th>
+<th class="px-6 py-4 font-semibold">Date</th>
+<th class="px-6 py-4 font-semibold text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-700/40">
+<tr class="bg-surface-dark hover:bg-white/5 transition-colors">
+<td class="px-6 py-4">
+<input class="rounded border-slate-600 bg-surface-darker text-primary focus:ring-primary focus:ring-offset-surface-dark" type="checkbox"/>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img alt="" class="h-8 w-8 rounded-full border border-slate-600" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoy1P_W9CEshUKBr0t1bqyaOJkenoyJaiHVFE8Fpk4BqOEdCIMBpZ22_AU5rJPrxvafKmAokhxgSz4lox2EfWxfxWxN7EUFfE_ymCpQ_mxLjomcKR-wZFlH5SqAy5L_aQjh-YpdVy16_qxeI8kaRqZ5wUv1oz6dFPdh4tAMFdqDfvpDqcgVfWNY0hGte3Q_-ex1vzcWnD0ffTMMD4YlqRSFew8JaRm0yIHP0WAuqlC54REUFysr6q06IW-mDabg-0fPolVAjdL17UM"/>
+<div>
+<div class="font-medium text-white">Sarah Connor</div>
+<div class="text-xs text-slate-500">Utilisateur vérifié</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-purple-500/10 px-2.5 py-0.5 text-xs font-medium text-purple-400 border border-purple-500/20">
+                                Commentaire
+                            </span>
+</td>
+<td class="px-6 py-4 max-w-xs">
+<p class="truncate text-slate-300">Ce produit est incroyable, mais je pense que la documentation pourrait être...</p>
+</td>
+<td class="px-6 py-4 text-slate-400">Il y a 2h</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="h-8 w-8 flex items-center justify-center rounded bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white transition-colors border border-emerald-500/20" title="Approuver">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</button>
+<button class="h-8 w-8 flex items-center justify-center rounded bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-colors border border-red-500/20" title="Rejeter">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+<button class="h-8 w-8 flex items-center justify-center rounded bg-slate-700/50 text-slate-400 hover:bg-slate-600 hover:text-white transition-colors border border-slate-600/30" title="Détails">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="bg-surface-dark hover:bg-white/5 transition-colors">
+<td class="px-6 py-4">
+<input class="rounded border-slate-600 bg-surface-darker text-primary focus:ring-primary focus:ring-offset-surface-dark" type="checkbox"/>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center text-xs font-bold text-slate-300">TR</div>
+<div>
+<div class="font-medium text-white">Tom Riddle</div>
+<div class="text-xs text-red-400">Signalé (3x)</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 px-2.5 py-0.5 text-xs font-medium text-blue-400 border border-blue-500/20">
+                                Post Forum
+                            </span>
+</td>
+<td class="px-6 py-4 max-w-xs">
+<p class="truncate text-slate-300">Je vends des accès premium pas cher, contactez-moi en MP pour plus...</p>
+</td>
+<td class="px-6 py-4 text-slate-400">Il y a 5h</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="h-8 w-8 flex items-center justify-center rounded bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white transition-colors border border-emerald-500/20" title="Approuver">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</button>
+<button class="h-8 w-8 flex items-center justify-center rounded bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-colors border border-red-500/20" title="Rejeter">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+<button class="h-8 w-8 flex items-center justify-center rounded bg-slate-700/50 text-slate-400 hover:bg-slate-600 hover:text-white transition-colors border border-slate-600/30" title="Détails">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="bg-surface-dark hover:bg-white/5 transition-colors">
+<td class="px-6 py-4">
+<input class="rounded border-slate-600 bg-surface-darker text-primary focus:ring-primary focus:ring-offset-surface-dark" type="checkbox"/>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img alt="" class="h-8 w-8 rounded-full border border-slate-600" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoy1P_W9CEshUKBr0t1bqyaOJkenoyJaiHVFE8Fpk4BqOEdCIMBpZ22_AU5rJPrxvafKmAokhxgSz4lox2EfWxfxWxN7EUFfE_ymCpQ_mxLjomcKR-wZFlH5SqAy5L_aQjh-YpdVy16_qxeI8kaRqZ5wUv1oz6dFPdh4tAMFdqDfvpDqcgVfWNY0hGte3Q_-ex1vzcWnD0ffTMMD4YlqRSFew8JaRm0yIHP0WAuqlC54REUFysr6q06IW-mDabg-0fPolVAjdL17UM"/>
+<div>
+<div class="font-medium text-white">Alice Dupont</div>
+<div class="text-xs text-slate-500">Nouveau membre</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-orange-500/10 px-2.5 py-0.5 text-xs font-medium text-orange-400 border border-orange-500/20">
+                                Image
+                            </span>
+</td>
+<td class="px-6 py-4 max-w-xs">
+<div class="flex items-center gap-2 text-slate-400 text-xs bg-black/20 p-1.5 rounded w-fit border border-slate-700">
+<span class="material-symbols-outlined text-[14px]">image</span>
+                                screenshot_bug_report.png
+                             </div>
+</td>
+<td class="px-6 py-4 text-slate-400">Il y a 6h</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="h-8 w-8 flex items-center justify-center rounded bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white transition-colors border border-emerald-500/20" title="Approuver">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</button>
+<button class="h-8 w-8 flex items-center justify-center rounded bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-colors border border-red-500/20" title="Rejeter">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+<button class="h-8 w-8 flex items-center justify-center rounded bg-slate-700/50 text-slate-400 hover:bg-slate-600 hover:text-white transition-colors border border-slate-600/30" title="Détails">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="flex items-center justify-between px-6 py-4 border-t border-slate-700/40 bg-surface-darker">
+<span class="text-xs text-slate-500">Affichage de 1 à 3 sur 12 entrées</span>
+<div class="flex gap-1">
+<button class="px-3 py-1 text-xs font-medium text-slate-400 bg-surface-dark border border-slate-700 rounded hover:bg-slate-700 hover:text-white transition-colors">Précédent</button>
+<button class="px-3 py-1 text-xs font-medium text-slate-400 bg-surface-dark border border-slate-700 rounded hover:bg-slate-700 hover:text-white transition-colors">Suivant</button>
+</div>
+</div>
+</div>
+<div aria-modal="true" class="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm" role="dialog">
+<div class="w-full max-w-md bg-surface-dark rounded-xl border border-white/10 shadow-2xl overflow-hidden transform transition-all scale-100 opacity-100">
+<div class="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-surface-darker">
+<h3 class="text-lg font-bold text-white">Motif du rejet</h3>
+<button class="text-slate-400 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded p-1">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="p-6">
+<p class="text-sm text-slate-400 mb-4">Veuillez sélectionner la raison pour laquelle ce contenu est rejeté. Cette notification sera envoyée à l'utilisateur.</p>
+<div class="space-y-3">
+<label class="flex items-start gap-3 p-3 rounded-lg border border-slate-700/50 bg-white/5 cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all group">
+<input class="mt-0.5 bg-surface-darker border-slate-500 text-primary focus:ring-primary focus:ring-offset-surface-dark" name="reason" type="radio"/>
+<div>
+<span class="block text-sm font-medium text-slate-200 group-hover:text-primary-focus">Contenu Spam / Publicitaire</span>
+<span class="block text-xs text-slate-500 mt-0.5">Liens promotionnels non sollicités ou contenu répétitif.</span>
+</div>
+</label>
+<label class="flex items-start gap-3 p-3 rounded-lg border border-primary bg-primary/10 cursor-pointer shadow-[0_0_10px_rgba(22,60,144,0.15)] transition-all">
+<input checked="" class="mt-0.5 bg-surface-darker border-primary text-primary focus:ring-primary focus:ring-offset-surface-dark" name="reason" type="radio"/>
+<div>
+<span class="block text-sm font-medium text-white">Langage inapproprié</span>
+<span class="block text-xs text-blue-200/70 mt-0.5">Insultes, harcèlement ou propos discriminatoires.</span>
+</div>
+</label>
+<label class="flex items-start gap-3 p-3 rounded-lg border border-slate-700/50 bg-white/5 cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all group">
+<input class="mt-0.5 bg-surface-darker border-slate-500 text-primary focus:ring-primary focus:ring-offset-surface-dark" name="reason" type="radio"/>
+<div>
+<span class="block text-sm font-medium text-slate-200 group-hover:text-primary-focus">Hors sujet</span>
+<span class="block text-xs text-slate-500 mt-0.5">Le contenu ne correspond pas à la catégorie ou au fil de discussion.</span>
+</div>
+</label>
+</div>
+<div class="mt-4">
+<label class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider" for="comment">Note additionnelle (Optionnel)</label>
+<textarea class="w-full rounded-lg bg-surface-darker border border-slate-700 text-sm text-slate-200 placeholder:text-slate-600 focus:border-primary focus:ring-1 focus:ring-primary resize-none" id="comment" placeholder="Précisions pour l'équipe de modération..." rows="2"></textarea>
+</div>
+</div>
+<div class="flex items-center justify-end gap-3 px-6 py-4 bg-surface-darker border-t border-white/5">
+<button class="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white bg-transparent hover:bg-white/5 rounded-lg transition-colors border border-transparent">
+                    Annuler
+                </button>
+<button class="px-4 py-2 text-sm font-medium text-white bg-error hover:bg-red-700 rounded-lg shadow-lg shadow-red-900/20 transition-all border border-red-500/20 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-surface-dark">
+                    Confirmer le rejet
+                </button>
+</div>
+</div>
+</div>
+</main>
+
+
+<script id="stitch-dark-toggle">
+(function() {
+  var html = document.documentElement;
+  var stored = localStorage.getItem('stitch-theme');
+  if (stored === 'dark') html.classList.add('dark');
+  else if (stored === 'light') html.classList.remove('dark');
+
+  var btn = document.createElement('button');
+  btn.id = 'theme-toggle';
+  btn.setAttribute('aria-label', 'Toggle dark mode');
+  Object.assign(btn.style, {
+    position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: '9999',
+    width: '3rem', height: '3rem', borderRadius: '50%',
+    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'all 0.2s ease', fontSize: '1.25rem', border: 'none',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.15)'
+  });
+
+  function update() {
+    var isDark = html.classList.contains('dark');
+    var icon = document.createElement('span');
+    icon.className = 'material-symbols-outlined';
+    icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+    icon.style.fontSize = '1.4rem';
+    btn.textContent = '';
+    btn.appendChild(icon);
+    btn.style.backgroundColor = isDark ? '#1e293b' : '#ffffff';
+    btn.style.color = isDark ? '#fbbf24' : '#64748b';
+    btn.style.boxShadow = isDark
+      ? '0 2px 12px rgba(0,0,0,0.4), 0 0 0 1px rgba(100,116,139,0.2)'
+      : '0 2px 12px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05)';
+  }
+
+  btn.addEventListener('click', function() {
+    html.classList.toggle('dark');
+    localStorage.setItem('stitch-theme', html.classList.contains('dark') ? 'dark' : 'light');
+    update();
+  });
+
+  document.body.appendChild(btn);
+  update();
+})();
+</script>
+
+</body></html>
