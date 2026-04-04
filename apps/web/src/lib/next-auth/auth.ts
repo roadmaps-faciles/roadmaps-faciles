@@ -183,7 +183,8 @@ const {
 } = NextAuth(async () => {
   const headersList = await headers();
   const protocol = headersList.get("x-forwarded-proto");
-  const host = headersList.get("host");
+  const rawHost = headersList.get("host");
+  const host = rawHost?.startsWith("0.0.0.0") ? rawHost.replace("0.0.0.0", "localhost") : rawHost;
   const url = protocol && host ? `${protocol}://${host}/api/auth` : null;
 
   // Normalize additional root domains (e.g. Tailscale IP/DNS) and their subdomains
