@@ -1,5 +1,8 @@
 import "server-only";
 import { render } from "@react-email/render";
+import { createElement } from "react";
+
+import { type UiTheme } from "@/ui/types";
 
 import { EmLinkConfirmEmail } from "./EmLinkConfirmEmail";
 import { InvitationEmail } from "./InvitationEmail";
@@ -19,9 +22,10 @@ type MagicLinkEmailTranslations = {
 export const renderMagicLinkEmail = (props: {
   baseUrl: string;
   locale?: string;
+  theme?: UiTheme;
   translations: MagicLinkEmailTranslations;
   url: string;
-}) => render(<MagicLinkEmail {...props} />);
+}) => render(createElement(MagicLinkEmail, props));
 
 type InvitationEmailTranslations = {
   body: string;
@@ -35,8 +39,9 @@ export const renderInvitationEmail = (props: {
   baseUrl: string;
   invitationLink: string;
   locale?: string;
+  theme?: UiTheme;
   translations: InvitationEmailTranslations;
-}) => render(<InvitationEmail {...props} />);
+}) => render(createElement(InvitationEmail, props));
 
 type EmLinkConfirmEmailTranslations = {
   body: string;
@@ -52,8 +57,9 @@ export const renderEmLinkConfirmEmail = (props: {
   baseUrl: string;
   confirmUrl: string;
   locale?: string;
+  theme?: UiTheme;
   translations: EmLinkConfirmEmailTranslations;
-}) => render(<EmLinkConfirmEmail {...props} />);
+}) => render(createElement(EmLinkConfirmEmail, props));
 
 type VerifyEmailTranslations = {
   body: string;
@@ -67,9 +73,10 @@ type VerifyEmailTranslations = {
 export const renderVerifyEmailEmail = (props: {
   baseUrl: string;
   locale?: string;
+  theme?: UiTheme;
   translations: VerifyEmailTranslations;
   url: string;
-}) => render(<VerifyEmailEmail {...props} />);
+}) => render(createElement(VerifyEmailEmail, props));
 
 type ResetPasswordTranslations = {
   body: string;
@@ -83,6 +90,7 @@ type ResetPasswordTranslations = {
 export const renderResetPasswordEmail = (props: {
   baseUrl: string;
   locale?: string;
+  theme?: UiTheme;
   translations: ResetPasswordTranslations;
   url: string;
-}) => render(<ResetPasswordEmail {...props} />);
+}) => render(createElement(ResetPasswordEmail, props));

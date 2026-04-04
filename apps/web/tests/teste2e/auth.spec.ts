@@ -5,8 +5,8 @@ test.describe("Authentication Pages", () => {
     await page.goto("/login");
 
     await expect(page).toHaveTitle(/.+/);
-    const identifierInput = page.getByRole("textbox", { name: /identifiant/i });
-    await expect(identifierInput).toBeVisible();
+    const emailInput = page.getByRole("textbox", { name: /email/i });
+    await expect(emailInput).toBeVisible();
   });
 
   test("tenant login page is accessible via subdomain", async ({ page }) => {

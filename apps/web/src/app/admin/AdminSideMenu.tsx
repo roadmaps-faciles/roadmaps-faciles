@@ -6,7 +6,9 @@ import {
   KeyRound,
   LayoutDashboard,
   LockKeyhole,
+  Mail,
   ScrollText,
+  Settings2,
   Shield,
   ToggleLeft,
   Users,
@@ -55,6 +57,13 @@ export const AdminSideMenu = ({ userMenu, isDev, useStripe }: AdminSideMenuProps
       items: [
         { label: t("prismaStudio"), href: "/admin/prisma", icon: Database },
         { label: t("auditLog.title"), href: "/admin/audit-log", icon: ScrollText },
+      ],
+    },
+    {
+      label: t("groups.tools"),
+      items: [
+        { label: t("config.menu"), href: "/admin/config", icon: Settings2 },
+        { label: t("emailTest.menu"), href: "/admin/email-test", icon: Mail },
       ],
     },
   ];

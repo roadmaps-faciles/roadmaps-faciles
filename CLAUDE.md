@@ -213,9 +213,12 @@
 - Legal pages: custom pages at `/mentions-legales`, `/politique-de-confidentialite`, `/accessibilite`, `/cgu` — configurable via `NEXT_PUBLIC_LEGAL_*` env vars in `src/config.ts` (publisher, hosting, contact emails) for self-hosting
 - Caching: Redis via ioredis + unstorage
 - Email: react-email templates (`src/emails/`) + Nodemailer (`src/lib/mailer.ts` — shared `sendEmail()`, maildev in dev)
-  - Layout DSFR Mail: `DsfrEmailLayout` (header/footer Marianne, dark mode, responsive 600px)
-  - Composants helpers: `DsfrButton`, `DsfrText`, `DsfrHeading`, `DsfrSpacer` in `src/emails/components.tsx`
-  - Render facade: `src/emails/renderEmails.tsx` — fonctions `renderXxxEmail()` (keeps JSX out of `.ts` files)
+  - Theme-aware: emails render with Default or DSFR layout based on `theme?: UiTheme` prop (default `"Default"`)
+  - `src/emails/themed.tsx` — `getEmailKit(theme)` returns Layout/Button/Text/Heading/Spacer per theme
+  - DSFR: `DsfrEmailLayout` (`src/emails/gouv/`) + `DsfrButton`, `DsfrText`, `DsfrHeading`, `DsfrSpacer` (`src/emails/components.tsx`)
+  - Default: `DefaultEmailLayout` (`src/emails/default/`) + `DefaultButton`, `DefaultText`, `DefaultHeading`, `DefaultSpacer` — French Blue `#163C90`, logo `roadmaps-faciles.png`
+  - Render facade: `src/emails/renderEmails.ts` — `renderXxxEmail()` functions, uses `createElement()` (no JSX — Rolldown can't parse `.tsx` in vitest import graph analysis)
+  - Callers: root emails → Default (implicit), tenant emails → `settings.uiTheme`, magic link → resolved from host header
   - i18n: `getEmailTranslations()` in `src/emails/getEmailTranslations.ts` — standalone (loads JSON directly, no next-intl server context dependency)
 - i18n: next-intl v4 — cookie-based locale (no URL prefix), fr (default) + en
   - Config: `src/i18n/request.ts` (reads `NEXT_LOCALE` cookie), utils/types in `src/lib/utils/i18n.ts`
@@ -237,6 +240,11 @@
 - **Réflexe systématique** : à chaque nouvelle feature, se poser la question "cette feature doit-elle être derrière un flag ?" — si non stabilisée et en prod, la réponse est oui
 - Retrait : feature validée → supprimer la clé de `flags.ts` + nettoyer le code conditionnel + supprimer les clés i18n. La valeur DB orpheline est ignorée automatiquement
 - Tests : vérifier les 4 cas (flag on/off × super admin/user)
+
+## Root Admin Tools
+- Sidebar groups: Gestion, Sécurité, Développeurs, **Outils** — "Outils" group for debug/test pages
+- `/admin/config` — read-only display of all `src/config.ts` values, secrets auto-masked (`configUtils.ts`)
+- `/admin/email-test` — send test emails with template + theme (Default/Dsfr) selection, sends to current user's email
 
 ## Workflow
 - Always run `pnpm lint --fix` first, then `pnpm build` to catch type errors, BEFORE committing

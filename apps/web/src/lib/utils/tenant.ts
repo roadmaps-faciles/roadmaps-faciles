@@ -14,6 +14,11 @@ export const getDomainFromHost = async (): Promise<string> => {
     throw new Error("No host header found");
   }
 
+  // 0.0.0.0 binds all interfaces — normalize to localhost (Next.js dev default)
+  if (host.startsWith("0.0.0.0")) {
+    return host.replace("0.0.0.0", "localhost");
+  }
+
   // Normalize additional root domains and their subdomains to canonical rootDomain
   if (config.additionalRootDomains.includes(host)) {
     return config.rootDomain;

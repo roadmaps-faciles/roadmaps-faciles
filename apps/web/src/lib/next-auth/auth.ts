@@ -15,7 +15,9 @@ import { getEmailTranslations } from "@/emails/getEmailTranslations";
 import { renderMagicLinkEmail } from "@/emails/renderEmails";
 import { verifyBridgeToken } from "@/lib/authBridge";
 import { createMailTransporter } from "@/lib/mailer";
+import { getDomainFromHost, getTenantSubdomain } from "@/lib/utils/tenant";
 import { type UserRole, type UserStatus } from "@/prisma/enums";
+import { type UiTheme } from "@/ui/types";
 import { GetTenantSettings } from "@/useCases/tenant_settings/GetTenantSettings";
 import { GetTenantForDomain } from "@/useCases/tenant/GetTenantForDomain";
 import { type Locale } from "@/utils/i18n";
@@ -92,6 +94,18 @@ const nodemailerProvider = Nodemailer({
     const cookieStore = await cookies();
     const locale = (cookieStore.get("NEXT_LOCALE")?.value as Locale) || "fr";
 
+    let theme: UiTheme = "Default";
+    try {
+      const domain = await getDomainFromHost();
+      if (getTenantSubdomain(domain)) {
+        const tenant = await new GetTenantForDomain(tenantRepo).execute({ domain });
+        const settings = await new GetTenantSettings(tenantSettingsRepo).execute({ tenantId: tenant.id });
+        theme = settings.uiTheme;
+      }
+    } catch {
+      // Fall back to Default on any resolution error
+    }
+
     const [t, tFooter] = await Promise.all([
       getEmailTranslations(locale, "emails.magicLink", ["subject", "title", "body", "button", "expiry", "ignore"]),
       getEmailTranslations(locale, "emails", ["footer"]),
@@ -100,6 +114,7 @@ const nodemailerProvider = Nodemailer({
     const html = await renderMagicLinkEmail({
       baseUrl: config.host,
       locale,
+      theme,
       translations: { ...t, footer: tFooter.footer },
       url,
     });
@@ -168,7 +183,8 @@ const {
 } = NextAuth(async () => {
   const headersList = await headers();
   const protocol = headersList.get("x-forwarded-proto");
-  const host = headersList.get("host");
+  const rawHost = headersList.get("host");
+  const host = rawHost?.startsWith("0.0.0.0") ? rawHost.replace("0.0.0.0", "localhost") : rawHost;
   const url = protocol && host ? `${protocol}://${host}/api/auth` : null;
 
   // Normalize additional root domains (e.g. Tailscale IP/DNS) and their subdomains

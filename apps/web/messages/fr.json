@@ -1058,7 +1058,8 @@
     "groups": {
       "management": "Gestion",
       "security": "Sécurité",
-      "developers": "Développeurs"
+      "developers": "Développeurs",
+      "tools": "Outils"
     },
     "tenants": "Tenants",
     "organizations": "Organisations",
@@ -1166,6 +1167,26 @@
           "description": "Permet aux tenants de basculer entre le thème DSFR (gouv.fr) et le thème par défaut (shadcn/ui)."
         }
       }
+    },
+    "config": {
+      "menu": "Configuration",
+      "title": "Configuration environnement",
+      "description": "Variables d'environnement et paramètres de l'instance. Les valeurs sensibles sont masquées.",
+      "masked": "masqué",
+      "empty": "(vide)"
+    },
+    "emailTest": {
+      "menu": "Test emails",
+      "title": "Test des emails",
+      "description": "Envoyez des emails de test pour vérifier le rendu des templates selon le thème.",
+      "sendTest": "Envoyer un email de test",
+      "recipient": "Destinataire",
+      "currentUser": "vous",
+      "template": "Template",
+      "theme": "Thème",
+      "send": "Envoyer",
+      "sending": "Envoi...",
+      "sent": "Email de test envoyé."
     }
   },
   "emails": {

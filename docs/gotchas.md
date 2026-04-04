@@ -44,6 +44,7 @@ Pièges connus et solutions dans le codebase Roadmaps Faciles.
 
 ## Config / Infra
 
+- `0.0.0.0` host normalization: Next.js dev server binds to `0.0.0.0` by default, causing some requests (especially internal NextAuth callbacks) to arrive with `host: 0.0.0.0:3000`. Both `getDomainFromHost()` and `auth.ts` redirectProxyUrl normalize this to `localhost`. If you see `GetTenantForDomainNotFoundError: 0.0.0.0:3000`, it means normalization is missing somewhere
 - `config.rootDomain` includes the port (only strips protocol + `www.`) — domain/DNS providers must strip port with `.replace(/:\d+$/, "")` themselves
 - DNS CNAME trailing dot: resolvers may return `"target.io."` — always normalize with `.replace(/\.$/, "")` before comparing
 - Zod 4 is used (not v3) — API differs slightly; docs available via MCP: `https://mcp.inkeep.com/zod/mcp`
@@ -59,6 +60,7 @@ Pièges connus et solutions dans le codebase Roadmaps Faciles.
 
 ## Tooling
 
+- Rolldown (Vitest bundler) cannot parse JSX in `.tsx` files during `--changed` import graph analysis. Files that contain JSX and are imported by tests (directly or transitively) must either be globally mocked in `vitest.setup.ts` or converted to `.ts` using `createElement()`. This is why `renderEmails.ts` uses `createElement()` instead of JSX
 - Workflow: always run `pnpm lint --fix` before manually fixing ESLint diagnostics (import sorting, formatting, etc.)
 - ESLint 10: NOT yet compatible with `eslint-plugin-import`, `eslint-plugin-react`, `eslint-plugin-react-hooks`, `eslint-plugin-jsx-a11y` — stay on ESLint 9 until ecosystem catches up
 - Vitest 4 browser provider: API changed from `provider: "playwright"` (string) to `provider: playwright()` (function import from `@vitest/browser-playwright`)
