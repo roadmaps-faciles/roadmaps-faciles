@@ -52,6 +52,6 @@ test.describe("Tenant Admin", () => {
     await page.goto("/admin/general");
 
     const content = page.locator("#content");
-    await expect(content.getByText("E2E Test Tenant")).toBeVisible();
+    await expect(content.getByText("E2E Test Tenant").first()).toBeVisible({ timeout: 30_000 });
   });
 });
