@@ -23,9 +23,10 @@ test.describe("Tenant Admin", () => {
   test("lists tenant members with roles", async ({ page }) => {
     await page.goto("/admin/users");
 
-    await expect(page.getByText("test-admin@test.local")).toBeVisible();
-    await expect(page.getByText("test-mod@test.local")).toBeVisible();
-    await expect(page.getByText("test-user@test.local")).toBeVisible();
+    const content = page.locator("#content");
+    await expect(content.getByText("test-admin@test.local")).toBeVisible();
+    await expect(content.getByText("test-mod@test.local")).toBeVisible();
+    await expect(content.getByText("test-user@test.local")).toBeVisible();
   });
 
   test("member role badges are displayed", async ({ page }) => {
@@ -50,6 +51,7 @@ test.describe("Tenant Admin", () => {
   test("general settings page shows tenant name", async ({ page }) => {
     await page.goto("/admin/general");
 
-    await expect(page.getByText("E2E Test Tenant")).toBeVisible();
+    const content = page.locator("#content");
+    await expect(content.getByText("E2E Test Tenant")).toBeVisible();
   });
 });

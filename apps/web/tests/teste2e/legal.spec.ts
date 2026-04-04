@@ -23,11 +23,11 @@ test.describe("Legal Pages", () => {
     await expect(page.locator("main")).toContainText(/non conforme/i);
   });
 
-  test("CGU page renders with placeholder", async ({ page }) => {
+  test("CGU page renders with content", async ({ page }) => {
     await page.goto("/cgu");
 
     await expect(page.getByRole("heading", { level: 1 })).toContainText(/conditions générales/i);
-    await expect(page.locator("main")).toContainText(/en cours de rédaction/i);
+    await expect(page.locator("main")).toContainText(/objet/i);
   });
 
   test("footer links navigate to legal pages", async ({ page }) => {
