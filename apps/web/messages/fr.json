@@ -1184,9 +1184,13 @@
       "currentUser": "vous",
       "template": "Template",
       "theme": "Thème",
+      "colorMode": "Mode couleur",
+      "preview": "Aperçu",
+      "previewing": "Chargement...",
+      "previewTitle": "Aperçu de l'email",
       "send": "Envoyer",
       "sending": "Envoi...",
-      "sent": "Email de test envoyé."
+      "sent": "Email de test envoyé à {email}."
     }
   },
   "emails": {

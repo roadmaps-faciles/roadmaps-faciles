@@ -19,7 +19,7 @@ const env = {
 
 const isDev = process.env.NODE_ENV === "development";
 
-const localCustomDomains = ["*.localhost", "mon-espace.local", "*.sslip.io"];
+const localCustomDomains = ["*.localhost", "mon-espace.local", "*.sslip.io", "*.ts.sagetlethias.tech"];
 
 const posthogHostCps =
   (process.env.NEXT_PUBLIC_TRACKING_PROVIDER === "posthog" && [

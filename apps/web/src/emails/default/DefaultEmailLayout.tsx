@@ -18,13 +18,20 @@ const darkModeStyles = `
   body { background: #161616 !important; }
   .hide-black { display: none !important; }
   .hide-white { display: block !important; }
-  .darkmode { background-color: #161616 !important; color: #ffffff !important; background: none !important; border-color: #2A2A2A !important; }
+  .darkmode { background-color: #161616 !important; color: #F5F5F5 !important; background: none !important; border-color: #2A2A2A !important; }
   .darkmode-1 { background-color: #161616 !important; color: #CECECE !important; background: none !important; }
-  .darkmode-3 { background-color: #1E1E1E !important; color: #ffffff !important; border-color: #2A2A2A !important; }
+  .darkmode-3 { background-color: #1E1E1E !important; color: #F5F5F5 !important; border-color: #2A2A2A !important; }
   a[href] { color: #7BA3F0 !important; }
-  a.darkmode-button-color-primary[href] { color: #FFFFFF !important; }
+  a.darkmode-button-color-primary[href] { color: #F5F5F5 !important; }
   .darkmode-button-primary { background-color: #516DAC !important; border: solid 1px #516DAC !important; border-radius: 6px !important; }
 }
+[data-ogsc] .hide-black { display: none !important; }
+[data-ogsc] .hide-white { display: block !important; }
+[data-ogsc] .darkmode { background-color: #161616 !important; color: #F5F5F5 !important; border-color: #2A2A2A !important; }
+[data-ogsc] .darkmode-1 { background-color: #161616 !important; color: #CECECE !important; }
+[data-ogsc] .darkmode-3 { background-color: #1E1E1E !important; color: #F5F5F5 !important; border-color: #2A2A2A !important; }
+[data-ogsc] a[href] { color: #7BA3F0 !important; }
+[data-ogsc] .darkmode-button-primary { background-color: #516DAC !important; border: solid 1px #516DAC !important; }
 @media only screen and (max-width: 600px) {
   .wlkm-mw { width: 100% !important; padding-left: 0 !important; padding-right: 0 !important; }
   .wlkm-cl { width: 90% !important; margin: 0 auto; }
@@ -58,7 +65,7 @@ export const DefaultEmailLayout = ({
     <Body
       style={{
         width: "100%",
-        backgroundColor: "#ffffff",
+        backgroundColor: "#F5F5F5",
         margin: 0,
         padding: 0,
         WebkitTextSizeAdjust: "none",

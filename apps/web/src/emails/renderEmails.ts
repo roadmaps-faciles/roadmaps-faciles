@@ -10,6 +10,11 @@ import { MagicLinkEmail } from "./MagicLinkEmail";
 import { ResetPasswordEmail } from "./ResetPasswordEmail";
 import { VerifyEmailEmail } from "./VerifyEmailEmail";
 
+async function renderMinified(element: React.ReactElement): Promise<string> {
+  const html = await render(element);
+  return html.replace(/\n\s+/g, "\n").replace(/>\s+</g, "><");
+}
+
 type MagicLinkEmailTranslations = {
   body: string;
   button: string;
@@ -25,7 +30,7 @@ export const renderMagicLinkEmail = (props: {
   theme?: UiTheme;
   translations: MagicLinkEmailTranslations;
   url: string;
-}) => render(createElement(MagicLinkEmail, props));
+}) => renderMinified(createElement(MagicLinkEmail, props));
 
 type InvitationEmailTranslations = {
   body: string;
@@ -41,7 +46,7 @@ export const renderInvitationEmail = (props: {
   locale?: string;
   theme?: UiTheme;
   translations: InvitationEmailTranslations;
-}) => render(createElement(InvitationEmail, props));
+}) => renderMinified(createElement(InvitationEmail, props));
 
 type EmLinkConfirmEmailTranslations = {
   body: string;
@@ -59,7 +64,7 @@ export const renderEmLinkConfirmEmail = (props: {
   locale?: string;
   theme?: UiTheme;
   translations: EmLinkConfirmEmailTranslations;
-}) => render(createElement(EmLinkConfirmEmail, props));
+}) => renderMinified(createElement(EmLinkConfirmEmail, props));
 
 type VerifyEmailTranslations = {
   body: string;
@@ -76,7 +81,7 @@ export const renderVerifyEmailEmail = (props: {
   theme?: UiTheme;
   translations: VerifyEmailTranslations;
   url: string;
-}) => render(createElement(VerifyEmailEmail, props));
+}) => renderMinified(createElement(VerifyEmailEmail, props));
 
 type ResetPasswordTranslations = {
   body: string;
@@ -93,4 +98,4 @@ export const renderResetPasswordEmail = (props: {
   theme?: UiTheme;
   translations: ResetPasswordTranslations;
   url: string;
-}) => render(createElement(ResetPasswordEmail, props));
+}) => renderMinified(createElement(ResetPasswordEmail, props));
