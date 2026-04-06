@@ -6,6 +6,10 @@ const description = config.brand.tagline;
 
 export const sharedMetadata: Metadata = {
   description,
+  icons: {
+    icon: "/img/roadmaps-faciles.png",
+    apple: "/img/roadmaps-faciles.png",
+  },
   openGraph: {
     description,
     type: "website",

@@ -1,5 +1,5 @@
 import { Badge } from "@roadmaps-faciles/ui";
-import { Map } from "lucide-react";
+import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 
 import { config } from "@/config";
@@ -19,7 +19,7 @@ export const DefaultHeader = async () => {
     <RootHeader
       brandName={
         <>
-          <Map className="size-5 text-primary" />
+          <Image src="/img/roadmaps-faciles.png" alt="" width={24} height={24} className="size-6" />
           <span>{config.brand.name}</span>
           <Badge variant="outline" className="ml-1 text-xs">
             Alpha
