@@ -67,18 +67,20 @@ const DropdownMenuSwitcherTrigger = ({
   );
 };
 
-const SheetWorkspaceSwitcherTrigger = ({ userMenu, className }: { className: string; userMenu: UserMenuData }) => {
+const SheetWorkspaceSwitcherTrigger = ({ className }: { className: string }) => {
   const t = useTranslations("sidebar");
-  const [switcherOpen, setSwitcherOpen] = useState(false);
 
   return (
-    <>
-      <button type="button" onClick={() => setSwitcherOpen(true)} className={className}>
-        <Repeat className="size-4 shrink-0 text-muted-foreground" />
-        <span className="flex-1">{t("switchWorkspace")}</span>
-      </button>
-      <WorkspaceSwitcher userMenu={userMenu} open={switcherOpen} onOpenChangeAction={setSwitcherOpen} />
-    </>
+    <button
+      type="button"
+      onClick={() => {
+        document.dispatchEvent(new CustomEvent("open-workspace-switcher"));
+      }}
+      className={className}
+    >
+      <Repeat className="size-4 shrink-0 text-muted-foreground" />
+      <span className="flex-1">{t("switchWorkspace")}</span>
+    </button>
   );
 };
 
@@ -154,7 +156,7 @@ export const ShadcnUserHeaderItem = ({
             <div className="mt-2">
               {/* Switch workspace */}
               {userMenu && userMenu.organizations.length > 0 && (
-                <SheetWorkspaceSwitcherTrigger userMenu={userMenu} className={sheetItemClass} />
+                <SheetWorkspaceSwitcherTrigger className={sheetItemClass} />
               )}
 
               {/* Root admin */}
@@ -177,6 +179,7 @@ export const ShadcnUserHeaderItem = ({
                 <span className="flex-1 text-left">{t("logout")}</span>
               </button>
             </div>
+
           </>
         );
       }

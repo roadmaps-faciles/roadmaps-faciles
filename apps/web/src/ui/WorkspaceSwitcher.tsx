@@ -103,6 +103,7 @@ const SwitcherRow = ({
                   href={item.adminHref}
                   className="z-10"
                   onClick={(e) => {
+                    e.preventDefault();
                     e.stopPropagation();
                     navigate(item.adminHref!);
                   }}
@@ -140,14 +141,19 @@ export const WorkspaceSwitcher = ({ userMenu, open: controlledOpen, onOpenChange
   const highlight = useCmdkHighlight(listNode);
 
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
+    const keyHandler = (e: KeyboardEvent) => {
       if (e.code === "KeyK" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         setOpen(!open);
       }
     };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
+    const customHandler = () => setOpen(true);
+    document.addEventListener("keydown", keyHandler);
+    document.addEventListener("open-workspace-switcher", customHandler);
+    return () => {
+      document.removeEventListener("keydown", keyHandler);
+      document.removeEventListener("open-workspace-switcher", customHandler);
+    };
   }, [open, setOpen]);
 
   const navigate = useCallback(
