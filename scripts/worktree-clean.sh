@@ -25,7 +25,6 @@ REPO_ROOT=$(git rev-parse --show-toplevel)
 REPO_NAME=$(basename "$REPO_ROOT")
 SHORT_NAME=$(echo "$BRANCH" | sed 's|.*/||')
 WORKTREE_DIR="$(dirname "$REPO_ROOT")/${REPO_NAME}-${SHORT_NAME}"
-DB_NAME="roadmaps-faciles-${SHORT_NAME}"
 
 # --- Vérifications ---
 if [ ! -d "$WORKTREE_DIR" ]; then
@@ -36,10 +35,23 @@ if [ ! -d "$WORKTREE_DIR" ]; then
   exit 1
 fi
 
+# --- Lire les métadonnées du worktree ---
+INFO_FILE="$WORKTREE_DIR/.rm-worktree-info.json"
+if [ -f "$INFO_FILE" ]; then
+  DB_NAME=$(python3 -c "import json; d=json.load(open('$INFO_FILE')); print(d.get('dbName',''))" 2>/dev/null || echo "")
+else
+  DB_NAME="roadmaps-faciles-${SHORT_NAME}"
+  echo "⚠️  Pas de .rm-worktree-info.json — fallback DB: $DB_NAME"
+fi
+
+# --- Nettoyage du symlink git-crypt ---
+WT_GIT_DIR=$(git -C "$WORKTREE_DIR" rev-parse --git-dir 2>/dev/null || true)
+if [ -n "$WT_GIT_DIR" ] && [ -L "$WT_GIT_DIR/git-crypt" ]; then
+  rm "$WT_GIT_DIR/git-crypt"
+fi
+
 # --- Suppression du worktree ---
 echo "🗑️  Suppression du worktree $WORKTREE_DIR..."
-# --force seul ne supprime pas les fichiers ignorés (node_modules, .next, generated…)
-# On tente d'abord proprement, puis on supprime le répertoire manuellement si besoin
 if ! git worktree remove "$WORKTREE_DIR" --force 2>/dev/null; then
   echo "   ⚠️  git worktree remove a échoué (fichiers non trackés), suppression manuelle..."
   rm -rf "$WORKTREE_DIR"
@@ -56,11 +68,13 @@ fi
 
 # --- Suppression de la DB (optionnel) ---
 if [ "$DROP_DB" = "--drop-db" ]; then
-  if PGPASSWORD=postgres psql -h localhost -U postgres -lqt 2>/dev/null | cut -d \| -f 1 | grep -qw "$DB_NAME"; then
+  if [ -z "$DB_NAME" ]; then
+    echo "ℹ️  Pas de DB dédiée (worktree créé sans --db)."
+  elif PGPASSWORD=postgres psql -h localhost -U postgres -lqt 2>/dev/null | cut -d \| -f 1 | grep -qw "$DB_NAME"; then
     echo "🗄️  Suppression de la base $DB_NAME..."
     PGPASSWORD=postgres dropdb -h localhost -U postgres "$DB_NAME" 2>/dev/null && echo "   DB $DB_NAME supprimée." || echo "   ⚠️  Impossible de supprimer la DB $DB_NAME."
   else
-    echo "ℹ️  Pas de DB dédiée $DB_NAME trouvée (worktree utilisait la DB partagée)."
+    echo "ℹ️  DB $DB_NAME introuvable (déjà supprimée ?)."
   fi
 fi
 
