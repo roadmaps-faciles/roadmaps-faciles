@@ -534,6 +534,8 @@
       "embeddingDescription": "Permettez l'intégration de vos boards et roadmap dans des sites externes.",
       "allowEmbedding": "Autoriser l'intégration iframe",
       "allowEmbeddingHelper": "Permet d'embarquer les boards et la roadmap dans un site externe via iframe.",
+      "allowIndexing": "Autoriser l'indexation par les moteurs de recherche",
+      "allowIndexingHelper": "Permet aux moteurs de recherche de référencer vos boards et posts publics.",
       "allowEmbeddingPrivateWarning": "L'intégration iframe ne fonctionnera pas si le site est privé : les visiteurs ne seront pas authentifiés dans l'iframe.",
       "description": "Configurez les paramètres généraux de votre espace."
     },

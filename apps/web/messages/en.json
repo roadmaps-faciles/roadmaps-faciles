@@ -534,6 +534,8 @@
       "embeddingDescription": "Allow embedding your boards and roadmap on external sites.",
       "allowEmbedding": "Allow iframe embedding",
       "allowEmbeddingHelper": "Allows embedding boards and roadmap on external sites via iframe.",
+      "allowIndexing": "Allow search engine indexing",
+      "allowIndexingHelper": "Allows search engines to index your public boards and posts.",
       "allowEmbeddingPrivateWarning": "Iframe embedding will not work if the site is private: visitors will not be authenticated in the iframe.",
       "description": "Configure the general settings of your workspace."
     },

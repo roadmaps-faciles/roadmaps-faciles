@@ -55,6 +55,7 @@ const formSchema = z.object({
   allowAnonymousVoting: z.boolean(),
   requirePostApproval: z.boolean(),
   allowEmbedding: z.boolean(),
+  allowIndexing: z.boolean(),
   uiTheme: z.enum(UI_THEME),
 });
 
@@ -158,6 +159,11 @@ const getSections = (t: ReturnType<typeof useTranslations<"domainAdmin.general">
         label: t("allowEmbedding"),
         helperText: t("allowEmbeddingHelper"),
       },
+      {
+        name: "allowIndexing",
+        label: t("allowIndexing"),
+        helperText: t("allowIndexingHelper"),
+      },
     ],
   },
 ];
@@ -230,6 +236,7 @@ export const GeneralForm = ({ tenantSettings, isOwner, hasData }: GeneralFormPro
       allowAnonymousVoting: tenantSettings.allowAnonymousVoting,
       requirePostApproval: tenantSettings.requirePostApproval,
       allowEmbedding: tenantSettings.allowEmbedding,
+      allowIndexing: tenantSettings.allowIndexing,
       uiTheme: tenantSettings.uiTheme,
     },
   });
