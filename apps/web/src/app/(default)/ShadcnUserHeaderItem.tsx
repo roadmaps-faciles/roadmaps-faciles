@@ -42,28 +42,28 @@ const MenuItemContent = ({ children }: { children: React.ReactNode }) => (
   <span className="relative z-10 flex items-center gap-2">{children}</span>
 );
 
-const DropdownMenuSwitcherTrigger = ({ userMenu }: { userMenu: UserMenuData }) => {
+const DropdownMenuSwitcherTrigger = ({
+  onOpenAction,
+}: {
+  onOpenAction: () => void;
+}) => {
   const t = useTranslations("sidebar");
-  const [switcherOpen, setSwitcherOpen] = useState(false);
 
   return (
-    <>
-      <DropdownMenuItem
-        className={itemClass}
-        style={itemStyle}
-        onSelect={e => {
-          e.preventDefault();
-          setSwitcherOpen(true);
-        }}
-      >
-        <MenuItemContent>
-          <Repeat className="size-4 shrink-0 text-muted-foreground" />
-          <span>{t("switchWorkspace")}</span>
-          <kbd className="ml-auto rounded border bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">⌘K</kbd>
-        </MenuItemContent>
-      </DropdownMenuItem>
-      <WorkspaceSwitcher userMenu={userMenu} open={switcherOpen} onOpenChangeAction={setSwitcherOpen} />
-    </>
+    <DropdownMenuItem
+      className={itemClass}
+      style={itemStyle}
+      onSelect={e => {
+        e.preventDefault();
+        onOpenAction();
+      }}
+    >
+      <MenuItemContent>
+        <Repeat className="size-4 shrink-0 text-muted-foreground" />
+        <span>{t("switchWorkspace")}</span>
+        <kbd className="ml-auto rounded border bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">⌘K</kbd>
+      </MenuItemContent>
+    </DropdownMenuItem>
   );
 };
 
@@ -92,6 +92,7 @@ export const ShadcnUserHeaderItem = ({
   const tAuth = useTranslations("auth");
   const tr = useTranslations("roles");
   const { clearHighlight, handleItemHover, highlight } = useRovingHighlight('[data-slot="dropdown-menu-content"]');
+  const [switcherOpen, setSwitcherOpen] = useState(false);
 
   switch (session.status) {
     case "authenticated": {
@@ -182,6 +183,7 @@ export const ShadcnUserHeaderItem = ({
 
       // --- Dropdown mode: desktop DropdownMenu ---
       return (
+      <>
         <DropdownMenu onOpenChange={clearHighlight}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" className="gap-2">
@@ -262,7 +264,9 @@ export const ShadcnUserHeaderItem = ({
             {/* Switch workspace + admin */}
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              {userMenu && userMenu.organizations.length > 0 && <DropdownMenuSwitcherTrigger userMenu={userMenu} />}
+              {userMenu && userMenu.organizations.length > 0 && (
+                <DropdownMenuSwitcherTrigger onOpenAction={() => setSwitcherOpen(true)} />
+              )}
 
               {/* Root admin */}
               {userMenu?.isSuperAdmin && (
@@ -315,6 +319,11 @@ export const ShadcnUserHeaderItem = ({
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        {userMenu && userMenu.organizations.length > 0 && (
+          <WorkspaceSwitcher userMenu={userMenu} open={switcherOpen} onOpenChangeAction={setSwitcherOpen} />
+        )}
+      </>
       );
     }
     case "loading":

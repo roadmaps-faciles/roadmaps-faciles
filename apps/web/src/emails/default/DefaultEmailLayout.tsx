@@ -72,7 +72,6 @@ export const DefaultEmailLayout = ({
         fontFamily: FONT_FAMILY,
       }}
     >
-      {/* Outer wrapper */}
       <table
         border={0}
         cellPadding={0}
@@ -85,7 +84,7 @@ export const DefaultEmailLayout = ({
         <tbody>
           <tr>
             <td align="center">
-              {/* 600px bordered container */}
+              {/* Single bordered container: header + content + footer */}
               <table
                 align="center"
                 border={0}
@@ -97,9 +96,7 @@ export const DefaultEmailLayout = ({
                   margin: "0 auto",
                   borderCollapse: "collapse",
                   width: "600px",
-                  borderLeft: "1px #e5e5e5 solid",
-                  borderRight: "1px #e5e5e5 solid",
-                  borderTop: "1px #e5e5e5 solid",
+                  border: "1px #e5e5e5 solid",
                 }}
                 width={600}
               >
@@ -153,31 +150,12 @@ export const DefaultEmailLayout = ({
 
                   <DefaultSpacer height={12} />
 
-                  {/* Separator */}
+                  {/* Header separator */}
                   <tr>
                     <td style={{ borderTop: "1px #e5e5e5 solid", fontSize: "1px", lineHeight: "1px" }}>&nbsp;</td>
                   </tr>
-                </tbody>
-              </table>
 
-              {/* Content area */}
-              <table
-                align="center"
-                border={0}
-                cellPadding={0}
-                cellSpacing={0}
-                className="wlkm-mw darkmode-3"
-                role="presentation"
-                style={{
-                  margin: "0 auto",
-                  borderCollapse: "collapse",
-                  width: "600px",
-                  borderLeft: "1px #e5e5e5 solid",
-                  borderRight: "1px #e5e5e5 solid",
-                }}
-                width={600}
-              >
-                <tbody>
+                  {/* Content */}
                   <tr>
                     <td align="center">
                       <table
@@ -194,35 +172,15 @@ export const DefaultEmailLayout = ({
                       </table>
                     </td>
                   </tr>
-                </tbody>
-              </table>
 
-              {/* Footer */}
-              <table
-                align="center"
-                border={0}
-                cellPadding={0}
-                cellSpacing={0}
-                className="wlkm-mw darkmode-3"
-                role="presentation"
-                style={{
-                  margin: "0 auto",
-                  borderCollapse: "collapse",
-                  width: "600px",
-                  borderLeft: "1px #e5e5e5 solid",
-                  borderRight: "1px #e5e5e5 solid",
-                  borderBottom: "1px #e5e5e5 solid",
-                }}
-                width={600}
-              >
-                <tbody>
-                  {/* Separator */}
+                  {/* Footer separator */}
                   <tr>
                     <td style={{ borderTop: "1px #e5e5e5 solid", fontSize: "1px", lineHeight: "1px" }}>&nbsp;</td>
                   </tr>
 
                   <DefaultSpacer height={12} />
 
+                  {/* Footer */}
                   <tr>
                     <td align="center">
                       <table

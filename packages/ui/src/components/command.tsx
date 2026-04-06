@@ -5,7 +5,7 @@ import { SearchIcon } from "lucide-react";
 import { type ComponentProps } from "react";
 
 import { cn } from "../lib/cn";
-import { DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./dialog";
 
 function Command({ className, ...props }: ComponentProps<typeof CommandPrimitive>) {
   return (
@@ -100,11 +100,16 @@ function CommandDialog({
   title = "Command Palette",
   description = "Search for a command to run...",
   children,
+  onOpenAutoFocus,
   ...props
-}: { description?: string; title?: string } & ComponentProps<typeof CommandPrimitive.Dialog>) {
+}: {
+  description?: string;
+  onOpenAutoFocus?: (event: Event) => void;
+  title?: string;
+} & ComponentProps<typeof Dialog>) {
   return (
-    <CommandPrimitive.Dialog {...props}>
-      <DialogContent className="overflow-hidden p-0" showCloseButton={false}>
+    <Dialog {...props}>
+      <DialogContent className="overflow-hidden p-0" showCloseButton={false} onOpenAutoFocus={onOpenAutoFocus}>
         <DialogHeader className="sr-only">
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
@@ -113,7 +118,7 @@ function CommandDialog({
           {children}
         </Command>
       </DialogContent>
-    </CommandPrimitive.Dialog>
+    </Dialog>
   );
 }
 

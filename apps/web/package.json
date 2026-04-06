@@ -21,6 +21,7 @@
     "run-script": "tsx --tsconfig scripts/tsconfig.json",
     "generateEnvDeclaration": "pnpm run run-script scripts/generateEnvDeclaration.ts",
     "seed": "prisma db seed",
+    "seed:bulk": "SEED_BULK=true prisma db seed",
     "prisma:studio": "prisma studio -b none",
     "prisma:reset": "prisma migrate reset --force",
     "prisma:migrate:deploy": "prisma migrate deploy",

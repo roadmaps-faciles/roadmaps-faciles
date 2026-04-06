@@ -1,20 +1,13 @@
 "use client";
 
-import {
-  Badge,
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-} from "@roadmaps-faciles/ui";
+import { Badge, CommandDialog, CommandEmpty, CommandInput, CommandItem, CommandList } from "@roadmaps-faciles/ui";
+import { useIsMobile } from "@roadmaps-faciles/ui/lib/use-mobile";
 import { Building2, Check, LayoutDashboard } from "lucide-react";
+import { motion } from "motion/react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
-import { type UserMenuData } from "@/ui/AdminSidebar";
+import { type SwitcherItem, type UserMenuData } from "@/ui/AdminSidebar";
 
 export interface WorkspaceSwitcherProps {
   onOpenChangeAction?: (open: boolean) => void;
@@ -22,17 +15,111 @@ export interface WorkspaceSwitcherProps {
   userMenu: UserMenuData;
 }
 
+const ADMIN_ROLES = new Set(["ADMIN", "OWNER"]);
+
+interface HighlightRect {
+  height: number;
+  y: number;
+}
+
+const useCmdkHighlight = (container: HTMLDivElement | null) => {
+  const [highlight, setHighlight] = useState<HighlightRect | null>(null);
+
+  useEffect(() => {
+    if (!container) {
+      setHighlight(null);
+      return;
+    }
+
+    const update = () => {
+      const selected = container.querySelector<HTMLElement>('[data-selected="true"]');
+      if (!selected) {
+        setHighlight(null);
+        return;
+      }
+      const containerRect = container.getBoundingClientRect();
+      const itemRect = selected.getBoundingClientRect();
+      setHighlight({ y: itemRect.top - containerRect.top + container.scrollTop, height: itemRect.height });
+    };
+
+    const observer = new MutationObserver(update);
+    observer.observe(container, { attributes: true, subtree: true, attributeFilter: ["data-selected"] });
+    update();
+
+    return () => observer.disconnect();
+  }, [container]);
+
+  return highlight;
+};
+
+const SwitcherRow = ({
+  item,
+  navigate,
+  t,
+  tr,
+}: {
+  item: SwitcherItem;
+  navigate: (href: string) => void;
+  t: ReturnType<typeof useTranslations<"sidebar">>;
+  tr: ReturnType<typeof useTranslations<"roles">>;
+}) => {
+  const isAdmin = ADMIN_ROLES.has(item.role);
+
+  return (
+    <CommandItem
+      value={item.href}
+      keywords={[item.name, item.hint ?? ""]}
+      onSelect={() => navigate(item.href)}
+      className="flex items-center gap-2 bg-transparent! text-inherit!"
+    >
+      <span className="relative z-10 flex w-full items-center gap-2">
+        {item.type === "org" ? (
+          <Building2 className="size-4 shrink-0 text-muted-foreground" />
+        ) : (
+          <LayoutDashboard className="size-4 shrink-0 text-muted-foreground" />
+        )}
+        <Badge variant="outline" className="shrink-0 px-1.5 py-0 text-[10px]">
+          {item.type === "org" ? t("organization") : t("workspace")}
+        </Badge>
+        <span className="flex-1 truncate">{item.name}</span>
+        {item.hint && <span className="shrink-0 text-[10px] text-muted-foreground">{item.hint}</span>}
+        {item.isCurrent && <Check className="size-4 shrink-0 text-primary" />}
+        {isAdmin && item.adminHref ? (
+          <a
+            href={item.adminHref}
+            className="z-10"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(item.adminHref!);
+            }}
+          >
+            <Badge variant="secondary" className="shrink-0 cursor-pointer px-1.5 py-0 text-[10px] hover:bg-accent">
+              {tr(item.role as "OWNER")}
+            </Badge>
+          </a>
+        ) : (
+          <Badge variant="secondary" className="shrink-0 px-1.5 py-0 text-[10px]">
+            {tr(item.role as "OWNER")}
+          </Badge>
+        )}
+      </span>
+    </CommandItem>
+  );
+};
+
 export const WorkspaceSwitcher = ({ userMenu, open: controlledOpen, onOpenChangeAction }: WorkspaceSwitcherProps) => {
   const t = useTranslations("sidebar");
   const tr = useTranslations("roles");
+  const isMobile = useIsMobile();
   const [internalOpen, setInternalOpen] = useState(false);
-
   const open = controlledOpen ?? internalOpen;
   const setOpen = useCallback((v: boolean) => (onOpenChangeAction ?? setInternalOpen)(v), [onOpenChangeAction]);
+  const [listNode, setListNode] = useState<HTMLDivElement | null>(null);
+  const highlight = useCmdkHighlight(listNode);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+      if (e.code === "KeyK" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         setOpen(!open);
       }
@@ -44,53 +131,34 @@ export const WorkspaceSwitcher = ({ userMenu, open: controlledOpen, onOpenChange
   const navigate = useCallback(
     (href: string) => {
       setOpen(false);
-      // Cross-subdomain navigation requires full page load (router.push can't cross origins)
       window.location.href = href;
     },
     [setOpen],
   );
 
+  const items = userMenu.flatItems ?? [];
+
   return (
-    <CommandDialog open={open} onOpenChange={setOpen} title={t("switchWorkspace")} description={t("searchWorkspace")}>
+    <CommandDialog
+      open={open}
+      onOpenChange={setOpen}
+      title={t("switchWorkspace")}
+      description={t("searchWorkspace")}
+      onOpenAutoFocus={isMobile ? (e) => e.preventDefault() : undefined}
+    >
       <CommandInput placeholder={t("searchWorkspace")} />
-      <CommandList>
+      <CommandList ref={setListNode} className="relative">
+        {highlight && (
+          <motion.div
+            className="pointer-events-none absolute inset-x-1 z-0 rounded-sm bg-accent"
+            initial={false}
+            animate={{ y: highlight.y, height: highlight.height }}
+            transition={{ type: "spring", bounce: 0.15, duration: 0.3 }}
+          />
+        )}
         <CommandEmpty>{t("noResults")}</CommandEmpty>
-        {userMenu.organizations.map((org, i) => (
-          <div key={org.id}>
-            {i > 0 && <CommandSeparator />}
-            <CommandGroup heading={org.name}>
-              {org.orgAdminHref && (
-                <CommandItem onSelect={() => navigate(org.orgAdminHref!)}>
-                  <Building2 className="size-4 text-muted-foreground" />
-                  <span className="flex-1 truncate">{org.name}</span>
-                  <Badge variant="outline" className="shrink-0 px-1.5 py-0 text-[10px]">
-                    {tr(org.role as "OWNER")}
-                  </Badge>
-                </CommandItem>
-              )}
-              {org.tenants.map(tenant => (
-                <CommandItem
-                  key={tenant.id}
-                  disabled={!tenant.isMember}
-                  onSelect={() => tenant.isMember && navigate(tenant.href)}
-                  className={!tenant.isMember ? "opacity-50" : undefined}
-                >
-                  <LayoutDashboard className="size-4 text-muted-foreground" />
-                  <span className="flex-1 truncate">{tenant.name}</span>
-                  {tenant.id === userMenu.currentTenantId && <Check className="size-4 text-primary" />}
-                  {tenant.isMember ? (
-                    <Badge variant="outline" className="shrink-0 px-1.5 py-0 text-[10px]">
-                      {tr((tenant.role ?? "MEMBER") as "OWNER")}
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className="shrink-0 px-1.5 py-0 text-[10px] text-muted-foreground">
-                      {t("notRegistered")}
-                    </Badge>
-                  )}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </div>
+        {items.map((item) => (
+          <SwitcherRow key={item.href} item={item} navigate={navigate} t={t} tr={tr} />
         ))}
       </CommandList>
     </CommandDialog>

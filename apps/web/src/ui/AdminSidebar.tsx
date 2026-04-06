@@ -110,9 +110,20 @@ export interface CurrentTenantContext {
   };
 }
 
+export interface SwitcherItem {
+  adminHref?: string;
+  hint?: string;
+  href: string;
+  isCurrent?: boolean;
+  name: string;
+  role: string;
+  type: "org" | "tenant";
+}
+
 export interface UserMenuData {
   currentTenant?: CurrentTenantContext;
   currentTenantId?: number;
+  flatItems?: SwitcherItem[];
   isSuperAdmin?: boolean;
   organizations: OrgMenuGroup[];
   user: {

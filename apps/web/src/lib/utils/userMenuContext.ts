@@ -2,10 +2,12 @@ import "server-only";
 import { type Session } from "next-auth";
 
 import { config } from "@/config";
+import { prisma } from "@/lib/db/prisma";
 import { orgMemberRepo, organizationRepo, tenantRepo, userOnTenantRepo } from "@/lib/repo";
 import {
   type CurrentTenantContext,
   type OrgMenuGroup,
+  type SwitcherItem,
   type TenantMenuItem,
   type UserMenuData,
 } from "@/ui/AdminSidebar";
@@ -33,52 +35,86 @@ export async function getUserMenuContext({ session, currentTenantId }: UserMenuC
 
   const userId = session.user.uuid;
   const hostUrl = new URL(config.host).host;
+  const isSuperAdmin = session.user.isSuperAdmin ?? false;
 
   const [orgMemberships, tenantMemberships] = await Promise.all([
     orgMemberRepo.findByUserIdWithOrgsAndTenants(userId),
     userOnTenantRepo.findByUserIdWithSettings(userId),
   ]);
 
-  // Build a set of tenant IDs the user is a member of, with their roles
   const tenantRoleMap = new Map(tenantMemberships.map(m => [m.tenantId, m.role]));
 
-  const organizations: OrgMenuGroup[] = orgMemberships.map(om => {
-    const org = om.organization;
-    const isOrgAdmin = om.role === "ADMIN" || om.role === "OWNER";
+  let organizations: OrgMenuGroup[];
 
-    const tenants: TenantMenuItem[] = org.tenants
-      .filter(t => {
-        // Show all tenants if org admin, public tenants for all org members, private only if member
-        if (isOrgAdmin) return true;
-        if (tenantRoleMap.has(t.id)) return true;
-        return !t.settings?.isPrivate;
-      })
-      .map(t => {
+  if (isSuperAdmin) {
+    const allOrgs = await prisma.organization.findMany({
+      include: { tenants: { include: { settings: true } } },
+      orderBy: { name: "asc" },
+    });
+
+    organizations = allOrgs.map(org => {
+      const tenants: TenantMenuItem[] = org.tenants.map(t => {
         const tenantRole = tenantRoleMap.get(t.id);
-        const isMember = tenantRoleMap.has(t.id);
-        const isTenantAdmin = tenantRole === "ADMIN" || tenantRole === "OWNER";
 
         return {
           id: t.id,
           name: t.settings?.name ?? t.id.toString(),
           subdomain: t.settings?.subdomain ?? "",
           href: `//${t.settings?.subdomain}.${hostUrl}`,
-          role: tenantRole,
-          isMember,
+          role: tenantRole ?? "OWNER",
+          isMember: true,
           isPrivate: t.settings?.isPrivate ?? false,
-          tenantAdminHref: isTenantAdmin ? `//${t.settings?.subdomain}.${hostUrl}/admin` : undefined,
+          tenantAdminHref: `//${t.settings?.subdomain}.${hostUrl}/admin`,
         };
       });
 
-    return {
-      id: org.id,
-      name: org.name,
-      slug: org.slug,
-      role: om.role,
-      orgAdminHref: isOrgAdmin ? `//${hostUrl}/org/${org.slug}` : undefined,
-      tenants,
-    };
-  });
+      return {
+        id: org.id,
+        name: org.name,
+        slug: org.slug,
+        role: "OWNER",
+        orgAdminHref: `//${hostUrl}/org/${org.slug}`,
+        tenants,
+      };
+    });
+  } else {
+    organizations = orgMemberships.map(om => {
+      const org = om.organization;
+      const isOrgAdmin = om.role === "ADMIN" || om.role === "OWNER";
+
+      const tenants: TenantMenuItem[] = org.tenants
+        .filter(t => {
+          if (isOrgAdmin) return true;
+          if (tenantRoleMap.has(t.id)) return true;
+          return !t.settings?.isPrivate;
+        })
+        .map(t => {
+          const tenantRole = tenantRoleMap.get(t.id);
+          const isMember = tenantRoleMap.has(t.id);
+          const isTenantAdmin = tenantRole === "ADMIN" || tenantRole === "OWNER";
+
+          return {
+            id: t.id,
+            name: t.settings?.name ?? t.id.toString(),
+            subdomain: t.settings?.subdomain ?? "",
+            href: `//${t.settings?.subdomain}.${hostUrl}`,
+            role: tenantRole,
+            isMember,
+            isPrivate: t.settings?.isPrivate ?? false,
+            tenantAdminHref: isTenantAdmin ? `//${t.settings?.subdomain}.${hostUrl}/admin` : undefined,
+          };
+        });
+
+      return {
+        id: org.id,
+        name: org.name,
+        slug: org.slug,
+        role: om.role,
+        orgAdminHref: isOrgAdmin ? `//${hostUrl}/org/${org.slug}` : undefined,
+        tenants,
+      };
+    });
+  }
 
   let currentTenant: CurrentTenantContext | undefined;
   if (currentTenantId) {
@@ -111,12 +147,40 @@ export async function getUserMenuContext({ session, currentTenantId }: UserMenuC
     }
   }
 
+  const flatItems: SwitcherItem[] = [];
+  const isOrgVisible = (role: string) => role === "ADMIN" || role === "OWNER" || role === "MODERATOR";
+
+  for (const org of organizations) {
+    if (isOrgVisible(org.role) && org.orgAdminHref) {
+      flatItems.push({
+        type: "org",
+        name: org.name,
+        hint: org.slug,
+        href: org.orgAdminHref,
+        role: org.role,
+      });
+    }
+
+    for (const tenant of org.tenants) {
+      flatItems.push({
+        type: "tenant",
+        name: tenant.name,
+        hint: tenant.subdomain,
+        href: tenant.href,
+        adminHref: tenant.tenantAdminHref,
+        role: tenant.role ?? "MEMBER",
+        isCurrent: tenant.id === currentTenantId,
+      });
+    }
+  }
+
   return {
     user: {
       email: session.user.email ?? "",
       name: session.user.name ?? session.user.email ?? "",
     },
     organizations,
+    flatItems,
     currentTenantId,
     currentTenant,
     isSuperAdmin: session.user.isSuperAdmin ?? false,
