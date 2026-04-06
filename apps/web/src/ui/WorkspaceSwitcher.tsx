@@ -40,18 +40,27 @@ const useCmdkHighlight = (container: HTMLDivElement | null) => {
     if (!container) return;
 
     const update = () => {
-      const selected = container.querySelector<HTMLElement>('[data-selected="true"]');
+      const selected = container.querySelector<HTMLElement>(
+        '[data-selected="true"]',
+      );
       if (!selected) {
         setHighlight(null);
         return;
       }
       const containerRect = container.getBoundingClientRect();
       const itemRect = selected.getBoundingClientRect();
-      setHighlight({ y: itemRect.top - containerRect.top + container.scrollTop, height: itemRect.height });
+      setHighlight({
+        y: itemRect.top - containerRect.top + container.scrollTop,
+        height: itemRect.height,
+      });
     };
 
     const observer = new MutationObserver(update);
-    observer.observe(container, { attributes: true, subtree: true, attributeFilter: ["data-selected"] });
+    observer.observe(container, {
+      attributes: true,
+      subtree: true,
+      attributeFilter: ["data-selected"],
+    });
     update();
 
     return () => {
@@ -93,7 +102,11 @@ const SwitcherRow = ({
           {item.type === "org" ? t("organization") : t("workspace")}
         </Badge>
         <span className="flex-1 truncate">{item.name}</span>
-        {item.hint && <span className="shrink-0 text-[10px] text-muted-foreground">{item.hint}</span>}
+        {item.hint && (
+          <span className="shrink-0 text-[10px] text-muted-foreground">
+            {item.hint}
+          </span>
+        )}
         {item.isCurrent && <Check className="size-4 shrink-0 text-primary" />}
         {isAdmin && item.adminHref ? (
           <TooltipProvider delayDuration={300}>
@@ -121,7 +134,10 @@ const SwitcherRow = ({
             </Tooltip>
           </TooltipProvider>
         ) : (
-          <Badge variant="secondary" className="shrink-0 px-1.5 py-0 text-[10px]">
+          <Badge
+            variant="secondary"
+            className="shrink-0 px-1.5 py-0 text-[10px]"
+          >
             {tr(item.role as "OWNER")}
           </Badge>
         )}
@@ -130,13 +146,20 @@ const SwitcherRow = ({
   );
 };
 
-export const WorkspaceSwitcher = ({ userMenu, open: controlledOpen, onOpenChangeAction }: WorkspaceSwitcherProps) => {
+export const WorkspaceSwitcher = ({
+  userMenu,
+  open: controlledOpen,
+  onOpenChangeAction,
+}: WorkspaceSwitcherProps) => {
   const t = useTranslations("sidebar");
   const tr = useTranslations("roles");
   const isMobile = useIsMobile();
   const [internalOpen, setInternalOpen] = useState(false);
   const open = controlledOpen ?? internalOpen;
-  const setOpen = useCallback((v: boolean) => (onOpenChangeAction ?? setInternalOpen)(v), [onOpenChangeAction]);
+  const setOpen = useCallback(
+    (v: boolean) => (onOpenChangeAction ?? setInternalOpen)(v),
+    [onOpenChangeAction],
+  );
   const [listNode, setListNode] = useState<HTMLDivElement | null>(null);
   const highlight = useCmdkHighlight(listNode);
 
@@ -186,7 +209,13 @@ export const WorkspaceSwitcher = ({ userMenu, open: controlledOpen, onOpenChange
         )}
         <CommandEmpty>{t("noResults")}</CommandEmpty>
         {items.map((item) => (
-          <SwitcherRow key={item.href} item={item} navigate={navigate} t={t} tr={tr} />
+          <SwitcherRow
+            key={item.href}
+            item={item}
+            navigate={navigate}
+            t={t}
+            tr={tr}
+          />
         ))}
       </CommandList>
     </CommandDialog>
