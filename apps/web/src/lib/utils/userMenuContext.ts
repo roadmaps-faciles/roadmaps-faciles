@@ -177,6 +177,7 @@ export async function getUserMenuContext({ session, currentTenantId }: UserMenuC
   return {
     user: {
       email: session.user.email ?? "",
+      image: session.user.image,
       name: session.user.name ?? session.user.email ?? "",
     },
     organizations,

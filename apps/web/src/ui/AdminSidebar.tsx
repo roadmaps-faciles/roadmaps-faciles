@@ -53,7 +53,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 
-import { InitialsAvatar } from "@/components/img/InitialsAvatar";
+import { UserAvatar } from "@/components/img/UserAvatar";
 import { useRovingHighlight } from "@/ui/useRovingHighlight";
 import { WorkspaceSwitcher } from "@/ui/WorkspaceSwitcher";
 
@@ -128,6 +128,7 @@ export interface UserMenuData {
   organizations: OrgMenuGroup[];
   user: {
     email: string;
+    image?: null | string;
     name: string;
   };
 }
@@ -285,7 +286,7 @@ const SidebarUserMenu = ({ userMenu }: { userMenu: UserMenuData }) => {
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <InitialsAvatar as="span" name={displayName} className="size-8 shrink-0 rounded-lg text-xs" />
+              <UserAvatar name={displayName} image={userMenu.user.image} className="size-8 rounded-lg text-xs" />
               {!collapsed && (
                 <>
                   <div className="grid flex-1 text-left text-sm leading-tight">
@@ -305,7 +306,7 @@ const SidebarUserMenu = ({ userMenu }: { userMenu: UserMenuData }) => {
           >
             {/* User info header */}
             <DropdownMenuLabel className="flex items-center gap-3 p-3 font-normal">
-              <InitialsAvatar as="span" name={displayName} className="size-9 shrink-0 rounded-lg text-xs" />
+              <UserAvatar name={displayName} image={userMenu.user.image} className="size-9 rounded-lg text-xs" />
               <div className="flex flex-col gap-0.5 leading-none">
                 <span className="font-semibold">{displayName}</span>
                 <span className="text-xs text-muted-foreground">{userMenu.user.email}</span>

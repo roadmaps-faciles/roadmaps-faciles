@@ -7,12 +7,10 @@ import { HeaderQuickAccessItem } from "@codegouvfr/react-dsfr/Header";
 import { cx, type CxArg } from "@codegouvfr/react-dsfr/tools/cx";
 import { signOut, useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 import { type ReactNode, useEffect, useId, useRef, useState } from "react";
 import Skeleton from "react-loading-skeleton";
 
-import { InitialsAvatar } from "@/components/img/InitialsAvatar";
-import { config } from "@/config";
+import { UserAvatar } from "@/components/img/UserAvatar";
 import { Icon } from "@/gouv/dsfr";
 import { Link } from "@/i18n/navigation";
 import { type UserMenuData } from "@/ui/AdminSidebar";
@@ -87,17 +85,7 @@ const AuthenticatedUserMenu = ({
         userName={
           <>
             {user.name}
-            {user.image ? (
-              <Image
-                src={new URL(user.image, config.espaceMembre.url).toString()}
-                alt="Avatar"
-                width={40}
-                height={40}
-                className="rounded-full float-right"
-              />
-            ) : (
-              <InitialsAvatar as="span" className="float-right" name={user.name || user.email.toLocaleUpperCase()} />
-            )}
+            <UserAvatar name={user.name || user.email} image={user.image} className="size-10 float-right" />
           </>
         }
         userEmail={user.email}

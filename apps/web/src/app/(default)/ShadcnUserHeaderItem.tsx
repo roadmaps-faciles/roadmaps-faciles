@@ -20,7 +20,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 
-import { InitialsAvatar } from "@/components/img/InitialsAvatar";
+import { UserAvatar } from "@/components/img/UserAvatar";
 import { type UserMenuData } from "@/ui/AdminSidebar";
 import { useRovingHighlight } from "@/ui/useRovingHighlight";
 import { WorkspaceSwitcher } from "@/ui/WorkspaceSwitcher";
@@ -110,7 +110,7 @@ export const ShadcnUserHeaderItem = ({
           <>
             {/* User card */}
             <div className="flex items-center gap-3 rounded-lg bg-muted/50 p-3">
-              <InitialsAvatar as="span" name={displayName} className="size-10 shrink-0 text-sm" />
+              <UserAvatar name={displayName} image={user.image} className="size-10 text-sm" />
               <div className="flex min-w-0 flex-col leading-tight">
                 <span className="truncate text-sm font-semibold">{displayName}</span>
                 <span className="truncate text-xs text-muted-foreground">{email}</span>
@@ -186,9 +186,12 @@ export const ShadcnUserHeaderItem = ({
       <>
         <DropdownMenu onOpenChange={clearHighlight}>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="gap-2">
-              <InitialsAvatar as="span" name={displayName} className="size-6 shrink-0 rounded-md text-[10px]" />
-              <span className="hidden sm:inline">{displayName}</span>
+            <Button variant="ghost" className="h-auto gap-2 px-2 py-1.5">
+              <UserAvatar name={displayName} image={user.image} className="size-8 rounded-lg text-xs" />
+              <div className="hidden text-left text-sm leading-tight sm:grid">
+                <span className="truncate font-semibold">{displayName}</span>
+                <span className="truncate text-xs text-muted-foreground">{email}</span>
+              </div>
               {pendingModerationCount > 0 && (
                 <Badge variant="destructive" className="ml-1 px-1.5 py-0.5 text-xs">
                   {pendingModerationCount}
@@ -212,7 +215,7 @@ export const ShadcnUserHeaderItem = ({
 
             {/* User info header */}
             <DropdownMenuLabel className="flex items-center gap-3 p-3 font-normal">
-              <InitialsAvatar as="span" name={displayName} className="size-9 shrink-0 text-xs" />
+              <UserAvatar name={displayName} image={user.image} className="size-9 text-xs" />
               <div className="flex flex-col gap-0.5 leading-none">
                 <span className="font-semibold">{displayName}</span>
                 <span className="text-xs text-muted-foreground">{email}</span>
