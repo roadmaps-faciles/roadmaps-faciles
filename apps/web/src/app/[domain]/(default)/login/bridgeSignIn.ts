@@ -15,12 +15,13 @@ import { signIn } from "@/lib/next-auth/auth";
  */
 export const bridgeSignIn = async (formData: FormData) => {
   const token = formData.get("token") as string;
+  const isSignup = formData.get("isSignup") === "1";
   if (!token) {
     return { error: "no-token" as const };
   }
 
   try {
-    await signIn("bridge", { token, redirectTo: "/" });
+    await signIn("bridge", { token, isSignup: isSignup ? "1" : undefined, redirectTo: "/" });
     return { ok: true as const };
   } catch (error) {
     // NextAuth sets the session cookie then throws NEXT_REDIRECT — swallow it

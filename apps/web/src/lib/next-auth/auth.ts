@@ -235,7 +235,7 @@ const {
       espaceMembreProvider.ProviderWrapper(nodemailerProvider),
       Credentials({
         id: "bridge",
-        credentials: { token: { type: "text" } },
+        credentials: { token: { type: "text" }, isSignup: { type: "text" } },
         async authorize(credentials) {
           const token = credentials?.token as string;
           if (!token) return null;
@@ -243,7 +243,7 @@ const {
             const payload = verifyBridgeToken(token);
             const user = await userRepo.findById(payload.userId);
             if (!user || user.status === "DELETED") return null;
-            return { id: user.id, email: user.email, name: user.name };
+            return { id: user.id, email: user.email, name: user.name, bridgeSignup: credentials?.isSignup === "1" };
           } catch {
             return null;
           }
@@ -438,18 +438,12 @@ const {
           }
         }
 
-        // Bridge provider — only create membership on explicit signup (bridge_signup=1)
         if (params.account?.provider === "bridge" && tenant) {
           const userId = params.user.id;
           if (userId) {
             const existing = await userOnTenantRepo.findMembership(userId, tenant.id);
             if (!existing) {
-              // Check if this is an explicit signup (from bridge with action=signup)
-              // The bridge_signup flag is passed as a query param on the redirect URL,
-              // which is the callbackUrl. We check it here via the URL search params.
-              const callbackUrl = (params as Record<string, unknown>).callbackUrl as string | undefined;
-              const isSignup =
-                callbackUrl && new URL(callbackUrl, "http://localhost").searchParams.get("bridge_signup") === "1";
+              const isSignup = (params.user as Record<string, unknown>).bridgeSignup === true;
               if (isSignup) {
                 await userOnTenantRepo.create({
                   userId,
@@ -458,7 +452,6 @@ const {
                   status: "ACTIVE",
                 });
               } else {
-                // Not a member and not a signup — block sign-in
                 return false;
               }
             }
