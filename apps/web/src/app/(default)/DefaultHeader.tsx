@@ -1,6 +1,6 @@
 import { Badge } from "@roadmaps-faciles/ui";
-import Image from "next/image";
 import { getTranslations } from "next-intl/server";
+import Image from "next/image";
 
 import { config } from "@/config";
 import { auth } from "@/lib/next-auth/auth";
