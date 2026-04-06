@@ -37,10 +37,7 @@ const useCmdkHighlight = (container: HTMLDivElement | null) => {
   const [highlight, setHighlight] = useState<HighlightRect | null>(null);
 
   useEffect(() => {
-    if (!container) {
-      setHighlight(null);
-      return;
-    }
+    if (!container) return;
 
     const update = () => {
       const selected = container.querySelector<HTMLElement>('[data-selected="true"]');
@@ -57,7 +54,10 @@ const useCmdkHighlight = (container: HTMLDivElement | null) => {
     observer.observe(container, { attributes: true, subtree: true, attributeFilter: ["data-selected"] });
     update();
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      setHighlight(null);
+    };
   }, [container]);
 
   return highlight;
