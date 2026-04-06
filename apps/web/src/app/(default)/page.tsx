@@ -45,9 +45,9 @@ const Home = async (_: PageProps<"/">) => {
             </Badge>
           </div>
 
-          <h1 className="mx-auto max-w-4xl text-balance text-5xl font-extrabold leading-[1.1] tracking-tight md:text-7xl">
+          <h1 className="mx-auto max-w-5xl text-balance text-4xl font-extrabold leading-[1.1] tracking-tight md:text-6xl">
             {t("title")}{" "}
-            <span className="bg-gradient-to-r from-primary to-muted-foreground bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-primary to-muted-foreground bg-clip-text text-transparent">
               {t("titleAccent")}
             </span>
           </h1>
