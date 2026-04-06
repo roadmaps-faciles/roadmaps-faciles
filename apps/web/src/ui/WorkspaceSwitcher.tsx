@@ -1,8 +1,19 @@
 "use client";
 
-import { Badge, CommandDialog, CommandEmpty, CommandInput, CommandItem, CommandList } from "@roadmaps-faciles/ui";
+import {
+  Badge,
+  CommandDialog,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@roadmaps-faciles/ui";
 import { useIsMobile } from "@roadmaps-faciles/ui/lib/use-mobile";
-import { Building2, Check, LayoutDashboard } from "lucide-react";
+import { Building2, Check, ExternalLink, LayoutDashboard } from "lucide-react";
 import { motion } from "motion/react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
@@ -85,18 +96,29 @@ const SwitcherRow = ({
         {item.hint && <span className="shrink-0 text-[10px] text-muted-foreground">{item.hint}</span>}
         {item.isCurrent && <Check className="size-4 shrink-0 text-primary" />}
         {isAdmin && item.adminHref ? (
-          <a
-            href={item.adminHref}
-            className="z-10"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(item.adminHref!);
-            }}
-          >
-            <Badge variant="secondary" className="shrink-0 cursor-pointer px-1.5 py-0 text-[10px] hover:bg-accent">
-              {tr(item.role as "OWNER")}
-            </Badge>
-          </a>
+          <TooltipProvider delayDuration={300}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <a
+                  href={item.adminHref}
+                  className="z-10"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(item.adminHref!);
+                  }}
+                >
+                  <Badge
+                    variant="secondary"
+                    className="shrink-0 cursor-pointer gap-1 px-1.5 py-0 text-[10px] hover:bg-accent"
+                  >
+                    {tr(item.role as "OWNER")}
+                    <ExternalLink className="size-2.5" />
+                  </Badge>
+                </a>
+              </TooltipTrigger>
+              <TooltipContent side="left">{t("tenantAdmin")}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         ) : (
           <Badge variant="secondary" className="shrink-0 px-1.5 py-0 text-[10px]">
             {tr(item.role as "OWNER")}
