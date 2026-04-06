@@ -69,7 +69,10 @@ export const config = {
   ),
   brand: {
     name: ensureNextEnvVar(process.env.NEXT_PUBLIC_BRAND_NAME, "Roadmaps Faciles"),
-    tagline: ensureNextEnvVar(process.env.NEXT_PUBLIC_BRAND_TAGLINE, "Du feedback mutuel à la roadmap partagée, facilement"),
+    tagline: ensureNextEnvVar(
+      process.env.NEXT_PUBLIC_BRAND_TAGLINE,
+      "Du feedback mutuel à la roadmap partagée, facilement",
+    ),
     ministry: ensureNextEnvVar(process.env.NEXT_PUBLIC_BRAND_MINISTRY, "République\nFrançaise"),
     operator: {
       enable: ensureNextEnvVar(process.env.NEXT_PUBLIC_BRAND_OPERATOR_ENABLE, isTruthy, true),

@@ -23,7 +23,6 @@ should-build:
   - 'apps/web/package.json'
   - 'apps/web/sentry.*.config.ts'
   - 'apps/web/source.config.ts'
-  - 'apps/web/next-sitemap.config.js'
   - 'apps/web/global.ts'
   - 'apps/web/content/**'
   - 'packages/ui/src/**'

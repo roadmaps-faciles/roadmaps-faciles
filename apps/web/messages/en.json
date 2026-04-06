@@ -232,7 +232,7 @@
         "badgeDone": "Done"
       },
       "vote": {
-        "title": "Citizen voting",
+        "title": "User voting",
         "description": "Involve your users in the decision-making process directly.",
         "suggestLabel": "Suggest an idea",
         "suggestPlaceholder": "Describe your suggestion...",

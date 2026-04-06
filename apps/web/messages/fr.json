@@ -232,8 +232,8 @@
         "badgeDone": "Terminé"
       },
       "vote": {
-        "title": "Vote citoyen",
-        "description": "Impliquez vos usagers dans le processus de décision de manière directe.",
+        "title": "Vote utilisateur",
+        "description": "Impliquez vos utilisateurs dans le processus de décision de manière directe.",
         "suggestLabel": "Suggérer une idée",
         "suggestPlaceholder": "Décrivez votre suggestion...",
         "voteButton": "Votez",

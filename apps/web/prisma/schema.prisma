@@ -338,6 +338,7 @@ model TenantSettings {
   allowAnonymousFeedback  Boolean                 @default(true)
   requirePostApproval     Boolean                 @default(false)
   allowEmbedding          Boolean                 @default(false)
+  allowIndexing           Boolean                 @default(true)
   emailRegistrationPolicy EmailRegistrationPolicy @default(ANYONE)
   allowedEmailDomains     String[]
   force2FA                Boolean                 @default(false)

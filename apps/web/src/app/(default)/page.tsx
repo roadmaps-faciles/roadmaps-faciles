@@ -115,7 +115,7 @@ const Home = async (_: PageProps<"/">) => {
                       {t("bento.roadmap.colInProgress")}
                     </span>
                   </div>
-                  <Card className="border-primary/20 bg-primary/[0.02] p-4 shadow-none">
+                  <Card className="border-primary/20 bg-primary/2 p-4 shadow-none">
                     <p className="mb-3 text-sm font-medium text-primary">{t("bento.roadmap.itemMobile")}</p>
                     <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
                       <div className="h-full w-2/3 bg-primary" />

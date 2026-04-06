@@ -111,7 +111,6 @@ const config = [
       "vitest.config.ts",
       "vitest.config.db.ts",
       "playwright.config.ts",
-      "next-sitemap.config.js",
       "postcss.config.js",
     ],
     rules: {
