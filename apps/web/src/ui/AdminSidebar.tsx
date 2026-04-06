@@ -115,6 +115,7 @@ export interface SwitcherItem {
   hint?: string;
   href: string;
   isCurrent?: boolean;
+  isMember?: boolean;
   name: string;
   role: string;
   type: "org" | "tenant";

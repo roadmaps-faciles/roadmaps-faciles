@@ -17,7 +17,13 @@ export const UserAvatar = ({ name, image, className }: UserAvatarProps) => {
   if (image) {
     const src = image.startsWith("http") ? image : new URL(image, config.espaceMembre.url).toString();
     return (
-      <Image src={src} alt="" width={40} height={40} className={cn("shrink-0 rounded-full object-cover", className)} />
+      <Image
+        src={src}
+        alt={name}
+        width={40}
+        height={40}
+        className={cn("shrink-0 rounded-full object-cover", className)}
+      />
     );
   }
 

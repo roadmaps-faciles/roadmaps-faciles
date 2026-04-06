@@ -75,12 +75,14 @@ const SwitcherRow = ({
   tr: ReturnType<typeof useTranslations<"roles">>;
 }) => {
   const isAdmin = ADMIN_ROLES.has(item.role);
+  const disabled = item.isMember === false;
 
   return (
     <CommandItem
       value={item.href}
       keywords={[item.name, item.hint ?? ""]}
-      onSelect={() => navigate(item.href)}
+      disabled={disabled}
+      onSelect={() => !disabled && navigate(item.href)}
       className="flex items-center gap-2 bg-transparent! text-inherit!"
     >
       <span className="relative z-10 flex w-full items-center gap-2">
@@ -120,6 +122,10 @@ const SwitcherRow = ({
               <TooltipContent side="left">{t("tenantAdmin")}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
+        ) : disabled ? (
+          <Badge variant="outline" className="shrink-0 px-1.5 py-0 text-[10px] text-muted-foreground">
+            {t("notRegistered")}
+          </Badge>
         ) : (
           <Badge variant="secondary" className="shrink-0 px-1.5 py-0 text-[10px]">
             {tr(item.role as "OWNER")}

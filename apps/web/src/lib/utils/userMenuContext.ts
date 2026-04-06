@@ -169,6 +169,7 @@ export async function getUserMenuContext({ session, currentTenantId }: UserMenuC
         href: tenant.href,
         adminHref: tenant.tenantAdminHref,
         role: tenant.role ?? "MEMBER",
+        isMember: tenant.isMember,
         isCurrent: tenant.id === currentTenantId,
       });
     }
