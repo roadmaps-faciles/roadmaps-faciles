@@ -186,8 +186,8 @@ export const ShadcnUserHeaderItem = ({
       <>
         <DropdownMenu onOpenChange={clearHighlight}>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="gap-2">
-              <InitialsAvatar as="span" name={displayName} className="size-7 shrink-0 rounded-lg text-[10px]" />
+            <Button variant="ghost" className="gap-2">
+              <InitialsAvatar as="span" name={displayName} className="size-6 shrink-0 rounded-md text-[10px]" />
               <span className="hidden sm:inline">{displayName}</span>
               {pendingModerationCount > 0 && (
                 <Badge variant="destructive" className="ml-1 px-1.5 py-0.5 text-xs">
