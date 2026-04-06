@@ -243,7 +243,7 @@ const {
             const payload = verifyBridgeToken(token);
             const user = await userRepo.findById(payload.userId);
             if (!user || user.status === "DELETED") return null;
-            return { id: user.id, email: user.email, name: user.name, bridgeSignup: credentials?.isSignup === "1" };
+            return { id: user.id, email: user.email, name: user.name };
           } catch {
             return null;
           }
@@ -443,7 +443,8 @@ const {
           if (userId) {
             const existing = await userOnTenantRepo.findMembership(userId, tenant.id);
             if (!existing) {
-              const isSignup = (params.user as Record<string, unknown>).bridgeSignup === true;
+              const isSignup =
+                (params as unknown as { credentials?: Record<string, unknown> }).credentials?.isSignup === "1";
               if (isSignup) {
                 await userOnTenantRepo.create({
                   userId,
