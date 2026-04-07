@@ -9,8 +9,8 @@ import { useGitHubWizardStore } from "../useGitHubWizardStore";
 
 const SOURCE_OPTIONS: Array<{ disabled: boolean; type: GitHubSourceType }> = [
   { type: "issues", disabled: false },
-  { type: "discussions", disabled: true },
-  { type: "project", disabled: true },
+  { type: "discussions", disabled: false },
+  { type: "project", disabled: false },
 ];
 
 export const GitHubSourceStep = () => {

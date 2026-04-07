@@ -11,10 +11,13 @@ import {
   type SyncResult,
 } from "../../types";
 import { createGitHubClient } from "./GitHubAuth";
+import { GitHubDiscussionSource } from "./GitHubDiscussionSource";
 import { GitHubIssueSource } from "./GitHubIssueSource";
+import { GitHubProjectSource } from "./GitHubProjectSource";
+import { type IGitHubSource } from "./IGitHubSource";
 
 export class GitHubIntegrationProvider implements IIntegrationProvider {
-  private readonly source: GitHubIssueSource;
+  private readonly source: IGitHubSource;
 
   constructor(config: IntegrationConfig) {
     const octokit = createGitHubClient(config);
@@ -25,9 +28,11 @@ export class GitHubIntegrationProvider implements IIntegrationProvider {
         this.source = new GitHubIssueSource(octokit, config);
         break;
       case "discussions":
+        this.source = new GitHubDiscussionSource(octokit, config);
+        break;
       case "project":
-        // TODO: implement GitHubDiscussionSource and GitHubProjectSource
-        throw new Error(`GitHub source type "${sourceType}" is not yet implemented`);
+        this.source = new GitHubProjectSource(octokit, config);
+        break;
       default:
         throw new Error(`Unknown GitHub source type: ${sourceType as string}`);
     }
@@ -73,13 +78,9 @@ export class GitHubIntegrationProvider implements IIntegrationProvider {
     return this.source.buildRemoteUrl(remoteId);
   }
 
-  async updateCommentsField(): Promise<void> {
-    // No-op: GitHub issues don't have custom fields for comments info
-  }
+  async updateCommentsField(): Promise<void> {}
 
-  async updateLikesField(): Promise<void> {
-    // No-op: GitHub issues don't have custom fields for likes
-  }
+  async updateLikesField(): Promise<void> {}
 
   private async collectStream(gen: AsyncGenerator<InboundChange>): Promise<InboundChange[]> {
     const results: InboundChange[] = [];
