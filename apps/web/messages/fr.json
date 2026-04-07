@@ -723,6 +723,41 @@
         "syncCancelMonitoring": "Arrêter le suivi",
         "syncElapsed": "Temps écoulé : {time}",
         "syncEta": "Temps restant estimé : {time}"
+      },
+      "github": {
+        "wizard": {
+          "connectionDescription": "Entrez votre Personal Access Token GitHub. Vous pouvez en créer un dans Settings > Developer settings > Personal access tokens.",
+          "apiKeyLabel": "Personal Access Token",
+          "apiKeyHint": "Commence par ghp_ ou github_pat_",
+          "sourceTitle": "Source",
+          "sourceDescription": "Choisissez le type de données GitHub à synchroniser.",
+          "source_issues": "Issues",
+          "source_issues_description": "Synchronisez les issues du dépôt comme posts.",
+          "source_discussions": "Discussions",
+          "source_discussions_description": "Synchronisez les discussions GitHub comme posts.",
+          "source_project": "Projet",
+          "source_project_description": "Synchronisez un projet GitHub (board) comme posts.",
+          "comingSoon": "(bientôt)",
+          "includePullRequests": "Inclure les Pull Requests",
+          "repositoryTitle": "Dépôt",
+          "repoDescription": "Sélectionnez le dépôt GitHub à synchroniser.",
+          "loadingRepos": "Chargement des dépôts...",
+          "noRepos": "Aucun dépôt accessible. Vérifiez les permissions de votre token.",
+          "refreshRepos": "Rafraîchir",
+          "searchRepos": "Rechercher un dépôt…",
+          "mappingDescription": "Associez les labels et milestones GitHub aux concepts de votre espace.",
+          "statusMappingTitle": "Labels → Statuts",
+          "statusMappingDescription": "Associez les labels GitHub existants à vos statuts locaux.",
+          "noLabels": "Aucun label trouvé dans ce dépôt.",
+          "boardMappingTitle": "Milestones → Boards",
+          "boardMappingDescription": "Associez les milestones GitHub à vos boards locaux.",
+          "noMilestones": "Aucune milestone trouvée dans ce dépôt. Un board par défaut sera créé automatiquement.",
+          "integrationNameHint": "Nom affiché dans l'admin (ex: \"GitHub Produit\")",
+          "bidirectional": "Bidirectionnel",
+          "inboundOnly": "Entrant uniquement (GitHub → RF)",
+          "outboundOnly": "Sortant uniquement (RF → GitHub)",
+          "syncDirectionHint": "Bidirectionnel synchronise dans les deux sens. Entrant importe depuis GitHub (lecture seule dans RF). Sortant exporte vers GitHub."
+        }
       }
     },
     "users": {

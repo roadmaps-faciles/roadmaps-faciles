@@ -8,6 +8,7 @@ import { ADDON_TYPE } from "@/lib/model/Organization";
 import { auth } from "@/lib/next-auth/auth";
 import { boardRepo, postStatusRepo } from "@/lib/repo";
 
+import { GitHubWizard } from "./GitHubWizard";
 import { IntegrationTypeSelector } from "./IntegrationTypeSelector";
 import { NotionWizard } from "./NotionWizard";
 
@@ -19,7 +20,7 @@ const NewIntegrationPage = DomainPageHOP()(async props => {
   const type = searchParams.type?.toUpperCase();
   const t = await getTranslations("domainAdmin.integrations");
 
-  if (type === "NOTION") {
+  if (type === "NOTION" || type === "GITHUB") {
     const [boards, statuses] = await Promise.all([
       boardRepo.findAllForTenant(tenant.id),
       postStatusRepo.findAllForTenant(tenant.id),
@@ -29,7 +30,11 @@ const NewIntegrationPage = DomainPageHOP()(async props => {
       <>
         <AdminPageHeader title={t("newTitle")} />
         <EntitlementGate tenantId={tenant.id} addon={ADDON_TYPE.INTEGRATIONS}>
-          <NotionWizard boards={boards} statuses={statuses} />
+          {type === "NOTION" ? (
+            <NotionWizard boards={boards} statuses={statuses} />
+          ) : (
+            <GitHubWizard boards={boards} statuses={statuses} />
+          )}
         </EntitlementGate>
       </>
     );

@@ -20,16 +20,16 @@ export const IntegrationTypeSelector = () => {
         </Card>
       </Link>
 
-      <Card className="opacity-50">
-        <CardHeader>
-          <CardTitle>
-            {t("github")} <span className="text-xs font-normal text-muted-foreground">{t("comingSoon")}</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">{t("githubDescription")}</p>
-        </CardContent>
-      </Card>
+      <Link href="/admin/integrations/new?type=GITHUB">
+        <Card className="cursor-pointer transition-colors hover:bg-accent">
+          <CardHeader>
+            <CardTitle>{t("github")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">{t("githubDescription")}</p>
+          </CardContent>
+        </Card>
+      </Link>
     </div>
   );
 };

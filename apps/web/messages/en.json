@@ -723,6 +723,41 @@
         "syncCancelMonitoring": "Stop monitoring",
         "syncElapsed": "Elapsed: {time}",
         "syncEta": "Estimated remaining: {time}"
+      },
+      "github": {
+        "wizard": {
+          "connectionDescription": "Enter your GitHub Personal Access Token. You can create one in Settings > Developer settings > Personal access tokens.",
+          "apiKeyLabel": "Personal Access Token",
+          "apiKeyHint": "Starts with ghp_ or github_pat_",
+          "sourceTitle": "Source",
+          "sourceDescription": "Choose the type of GitHub data to sync.",
+          "source_issues": "Issues",
+          "source_issues_description": "Sync repository issues as posts.",
+          "source_discussions": "Discussions",
+          "source_discussions_description": "Sync GitHub discussions as posts.",
+          "source_project": "Project",
+          "source_project_description": "Sync a GitHub project (board) as posts.",
+          "comingSoon": "(coming soon)",
+          "includePullRequests": "Include Pull Requests",
+          "repositoryTitle": "Repository",
+          "repoDescription": "Select the GitHub repository to sync.",
+          "loadingRepos": "Loading repositories...",
+          "noRepos": "No accessible repositories. Check your token permissions.",
+          "refreshRepos": "Refresh",
+          "searchRepos": "Search for a repository…",
+          "mappingDescription": "Map GitHub labels and milestones to your space concepts.",
+          "statusMappingTitle": "Labels → Statuses",
+          "statusMappingDescription": "Map existing GitHub labels to your local statuses.",
+          "noLabels": "No labels found in this repository.",
+          "boardMappingTitle": "Milestones → Boards",
+          "boardMappingDescription": "Map GitHub milestones to your local boards.",
+          "noMilestones": "No milestones found in this repository. A default board will be created automatically.",
+          "integrationNameHint": "Display name in admin (e.g., \"GitHub Product\")",
+          "bidirectional": "Bidirectional",
+          "inboundOnly": "Inbound only (GitHub → RF)",
+          "outboundOnly": "Outbound only (RF → GitHub)",
+          "syncDirectionHint": "Bidirectional syncs both ways. Inbound imports from GitHub (read-only in RF). Outbound exports to GitHub."
+        }
       }
     },
     "users": {
