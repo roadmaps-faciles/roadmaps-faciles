@@ -39,7 +39,9 @@ export const GitHubSourceStep = () => {
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">
                   {t(`source_${type}`)}
-                  {disabled && <span className="ml-2 text-xs font-normal text-muted-foreground">{t("comingSoon")}</span>}
+                  {disabled && (
+                    <span className="ml-2 text-xs font-normal text-muted-foreground">{t("comingSoon")}</span>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -52,11 +54,7 @@ export const GitHubSourceStep = () => {
 
       {sourceType === "issues" && (
         <div className="flex items-center gap-3">
-          <Switch
-            id="include-prs"
-            checked={includePullRequests}
-            onCheckedChange={setIncludePullRequests}
-          />
+          <Switch id="include-prs" checked={includePullRequests} onCheckedChange={setIncludePullRequests} />
           <Label htmlFor="include-prs">{t("includePullRequests")}</Label>
         </div>
       )}

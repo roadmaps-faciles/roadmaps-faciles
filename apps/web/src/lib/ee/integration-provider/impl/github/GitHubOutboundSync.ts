@@ -4,8 +4,8 @@ import { createIntegrationProvider } from "@/lib/ee/integration-provider";
 import { logger } from "@/lib/logger";
 import { integrationMappingRepo, integrationRepo } from "@/lib/repo";
 
-import { type IntegrationConfig, type PostSyncData } from "../../types";
 import { decrypt } from "../../encryption";
+import { type IntegrationConfig, type PostSyncData } from "../../types";
 import { isSyncLocked } from "./GitHubSyncGuard";
 
 export async function pushPostToGitHub(postId: number, postData: PostSyncData): Promise<void> {

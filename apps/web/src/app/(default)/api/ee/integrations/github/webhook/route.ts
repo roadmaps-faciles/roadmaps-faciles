@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 import { config } from "@/config";
-import { isAppBotSender } from "@/lib/ee/integration-provider/impl/github/GitHubSyncGuard";
 import { logger } from "@/lib/logger";
 import { integrationMappingRepo, integrationRepo } from "@/lib/repo";
 
@@ -24,7 +23,14 @@ interface WebhookPayload {
     title: string;
     updated_at: string;
   };
-  sender: { id: number; type: string };
+  sender?: { id: number; login: string; type: string };
+}
+
+function isAppBotSender(sender: WebhookPayload["sender"]): boolean {
+  if (!sender) return false;
+  if (sender.type !== "Bot") return false;
+  const appName = config.integrations.github.appName;
+  return sender.login === `${appName}[bot]`;
 }
 
 export async function POST(request: Request) {
@@ -51,12 +57,9 @@ export async function POST(request: Request) {
 
   const payload = JSON.parse(body) as WebhookPayload;
 
-  if (payload.sender.type === "Bot") {
-    const appBotId = parseInt(config.integrations.github.appId, 10);
-    if (appBotId && isAppBotSender(payload.sender.id, appBotId)) {
-      logger.debug({ event, deliveryId }, "GitHub webhook skipped — sent by app bot");
-      return NextResponse.json({ ok: true, skipped: true });
-    }
+  if (isAppBotSender(payload.sender)) {
+    logger.debug({ event, deliveryId }, "GitHub webhook skipped — sent by app bot");
+    return NextResponse.json({ ok: true, skipped: true });
   }
 
   if (!payload.installation?.id) {
@@ -64,12 +67,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, skipped: true });
   }
 
-  const integrations = await integrationRepo.findAllForTenant(-1);
-  const integration = integrations.find(i => {
-    if (i.type !== "GITHUB" || !i.enabled) return false;
-    const cfg = i.config as Record<string, unknown>;
-    return cfg.installationId === payload.installation!.id;
-  });
+  const integration = await integrationRepo.findByGitHubInstallationId(payload.installation.id);
 
   if (!integration) {
     logger.debug({ event, installationId: payload.installation.id }, "GitHub webhook — no matching integration");
@@ -81,10 +79,7 @@ export async function POST(request: Request) {
   switch (event) {
     case "issues": {
       if (!payload.issue) break;
-      const mapping = await integrationMappingRepo.findByRemoteId(
-        integration.id,
-        String(payload.issue.number),
-      );
+      const mapping = await integrationMappingRepo.findByRemoteId(integration.id, String(payload.issue.number));
 
       if (mapping) {
         logger.info(

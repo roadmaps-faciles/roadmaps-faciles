@@ -4,7 +4,12 @@ import { type Session } from "next-auth";
 import { revalidatePath } from "next/cache";
 
 import { assertEntitlement } from "@/lib/ee/entitlements";
-import { type GitHubSourceType, type IntegrationConfig, type RemoteDatabase, type RemoteDatabaseSchema } from "@/lib/ee/integration-provider/types";
+import {
+  type GitHubSourceType,
+  type IntegrationConfig,
+  type RemoteDatabase,
+  type RemoteDatabaseSchema,
+} from "@/lib/ee/integration-provider/types";
 import { assertFeature } from "@/lib/feature-flags";
 import { ADDON_TYPE } from "@/lib/model/Organization";
 import { type Tenant } from "@/lib/model/Tenant";
@@ -21,7 +26,7 @@ import { type TenantIntegration } from "@/prisma/client";
 import { CreateBoard } from "@/useCases/boards/CreateBoard";
 import { CreateIntegration } from "@/useCases/ee/integrations/CreateIntegration";
 import { DeleteIntegration } from "@/useCases/ee/integrations/DeleteIntegration";
-import { type GetGitHubRepositoriesOutput, GetGitHubRepositories } from "@/useCases/ee/integrations/GetGitHubRepositories";
+import { GetGitHubRepositories } from "@/useCases/ee/integrations/GetGitHubRepositories";
 import { GetGitHubRepositorySchema } from "@/useCases/ee/integrations/GetGitHubRepositorySchema";
 import { type GetNotionDatabasesOutput, GetNotionDatabases } from "@/useCases/ee/integrations/GetNotionDatabases";
 import { GetNotionDatabaseSchema } from "@/useCases/ee/integrations/GetNotionDatabaseSchema";

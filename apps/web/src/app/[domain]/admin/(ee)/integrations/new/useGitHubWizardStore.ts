@@ -88,7 +88,7 @@ export const useGitHubWizardStore = create<GitHubWizardActions & GitHubWizardSta
       });
     },
 
-    setConnectionStatus: (status) => {
+    setConnectionStatus: status => {
       set(draft => {
         draft.connectionStatus = status;
       });
@@ -108,32 +108,32 @@ export const useGitHubWizardStore = create<GitHubWizardActions & GitHubWizardSta
       });
     },
 
-    setSourceType: (type) => {
+    setSourceType: type => {
       set(draft => {
         draft.sourceType = type;
       });
     },
 
-    setIncludePullRequests: (include) => {
+    setIncludePullRequests: include => {
       set(draft => {
         draft.includePullRequests = include;
       });
     },
 
-    setRepositories: (repos) => {
+    setRepositories: repos => {
       set(draft => {
         draft.repositories = repos;
         draft.loadingRepos = false;
       });
     },
 
-    setLoadingRepos: (loading) => {
+    setLoadingRepos: loading => {
       set(draft => {
         draft.loadingRepos = loading;
       });
     },
 
-    setSelectedRepoId: (repoId) => {
+    setSelectedRepoId: repoId => {
       set(draft => {
         draft.selectedRepoId = repoId;
         const repo = draft.repositories.find(r => r.id === repoId);
@@ -143,14 +143,14 @@ export const useGitHubWizardStore = create<GitHubWizardActions & GitHubWizardSta
       });
     },
 
-    setSchema: (schema) => {
+    setSchema: schema => {
       set(draft => {
         draft.schema = schema;
         draft.loadingSchema = false;
       });
     },
 
-    setLoadingSchema: (loading) => {
+    setLoadingSchema: loading => {
       set(draft => {
         draft.loadingSchema = loading;
       });
@@ -168,19 +168,19 @@ export const useGitHubWizardStore = create<GitHubWizardActions & GitHubWizardSta
       });
     },
 
-    setSyncDirection: (direction) => {
+    setSyncDirection: direction => {
       set(draft => {
         draft.syncDirection = direction;
       });
     },
 
-    setSyncIntervalMinutes: (minutes) => {
+    setSyncIntervalMinutes: minutes => {
       set(draft => {
         draft.syncIntervalMinutes = minutes;
       });
     },
 
-    setIntegrationName: (name) => {
+    setIntegrationName: name => {
       set(draft => {
         draft.integrationName = name;
       });

@@ -42,6 +42,7 @@ export function createMockIntegrationRepo(): MockRepo<IIntegrationRepo> {
     delete: vi.fn(),
     findAllForTenant: vi.fn(),
     findById: vi.fn(),
+    findByGitHubInstallationId: vi.fn(),
     findDueForSync: vi.fn(),
     update: vi.fn(),
   };

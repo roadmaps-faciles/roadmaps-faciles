@@ -49,8 +49,12 @@ export async function ensureLabel(
 ): Promise<void> {
   try {
     await octokit.rest.issues.getLabel({ owner, repo, name });
-  } catch {
-    await octokit.rest.issues.createLabel({ owner, repo, name, color });
+  } catch (error) {
+    if ((error as { status?: number }).status === 404) {
+      await octokit.rest.issues.createLabel({ owner, repo, name, color });
+    } else {
+      throw error;
+    }
   }
 }
 

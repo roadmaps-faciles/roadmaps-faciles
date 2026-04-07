@@ -15,8 +15,14 @@ const NativeSelect = (props: React.SelectHTMLAttributes<HTMLSelectElement>) => (
 export const GitHubConfigStep = () => {
   const t = useTranslations("domainAdmin.integrations.github.wizard");
   const tWizard = useTranslations("domainAdmin.integrations.wizard");
-  const { integrationName, syncDirection, syncIntervalMinutes, setIntegrationName, setSyncDirection, setSyncIntervalMinutes } =
-    useGitHubWizardStore();
+  const {
+    integrationName,
+    syncDirection,
+    syncIntervalMinutes,
+    setIntegrationName,
+    setSyncDirection,
+    setSyncIntervalMinutes,
+  } = useGitHubWizardStore();
 
   return (
     <div>

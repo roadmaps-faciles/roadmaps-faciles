@@ -1,5 +1,9 @@
 import { createIntegrationProvider } from "@/lib/ee/integration-provider";
-import { type GitHubSourceType, type IntegrationConfig, type RemoteDatabaseSchema } from "@/lib/ee/integration-provider/types";
+import {
+  type GitHubSourceType,
+  type IntegrationConfig,
+  type RemoteDatabaseSchema,
+} from "@/lib/ee/integration-provider/types";
 
 import { type UseCase } from "../../types";
 
@@ -13,9 +17,10 @@ export interface GetGitHubRepositorySchemaInput {
 
 export type GetGitHubRepositorySchemaOutput = RemoteDatabaseSchema;
 
-export class GetGitHubRepositorySchema
-  implements UseCase<GetGitHubRepositorySchemaInput, GetGitHubRepositorySchemaOutput>
-{
+export class GetGitHubRepositorySchema implements UseCase<
+  GetGitHubRepositorySchemaInput,
+  GetGitHubRepositorySchemaOutput
+> {
   public async execute(input: GetGitHubRepositorySchemaInput): Promise<GetGitHubRepositorySchemaOutput> {
     const minimalConfig: IntegrationConfig = {
       apiKey: input.apiKey ?? "",
