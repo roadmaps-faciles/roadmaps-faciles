@@ -19,9 +19,10 @@ import {
   parseBoardLabel,
   parseStatusLabel,
 } from "./GitHubLabels";
+import { type IGitHubSource } from "./IGitHubSource";
 import { parseRepoFullName } from "./types";
 
-export class GitHubIssueSource {
+export class GitHubIssueSource implements IGitHubSource {
   constructor(
     private readonly octokit: Octokit,
     private readonly config: IntegrationConfig,

@@ -30,6 +30,7 @@ interface ProjectV2ItemNode {
   content: {
     __typename: string;
     body?: string;
+    createdAt?: string;
     number?: number;
     title?: string;
     updatedAt?: string;
@@ -70,7 +71,10 @@ export class GitHubProjectSource implements IGitHubSource {
   }
 
   async listRemoteDatabases(): Promise<RemoteDatabase[]> {
-    const { owner, repo } = parseRepoFullName(this.config.databaseId || "owner/repo");
+    if (!this.config.databaseId) {
+      throw new Error("ProjectSource requires a repository to list projects");
+    }
+    const { owner, repo } = parseRepoFullName(this.config.databaseId);
 
     const result = await this.octokit.graphql<{
       repository: {
@@ -197,8 +201,8 @@ export class GitHubProjectSource implements IGitHubSource {
                   id updatedAt
                   content {
                     __typename
-                    ... on Issue { number title body url updatedAt }
-                    ... on PullRequest { number title body url updatedAt }
+                    ... on Issue { number title body url createdAt updatedAt }
+                    ... on PullRequest { number title body url createdAt updatedAt }
                   }
                   fieldValues(first: 10) {
                     nodes {
@@ -219,10 +223,7 @@ export class GitHubProjectSource implements IGitHubSource {
       const items = response.node.items;
       for (const item of items.nodes) {
         if (!item.content || item.content.__typename === "DraftIssue") continue;
-        if (since && new Date(item.updatedAt) < since) {
-          shouldContinue = false;
-          break;
-        }
+        if (since && new Date(item.updatedAt) < since) continue;
         yield this.itemToInboundChange(item);
       }
 
@@ -249,8 +250,8 @@ export class GitHubProjectSource implements IGitHubSource {
               id updatedAt
               content {
                 __typename
-                ... on Issue { number title body url updatedAt }
-                ... on PullRequest { number title body url updatedAt }
+                ... on Issue { number title body url createdAt updatedAt }
+                ... on PullRequest { number title body url createdAt updatedAt }
               }
               fieldValues(first: 10) {
                 nodes {
@@ -276,9 +277,8 @@ export class GitHubProjectSource implements IGitHubSource {
     return change?.description;
   }
 
-  buildRemoteUrl(remoteId: string): string {
-    void remoteId;
-    return this.config.databaseId ? `https://github.com/orgs/projects` : "";
+  buildRemoteUrl(_remoteId: string): string {
+    return "";
   }
 
   private async findStatusFieldId(): Promise<string | undefined> {
@@ -315,6 +315,7 @@ export class GitHubProjectSource implements IGitHubSource {
 
     return {
       remoteId: item.id,
+      date: content.createdAt,
       remoteUrl: content.url ?? "",
       title: content.title ?? "",
       description: content.body ?? undefined,

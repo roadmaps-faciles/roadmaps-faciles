@@ -17,6 +17,7 @@ import { parseRepoFullName } from "./types";
 interface GraphQLDiscussionNode {
   body: string;
   category: { id: string; name: string };
+  createdAt: string;
   id: string;
   labels: { nodes: Array<{ name: string }> };
   number: number;
@@ -132,10 +133,12 @@ export class GitHubDiscussionSource implements IGitHubSource {
     if (existingRemoteId) {
       const discussionId = existingRemoteId;
       try {
-        await this.octokit.graphql(
+        const result = await this.octokit.graphql<{
+          updateDiscussion: { discussion: { id: string; url: string } };
+        }>(
           `mutation($id: ID!, $title: String!, $body: String!) {
             updateDiscussion(input: { discussionId: $id, title: $title, body: $body }) {
-              discussion { id number url }
+              discussion { id url }
             }
           }`,
           { id: discussionId, title: post.title, body: post.description ?? "" },
@@ -143,7 +146,7 @@ export class GitHubDiscussionSource implements IGitHubSource {
         return {
           success: true,
           remoteId: discussionId,
-          remoteUrl: `https://github.com/${owner}/${repo}/discussions`,
+          remoteUrl: result.updateDiscussion.discussion.url,
         };
       } catch (error) {
         return { success: false, remoteId: discussionId, error: (error as Error).message };
@@ -193,7 +196,7 @@ export class GitHubDiscussionSource implements IGitHubSource {
           repository(owner: $owner, name: $repo) {
             discussions(first: 50, after: $cursor, orderBy: { field: UPDATED_AT, direction: DESC }) {
               nodes {
-                id number title body url updatedAt
+                id number title body url createdAt updatedAt
                 category { id name }
                 labels(first: 20) { nodes { name } }
               }
@@ -233,7 +236,7 @@ export class GitHubDiscussionSource implements IGitHubSource {
         `query($id: ID!) {
           node(id: $id) {
             ... on Discussion {
-              id number title body url updatedAt
+              id number title body url createdAt updatedAt
               category { id name }
               labels(first: 20) { nodes { name } }
             }
@@ -288,6 +291,7 @@ export class GitHubDiscussionSource implements IGitHubSource {
       remoteId: disc.id,
       remoteUrl: disc.url,
       title: disc.title,
+      date: disc.createdAt,
       description: disc.body ?? undefined,
       lastEditedTime: disc.updatedAt,
       tags,
