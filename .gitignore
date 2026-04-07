@@ -95,8 +95,9 @@ header-*.png
 .turbo
 
 # AI agent skills (keep only .claude/ and .agents/)
-skills/
-skills-lock.json
+.agents/skills/*
+.claude/skills/*
+!.claude/skills/**/
 .adal/
 .agent/
 .augment/

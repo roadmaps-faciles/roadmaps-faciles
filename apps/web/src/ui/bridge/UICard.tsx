@@ -30,6 +30,7 @@ export type UICardProps = {
   subtitle?: React.ReactNode;
   title: React.ReactNode;
   titleAs?: "h2" | "h3" | "h4" | "h5" | "h6";
+  wrapperClassName?: string;
 };
 
 export const UICard = ({
@@ -44,6 +45,7 @@ export const UICard = ({
   size,
   shadow,
   className,
+  wrapperClassName,
 }: UICardProps) => {
   const theme = useUI();
 
@@ -62,6 +64,7 @@ export const UICard = ({
           size={size}
           shadow={shadow}
           className={className}
+          wrapperClassName={wrapperClassName}
         />
       </Suspense>
     );
@@ -92,10 +95,14 @@ export const UICard = ({
 
   if (href) {
     return (
-      <Link href={href} className="no-underline" {...(linkTarget && { target: linkTarget })}>
+      <Link href={href} className={cn("no-underline", wrapperClassName)} {...(linkTarget && { target: linkTarget })}>
         {cardContent}
       </Link>
     );
+  }
+
+  if (wrapperClassName) {
+    return <div className={wrapperClassName}>{cardContent}</div>;
   }
 
   return cardContent;

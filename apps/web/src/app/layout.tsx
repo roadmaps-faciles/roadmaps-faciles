@@ -1,7 +1,6 @@
 import "./tailwind-entry.css";
 import "./globals.scss";
 import "react-loading-skeleton/dist/skeleton.css";
-import { cn } from "@roadmaps-faciles/ui";
 import { type Metadata } from "next";
 import { SessionProvider } from "next-auth/react";
 import { NextIntlClientProvider } from "next-intl";
@@ -43,7 +42,7 @@ const RootLayout = async ({ children }: LayoutProps<"/">) => {
   const effectiveFlags = await getEffectiveFlags(session);
 
   return (
-    <html lang={lang} suppressHydrationWarning data-ui-theme="Default" className={cn(styles.app, "snap-y")}>
+    <html lang={lang} suppressHydrationWarning data-ui-theme="Default" className={styles.app}>
       <head>
         <ThemeScript />
       </head>

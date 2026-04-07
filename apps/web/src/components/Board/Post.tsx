@@ -33,7 +33,7 @@ export const BoardPost = ({
 }: BoardPostProps) => {
   return (
     <UICard
-      className={cn(!first && "snap-start scroll-mt-38")}
+      wrapperClassName={cn(!first && "scroll-mt-[var(--header-scroll-offset)]")}
       title={post.title}
       href={dirtyDomainFixer(`/post/${post.id}`)}
       linkTarget={linkTarget}

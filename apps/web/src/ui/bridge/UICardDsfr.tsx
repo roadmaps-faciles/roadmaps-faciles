@@ -48,6 +48,7 @@ export const UICardDsfr = ({
   size,
   shadow,
   className,
+  wrapperClassName,
 }: UICardProps) => {
   const resolvedShadow = useShadow(shadow);
 
@@ -61,7 +62,7 @@ export const UICardDsfr = ({
     const sizeClass = size ? `fr-card--${SIZE_MAP[size]}` : undefined;
     const horizontalClass = horizontal ? "fr-card--horizontal" : undefined;
 
-    return (
+    const complexCard = (
       <div className={cx("fr-card", shadowClass, sizeClass, horizontalClass, className)}>
         <div className="fr-card__body">
           <div className="fr-card__content">
@@ -81,6 +82,12 @@ export const UICardDsfr = ({
         </div>
       </div>
     );
+
+    if (wrapperClassName) {
+      return <div className={wrapperClassName}>{complexCard}</div>;
+    }
+
+    return complexCard;
   }
 
   const commonProps: DsfrCardProps = {
@@ -95,8 +102,11 @@ export const UICardDsfr = ({
     className,
   };
 
-  if (horizontal) {
-    return <DsfrCard {...commonProps} horizontal />;
+  const card = horizontal ? <DsfrCard {...commonProps} horizontal /> : <DsfrCard {...commonProps} />;
+
+  if (wrapperClassName) {
+    return <div className={wrapperClassName}>{card}</div>;
   }
-  return <DsfrCard {...commonProps} />;
+
+  return card;
 };

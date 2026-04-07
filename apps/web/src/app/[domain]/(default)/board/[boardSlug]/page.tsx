@@ -122,22 +122,31 @@ const BoardPage = withValidation({
           <UIGridCol span={showSuggestionForm ? 9 : 12}>
             <UIGrid
               className={cn(
-                "sticky self-start z-501",
-                isDsfr ? style.header : "top-0 bg-background border-b shadow-sm",
+                "sticky self-start z-501 mb-4",
+                isDsfr
+                  ? cn(style.header, "fr-py-2w")
+                  : "top-0 rounded-xl border bg-background/95 px-4 py-3 shadow-sm backdrop-blur",
               )}
             >
-              <UIGridCol span={8} className="pr-2">
-                <h1 className={isDsfr ? "fr-mb-1w fr-h3" : "mb-1 text-xl font-bold"}>{board.name}</h1>
-                {board.description && (
-                  <div className={cn(isDsfr ? "fr-text--md" : "max-w-none prose prose-sm", style.boardSubTiltle)}>
-                    <MDXRemote source={board.description} />
-                  </div>
-                )}
+              <UIGridCol span={12} className="flex items-start justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <h1 className={isDsfr ? "fr-mb-1w fr-h3" : "text-lg font-bold"}>{board.name}</h1>
+                  {board.description && (
+                    <div
+                      className={cn(
+                        isDsfr ? "fr-text--md" : "max-w-none prose prose-sm text-muted-foreground",
+                        style.boardSubTiltle,
+                      )}
+                    >
+                      <MDXRemote source={board.description} />
+                    </div>
+                  )}
+                </div>
+                <div className="shrink-0">
+                  <FilterAndSearch order={validatedOrder} search={search} view={validatedView} />
+                </div>
               </UIGridCol>
-              <UIGridCol span={4}>
-                <FilterAndSearch order={validatedOrder} search={search} view={validatedView} />
-              </UIGridCol>
-              <UIGridCol span={12} className={isDsfr ? "fr-hint-text" : "mt-2 text-sm text-muted-foreground"}>
+              <UIGridCol span={12} className={isDsfr ? "fr-hint-text" : "text-xs text-muted-foreground"}>
                 {t("common.result", { count: filteredCount })}
                 {filteredCount !== board._count.posts
                   ? ` ${t("common.filteredOf", { count: filteredCount, total: board._count.posts })}`
