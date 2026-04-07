@@ -3,11 +3,11 @@ import { z } from "zod";
 import { config } from "@/config";
 import { prisma } from "@/lib/db/prisma";
 import { getDnsProvider } from "@/lib/ee/dns-provider";
-import { isReservedSubdomain } from "@/utils/reservedSubdomains";
 import { getDomainProvider } from "@/lib/ee/domain-provider";
 import { logger } from "@/lib/logger";
 import { type ITenantSettingsRepo } from "@/lib/repo/ITenantSettingsRepo";
 import { type TenantSettings } from "@/prisma/client";
+import { isReservedSubdomain } from "@/utils/reservedSubdomains";
 
 import { type UseCase } from "../types";
 

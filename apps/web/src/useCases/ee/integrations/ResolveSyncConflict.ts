@@ -80,8 +80,8 @@ export class ResolveSyncConflict implements UseCase<ResolveSyncConflictInput, Re
       }
 
       let postStatusId: null | number = null;
-      if (change.statusNotionOptionId && decryptedConfig.statusMapping[change.statusNotionOptionId]) {
-        postStatusId = decryptedConfig.statusMapping[change.statusNotionOptionId].localId;
+      if (change.statusRemoteOptionId && decryptedConfig.statusMapping[change.statusRemoteOptionId]) {
+        postStatusId = decryptedConfig.statusMapping[change.statusRemoteOptionId].localId;
       }
 
       await this.postRepo.update(mapping.localId, {

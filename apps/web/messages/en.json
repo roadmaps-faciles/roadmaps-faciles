@@ -598,9 +598,16 @@
     "integrations": {
       "title": "Connectors",
       "description": "Connect third-party tools to synchronize your posts and boards.",
-      "newTitle": "New Notion connector",
-      "addNotion": "Add a Notion connector",
-      "empty": "No connectors configured. Add a Notion integration to sync your data.",
+      "newTitle": "New connector",
+      "add": "Add a connector",
+      "empty": "No connectors configured. Add an integration to sync your data.",
+      "typeSelector": {
+        "notion": "Notion",
+        "notionDescription": "Synchronize your posts with a Notion database.",
+        "github": "GitHub",
+        "githubDescription": "Synchronize your posts with GitHub issues, discussions or projects.",
+        "comingSoon": "(coming soon)"
+      },
       "enabled": "Active",
       "disabled": "Disabled",
       "lastSync": "Last sync: {date}",

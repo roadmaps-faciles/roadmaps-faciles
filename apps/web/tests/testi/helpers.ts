@@ -398,7 +398,7 @@ export function fakeIntegration(overrides = {}) {
       databaseName: "Test DB",
       propertyMapping: { title: "Name" },
       statusMapping: {},
-      boardMapping: { "opt-1": { localId: 1, notionName: "Board" } },
+      boardMapping: { "opt-1": { localId: 1, remoteName: "Board" } },
       syncDirection: "outbound" as const,
     },
     enabled: true,

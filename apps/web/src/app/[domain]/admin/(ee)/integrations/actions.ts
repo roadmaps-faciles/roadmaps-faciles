@@ -1,11 +1,13 @@
 "use server";
 
+import { type Session } from "next-auth";
 import { revalidatePath } from "next/cache";
 
 import { assertEntitlement } from "@/lib/ee/entitlements";
-import { type IntegrationConfig } from "@/lib/ee/integration-provider/types";
+import { type GitHubSourceType, type IntegrationConfig, type RemoteDatabase, type RemoteDatabaseSchema } from "@/lib/ee/integration-provider/types";
 import { assertFeature } from "@/lib/feature-flags";
 import { ADDON_TYPE } from "@/lib/model/Organization";
+import { type Tenant } from "@/lib/model/Tenant";
 import { auth } from "@/lib/next-auth/auth";
 import {
   boardRepo,
@@ -19,6 +21,8 @@ import { type TenantIntegration } from "@/prisma/client";
 import { CreateBoard } from "@/useCases/boards/CreateBoard";
 import { CreateIntegration } from "@/useCases/ee/integrations/CreateIntegration";
 import { DeleteIntegration } from "@/useCases/ee/integrations/DeleteIntegration";
+import { type GetGitHubRepositoriesOutput, GetGitHubRepositories } from "@/useCases/ee/integrations/GetGitHubRepositories";
+import { GetGitHubRepositorySchema } from "@/useCases/ee/integrations/GetGitHubRepositorySchema";
 import { type GetNotionDatabasesOutput, GetNotionDatabases } from "@/useCases/ee/integrations/GetNotionDatabases";
 import { GetNotionDatabaseSchema } from "@/useCases/ee/integrations/GetNotionDatabaseSchema";
 import { GetSyncRuns } from "@/useCases/ee/integrations/GetSyncRuns";
@@ -27,19 +31,32 @@ import { SyncIntegration } from "@/useCases/ee/integrations/SyncIntegration";
 import { TestIntegrationConnection } from "@/useCases/ee/integrations/TestIntegrationConnection";
 import { UpdateIntegration } from "@/useCases/ee/integrations/UpdateIntegration";
 import { CreatePostStatus } from "@/useCases/post_statuses/CreatePostStatus";
-import { audit, AuditAction, getRequestContext } from "@/utils/audit";
+import { type RequestContext, audit, AuditAction, getRequestContext } from "@/utils/audit";
 import { assertTenantAdmin, assertTenantModerator } from "@/utils/auth";
 import { type ServerActionResponse } from "@/utils/next";
 import { getDomainFromHost, getTenantFromDomain } from "@/utils/tenant";
 
+type IntegrationContext = {
+  domain: string;
+  reqCtx: RequestContext;
+  session: Session;
+  tenant: Tenant;
+};
+
+async function withIntegrationContext(role: "admin" | "moderator" = "admin"): Promise<IntegrationContext> {
+  await assertFeature("integrations", await auth());
+  const domain = await getDomainFromHost();
+  const session = role === "admin" ? await assertTenantAdmin(domain) : await assertTenantModerator(domain);
+  const tenant = await getTenantFromDomain(domain);
+  await assertEntitlement(tenant.id, ADDON_TYPE.INTEGRATIONS);
+  const reqCtx = await getRequestContext();
+  return { domain, reqCtx, session, tenant };
+}
+
 export const testNotionConnection = async (data: {
   apiKey: string;
 }): Promise<ServerActionResponse<{ botName?: string; success: boolean }>> => {
-  await assertFeature("integrations", await auth());
-  const domain = await getDomainFromHost();
-  await assertTenantAdmin(domain);
-  const tenantForEntitlement = await getTenantFromDomain(domain);
-  await assertEntitlement(tenantForEntitlement.id, ADDON_TYPE.INTEGRATIONS);
+  await withIntegrationContext();
 
   try {
     const useCase = new TestIntegrationConnection();
@@ -53,11 +70,7 @@ export const testNotionConnection = async (data: {
 export const fetchNotionDatabases = async (data: {
   apiKey: string;
 }): Promise<ServerActionResponse<GetNotionDatabasesOutput>> => {
-  await assertFeature("integrations", await auth());
-  const domain = await getDomainFromHost();
-  await assertTenantAdmin(domain);
-  const tenantForEntitlement = await getTenantFromDomain(domain);
-  await assertEntitlement(tenantForEntitlement.id, ADDON_TYPE.INTEGRATIONS);
+  await withIntegrationContext();
 
   try {
     const useCase = new GetNotionDatabases();
@@ -72,11 +85,7 @@ export const fetchNotionDatabaseSchema = async (data: {
   apiKey: string;
   databaseId: string;
 }): Promise<ServerActionResponse<Awaited<ReturnType<GetNotionDatabaseSchema["execute"]>>>> => {
-  await assertFeature("integrations", await auth());
-  const domain = await getDomainFromHost();
-  await assertTenantAdmin(domain);
-  const tenantForEntitlement = await getTenantFromDomain(domain);
-  await assertEntitlement(tenantForEntitlement.id, ADDON_TYPE.INTEGRATIONS);
+  await withIntegrationContext();
 
   try {
     const useCase = new GetNotionDatabaseSchema();
@@ -91,14 +100,10 @@ export const createIntegration = async (data: {
   config: IntegrationConfig;
   name: string;
   syncIntervalMinutes?: number;
+  type?: "GITHUB" | "NOTION";
   unmappedStatusOptions?: Array<{ id: string; name: string }>;
 }): Promise<ServerActionResponse<TenantIntegration>> => {
-  await assertFeature("integrations", await auth());
-  const domain = await getDomainFromHost();
-  const session = await assertTenantAdmin(domain);
-  const tenant = await getTenantFromDomain(domain);
-  await assertEntitlement(tenant.id, ADDON_TYPE.INTEGRATIONS);
-  const reqCtx = await getRequestContext();
+  const { reqCtx, session, tenant } = await withIntegrationContext();
 
   try {
     const config = { ...data.config };
@@ -141,12 +146,12 @@ export const createIntegration = async (data: {
     if (data.unmappedStatusOptions?.length) {
       const existingStatuses = await postStatusRepo.findAllForTenant(tenant.id);
       const createStatusUC = new CreatePostStatus(postStatusRepo);
-      const newMappings = new Map<string, { localId: number; notionName: string }>();
+      const newMappings = new Map<string, { localId: number; remoteName: string }>();
       for (const opt of data.unmappedStatusOptions) {
         const key = String(opt.id);
         const existing = existingStatuses.find(s => s.name === opt.name);
         if (existing) {
-          newMappings.set(key, { localId: existing.id, notionName: opt.name });
+          newMappings.set(key, { localId: existing.id, remoteName: opt.name });
         } else {
           const status = await createStatusUC.execute({
             tenantId: tenant.id,
@@ -154,7 +159,7 @@ export const createIntegration = async (data: {
             color: "grey",
             showInRoadmap: true,
           });
-          newMappings.set(key, { localId: status.id, notionName: opt.name });
+          newMappings.set(key, { localId: status.id, remoteName: opt.name });
           existingStatuses.push(status); // Avoid duplicate creation within the same batch
         }
       }
@@ -164,7 +169,7 @@ export const createIntegration = async (data: {
     const useCase = new CreateIntegration(integrationRepo);
     const integration = await useCase.execute({
       tenantId: tenant.id,
-      type: "NOTION",
+      type: data.type ?? "NOTION",
       name: data.name,
       config,
       syncIntervalMinutes: data.syncIntervalMinutes,
@@ -203,12 +208,7 @@ export const updateIntegration = async (data: {
   name?: string;
   syncIntervalMinutes?: null | number;
 }): Promise<ServerActionResponse<TenantIntegration>> => {
-  await assertFeature("integrations", await auth());
-  const domain = await getDomainFromHost();
-  const session = await assertTenantAdmin(domain);
-  const tenant = await getTenantFromDomain(domain);
-  await assertEntitlement(tenant.id, ADDON_TYPE.INTEGRATIONS);
-  const reqCtx = await getRequestContext();
+  const { reqCtx, session, tenant } = await withIntegrationContext();
 
   try {
     const useCase = new UpdateIntegration(integrationRepo);
@@ -247,12 +247,7 @@ export const deleteIntegration = async (data: {
   cleanupInboundPosts: boolean;
   id: number;
 }): Promise<ServerActionResponse<{ deletedPostCount: number }>> => {
-  await assertFeature("integrations", await auth());
-  const domain = await getDomainFromHost();
-  const session = await assertTenantAdmin(domain);
-  const tenant = await getTenantFromDomain(domain);
-  await assertEntitlement(tenant.id, ADDON_TYPE.INTEGRATIONS);
-  const reqCtx = await getRequestContext();
+  const { reqCtx, session, tenant } = await withIntegrationContext();
 
   try {
     const useCase = new DeleteIntegration(integrationRepo, integrationMappingRepo, postRepo);
@@ -290,12 +285,7 @@ export const deleteIntegration = async (data: {
 export const syncIntegration = async (data: {
   integrationId: number;
 }): Promise<ServerActionResponse<{ conflicts: number; errors: number; synced: number }>> => {
-  await assertFeature("integrations", await auth());
-  const domain = await getDomainFromHost();
-  const session = await assertTenantAdmin(domain);
-  const tenant = await getTenantFromDomain(domain);
-  await assertEntitlement(tenant.id, ADDON_TYPE.INTEGRATIONS);
-  const reqCtx = await getRequestContext();
+  const { domain, reqCtx, session, tenant } = await withIntegrationContext();
 
   try {
     const useCase = new SyncIntegration(
@@ -344,12 +334,7 @@ export const resolveSyncConflict = async (data: {
   mappingId: number;
   resolution: "local" | "remote";
 }): Promise<ServerActionResponse> => {
-  await assertFeature("integrations", await auth());
-  const domain = await getDomainFromHost();
-  const session = await assertTenantModerator(domain);
-  const tenant = await getTenantFromDomain(domain);
-  await assertEntitlement(tenant.id, ADDON_TYPE.INTEGRATIONS);
-  const reqCtx = await getRequestContext();
+  const { domain, reqCtx, session, tenant } = await withIntegrationContext("moderator");
 
   try {
     const useCase = new ResolveSyncConflict(integrationRepo, integrationMappingRepo, integrationSyncLogRepo, postRepo);
@@ -381,16 +366,64 @@ export const fetchSyncRuns = async (data: {
   integrationId: number;
   limit?: number;
 }): Promise<ServerActionResponse<Awaited<ReturnType<GetSyncRuns["execute"]>>>> => {
-  await assertFeature("integrations", await auth());
-  const domain = await getDomainFromHost();
-  await assertTenantModerator(domain);
-  const tenant = await getTenantFromDomain(domain);
-  await assertEntitlement(tenant.id, ADDON_TYPE.INTEGRATIONS);
+  const { tenant } = await withIntegrationContext("moderator");
 
   try {
     const useCase = new GetSyncRuns(integrationRepo, integrationSyncLogRepo);
     const runs = await useCase.execute({ ...data, tenantId: tenant.id });
     return { ok: true, data: runs };
+  } catch (error) {
+    return { ok: false, error: (error as Error).message };
+  }
+};
+
+// --- GitHub actions ---
+
+export const testGitHubConnection = async (data: {
+  apiKey?: string;
+  authType?: "app" | "pat";
+  installationId?: number;
+}): Promise<ServerActionResponse<{ botName?: string; success: boolean }>> => {
+  await withIntegrationContext();
+
+  try {
+    const useCase = new TestIntegrationConnection();
+    const result = await useCase.execute({ type: "GITHUB", ...data });
+    return { ok: true, data: { success: result.success, botName: result.botName } };
+  } catch (error) {
+    return { ok: false, error: (error as Error).message };
+  }
+};
+
+export const fetchGitHubRepositories = async (data: {
+  apiKey?: string;
+  authType?: "app" | "pat";
+  installationId?: number;
+}): Promise<ServerActionResponse<RemoteDatabase[]>> => {
+  await withIntegrationContext();
+
+  try {
+    const useCase = new GetGitHubRepositories();
+    const repos = await useCase.execute(data);
+    return { ok: true, data: repos };
+  } catch (error) {
+    return { ok: false, error: (error as Error).message };
+  }
+};
+
+export const fetchGitHubRepositorySchema = async (data: {
+  apiKey?: string;
+  authType?: "app" | "pat";
+  installationId?: number;
+  repoFullName: string;
+  sourceType?: GitHubSourceType;
+}): Promise<ServerActionResponse<RemoteDatabaseSchema>> => {
+  await withIntegrationContext();
+
+  try {
+    const useCase = new GetGitHubRepositorySchema();
+    const schema = await useCase.execute(data);
+    return { ok: true, data: schema };
   } catch (error) {
     return { ok: false, error: (error as Error).message };
   }

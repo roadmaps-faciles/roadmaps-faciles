@@ -41,5 +41,8 @@
     "cva",
     "cn",
     "clsx"
+  ],
+  "vsicons.associations.files": [
+    { "extensions": [ ".rm-worktree-info.json" ], "format": "svg", "filename": true, "icon": "config" }
   ]
 }

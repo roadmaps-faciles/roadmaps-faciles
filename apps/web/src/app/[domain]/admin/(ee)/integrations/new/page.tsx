@@ -8,22 +8,38 @@ import { ADDON_TYPE } from "@/lib/model/Organization";
 import { auth } from "@/lib/next-auth/auth";
 import { boardRepo, postStatusRepo } from "@/lib/repo";
 
+import { IntegrationTypeSelector } from "./IntegrationTypeSelector";
 import { NotionWizard } from "./NotionWizard";
 
 const NewIntegrationPage = DomainPageHOP()(async props => {
   const { tenant } = props._data;
   await assertFeature("integrations", await auth());
-  const [boards, statuses, t] = await Promise.all([
-    boardRepo.findAllForTenant(tenant.id),
-    postStatusRepo.findAllForTenant(tenant.id),
-    getTranslations("domainAdmin.integrations"),
-  ]);
+  const searchParams = await (props as unknown as { searchParams: Promise<Record<string, string | undefined>> })
+    .searchParams;
+  const type = searchParams.type?.toUpperCase();
+  const t = await getTranslations("domainAdmin.integrations");
+
+  if (type === "NOTION") {
+    const [boards, statuses] = await Promise.all([
+      boardRepo.findAllForTenant(tenant.id),
+      postStatusRepo.findAllForTenant(tenant.id),
+    ]);
+
+    return (
+      <>
+        <AdminPageHeader title={t("newTitle")} />
+        <EntitlementGate tenantId={tenant.id} addon={ADDON_TYPE.INTEGRATIONS}>
+          <NotionWizard boards={boards} statuses={statuses} />
+        </EntitlementGate>
+      </>
+    );
+  }
 
   return (
     <>
       <AdminPageHeader title={t("newTitle")} />
       <EntitlementGate tenantId={tenant.id} addon={ADDON_TYPE.INTEGRATIONS}>
-        <NotionWizard boards={boards} statuses={statuses} />
+        <IntegrationTypeSelector />
       </EntitlementGate>
     </>
   );

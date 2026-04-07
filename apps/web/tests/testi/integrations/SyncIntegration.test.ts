@@ -88,7 +88,7 @@ describe("SyncIntegration", () => {
         databaseName: "DB",
         propertyMapping: { title: "Name" },
         statusMapping: {},
-        boardMapping: { "opt-1": { localId: 10, notionName: "Board" } },
+        boardMapping: { "opt-1": { localId: 10, remoteName: "Board" } },
         syncDirection: "outbound",
       },
     });
@@ -204,8 +204,8 @@ describe("SyncIntegration", () => {
         databaseId: "db-1",
         databaseName: "DB",
         propertyMapping: { title: "Name" },
-        statusMapping: { "status-opt-1": { localId: 3, notionName: "En cours" } },
-        boardMapping: { "board-opt-1": { localId: 10, notionName: "Board" } },
+        statusMapping: { "status-opt-1": { localId: 3, remoteName: "En cours" } },
+        boardMapping: { "board-opt-1": { localId: 10, remoteName: "Board" } },
         syncDirection: "inbound",
       },
     });
@@ -219,8 +219,8 @@ describe("SyncIntegration", () => {
           description: "From Notion",
           remoteUrl: "https://notion.so/page-1",
           lastEditedTime: new Date().toISOString(),
-          boardNotionOptionId: "board-opt-1",
-          statusNotionOptionId: "status-opt-1",
+          boardRemoteOptionId: "board-opt-1",
+          statusRemoteOptionId: "status-opt-1",
           tags: ["tag1"],
         },
       ]);
@@ -257,7 +257,7 @@ describe("SyncIntegration", () => {
           description: "Updated",
           remoteUrl: "https://notion.so/page-1",
           lastEditedTime: new Date().toISOString(),
-          boardNotionOptionId: "board-opt-1",
+          boardRemoteOptionId: "board-opt-1",
         },
       ]);
       mockMappingRepo.findByRemoteId.mockResolvedValue(
@@ -282,7 +282,7 @@ describe("SyncIntegration", () => {
           title: "No Board Match",
           remoteUrl: "https://notion.so/page-2",
           lastEditedTime: new Date().toISOString(),
-          // no boardNotionOptionId
+          // no boardRemoteOptionId
         },
       ]);
       mockMappingRepo.findByRemoteId.mockResolvedValue(null);
@@ -334,7 +334,7 @@ describe("SyncIntegration", () => {
           title: "Will Fail",
           remoteUrl: "https://notion.so/page-err",
           lastEditedTime: new Date().toISOString(),
-          boardNotionOptionId: "board-opt-1",
+          boardRemoteOptionId: "board-opt-1",
         },
       ]);
       mockMappingRepo.findByRemoteId.mockRejectedValue(new Error("DB crash"));
@@ -356,7 +356,7 @@ describe("SyncIntegration", () => {
         databaseName: "DB",
         propertyMapping: { title: "Name" },
         statusMapping: {},
-        boardMapping: { "opt-1": { localId: 10, notionName: "Board" } },
+        boardMapping: { "opt-1": { localId: 10, remoteName: "Board" } },
         syncDirection: "bidirectional",
       },
     });
@@ -375,7 +375,7 @@ describe("SyncIntegration", () => {
           title: "Remote Update",
           remoteUrl: "https://notion.so/page-conflict",
           lastEditedTime: new Date().toISOString(),
-          boardNotionOptionId: "opt-1",
+          boardRemoteOptionId: "opt-1",
         },
       ]);
       mockMappingRepo.findByRemoteId.mockResolvedValue(

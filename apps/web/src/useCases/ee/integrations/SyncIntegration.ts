@@ -429,8 +429,8 @@ export class SyncIntegration implements UseCase<SyncIntegrationInput, SyncIntegr
 
       // Resolve board from the mapping config
       let boardId: number | undefined;
-      if (change.boardNotionOptionId && config.boardMapping[change.boardNotionOptionId]) {
-        boardId = config.boardMapping[change.boardNotionOptionId].localId;
+      if (change.boardRemoteOptionId && config.boardMapping[change.boardRemoteOptionId]) {
+        boardId = config.boardMapping[change.boardRemoteOptionId].localId;
       } else {
         const firstBoard = Object.values(config.boardMapping)[0];
         boardId = firstBoard?.localId ?? config.defaultBoardId;
@@ -449,8 +449,8 @@ export class SyncIntegration implements UseCase<SyncIntegrationInput, SyncIntegr
 
       // Resolve status
       let postStatusId: null | number = null;
-      if (change.statusNotionOptionId && config.statusMapping[change.statusNotionOptionId]) {
-        postStatusId = config.statusMapping[change.statusNotionOptionId].localId;
+      if (change.statusRemoteOptionId && config.statusMapping[change.statusRemoteOptionId]) {
+        postStatusId = config.statusMapping[change.statusRemoteOptionId].localId;
       }
 
       if (existingMapping) {

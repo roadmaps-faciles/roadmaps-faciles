@@ -223,6 +223,18 @@ export const config = {
     encryptionKey: ensureApiEnvVar(process.env.INTEGRATION_ENCRYPTION_KEY, ""),
     cronManager: ensureApiEnvVar<"noop" | "route">(process.env.INTEGRATION_CRON_MANAGER, "noop"),
     cronSecret: ensureApiEnvVar(process.env.INTEGRATION_CRON_SECRET, ""),
+    github: {
+      appId: ensureApiEnvVar(process.env.GITHUB_APP_ID, ""),
+      appPrivateKey: ensureApiEnvVar(
+        process.env.GITHUB_APP_PRIVATE_KEY,
+        v => Buffer.from(v, "base64").toString("utf-8"),
+        "",
+      ),
+      appClientId: ensureApiEnvVar(process.env.GITHUB_APP_CLIENT_ID, ""),
+      appClientSecret: ensureApiEnvVar(process.env.GITHUB_APP_CLIENT_SECRET, ""),
+      appWebhookSecret: ensureApiEnvVar(process.env.GITHUB_APP_WEBHOOK_SECRET, ""),
+      appName: ensureApiEnvVar(process.env.GITHUB_APP_NAME, "roadmaps-faciles"),
+    },
   },
   domainVerification: {
     cronSecret: ensureApiEnvVar(process.env.DOMAIN_VERIFICATION_CRON_SECRET, ""),
