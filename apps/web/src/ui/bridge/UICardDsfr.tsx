@@ -2,6 +2,7 @@
 
 import { Card as DsfrCard, type CardProps as DsfrCardProps } from "@codegouvfr/react-dsfr/Card";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
+import Link from "next/link";
 import { type ReactNode, useSyncExternalStore } from "react";
 
 import { type UICardProps } from "./UICard";
@@ -68,9 +69,9 @@ export const UICardDsfr = ({
           <div className="fr-card__content">
             {href ? (
               <TitleTag className="fr-card__title">
-                <a href={href} {...(linkTarget && { target: linkTarget })}>
+                <Link href={href} {...(linkTarget && { target: linkTarget })}>
                   {title}
-                </a>
+                </Link>
               </TitleTag>
             ) : (
               <TitleTag className="fr-card__title">{title}</TitleTag>

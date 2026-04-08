@@ -82,9 +82,7 @@ const DashboardLayout = async ({ children, modal, params }: LayoutProps<"/[domai
       </ClientAnimate>
 
       <ClientOnly>
-        <ClientBodyPortal>
-          <ClientAnimate animateOptions={{ duration: 300 }}>{modal}</ClientAnimate>
-        </ClientBodyPortal>
+        <ClientBodyPortal>{modal}</ClientBodyPortal>
       </ClientOnly>
     </>
   );

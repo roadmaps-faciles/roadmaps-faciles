@@ -10,23 +10,51 @@ export const PostSimpleModal = (props: SimpleModalProps) => {
   const router = useRouter();
   const dialogRef = useRef<HTMLDialogElement>(null);
 
+  const fadeOutAndClose = useCallback(() => {
+    const ref = dialogRef.current;
+    if (!ref) return;
+    ref.classList.remove("modal-entered");
+    const onEnd = () => {
+      ref.removeEventListener("transitionend", onEnd);
+      router.back();
+    };
+    ref.addEventListener("transitionend", onEnd);
+  }, [router]);
+
   const handleClose = useCallback(
     (e: SimpleEvent) => {
       if (e.target !== dialogRef.current) return;
       e.preventDefault();
-      router.back();
+      fadeOutAndClose();
     },
-    [router],
+    [fadeOutAndClose],
   );
 
   useEffect(() => {
     const ref = dialogRef.current;
-    ref?.addEventListener("click", handleClose);
+    if (!ref) return;
+
+    if (!ref.open) {
+      ref.setAttribute("open", "");
+    }
+    requestAnimationFrame(() => {
+      ref.classList.add("modal-entered");
+    });
+
+    ref.addEventListener("click", handleClose);
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        fadeOutAndClose();
+      }
+    };
+    ref.addEventListener("keydown", handleEsc);
 
     return () => {
-      ref?.removeEventListener("click", handleClose);
+      ref.removeEventListener("click", handleClose);
+      ref.removeEventListener("keydown", handleEsc);
     };
-  }, [dialogRef, handleClose]);
+  }, [dialogRef, handleClose, fadeOutAndClose]);
 
   const getOnClickFn = useCallback(
     (props: { onClick?(e: SimpleEvent): void }, refresh?: boolean): SimpleModalProps.ActionAreaButtonProps["onClick"] =>
@@ -81,7 +109,7 @@ export const PostSimpleModal = (props: SimpleModalProps) => {
           ...props.closeButtonProps?.nativeButtonProps,
           onClick(e) {
             props.closeButtonProps?.nativeButtonProps?.onClick?.(e);
-            router.back();
+            fadeOutAndClose();
           },
         },
       }}
