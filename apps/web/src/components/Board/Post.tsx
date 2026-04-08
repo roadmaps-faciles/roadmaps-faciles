@@ -1,11 +1,14 @@
 import { cn } from "@roadmaps-faciles/ui";
+import { useLocale } from "next-intl";
 import { MarkdownHooks } from "react-markdown";
 import remarkDirective from "remark-directive";
 import remarkDirectiveRehype from "remark-directive-rehype";
 import remarkGfm from "remark-gfm";
 
 import { type EnrichedPost } from "@/app/[domain]/(default)/board/[boardSlug]/actions";
+import { useUI } from "@/ui";
 import { UIBadge, UICard, UITag } from "@/ui/bridge";
+import { formatRelativeDate } from "@/utils/date";
 
 import { LikeButton } from "./LikeButton";
 
@@ -31,6 +34,9 @@ export const BoardPost = ({
   dirtyDomainFixer,
   linkTarget,
 }: BoardPostProps) => {
+  const locale = useLocale();
+  const isDsfr = useUI() === "Dsfr";
+
   return (
     <UICard
       wrapperClassName={cn(!first && "scroll-mt-[var(--header-scroll-offset)]")}
@@ -39,29 +45,44 @@ export const BoardPost = ({
       linkTarget={linkTarget}
       titleAs="h3"
       footer={
-        <span className="flex justify-between items-center w-full">
-          <span>
-            {post.user?.name ?? post.sourceLabel ?? "Anonyme"}
-            {post.editedAt && <span className="text-xs font-light ml-1">(modifié)</span>}
-          </span>
-          {post._count.comments > 0 && (
-            <UITag
-              className="cursor-pointer"
-              iconId="fr-icon-discuss-line"
-              as="span"
-              size="sm"
-              onClick={() => {
-                const url = dirtyDomainFixer(`/post/${post.id}`);
-                if (linkTarget) {
-                  window.open(url, linkTarget, "noopener,noreferrer");
-                } else {
-                  location.href = url;
-                }
-              }}
-            >
-              <b>{post._count.comments}</b>&nbsp;commentaire{post._count.comments > 1 ? "s" : ""}
-            </UITag>
+        <span
+          className={cn(
+            "flex items-center justify-between py-2 text-xs",
+            isDsfr
+              ? "-mx-8 -mb-px w-[calc(100%+4rem)] px-8 bg-[var(--background-contrast-grey)] text-[var(--text-mention-grey)]"
+              : "-mx-3 -mb-3 w-[calc(100%+1.5rem)] rounded-b-xl bg-muted/50 px-3 text-muted-foreground",
           )}
+        >
+          <span className="truncate">
+            {post.user?.name ?? post.sourceLabel ?? "Anonyme"}
+            <span className="mx-1">·</span>
+            {formatRelativeDate(new Date(post.createdAt), locale)}
+            {post.editedAt && <span className="ml-1 font-light">(modifié)</span>}
+          </span>
+          <UITag
+            className={cn(
+              "shrink-0",
+              isDsfr ? "!bg-[var(--background-default-grey)]" : "!bg-background",
+              post._count.comments > 0 ? "cursor-pointer" : "opacity-50",
+            )}
+            iconId="fr-icon-discuss-line"
+            as="span"
+            size="sm"
+            onClick={post._count.comments > 0 ? () => {
+              const url = dirtyDomainFixer(`/post/${post.id}`);
+              if (linkTarget) {
+                window.open(url, linkTarget, "noopener,noreferrer");
+              } else {
+                location.href = url;
+              }
+            } : undefined}
+          >
+            {post._count.comments > 0 ? (
+              <><b>{post._count.comments}</b>&nbsp;commentaire{post._count.comments > 1 ? "s" : ""}</>
+            ) : (
+              <>Aucun commentaire</>
+            )}
+          </UITag>
         </span>
       }
       subtitle={
