@@ -56,6 +56,7 @@ Pièges connus et solutions dans le codebase Roadmaps Faciles.
 - File upload MIME type: `file.type` from `FormData` is client-controlled — server validates against `ALLOWED_TYPES` set but does NOT check magic bytes. A `file-type` npm package could be added for magic bytes validation if stricter security is needed
 - `tw-animate-css` is incompatible with Sass — Sass cannot parse Tailwind 4 `@utility`/`@property` directives. Import via a separate `.css` file (processed by PostCSS directly), not inside `.scss` files
 - HTTP status codes: never utiliser de magic numbers (`{ status: 400 }`) — toujours `import { StatusCodes } from "http-status-codes"` et `{ status: StatusCodes.BAD_REQUEST }`. Le package est déjà installé et utilisé dans plusieurs route handlers
+- GraphQL pagination in async generators: `const result = await octokit.graphql<{...}>()` inside a `while(shouldContinue)` loop causes TS7022 circular inference when destructuring fields that feed back into `shouldContinue`. Fix: extract the response type into a named interface and annotate explicitly (`const response: MyResponseType = await octokit.graphql(...)`)
 
 ## Tooling
 

@@ -189,12 +189,19 @@
   - `DNS_ZONE_NAME` env var: when zone differs from rootDomain (nested subdomains), `computeDnsNames()` in `src/lib/ee/dns-provider/dnsUtils.ts` computes zone-relative subdomain
   - DNS errors are non-blocking in use cases (try/catch + `logger.warn`)
   - `CreateNewTenantOutput` is `{ tenant: TenantWithSettings, dns?: DnsProvisionResult }` — access `result.tenant.id`, not `result.id`
-- Integration providers: `src/lib/ee/integration-provider/` — `IIntegrationProvider` abstraction + factory `createIntegrationProvider(type, config)` (Notion only for now)
+- Integration providers: `src/lib/ee/integration-provider/` — `IIntegrationProvider` abstraction + factory `createIntegrationProvider(type, config)` (Notion, GitHub)
   - Per-tenant instantiation (not singleton) — each integration gets its own provider instance with decrypted credentials
   - Encryption: AES-256-GCM with scrypt key derivation in `src/lib/ee/integration-provider/encryption.ts` — env var `INTEGRATION_ENCRYPTION_KEY`
   - Cron: `POST /api/ee/cron/integrations` route handler with Bearer auth (`INTEGRATION_CRON_SECRET`)
   - Inbound posts are readonly — double guard: UI (`canEdit=false`/`canDelete=false` in PostPageHOP) + server actions (reject with i18n error)
   - Notion SDK v5.9.0: uses `dataSources.query()` (not `databases.query()`), `isFullDataSource` type guard, search filter `"data_source"` (not `"database"`)
+  - GitHub provider: `src/lib/ee/integration-provider/impl/github/` — 3 source types via `IGitHubSource` interface (issues REST, discussions GraphQL, project v2 GraphQL)
+  - GitHub auth: dual mode App (`@octokit/auth-app`, auto-refresh) + PAT fallback — config in `config.integrations.github.*` (`GITHUB_APP_ID`, `GITHUB_APP_PRIVATE_KEY` base64, `GITHUB_APP_CLIENT_ID`, `GITHUB_APP_CLIENT_SECRET`, `GITHUB_APP_WEBHOOK_SECRET`, `GITHUB_APP_NAME`)
+  - GitHub labels namespaced: `roadmaps-faciles:status:<name>`, `roadmaps-faciles:board:<name>`, `roadmaps-faciles:managed` — auto-created at setup, not used in project source (has its own Status field)
+  - GitHub webhook: `POST /api/ee/integrations/github/webhook` — HMAC signature verification, bot detection via `sender.login === appName[bot]`, idempotence via `X-GitHub-Delivery`
+  - GitHub anti-loop: bot sender check (primary) + Redis `github-sync-lock:{postId}` TTL 30s (secondary) — prevents webhook→outbound→webhook cycles
+  - GitHub outbound: `pushPostToGitHub()` fire-and-forget on post mutations, checks sync lock before pushing
+  - Server actions: `withIntegrationContext(role)` helper in `actions.ts` centralizes auth/feature/entitlement boilerplate for all integration actions
   - Sync architecture: `syncRunId` (UUID) groups all logs per sync run; phase markers (SKIPPED + `message: "phase_marker"`) ensure `findSyncRuns` derives correct direction even for empty phases
   - Bidirectional conflict detection: compares `post.updatedAt > mapping.lastSyncAt` — detected conflicts stored as `CONFLICT` status, resolved via `ResolveSyncConflict` use case (local=push outbound, remote=pull inbound)
   - SSE sync progress: `/api/ee/integrations/[id]/sync` route uses `ReadableStream` + `TextEncoder` for Server-Sent Events; `onProgress` callback is best-effort (swallows errors so client disconnect doesn't abort sync)
