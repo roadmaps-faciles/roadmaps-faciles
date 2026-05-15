@@ -297,10 +297,7 @@ describe("SyncIntegration — GitHub provider", () => {
 
       const result = await useCase.execute(baseInput);
 
-      expect(mockMappingRepo.update).toHaveBeenCalledWith(
-        21,
-        expect.objectContaining({ syncStatus: "SYNCED" }),
-      );
+      expect(mockMappingRepo.update).toHaveBeenCalledWith(21, expect.objectContaining({ syncStatus: "SYNCED" }));
       expect(result.synced).toBe(1);
       expect(result.conflicts).toBe(0);
     });

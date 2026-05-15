@@ -17,13 +17,15 @@ import { GitHubSourceStep } from "./steps/GitHubSourceStep";
 import { useGitHubWizardStore } from "./useGitHubWizardStore";
 
 interface GitHubWizardProps {
+  appName: string;
   boards: Board[];
+  initialInstallationId?: number;
   statuses: PostStatus[];
 }
 
 const STEP_COUNT = 5;
 
-export const GitHubWizard = ({ boards, statuses }: GitHubWizardProps) => {
+export const GitHubWizard = ({ appName, boards, initialInstallationId, statuses }: GitHubWizardProps) => {
   const t = useTranslations("domainAdmin.integrations");
   const tWizard = useTranslations("domainAdmin.integrations.wizard");
   const router = useRouter();
@@ -39,11 +41,15 @@ export const GitHubWizard = ({ boards, statuses }: GitHubWizardProps) => {
     selectedRepoId,
     schema,
     sourceType,
+    setAppInstallation,
   } = useGitHubWizardStore();
 
   useEffect(() => {
     reset();
-  }, [reset]);
+    if (initialInstallationId) {
+      setAppInstallation(initialInstallationId, "");
+    }
+  }, [reset, initialInstallationId, setAppInstallation]);
 
   const canGoNext = (() => {
     switch (step) {
@@ -124,7 +130,7 @@ export const GitHubWizard = ({ boards, statuses }: GitHubWizardProps) => {
       </nav>
 
       <div className="mb-8">
-        {step === 1 && <GitHubConnectionStep />}
+        {step === 1 && <GitHubConnectionStep appName={appName} />}
         {step === 2 && <GitHubSourceStep />}
         {step === 3 && <GitHubRepositoryStep />}
         {step === 4 && <GitHubMappingStep boards={boards} statuses={statuses} />}

@@ -57,6 +57,11 @@ export async function POST(request: Request) {
 
   const payload = JSON.parse(body) as WebhookPayload;
 
+  if (event === "ping") {
+    logger.info({ deliveryId }, "GitHub webhook ping received");
+    return NextResponse.json({ ok: true });
+  }
+
   if (isAppBotSender(payload.sender)) {
     logger.debug({ event, deliveryId }, "GitHub webhook skipped — sent by app bot");
     return NextResponse.json({ ok: true, skipped: true });
@@ -94,9 +99,6 @@ export async function POST(request: Request) {
       }
       break;
     }
-    case "ping":
-      logger.info("GitHub webhook ping received");
-      break;
     default:
       logger.debug({ event }, "GitHub webhook — unhandled event type");
   }

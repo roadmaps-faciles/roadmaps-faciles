@@ -726,6 +726,11 @@
       },
       "github": {
         "wizard": {
+          "authApp": "GitHub App (recommandé)",
+          "authPat": "Personal Access Token",
+          "appDescription": "Installez l'app GitHub Roadmaps Faciles sur votre dépôt ou organisation. C'est le mode recommandé : webhooks temps réel, permissions fine-grained, pas de token à gérer.",
+          "installApp": "Installer l'app GitHub",
+          "appConnected": "App installée avec succès. Installation #{installationId} ({botName}).",
           "connectionDescription": "Entrez votre Personal Access Token GitHub. Vous pouvez en créer un dans Settings > Developer settings > Personal access tokens.",
           "apiKeyLabel": "Personal Access Token",
           "apiKeyHint": "Commence par ghp_ ou github_pat_",

@@ -13,11 +13,13 @@ export type GitHubWizardStep = 1 | 2 | 3 | 4 | 5;
 
 interface GitHubWizardState {
   apiKey: string;
+  authType: "app" | "pat";
   boardMapping: Record<string, ValueMapping>;
   connectionBotName: string;
   connectionStatus: "error" | "idle" | "success" | "testing";
   errorMessage: string;
   includePullRequests: boolean;
+  installationId: null | number;
   integrationName: string;
   loadingRepos: boolean;
   loadingSchema: boolean;
@@ -37,6 +39,8 @@ interface GitHubWizardActions {
   goPrev: () => void;
   reset: () => void;
   setApiKey: (apiKey: string) => void;
+  setAppInstallation: (installationId: number, botName: string) => void;
+  setAuthType: (authType: "app" | "pat") => void;
   setBoardMapping: (optionId: string, mapping: ValueMapping) => void;
   setConnectionError: (error: string) => void;
   setConnectionStatus: (status: GitHubWizardState["connectionStatus"]) => void;
@@ -57,6 +61,8 @@ interface GitHubWizardActions {
 const initialState: GitHubWizardState = {
   step: 1,
   apiKey: "",
+  authType: "pat",
+  installationId: null,
   connectionStatus: "idle",
   connectionBotName: "",
   errorMessage: "",
@@ -84,6 +90,30 @@ export const useGitHubWizardStore = create<GitHubWizardActions & GitHubWizardSta
       set(draft => {
         draft.apiKey = apiKey;
         draft.connectionStatus = "idle";
+        draft.errorMessage = "";
+      });
+    },
+
+    setAuthType: (authType: "app" | "pat") => {
+      set(draft => {
+        draft.authType = authType;
+        draft.connectionStatus = "idle";
+        draft.errorMessage = "";
+        if (authType === "pat") {
+          draft.installationId = null;
+        } else {
+          draft.apiKey = "";
+        }
+      });
+    },
+
+    setAppInstallation: (installationId: number, botName: string) => {
+      set(draft => {
+        draft.authType = "app";
+        draft.installationId = installationId;
+        draft.connectionStatus = "success";
+        draft.connectionBotName = botName;
+        draft.apiKey = "";
         draft.errorMessage = "";
       });
     },
@@ -206,8 +236,9 @@ export const useGitHubWizardStore = create<GitHubWizardActions & GitHubWizardSta
       const state = get();
       const selectedRepo = state.repositories.find(r => r.id === state.selectedRepoId);
       return {
-        apiKey: state.apiKey,
-        authType: "pat",
+        apiKey: state.authType === "pat" ? state.apiKey : "",
+        authType: state.authType,
+        installationId: state.installationId ?? undefined,
         databaseId: state.selectedRepoId,
         databaseName: selectedRepo?.name ?? "",
         sourceType: state.sourceType,

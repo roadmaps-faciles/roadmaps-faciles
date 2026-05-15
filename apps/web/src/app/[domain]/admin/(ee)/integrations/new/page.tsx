@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { EntitlementGate } from "@/components/admin/EntitlementGate";
+import { config } from "@/config";
 import { DomainPageHOP } from "@/lib/DomainPage";
 import { assertFeature } from "@/lib/feature-flags";
 import { ADDON_TYPE } from "@/lib/model/Organization";
@@ -33,7 +34,14 @@ const NewIntegrationPage = DomainPageHOP()(async props => {
           {type === "NOTION" ? (
             <NotionWizard boards={boards} statuses={statuses} />
           ) : (
-            <GitHubWizard boards={boards} statuses={statuses} />
+            <GitHubWizard
+              appName={config.integrations.github.appName}
+              boards={boards}
+              initialInstallationId={
+                searchParams.github_installation_id ? Number(searchParams.github_installation_id) : undefined
+              }
+              statuses={statuses}
+            />
           )}
         </EntitlementGate>
       </>
