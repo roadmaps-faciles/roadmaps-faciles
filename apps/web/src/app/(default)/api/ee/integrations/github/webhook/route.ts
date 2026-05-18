@@ -3,8 +3,13 @@ import { NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 import { config } from "@/config";
+import { createIntegrationProvider } from "@/lib/ee/integration-provider";
+import { decrypt } from "@/lib/ee/integration-provider/encryption";
+import { acquireSyncLock, releaseSyncLock } from "@/lib/ee/integration-provider/impl/github/GitHubSyncGuard";
+import { type IntegrationConfig } from "@/lib/ee/integration-provider/types";
 import { logger } from "@/lib/logger";
-import { integrationMappingRepo, integrationRepo } from "@/lib/repo";
+import { integrationMappingRepo, integrationRepo, integrationSyncLogRepo, postRepo } from "@/lib/repo";
+import { ApplyInboundChange } from "@/useCases/ee/integrations/ApplyInboundChange";
 
 function verifySignature(payload: string, signature: string, secret: string): boolean {
   const expected = "sha256=" + createHmac("sha256", secret).update(payload).digest("hex");
@@ -14,15 +19,10 @@ function verifySignature(payload: string, signature: string, secret: string): bo
 
 interface WebhookPayload {
   action: string;
+  discussion?: { node_id: string; number: number };
   installation?: { id: number };
-  issue?: {
-    body: null | string;
-    html_url: string;
-    labels: Array<{ name: string }>;
-    number: number;
-    title: string;
-    updated_at: string;
-  };
+  issue?: { number: number };
+  projects_v2_item?: { node_id: string };
   sender?: { id: number; login: string; type: string };
 }
 
@@ -31,6 +31,30 @@ function isAppBotSender(sender: WebhookPayload["sender"]): boolean {
   if (sender.type !== "Bot") return false;
   const appName = config.integrations.github.appName;
   return sender.login === `${appName}[bot]`;
+}
+
+const INBOUND_ISSUE_ACTIONS = new Set(["opened", "edited", "labeled", "unlabeled", "closed", "reopened"]);
+const INBOUND_DISCUSSION_ACTIONS = new Set([
+  "created",
+  "edited",
+  "labeled",
+  "unlabeled",
+  "category_changed",
+  "answered",
+]);
+
+function resolveRemoteId(event: string, payload: WebhookPayload): string | undefined {
+  if (event === "issues" && payload.issue) return String(payload.issue.number);
+  if (event === "discussion" && payload.discussion) return payload.discussion.node_id;
+  if (event === "projects_v2_item" && payload.projects_v2_item) return payload.projects_v2_item.node_id;
+  return undefined;
+}
+
+function shouldProcessEvent(event: string, action: string): boolean {
+  if (event === "issues") return INBOUND_ISSUE_ACTIONS.has(action);
+  if (event === "discussion") return INBOUND_DISCUSSION_ACTIONS.has(action);
+  if (event === "projects_v2_item") return action === "edited" || action === "created";
+  return false;
 }
 
 export async function POST(request: Request) {
@@ -74,34 +98,75 @@ export async function POST(request: Request) {
 
   const integration = await integrationRepo.findByGitHubInstallationId(payload.installation.id);
 
-  if (!integration) {
-    logger.debug({ event, installationId: payload.installation.id }, "GitHub webhook — no matching integration");
+  if (!integration || !integration.enabled) {
+    logger.debug(
+      { event, installationId: payload.installation.id },
+      "GitHub webhook — no matching enabled integration",
+    );
     return NextResponse.json({ ok: true, skipped: true });
   }
 
-  logger.info({ event, deliveryId, integrationId: integration.id }, "GitHub webhook processing");
-
-  switch (event) {
-    case "issues": {
-      if (!payload.issue) break;
-      const mapping = await integrationMappingRepo.findByRemoteId(integration.id, String(payload.issue.number));
-
-      if (mapping) {
-        logger.info(
-          { action: payload.action, issueNumber: payload.issue.number, mappingId: mapping.id },
-          "GitHub webhook — issue event for existing mapping (full sync will reconcile)",
-        );
-      } else if (payload.action === "opened") {
-        logger.info(
-          { issueNumber: payload.issue.number },
-          "GitHub webhook — new issue detected (full sync will import)",
-        );
-      }
-      break;
-    }
-    default:
-      logger.debug({ event }, "GitHub webhook — unhandled event type");
+  if (!event || !shouldProcessEvent(event, payload.action)) {
+    logger.debug({ event, action: payload.action }, "GitHub webhook — event/action not handled");
+    return NextResponse.json({ ok: true, skipped: true });
   }
 
-  return NextResponse.json({ ok: true });
+  const remoteId = resolveRemoteId(event, payload);
+  if (!remoteId) {
+    logger.warn({ event, action: payload.action }, "GitHub webhook — could not resolve remoteId");
+    return NextResponse.json({ ok: true, skipped: true });
+  }
+
+  // Decrypt config and instantiate provider
+  const rawConfig = integration.config as unknown as IntegrationConfig;
+  const decryptedConfig: IntegrationConfig = {
+    ...rawConfig,
+    apiKey: rawConfig.apiKey ? decrypt(rawConfig.apiKey) : "",
+  };
+
+  // Skip if event source type doesn't match the integration's configured source
+  const sourceType = decryptedConfig.sourceType ?? "issues";
+  const expectedEvent =
+    sourceType === "issues" ? "issues" : sourceType === "discussions" ? "discussion" : "projects_v2_item";
+  if (event !== expectedEvent) {
+    logger.debug(
+      { event, sourceType, integrationId: integration.id },
+      "GitHub webhook — event doesn't match integration source type",
+    );
+    return NextResponse.json({ ok: true, skipped: true });
+  }
+
+  logger.info({ event, action: payload.action, deliveryId, integrationId: integration.id }, "GitHub webhook applying");
+
+  try {
+    const provider = createIntegrationProvider("GITHUB", decryptedConfig);
+    if (!provider.getInboundChange) {
+      logger.warn({ sourceType }, "Provider doesn't support getInboundChange — webhook skipped");
+      return NextResponse.json({ ok: true, skipped: true });
+    }
+
+    const change = await provider.getInboundChange(remoteId);
+    if (!change) {
+      logger.warn({ remoteId, sourceType }, "GitHub webhook — remote item not found, skipping");
+      return NextResponse.json({ ok: true, skipped: true });
+    }
+
+    // Lock to prevent outbound-hook reentry while we apply the inbound change
+    const existingMapping = await integrationMappingRepo.findByRemoteId(integration.id, remoteId);
+    const postIdForLock = existingMapping?.localId;
+    if (postIdForLock) await acquireSyncLock(postIdForLock);
+
+    try {
+      const apply = new ApplyInboundChange(integrationMappingRepo, integrationSyncLogRepo, postRepo);
+      const result = await apply.execute({ change, integration, config: decryptedConfig });
+      logger.info({ result, remoteId, deliveryId }, "GitHub webhook applied");
+    } finally {
+      if (postIdForLock) await releaseSyncLock(postIdForLock);
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    logger.error({ err: error, event, remoteId }, "GitHub webhook processing failed");
+    return NextResponse.json({ error: "Processing failed" }, { status: StatusCodes.INTERNAL_SERVER_ERROR });
+  }
 }

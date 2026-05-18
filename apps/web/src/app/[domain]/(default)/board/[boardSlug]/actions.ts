@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/db/prisma";
+import { notifyPostMutation } from "@/lib/ee/integration-provider/notifyPostMutation";
 import { trackServerEvent } from "@/lib/ee/tracking-provider/serverTracking";
 import { postCreated, postFirstCreated } from "@/lib/ee/tracking-provider/trackingPlan";
 import { logger } from "@/lib/logger";
@@ -247,6 +248,8 @@ export async function submitPost(data: {
         }
       });
     }
+
+    void notifyPostMutation(post.id, `https://${domain}`);
 
     revalidatePath(`/board`);
     return { ok: true, data: { pending: settings.requirePostApproval } };
