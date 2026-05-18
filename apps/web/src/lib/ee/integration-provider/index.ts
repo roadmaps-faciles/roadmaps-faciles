@@ -3,6 +3,7 @@ import "server-only";
 import { type IntegrationType } from "@/prisma/enums";
 
 import { type IIntegrationProvider } from "./IIntegrationProvider";
+import { GitHubIntegrationProvider } from "./impl/github/GitHubIntegrationProvider";
 import { NotionIntegrationProvider } from "./impl/NotionIntegrationProvider";
 import { type IntegrationConfig } from "./types";
 
@@ -16,6 +17,8 @@ export function createIntegrationProvider(
   integrationConfig: IntegrationConfig,
 ): IIntegrationProvider {
   switch (type) {
+    case "GITHUB":
+      return new GitHubIntegrationProvider(integrationConfig);
     case "NOTION":
       return new NotionIntegrationProvider(integrationConfig);
     default:

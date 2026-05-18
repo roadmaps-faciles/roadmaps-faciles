@@ -45,7 +45,7 @@ describe("ResolveSyncConflict", () => {
       databaseId: "db-1",
       databaseName: "DB",
       propertyMapping: { title: "Name" },
-      statusMapping: { "status-opt": { localId: 5, notionName: "Done" } },
+      statusMapping: { "status-opt": { localId: 5, remoteName: "Done" } },
       boardMapping: {},
       syncDirection: "bidirectional",
     },
@@ -160,7 +160,7 @@ describe("ResolveSyncConflict", () => {
         description: "From Notion",
         remoteUrl: "https://notion.so/page",
         lastEditedTime: new Date().toISOString(),
-        statusNotionOptionId: "status-opt",
+        statusRemoteOptionId: "status-opt",
         tags: ["notion-tag"],
       });
 

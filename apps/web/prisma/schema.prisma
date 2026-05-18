@@ -533,6 +533,7 @@ model Webhook {
 // --- Integrations ---
 
 enum IntegrationType {
+  GITHUB
   NOTION
 }
 

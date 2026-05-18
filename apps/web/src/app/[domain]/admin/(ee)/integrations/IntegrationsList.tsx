@@ -20,7 +20,7 @@ export const IntegrationsList = ({ integrations }: IntegrationsListProps) => {
         <Button asChild>
           <Link href="/admin/integrations/new">
             <Plus className="mr-1 size-4" />
-            {t("addNotion")}
+            {t("add")}
           </Link>
         </Button>
       </div>

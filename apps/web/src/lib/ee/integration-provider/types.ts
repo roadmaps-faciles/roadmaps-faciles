@@ -63,17 +63,23 @@ export interface PropertyMappingConfig {
 
 export interface ValueMapping {
   localId: number;
-  notionName: string;
+  remoteName: string;
 }
+
+export type GitHubSourceType = "discussions" | "issues" | "project";
 
 export interface IntegrationConfig {
   apiKey: string;
+  authType?: "app" | "pat";
   boardMapping: Record<string, ValueMapping>;
   databaseId: string;
   databaseName: string;
   defaultBoardId?: number;
+  includePullRequests?: boolean;
+  installationId?: number;
   lastSyncCursor?: string;
   propertyMapping: PropertyMappingConfig;
+  sourceType?: GitHubSourceType;
   statusMapping: Record<string, ValueMapping>;
   syncDirection: "bidirectional" | "inbound" | "outbound";
 }
@@ -85,14 +91,20 @@ export interface SyncResult {
   success: boolean;
 }
 
+export interface RemoteStats {
+  commentCount?: number;
+  reactionCount?: number;
+}
+
 export interface InboundChange {
-  boardNotionOptionId?: string;
+  boardRemoteOptionId?: string;
   date?: string;
   description?: string;
   lastEditedTime: string;
   remoteId: string;
+  remoteStats?: RemoteStats;
   remoteUrl: string;
-  statusNotionOptionId?: string;
+  statusRemoteOptionId?: string;
   tags?: string[];
   title: string;
 }

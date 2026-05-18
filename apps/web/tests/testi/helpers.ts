@@ -42,6 +42,7 @@ export function createMockIntegrationRepo(): MockRepo<IIntegrationRepo> {
     delete: vi.fn(),
     findAllForTenant: vi.fn(),
     findById: vi.fn(),
+    findByGitHubInstallationId: vi.fn(),
     findDueForSync: vi.fn(),
     update: vi.fn(),
   };
@@ -57,6 +58,8 @@ export function createMockIntegrationMappingRepo(): MockRepo<IIntegrationMapping
     findByRemoteId: vi.fn(),
     findInboundPostIdsForIntegration: vi.fn(),
     findMappingsForPost: vi.fn(),
+    findMappingsForPosts: vi.fn(),
+    findPublicMappingsForPosts: vi.fn(),
     update: vi.fn(),
   };
 }
@@ -398,7 +401,7 @@ export function fakeIntegration(overrides = {}) {
       databaseName: "Test DB",
       propertyMapping: { title: "Name" },
       statusMapping: {},
-      boardMapping: { "opt-1": { localId: 1, notionName: "Board" } },
+      boardMapping: { "opt-1": { localId: 1, remoteName: "Board" } },
       syncDirection: "outbound" as const,
     },
     enabled: true,

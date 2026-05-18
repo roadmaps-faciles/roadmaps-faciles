@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import { LikeButton } from "@/components/Board/LikeButton";
+import { RemoteStatsBadge } from "@/components/Board/RemoteStatsBadge";
 import { Loader } from "@/components/utils/Loader";
 import { useUI } from "@/ui";
 import { UIBadge, UIButton, UISeparator, UITag } from "@/ui/bridge";
@@ -134,6 +135,12 @@ export const PostListCompact = ({
                       <>
                         <span>·</span>
                         <span>{t("board.edited")}</span>
+                      </>
+                    )}
+                    {post.remoteMappings && post.remoteMappings.length > 0 && (
+                      <>
+                        <span>·</span>
+                        <RemoteStatsBadge mappings={post.remoteMappings} />
                       </>
                     )}
                     {post.tags && post.tags.length > 0 && (

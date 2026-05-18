@@ -8,6 +8,7 @@ import { type EnrichedPost } from "@/app/[domain]/(default)/board/[boardSlug]/ac
 import { UIBadge, UICard, UITag } from "@/ui/bridge";
 
 import { LikeButton } from "./LikeButton";
+import { RemoteStatsBadge } from "./RemoteStatsBadge";
 
 export interface BoardPostProps {
   allowAnonymousVoting?: boolean;
@@ -39,29 +40,32 @@ export const BoardPost = ({
       linkTarget={linkTarget}
       titleAs="h3"
       footer={
-        <span className="flex justify-between items-center w-full">
-          <span>
-            {post.user?.name ?? post.sourceLabel ?? "Anonyme"}
-            {post.editedAt && <span className="text-xs font-light ml-1">(modifié)</span>}
+        <span className="flex flex-col gap-1 w-full">
+          <span className="flex justify-between items-center w-full">
+            <span>
+              {post.user?.name ?? post.sourceLabel ?? "Anonyme"}
+              {post.editedAt && <span className="text-xs font-light ml-1">(modifié)</span>}
+            </span>
+            {post._count.comments > 0 && (
+              <UITag
+                className="cursor-pointer"
+                iconId="fr-icon-discuss-line"
+                as="span"
+                size="sm"
+                onClick={() => {
+                  const url = dirtyDomainFixer(`/post/${post.id}`);
+                  if (linkTarget) {
+                    window.open(url, linkTarget, "noopener,noreferrer");
+                  } else {
+                    location.href = url;
+                  }
+                }}
+              >
+                <b>{post._count.comments}</b>&nbsp;commentaire{post._count.comments > 1 ? "s" : ""}
+              </UITag>
+            )}
           </span>
-          {post._count.comments > 0 && (
-            <UITag
-              className="cursor-pointer"
-              iconId="fr-icon-discuss-line"
-              as="span"
-              size="sm"
-              onClick={() => {
-                const url = dirtyDomainFixer(`/post/${post.id}`);
-                if (linkTarget) {
-                  window.open(url, linkTarget, "noopener,noreferrer");
-                } else {
-                  location.href = url;
-                }
-              }}
-            >
-              <b>{post._count.comments}</b>&nbsp;commentaire{post._count.comments > 1 ? "s" : ""}
-            </UITag>
-          )}
+          {post.remoteMappings && post.remoteMappings.length > 0 && <RemoteStatsBadge mappings={post.remoteMappings} />}
         </span>
       }
       subtitle={

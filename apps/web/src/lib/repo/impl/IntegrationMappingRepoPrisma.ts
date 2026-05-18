@@ -1,7 +1,11 @@
 import { prisma } from "@/lib/db/prisma";
 import { type IntegrationMapping, type Prisma } from "@/prisma/client";
 
-import { type IIntegrationMappingRepo, type IntegrationMappingWithIntegration } from "../IIntegrationMappingRepo";
+import {
+  type IIntegrationMappingRepo,
+  type IntegrationMappingWithIntegration,
+  type PublicMappingSummary,
+} from "../IIntegrationMappingRepo";
 
 export class IntegrationMappingRepoPrisma implements IIntegrationMappingRepo {
   public create(data: Prisma.IntegrationMappingUncheckedCreateInput): Promise<IntegrationMapping> {
@@ -40,6 +44,42 @@ export class IntegrationMappingRepoPrisma implements IIntegrationMappingRepo {
       where: { localType: "post", localId: postId },
       include: { integration: true },
     });
+  }
+
+  public findMappingsForPosts(postIds: number[]): Promise<IntegrationMappingWithIntegration[]> {
+    if (postIds.length === 0) return Promise.resolve([]);
+    return prisma.integrationMapping.findMany({
+      where: { localType: "post", localId: { in: postIds } },
+      include: { integration: true },
+    });
+  }
+
+  public async findPublicMappingsForPosts(postIds: number[]): Promise<Map<number, PublicMappingSummary[]>> {
+    const result = new Map<number, PublicMappingSummary[]>();
+    if (postIds.length === 0) return result;
+
+    const rows = await prisma.integrationMapping.findMany({
+      where: { localType: "post", localId: { in: postIds } },
+      select: {
+        localId: true,
+        remoteUrl: true,
+        metadata: true,
+        integration: { select: { type: true } },
+      },
+    });
+
+    for (const row of rows) {
+      const summary: PublicMappingSummary = {
+        integrationType: row.integration.type,
+        remoteUrl: row.remoteUrl,
+        metadata: row.metadata,
+      };
+      const list = result.get(row.localId) ?? [];
+      list.push(summary);
+      result.set(row.localId, list);
+    }
+
+    return result;
   }
 
   public async findInboundPostIdsForIntegration(integrationId: number): Promise<number[]> {

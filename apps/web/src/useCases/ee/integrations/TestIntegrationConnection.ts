@@ -5,7 +5,9 @@ import { type IntegrationType } from "@/prisma/enums";
 import { type UseCase } from "../../types";
 
 export interface TestIntegrationConnectionInput {
-  apiKey: string;
+  apiKey?: string;
+  authType?: "app" | "pat";
+  installationId?: number;
   type: IntegrationType;
 }
 
@@ -17,7 +19,9 @@ export class TestIntegrationConnection implements UseCase<
 > {
   public async execute(input: TestIntegrationConnectionInput): Promise<TestIntegrationConnectionOutput> {
     const minimalConfig: IntegrationConfig = {
-      apiKey: input.apiKey,
+      apiKey: input.apiKey ?? "",
+      authType: input.authType,
+      installationId: input.installationId,
       databaseId: "",
       databaseName: "",
       propertyMapping: { title: "" },
