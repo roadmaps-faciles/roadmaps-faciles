@@ -229,10 +229,10 @@ export class GitHubDiscussionSource implements IGitHubSource {
     return change?.description;
   }
 
-  public buildRemoteUrl(remoteId: string): string {
-    void remoteId;
-    const { owner, repo } = parseRepoFullName(this.config.databaseId);
-    return `https://github.com/${owner}/${repo}/discussions`;
+  public buildRemoteUrl(_remoteId: string): string {
+    // Discussion node IDs cannot be converted to URLs deterministically (no number stored).
+    // Callers should use `mapping.remoteUrl` (populated from inbound sync) instead.
+    throw new Error("DiscussionSource cannot build URL from remoteId; use mapping.remoteUrl instead");
   }
 
   private resolveCategoryId(boardId: number): string | undefined {

@@ -67,6 +67,9 @@ export class GitHubProjectSource implements IGitHubSource {
   }
 
   public async listRemoteDatabases(): Promise<RemoteDatabase[]> {
+    // Wizard-time call only: at this point `databaseId` holds the repo full name
+    // (owner/repo) used to discover projects. Once the user picks one, `databaseId`
+    // is rewritten to the ProjectV2 node ID for sync ops. See issue #6.
     if (!this.config.databaseId) {
       throw new Error("ProjectSource requires a repository to list projects");
     }
@@ -274,7 +277,9 @@ export class GitHubProjectSource implements IGitHubSource {
   }
 
   public buildRemoteUrl(_remoteId: string): string {
-    return "";
+    // Project item node IDs cannot be converted to URLs deterministically.
+    // Callers should use `mapping.remoteUrl` (populated from inbound sync) instead.
+    throw new Error("ProjectSource cannot build URL from remoteId; use mapping.remoteUrl instead");
   }
 
   private async findStatusFieldId(): Promise<string | undefined> {

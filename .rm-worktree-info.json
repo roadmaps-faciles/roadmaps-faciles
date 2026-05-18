@@ -1,9 +1,0 @@
-{
-  "branch": "feat/github-integration",
-  "baseBranch": "main",
-  "port": 3030,
-  "isolatedDb": true,
-  "dbName": "roadmaps-faciles-github-integration",
-  "mainRepo": "/Users/lsagetlethias/source/roadmaps-faciles",
-  "createdAt": "2026-04-06T21:44:09Z"
-}
