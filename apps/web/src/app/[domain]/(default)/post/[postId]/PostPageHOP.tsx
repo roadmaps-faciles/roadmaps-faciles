@@ -32,7 +32,7 @@ export interface PostPageParams {
   postId: number;
 }
 
-export const PostPageHOP = (page: (props: PostPageComponentProps) => ReactElement) =>
+export const PostPageHOP = (page: (props: PostPageComponentProps) => Promise<ReactElement> | ReactElement) =>
   DomainPageHOP<PostPageParams>()(async ({ params, _data: { settings, tenant, dirtyDomainFixer } }) => {
     const { postId } = await params;
     const id = Number(postId);
