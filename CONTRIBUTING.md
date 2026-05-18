@@ -16,7 +16,7 @@ En soumettant une contribution, vous acceptez que votre code soit licencié sous
 
 - Node.js 24+ (voir `.nvmrc`)
 - pnpm (voir `packageManager` dans `package.json`)
-- PostgreSQL 15+
+- PostgreSQL 17+
 - Docker Compose (recommandé pour les services locaux)
 
 ## Installation

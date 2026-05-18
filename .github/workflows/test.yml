@@ -100,7 +100,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:15
+        image: postgres:17
         env:
           POSTGRES_DB: roadmaps-faciles-test
           POSTGRES_USER: postgres
@@ -149,7 +149,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:15
+        image: postgres:17
         env:
           POSTGRES_DB: roadmaps-faciles
           POSTGRES_USER: postgres
