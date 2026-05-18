@@ -1,6 +1,6 @@
 import { config } from "@/config";
 
-const SOURCE = `${config.brand.name}.${config.appVersionCommit}`;
+const SOURCE = `${config.brand?.name ?? "app"}.${config.appVersionCommit ?? "0"}`;
 
 export function clientParseError(error: Error): AppError | Error {
   try {
