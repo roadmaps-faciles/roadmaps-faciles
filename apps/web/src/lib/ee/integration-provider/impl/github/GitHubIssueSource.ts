@@ -282,8 +282,10 @@ export class GitHubIssueSource implements IGitHubSource {
     const body = `${marker}\n_Roadmaps Faciles_ — 👍 ${stats.likeCount} · 💬 ${stats.commentCount} · [voir le post](${link})`;
 
     const existing = await this.findStatsComment(owner, repo, issueNumber, marker);
+    let commentId: number;
     if (existing) {
       await this.octokit.rest.issues.updateComment({ owner, repo, comment_id: existing, body });
+      commentId = existing;
     } else {
       const { data: comment } = await this.octokit.rest.issues.createComment({
         owner,
@@ -291,14 +293,19 @@ export class GitHubIssueSource implements IGitHubSource {
         issue_number: issueNumber,
         body,
       });
-      await this.octokit
-        .request("POST /repos/{owner}/{repo}/issues/comments/{comment_id}/pin", {
-          owner,
-          repo,
-          comment_id: comment.id,
-        })
-        .catch(() => undefined);
+      commentId = comment.id;
     }
+    await this.pinComment(owner, repo, commentId);
+  }
+
+  private async pinComment(owner: string, repo: string, commentId: number): Promise<void> {
+    await this.octokit
+      .request("POST /repos/{owner}/{repo}/issues/comments/{comment_id}/pin", {
+        owner,
+        repo,
+        comment_id: commentId,
+      })
+      .catch(() => undefined);
   }
 
   private async findStatsComment(
