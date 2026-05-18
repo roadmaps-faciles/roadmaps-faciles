@@ -12,7 +12,7 @@ Cette page s'adresse aux développeurs et administrateurs système souhaitant h�
 | Composant | Version / Description |
 |-----------|----------------------|
 | **Node.js** | 24 ou supérieur |
-| **PostgreSQL** | 15 ou supérieur |
+| **PostgreSQL** | 17 ou supérieur |
 | **Redis** | Compatible Redis 6+ (requis — utilisé pour le cache, les preuves 2FA, les challenges WebAuthn et les codes OTP) |
 | **SMTP** | Serveur d'envoi d'emails (magic links, invitations) |
 | **pnpm** | Gestionnaire de paquets (voir `packageManager` dans `package.json`) |
@@ -205,6 +205,7 @@ Pour activer l'upload d'images dans les contributions, configurez un stockage S3
 | `STORAGE_S3_ACCESS_KEY_ID` | Access Key ID | — |
 | `STORAGE_S3_SECRET_ACCESS_KEY` | Secret Access Key | — |
 | `STORAGE_S3_PUBLIC_URL` | URL publique du bucket (pour construire les URLs des images) | — |
+| `STORAGE_S3_KEY_PREFIX` | Préfixe optionnel appliqué transparentement à toutes les clés (upload/delete/URL). Utile pour mutualiser un seul bucket entre plusieurs environnements (ex: `pr-42/` pour une review app). | *(vide)* |
 
 <Callout type="info">
 Le bucket doit être configuré pour un accès public en lecture (les images uploadées sont référencées directement dans le Markdown des contributions). Sur Scalingo, utilisez l'addon S3-compatible fourni par la plateforme.
@@ -342,9 +343,13 @@ Exemple de configuration Caddy (`Caddyfile`) :
 | `DOMAIN_PROVIDER` | `caddy` |
 | `DOMAIN_CADDY_ADMIN_URL` | URL de l'API admin Caddy (ex. `http://localhost:2019`) |
 
+### Coolify
+
+Pour un déploiement orchestré sur instance [Coolify](https://coolify.io) self-hostée (Docker Compose, Traefik, ressources managées Postgres/Redis), la procédure recommandée est décrite dans [Déploiement automatisé](/doc/technical/deployment#coolify-self-host). Architecture supportée : wildcard DNS via Traefik (provider `gandiv5` pour Gandi LiveDNS), MinIO comme stockage S3-compatible, review apps éphémères par PR avec DB dédiée et préfixe S3 par PR (`STORAGE_S3_KEY_PREFIX=pr-<n>/`).
+
 ### Docker
 
-L'application ne fournit pas de Dockerfile officiel, mais le standalone output se prête bien à la conteneurisation :
+L'application ne fournit pas de Dockerfile officiel public, mais le standalone output se prête bien à la conteneurisation :
 
 ```dockerfile
 FROM node:24-alpine
