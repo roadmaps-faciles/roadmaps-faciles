@@ -87,7 +87,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ in
       await writer.write(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
       await flushTick();
     } catch {
-      // Client disconnected — mark closed so subsequent writes are skipped
+      // Client disconnected - mark closed so subsequent writes are skipped
       writerClosed = true;
     }
   };
@@ -98,14 +98,14 @@ export async function POST(_request: Request, { params }: { params: Promise<{ in
     try {
       await writer.close();
     } catch {
-      // Already closed — ignore
+      // Already closed - ignore
     }
   };
 
   // Track active sync
   activeSyncs.set(integrationId, { startedAt: Date.now() });
 
-  // Run sync in detached async — the response is returned immediately below
+  // Run sync in detached async - the response is returned immediately below
   void (async () => {
     try {
       const useCase = new SyncIntegration(

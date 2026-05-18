@@ -18,7 +18,7 @@ export const EmbedThemeForcer = () => {
     if (themeParam === "dark") {
       // DSFR
       setIsDark(true);
-      // Default (shadcn) — add .dark class on <html>
+      // Default (shadcn) - add .dark class on <html>
       if (uiTheme === "Default") {
         document.documentElement.classList.add("dark");
       }

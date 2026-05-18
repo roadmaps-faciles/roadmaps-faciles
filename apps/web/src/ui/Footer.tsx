@@ -28,7 +28,7 @@ export interface FooterProps {
 }
 
 /**
- * Unified footer — root and tenant variants.
+ * Unified footer - root and tenant variants.
  *
  * Root: max-w-7xl, multi-column links, brand icon, badges, version badge.
  * Tenant: container, compact single-row bottom links.

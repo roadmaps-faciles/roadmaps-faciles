@@ -1,5 +1,5 @@
 /*
- * Single Tailwind 4 entry point — ALL Tailwind-processed CSS lives here.
+ * Single Tailwind 4 entry point - ALL Tailwind-processed CSS lives here.
  * tw-animate-css @utility/@theme directives require a real Tailwind context
  * and cannot be imported from Sass (globals.scss) or standalone CSS files.
  */

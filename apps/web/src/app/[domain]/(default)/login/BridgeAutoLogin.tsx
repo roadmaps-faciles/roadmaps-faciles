@@ -26,7 +26,7 @@ export const BridgeAutoLogin = ({ token }: BridgeAutoLoginProps) => {
 
     void bridgeSignIn(form).then(result => {
       if ("ok" in result) {
-        // Session cookie was set by signIn — navigate on current domain
+        // Session cookie was set by signIn - navigate on current domain
         window.location.href = "/";
       } else {
         window.location.href = `/login?error=${result.error}`;

@@ -3,7 +3,7 @@ import { cn } from "@roadmaps-faciles/ui";
 
 import styles from "./InitialsAvatar.module.scss";
 
-/** Theme-agnostic avatar palette — pastel backgrounds with dark text. */
+/** Theme-agnostic avatar palette - pastel backgrounds with dark text. */
 const AVATAR_PALETTE: Array<[bg: string, fg: string]> = [
   ["#c3fad5", "#1b4332"], // green
   ["#bde0fe", "#1d3557"], // blue

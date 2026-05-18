@@ -12,7 +12,7 @@ export const getCronManager = (): ICronManager => {
 
   switch (config.integrations.cronManager) {
     case "route":
-      // RouteCronManager requires deps injection — must be instantiated at use site
+      // RouteCronManager requires deps injection - must be instantiated at use site
       // This factory returns Noop as fallback; route handler creates RouteCronManager directly
       instance = new NoopCronManager();
       break;

@@ -105,7 +105,7 @@ export const PostPageHOP = (page: (props: PostPageComponentProps) => Promise<Rea
       notFound();
     }
 
-    // Check membership once — used for both approval access and edit permissions
+    // Check membership once - used for both approval access and edit permissions
     const membership = session?.user
       ? await prisma.userOnTenant.findUnique({
           where: { userId_tenantId: { userId: session.user.uuid, tenantId: tenant.id } },

@@ -99,4 +99,4 @@ Lance le skill `verif` pour valider que les corrections n'introduisent pas de re
      # Résoudre chaque thread
      gh api graphql -f query='mutation { resolveReviewThread(input: {threadId: "THREAD_ID"}) { thread { isResolved } } }'
      ```
-- Si copilot, tag le pour qu'il apprenne de ses erreurs ou de ses suggestions pertinentes. Précise lui qu'il ne faut absolument pas créer de PR ! ATTENTION : ne jamais mentionner le bot `@copilot-pull-request-reviewer` dans les commentaires, cela déclenche des actions automatiques indésirables (création de PR, boucles de review) — utiliser des mentions génériques (`@copilot`) ou aucune mention pour parler de Copilot.
+- Si copilot, tag le pour qu'il apprenne de ses erreurs ou de ses suggestions pertinentes. Précise lui qu'il ne faut absolument pas créer de PR ! ATTENTION : ne jamais mentionner le bot `@copilot-pull-request-reviewer` dans les commentaires, cela déclenche des actions automatiques indésirables (création de PR, boucles de review) - utiliser des mentions génériques (`@copilot`) ou aucune mention pour parler de Copilot.

@@ -2,7 +2,7 @@ import { E2E_TENANT_URL, expect, test } from "./fixtures";
 
 test.describe("Magic Link Authentication (tenant)", () => {
   // FIXME: passwordless form calls /api/ee/otp/pre-login-check which may not
-  // route correctly on tenant subdomains in CI — redirect to verify-request never happens
+  // route correctly on tenant subdomains in CI - redirect to verify-request never happens
   test.fixme("full magic link login on tenant", async ({ page, maildev }) => {
     await maildev.clearInbox();
 
@@ -39,7 +39,7 @@ test.describe("Magic Link Authentication (tenant)", () => {
     await expect(page.getByRole("button", { name: /connexion/i })).not.toBeVisible();
   });
 
-  // FIXME: tenant callback URL routing issue in CI — error page not reached
+  // FIXME: tenant callback URL routing issue in CI - error page not reached
   test.fixme("invalid/expired callback token shows error page", async ({ page }) => {
     // Navigate directly to the callback with a garbage token
     await page.goto(

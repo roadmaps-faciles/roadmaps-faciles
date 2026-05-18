@@ -72,7 +72,7 @@ export const Playground: Story = {
     docs: {
       description: {
         story:
-          "Story interactive — utilise les controls Storybook pour configurer les props des sous-composants (dot variant/size, connector variant, sub-connector indent).",
+          "Story interactive - utilise les controls Storybook pour configurer les props des sous-composants (dot variant/size, connector variant, sub-connector indent).",
       },
     },
   },
@@ -300,7 +300,7 @@ export const PostActivity: Story = {
   },
   render: () => (
     <Timeline className="max-w-xl">
-      {/* Comment with reply thread — sub-connector for nesting */}
+      {/* Comment with reply thread - sub-connector for nesting */}
       <TimelineItem>
         <TimelineSeparator>
           <TimelineDot variant="default" size="icon">
@@ -331,7 +331,7 @@ export const PostActivity: Story = {
               </div>
             </CardContent>
           </Card>
-          {/* Replies with sub-connector — L-hook on last item */}
+          {/* Replies with sub-connector - L-hook on last item */}
           <TimelineSubConnector>
             <TimelineSubItem>
               <Card>

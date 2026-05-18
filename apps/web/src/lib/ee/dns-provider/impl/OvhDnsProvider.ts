@@ -78,7 +78,7 @@ export class OvhDnsProvider implements IDnsProvider {
     const existing = await this.findRecordIds(zone, zoneSubdomain);
 
     if (existing.length > 0) {
-      // Record already exists — check if target matches
+      // Record already exists - check if target matches
       const status = await this.checkRecord(subdomain);
       return { provisioned: true, status };
     }

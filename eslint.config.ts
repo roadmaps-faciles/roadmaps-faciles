@@ -1,5 +1,5 @@
 /**
- * Root ESLint config — monorepo shared rules.
+ * Root ESLint config - monorepo shared rules.
  *
  * Architecture ESLint du monorepo :
  *
@@ -33,7 +33,7 @@ import storybook from "eslint-plugin-storybook";
 import unusedImportsPlugin from "eslint-plugin-unused-imports";
 import tseslint from "typescript-eslint";
 
-/** Options Prettier partagées — utilisées par le plugin ESLint prettier/prettier. */
+/** Options Prettier partagées - utilisées par le plugin ESLint prettier/prettier. */
 export const prettierOptions = {
   tabWidth: 2,
   trailingComma: "all",
@@ -57,7 +57,7 @@ export const prettierOptions = {
  *
  * NE contient PAS les plugins `import` et `react` (voir JSDoc du fichier).
  * Les rules import/* et react/* fonctionnent car ESLint 9 flat config merge
- * les plugins de tout l'array — le consommateur doit les enregistrer.
+ * les plugins de tout l'array - le consommateur doit les enregistrer.
  */
 export const base = [
   // ─── Base JS ────────────────────────────────────────────────────────────────
@@ -224,7 +224,7 @@ export const base = [
 ];
 
 /**
- * Default export — utilisé par les workspaces sans eslint.config.ts (héritage naturel).
+ * Default export - utilisé par les workspaces sans eslint.config.ts (héritage naturel).
  * Ex: packages/ui/ n'a pas de config → ESLint remonte et trouve celle-ci.
  */
 export default [
@@ -242,7 +242,7 @@ export default [
     ],
   },
 
-  // Enregistrement des plugins import + react — requis ici car `base` ne les inclut pas
+  // Enregistrement des plugins import + react - requis ici car `base` ne les inclut pas
   // (conflit "Cannot redefine plugin" avec nextConfig qui bundle ses propres instances).
   // Pour apps/web, c'est nextConfig qui les fournit ; ici on les fournit pour packages/*.
   {
@@ -259,7 +259,7 @@ export default [
 
   ...base,
 
-  // TypeScript parser avec project:true — auto-découverte du tsconfig le plus proche.
+  // TypeScript parser avec project:true - auto-découverte du tsconfig le plus proche.
   // Pour packages/ui/src/Button.tsx → trouve packages/ui/tsconfig.json.
   // tsconfigRootDir = monorepo root = limite haute de la recherche.
   {
@@ -283,7 +283,7 @@ export default [
     },
   },
 
-  // .github/scripts/*.js — CJS (module.exports) pour actions/github-script, pas de tsconfig
+  // .github/scripts/*.js - CJS (module.exports) pour actions/github-script, pas de tsconfig
   {
     files: [".github/scripts/**/*.js"],
     ...tseslint.configs.disableTypeChecked,

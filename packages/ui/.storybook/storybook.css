@@ -5,7 +5,7 @@
 @import "../src/tokens/utilities.css";
 @source "../src/**/*.tsx";
 
-/* Root theme — background/foreground suivent les tokens */
+/* Root theme - background/foreground suivent les tokens */
 html[data-ui-theme="Default"] {
   background-color: var(--background);
   color: var(--foreground);
@@ -13,6 +13,7 @@ html[data-ui-theme="Default"] {
 
 /* shadcn default: border-color tracks the --border token */
 @layer base {
+
   *,
   ::after,
   ::before,
@@ -24,7 +25,7 @@ html[data-ui-theme="Default"] {
 
 /*
  * Dark mode pour la page Docs de Storybook.
- * Pure CSS — pas de DocsContainer custom, pas de re-render, pas de refresh.
+ * Pure CSS - pas de DocsContainer custom, pas de re-render, pas de refresh.
  * Cible #storybook-docs (root du docs renderer dans le preview iframe).
  */
 

@@ -29,7 +29,7 @@ export interface HeaderProps {
 }
 
 /**
- * Unified header — root and tenant variants.
+ * Unified header - root and tenant variants.
  *
  * Root: h-16, max-w-7xl, brandName ReactNode (icon + name + badge).
  * Tenant: h-14, container, serviceName string.
@@ -101,7 +101,7 @@ export const Header = ({
             </Button>
           </SheetTrigger>
           <SheetContent side="left" showCloseButton={false} className="flex w-[300px] flex-col gap-0 p-0 sm:w-[340px]">
-            {/* Sheet header — title + theme toggle */}
+            {/* Sheet header - title + theme toggle */}
             <SheetHeader className="flex flex-row items-center justify-between border-b px-4 py-3">
               <SheetTitle className="text-base font-semibold">Menu</SheetTitle>
               <ThemeToggle compact />

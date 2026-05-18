@@ -467,7 +467,7 @@
       "seedSuccess": "Data initialized successfully",
       "seedEmpty": "Your space is empty. You can initialize default data to get started quickly.",
       "seedPreview": "What will be created:",
-      "seedBoard": "Board <strong>{name}</strong> — {description}",
+      "seedBoard": "Board <strong>{name}</strong> - {description}",
       "seedStatus": "Status <strong>{name}</strong>",
       "seedButton": "Initialize default data",
       "seeding": "Initializing…",
@@ -679,7 +679,7 @@
         "descriptionField": "Description",
         "descriptionFieldHint": "Notion property for post description, or page content",
         "pageContent": "Page content (blocks)",
-        "notMapped": "— Not mapped —",
+        "notMapped": "- Not mapped -",
         "dateField": "Creation date",
         "dateFieldHint": "Notion property to sync as the post creation date. If not mapped, the import date will be used.",
         "dateType": "date",
@@ -729,7 +729,7 @@
         "syncFetchingInbound": "Fetching remote items…",
         "syncProgressOutbound": "Exporting to remote service: {current}/{total}",
         "syncProgressInbound": "Importing from remote service: {current}/{total}",
-        "syncStreamingProgress": "Fetching — {count, plural, one {# item retrieved} other {# items retrieved}}…",
+        "syncStreamingProgress": "Fetching - {count, plural, one {# item retrieved} other {# items retrieved}}…",
         "delete": "Delete",
         "lastSyncAt": "Last sync: {date}",
         "neverSynced": "Never synced",
@@ -758,7 +758,7 @@
         "cleanupInboundPosts": "Also delete {count, plural, one {# imported post} other {# imported posts}} from this integration",
         "confirmDelete": "Confirm deletion",
         "syncRemoteInProgress": "A sync is running in the background…",
-        "syncCanLeave": "You can leave this page — the sync continues in the background.",
+        "syncCanLeave": "You can leave this page - the sync continues in the background.",
         "syncCancelMonitoring": "Stop monitoring",
         "syncElapsed": "Elapsed: {time}",
         "syncEta": "Estimated remaining: {time}"
@@ -1303,7 +1303,7 @@
     "deleteConfirm": "Are you sure you want to delete this post? This action is irreversible.",
     "anonymous": "Anonymous",
     "description": "Description",
-    "noDescription": "—"
+    "noDescription": "-"
   },
   "adminOrganizations": {
     "title": "Organizations",
@@ -1411,7 +1411,7 @@
     },
     "bundleTitle": "All-in-one packs",
     "bundleSubtitle": "Save by getting everything at once.",
-    "bundleSaving": "Instead of {individual}€/month à la carte — save {individual, number}€",
+    "bundleSaving": "Instead of {individual}€/month à la carte - save {individual, number}€",
     "bundleSavingAmount": "Save {saved}€",
     "bundleNoSso": {
       "name": "Pro Pack",

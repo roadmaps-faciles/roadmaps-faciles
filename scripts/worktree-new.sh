@@ -184,7 +184,7 @@ if [ -n "$PORT" ] || [ "$ISOLATED_DB" = true ]; then
       grep -q "^AUTH_URL=" "$ENV_LOCAL" || echo "AUTH_URL=http://localhost:${PORT}/api/auth" >> "$ENV_LOCAL"
     fi
   else
-    # Pas de fichier source — créer un minimal
+    # Pas de fichier source - créer un minimal
     mkdir -p "$(dirname "$ENV_LOCAL")"
     {
       echo "# Worktree: $BRANCH"
@@ -217,9 +217,9 @@ pnpm prisma generate
 
 if [ "$ISOLATED_DB" = true ]; then
   echo "🔧 Prisma migrate deploy..."
-  pnpm prisma:migrate:deploy 2>/dev/null || echo "   ⚠️  prisma migrate deploy a échoué — lance-le manuellement si le schéma a changé."
+  pnpm prisma:migrate:deploy 2>/dev/null || echo "   ⚠️  prisma migrate deploy a échoué - lance-le manuellement si le schéma a changé."
   echo "🌱 Seed de la base..."
-  pnpm seed 2>/dev/null || echo "   ⚠️  Seed a échoué — lance 'pnpm seed' manuellement si nécessaire."
+  pnpm seed 2>/dev/null || echo "   ⚠️  Seed a échoué - lance 'pnpm seed' manuellement si nécessaire."
 fi
 popd > /dev/null
 

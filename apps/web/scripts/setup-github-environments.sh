@@ -28,7 +28,7 @@ if [[ -n "${SCALINGO_API_TOKEN_STAGING:-}" ]]; then
     --body "${SCALINGO_API_TOKEN_STAGING}"
   echo "  Done."
 else
-  echo "  SCALINGO_API_TOKEN_STAGING not set — skipping secret."
+  echo "  SCALINGO_API_TOKEN_STAGING not set - skipping secret."
   echo "  Set manually: gh secret set SCALINGO_API_TOKEN --repo ${REPO} --env staging"
 fi
 
@@ -47,7 +47,7 @@ if [[ -n "${SCALINGO_API_TOKEN_PRODUCTION:-}" ]]; then
     --body "${SCALINGO_API_TOKEN_PRODUCTION}"
   echo "  Done."
 else
-  echo "  SCALINGO_API_TOKEN_PRODUCTION not set — skipping secret."
+  echo "  SCALINGO_API_TOKEN_PRODUCTION not set - skipping secret."
   echo "  Set manually: gh secret set SCALINGO_API_TOKEN --repo ${REPO} --env production"
 fi
 

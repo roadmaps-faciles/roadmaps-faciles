@@ -1,5 +1,5 @@
 /**
- * Seed de test enrichi — donnees previsibles pour les tests E2E.
+ * Seed de test enrichi - donnees previsibles pour les tests E2E.
  *
  * Usage: pnpm run-script prisma/test-seed.ts
  */
@@ -10,7 +10,7 @@ async function main() {
   console.log("Test seed en cours...");
 
   // ---------------------------------------------------------------------------
-  // 1. Cleanup — FK-safe order (all models that reference Post, User, Tenant)
+  // 1. Cleanup - FK-safe order (all models that reference Post, User, Tenant)
   // ---------------------------------------------------------------------------
   await prisma.like.deleteMany();
   await prisma.follow.deleteMany();

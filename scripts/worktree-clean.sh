@@ -41,7 +41,7 @@ if [ -f "$INFO_FILE" ]; then
   DB_NAME=$(python3 -c "import json; d=json.load(open('$INFO_FILE')); print(d.get('dbName',''))" 2>/dev/null || echo "")
 else
   DB_NAME="roadmaps-faciles-${SHORT_NAME}"
-  echo "⚠️  Pas de .rm-worktree-info.json — fallback DB: $DB_NAME"
+  echo "⚠️  Pas de .rm-worktree-info.json - fallback DB: $DB_NAME"
 fi
 
 # --- Nettoyage du symlink git-crypt ---
@@ -63,7 +63,7 @@ if git branch --merged dev --format='%(refname:short)' 2>/dev/null | grep -Fxq "
   echo "🌿 La branche $BRANCH est mergée dans dev, suppression..."
   git branch -d "$BRANCH" 2>/dev/null || true
 else
-  echo "ℹ️  La branche $BRANCH n'est pas mergée — conservée."
+  echo "ℹ️  La branche $BRANCH n'est pas mergée - conservée."
 fi
 
 # --- Suppression de la DB (optionnel) ---

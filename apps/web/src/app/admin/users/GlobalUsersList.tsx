@@ -332,7 +332,7 @@ export const GlobalUsersList = ({ users: initialUsers, currentUserId, superAdmin
                 <TableRow key={user.id}>
                   <TableCell>
                     <span className="flex items-center gap-2">
-                      {user.name ?? "—"}
+                      {user.name ?? "-"}
                       {isSelf(user.id) && <Badge variant="outline">{t("you")}</Badge>}
                       {superAdminIds.includes(user.id) && <Badge variant="outline">{t("superAdmin")}</Badge>}
                     </span>

@@ -17,7 +17,7 @@ export type UITagProps = {
   className?: string;
   iconId?: DsfrTagProps["iconId"];
   onClick?: () => void;
-  /** Size — "sm" maps to DSFR `small` prop */
+  /** Size - "sm" maps to DSFR `small` prop */
   size?: "default" | "sm";
 };
 

@@ -6,7 +6,7 @@ import { noopServerTrackingProvider } from "./noop";
 import { type IServerTrackingProvider } from "./types";
 
 /**
- * Server-side factory — returns the server tracking provider.
+ * Server-side factory - returns the server tracking provider.
  * Only PostHog supports server-side tracking; others return noop.
  */
 export async function getServerTrackingProvider(): Promise<IServerTrackingProvider> {

@@ -74,7 +74,7 @@ export function useMarkdownEditor({
       try {
         results = search(text).slice(0, MAX_SUGGESTIONS);
       } catch {
-        // node-emoji passes query to RegExp — special chars like +, *, ( crash it
+        // node-emoji passes query to RegExp - special chars like +, *, ( crash it
         provide({ matched: false });
         return;
       }

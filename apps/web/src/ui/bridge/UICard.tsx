@@ -23,9 +23,9 @@ export type UICardProps = {
   horizontal?: boolean;
   href?: string;
   linkTarget?: string;
-  /** Shadow mode — true=always, "light"=light only, "dark"=dark only, omit=never */
+  /** Shadow mode - true=always, "light"=light only, "dark"=dark only, omit=never */
   shadow?: "dark" | "light" | true;
-  /** Size — "sm" maps to DSFR `size="small"`, "lg" maps to `size="large"` */
+  /** Size - "sm" maps to DSFR `size="small"`, "lg" maps to `size="large"` */
   size?: "default" | "lg" | "sm";
   subtitle?: React.ReactNode;
   title: React.ReactNode;

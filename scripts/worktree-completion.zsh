@@ -2,7 +2,7 @@
 #
 # Autocompletion zsh pour worktree-new.sh et worktree-clean.sh.
 #
-# Installation — ajoute dans ~/.zshrc :
+# Installation - ajoute dans ~/.zshrc :
 #   source /chemin/vers/roadmaps-faciles/scripts/worktree-completion.zsh
 
 __worktree_git_branches() {

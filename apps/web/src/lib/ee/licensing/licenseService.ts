@@ -22,7 +22,7 @@ function shouldRefreshOnline(): boolean {
 
 function applyGracePeriod(plan: "GOV_LICENSED" | "LICENSED", expiresAt: Date): LicenseStatus {
   if (!lastOnlineCheck) {
-    // Never verified online — trust offline verification
+    // Never verified online - trust offline verification
     return { mode: "licensed", valid: true, plan, expiresAt };
   }
 
@@ -87,7 +87,7 @@ export async function getLicenseStatus(forceRefresh = false): Promise<LicenseSta
         });
       }
     } else {
-      // Server unreachable — apply grace period
+      // Server unreachable - apply grace period
       cachedStatus = applyGracePeriod(payload.plan, new Date(payload.expiresAt));
     }
   }

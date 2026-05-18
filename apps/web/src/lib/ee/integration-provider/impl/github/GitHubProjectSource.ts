@@ -92,7 +92,7 @@ export class GitHubProjectSource implements IGitHubSource {
 
     return result.repository.projectsV2.nodes.map(p => ({
       id: p.id,
-      name: `${owner}/${repo} — ${p.title}`,
+      name: `${owner}/${repo} - ${p.title}`,
       description: `Project #${p.number}`,
       url: p.url,
       propertyCount: 0,
@@ -151,7 +151,7 @@ export class GitHubProjectSource implements IGitHubSource {
 
   public async syncOutbound(post: PostSyncData, existingRemoteId?: string): Promise<SyncResult> {
     if (!existingRemoteId) {
-      return { success: false, remoteId: "", error: "Cannot create project items — link existing issues instead" };
+      return { success: false, remoteId: "", error: "Cannot create project items - link existing issues instead" };
     }
 
     const statusEntry = post.postStatusId

@@ -37,7 +37,7 @@ export async function signupAction(data: {
 
     await sendEmail({
       to: data.email,
-      subject: "Vérifiez votre adresse email — Roadmaps Faciles",
+      subject: "Vérifiez votre adresse email - Roadmaps Faciles",
       html,
       text: "Vérifiez votre adresse email en cliquant sur ce lien : " + verifyUrl,
     });

@@ -39,7 +39,7 @@ describe("getServerTrackingProvider", () => {
 
   it("returns noop provider when config is noop", async () => {
     const provider = await getServerTrackingProvider();
-    // Call track — if it were the posthog mock, the mock would be called
+    // Call track - if it were the posthog mock, the mock would be called
     provider.track("u1", { name: "test" });
     expect(mockPostHogServerProvider.track).not.toHaveBeenCalled();
   });

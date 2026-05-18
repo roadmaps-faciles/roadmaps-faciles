@@ -99,7 +99,7 @@ export const deleteOrganization = async (orgId: number, confirmSlug: string): Pr
       await cancelSubscription(org);
     }
 
-    // Delete org — ON DELETE CASCADE handles all children automatically
+    // Delete org - ON DELETE CASCADE handles all children automatically
     await organizationRepo.delete(org.id);
 
     audit(

@@ -49,7 +49,7 @@ const githubConfig = {
   syncDirection: "bidirectional" as const,
 };
 
-describe("SyncIntegration — GitHub provider", () => {
+describe("SyncIntegration - GitHub provider", () => {
   let mockIntegrationRepo: ReturnType<typeof CreateMockIntegrationRepo>;
   let mockMappingRepo: ReturnType<typeof CreateMockMappingRepo>;
   let mockSyncLogRepo: ReturnType<typeof CreateMockSyncLogRepo>;

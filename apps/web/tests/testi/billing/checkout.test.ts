@@ -26,7 +26,7 @@ vi.mock("@/lib/ee/billing/customers", () => ({
   getOrCreateCustomer: vi.fn().mockResolvedValue("cus_test_123"),
 }));
 
-// Mock pricing — per-pack price IDs
+// Mock pricing - per-pack price IDs
 vi.mock("@/lib/ee/billing/pricing", () => ({
   getPackStripePriceIds: (packId: string) => {
     const prices: Record<string, { monthly: string; yearly: string }> = {

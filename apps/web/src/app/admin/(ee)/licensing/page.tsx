@@ -29,7 +29,7 @@ const AdminLicensingPage = async () => {
   const modeLabel = isCloud ? t("modeCloud") : status.mode === "licensed" ? t("modeLicensed") : t("modeCommunity");
 
   const planLabel =
-    status.plan === "GOV_LICENSED" ? t("planGovLicensed") : status.plan === "LICENSED" ? t("planLicensed") : "—";
+    status.plan === "GOV_LICENSED" ? t("planGovLicensed") : status.plan === "LICENSED" ? t("planLicensed") : "-";
 
   const statusBadge = (() => {
     if (isCloud) return <Badge variant="secondary">{t("modeCloud")}</Badge>;
@@ -40,7 +40,7 @@ const AdminLicensingPage = async () => {
   })();
 
   const formatDate = (date: Date | undefined) => {
-    if (!date) return "—";
+    if (!date) return "-";
     return date.toLocaleDateString("fr-FR", { year: "numeric", month: "long", day: "numeric" });
   };
 

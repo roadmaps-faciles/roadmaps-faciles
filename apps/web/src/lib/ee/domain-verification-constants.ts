@@ -1,5 +1,5 @@
 /**
- * Constants for domain verification — client-safe (no Node.js imports).
+ * Constants for domain verification - client-safe (no Node.js imports).
  */
 
 export const VERIFICATION_PREFIX = "roadmaps-faciles-verify=";

@@ -28,9 +28,9 @@ import { WorkspaceSwitcher } from "@/ui/WorkspaceSwitcher";
 export interface ShadcnUserHeaderItemProps {
   /** "dropdown" = desktop DropdownMenu, "sheet" = inline items for mobile Sheet */
   mode?: "dropdown" | "sheet";
-  /** Pending moderation posts count — shown as badge on the trigger button */
+  /** Pending moderation posts count - shown as badge on the trigger button */
   pendingModerationCount?: number;
-  /** User menu data from server — sections align with sidebar user menu */
+  /** User menu data from server - sections align with sidebar user menu */
   userMenu?: UserMenuData;
 }
 
@@ -201,7 +201,7 @@ export const ShadcnUserHeaderItem = ({
             <DropdownMenuContent align="end" className="relative min-w-72 max-h-[70vh] overflow-y-auto">
               <DropdownMenuArrow />
 
-              {/* Roving highlight — animated background that follows hovered items */}
+              {/* Roving highlight - animated background that follows hovered items */}
               {highlight && (
                 <motion.div
                   className="pointer-events-none absolute inset-x-1 top-0 z-0 rounded-sm bg-accent"

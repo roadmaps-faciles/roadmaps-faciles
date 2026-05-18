@@ -467,7 +467,7 @@
       "seedSuccess": "Données initialisées avec succès",
       "seedEmpty": "Votre espace est vide. Vous pouvez initialiser des données par défaut pour démarrer rapidement.",
       "seedPreview": "Ce qui sera créé :",
-      "seedBoard": "Tableau <strong>{name}</strong> — {description}",
+      "seedBoard": "Tableau <strong>{name}</strong> - {description}",
       "seedStatus": "Statut <strong>{name}</strong>",
       "seedButton": "Initialiser les données par défaut",
       "seeding": "Initialisation…",
@@ -679,7 +679,7 @@
         "descriptionField": "Description",
         "descriptionFieldHint": "Propriété Notion pour la description du post, ou le contenu de la page",
         "pageContent": "Contenu de la page (blocs)",
-        "notMapped": "— Non mappé —",
+        "notMapped": "- Non mappé -",
         "dateField": "Date de création",
         "dateFieldHint": "Propriété Notion à synchroniser comme date de création du post. Si non mappé, la date sera celle de l'import.",
         "dateType": "date",
@@ -729,7 +729,7 @@
         "syncFetchingInbound": "Récupération des éléments distants…",
         "syncProgressOutbound": "Export vers le service distant : {current}/{total}",
         "syncProgressInbound": "Import depuis le service distant : {current}/{total}",
-        "syncStreamingProgress": "Récupération en cours — {count, plural, one {# élément récupéré} other {# éléments récupérés}}…",
+        "syncStreamingProgress": "Récupération en cours - {count, plural, one {# élément récupéré} other {# éléments récupérés}}…",
         "delete": "Supprimer",
         "lastSyncAt": "Dernière synchronisation : {date}",
         "neverSynced": "Jamais synchronisé",
@@ -758,7 +758,7 @@
         "cleanupInboundPosts": "Supprimer aussi les {count, plural, one {# post importé} other {# posts importés}} depuis cette intégration",
         "confirmDelete": "Confirmer la suppression",
         "syncRemoteInProgress": "Une synchronisation est en cours en arrière-plan…",
-        "syncCanLeave": "Vous pouvez quitter cette page — la synchronisation continue en arrière-plan.",
+        "syncCanLeave": "Vous pouvez quitter cette page - la synchronisation continue en arrière-plan.",
         "syncCancelMonitoring": "Arrêter le suivi",
         "syncElapsed": "Temps écoulé : {time}",
         "syncEta": "Temps restant estimé : {time}"
@@ -1303,7 +1303,7 @@
     "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce post ? Cette action est irréversible.",
     "anonymous": "Anonyme",
     "description": "Description",
-    "noDescription": "—"
+    "noDescription": "-"
   },
   "adminOrganizations": {
     "title": "Organisations",
@@ -1411,7 +1411,7 @@
     },
     "bundleTitle": "Packs tout compris",
     "bundleSubtitle": "Économisez en prenant tout d'un coup.",
-    "bundleSaving": "Au lieu de {individual}€/mois à la carte — économisez {individual, number}€",
+    "bundleSaving": "Au lieu de {individual}€/mois à la carte - économisez {individual, number}€",
     "bundleSavingAmount": "Économisez {saved}€",
     "bundleNoSso": {
       "name": "Pack Pro",

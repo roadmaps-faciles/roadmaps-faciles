@@ -58,7 +58,7 @@ export const GET = async (request: NextRequest) => {
   const session = await auth();
 
   if (!session?.user?.uuid) {
-    // Not logged in — redirect to root login so user can authenticate first
+    // Not logged in - redirect to root login so user can authenticate first
     return NextResponse.redirect(rootUrl("/login"));
   }
 

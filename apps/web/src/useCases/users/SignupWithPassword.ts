@@ -35,7 +35,7 @@ export class SignupWithPassword implements UseCase<SignupWithPasswordInput, Sign
       email: input.email,
       name: input.name,
       passwordHash,
-      // emailVerified intentionally null — must verify via email link
+      // emailVerified intentionally null - must verify via email link
     });
 
     const { raw } = await createEmailVerificationToken(input.email);

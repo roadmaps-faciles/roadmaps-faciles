@@ -24,7 +24,7 @@ describe("AppSettingsRepoPrisma", () => {
     });
   });
 
-  describe("update — pinnedTenantId", () => {
+  describe("update - pinnedTenantId", () => {
     it("sets pinnedTenantId to a valid tenant", async () => {
       const { tenant } = await createTestTenantWithSettings();
 
@@ -80,7 +80,7 @@ describe("AppSettingsRepoPrisma", () => {
       const { tenant } = await createTestTenantWithSettings();
       await repo.update({ pinnedTenantId: tenant.id });
 
-      // ON DELETE SET NULL — deleting the tenant should clear the FK
+      // ON DELETE SET NULL - deleting the tenant should clear the FK
       await prisma.tenantSettings.deleteMany({ where: { tenantId: tenant.id } });
       await prisma.tenant.delete({ where: { id: tenant.id } });
 

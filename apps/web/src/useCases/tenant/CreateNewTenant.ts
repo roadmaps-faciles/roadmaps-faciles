@@ -72,7 +72,7 @@ export class CreateNewTenant implements UseCase<CreateNewTenantExecuteInput, Cre
     let tenantId: number;
 
     if (input.organizationId) {
-      // Attach to existing organization — atomic entitlement check + tenant creation
+      // Attach to existing organization - atomic entitlement check + tenant creation
       // with row lock to prevent TOCTOU race on concurrent tenant creation
       const result = await prisma.$transaction(
         async tx => {

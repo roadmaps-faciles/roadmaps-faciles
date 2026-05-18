@@ -128,7 +128,7 @@ export const Complete: Story = {
       <TooltipProvider>
         <div className="bg-background text-foreground space-y-10 p-8">
           <div>
-            <h1 className="text-2xl font-bold">@roadmaps-faciles/ui — Design System</h1>
+            <h1 className="text-2xl font-bold">@roadmaps-faciles/ui - Design System</h1>
             <p className="text-muted-foreground">31 composants · French Blue · oklch tokens · light + dark</p>
           </div>
 

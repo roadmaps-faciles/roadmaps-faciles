@@ -78,7 +78,7 @@ const TenantDetailPage = async ({ params }: NextServerPageProps<{ tenantId: stri
           </div>
           <div>
             <dt className="inline font-bold">{t("customDomain")} :</dt>{" "}
-            <dd className="inline">{tenant.settings.customDomain ?? "—"}</dd>
+            <dd className="inline">{tenant.settings.customDomain ?? "-"}</dd>
           </div>
           <div>
             <dt className="inline font-bold">{t("private")} :</dt>{" "}

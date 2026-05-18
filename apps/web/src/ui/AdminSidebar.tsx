@@ -141,7 +141,7 @@ interface AdminSidebarProps {
   backHref?: string;
   /** Label for the back link */
   backLabel?: string;
-  /** Dev tools panel — only rendered in dev mode */
+  /** Dev tools panel - only rendered in dev mode */
   devTools?: React.ReactNode;
   /** Extra items shown after a separator below the main nav groups */
   extraItems?: ExtraItem[];
@@ -151,17 +151,17 @@ interface AdminSidebarProps {
     version: string;
   };
   groups: NavGroup[];
-  /** Header icon — ReactNode for full control (e.g. Image, SVG, or Lucide icon) */
+  /** Header icon - ReactNode for full control (e.g. Image, SVG, or Lucide icon) */
   icon: React.ReactNode;
   /** Show background on the icon container (default: true) */
   iconBg?: boolean;
   subtitle?: string;
   title: string;
-  /** User menu data for the sidebar footer — PostHog-style with workspace/org/account sections */
+  /** User menu data for the sidebar footer - PostHog-style with workspace/org/account sections */
   userMenu?: UserMenuData;
 }
 
-// --- Dark mode toggle (inline, no i18n needed — icon-only) ---
+// --- Dark mode toggle (inline, no i18n needed - icon-only) ---
 
 type Theme = "dark" | "light" | "system";
 
@@ -407,7 +407,7 @@ const SidebarUserMenu = ({ userMenu }: { userMenu: UserMenuData }) => {
 const sidebarItemStyle = { backgroundColor: "transparent" } as const;
 
 /**
- * Shared admin sidebar — root and tenant admin layouts.
+ * Shared admin sidebar - root and tenant admin layouts.
  *
  * Matches Stitch wireframe: icon + app name header, labeled groups,
  * separated extra items (moderation), status footer.
@@ -511,7 +511,7 @@ export const AdminSidebar = ({
               )}
             </div>
           </div>
-          {/* Collapse trigger — right of title when expanded, below logo when collapsed */}
+          {/* Collapse trigger - right of title when expanded, below logo when collapsed */}
           <SidebarTrigger className="size-7 shrink-0 text-sidebar-foreground/40 hover:text-sidebar-foreground">
             <PanelLeftClose className="size-4 transition-transform group-data-[collapsible=icon]:rotate-180" />
           </SidebarTrigger>
@@ -529,7 +529,7 @@ export const AdminSidebar = ({
 
       {/* Nav groups */}
       <SidebarContent className="relative" onMouseLeave={isMobile ? undefined : clearHighlight}>
-        {/* Roving highlight — disabled on mobile (touch has no hover, Sheet transform offsets positions) */}
+        {/* Roving highlight - disabled on mobile (touch has no hover, Sheet transform offsets positions) */}
         {!isMobile && highlight && (
           <motion.div
             className="pointer-events-none absolute inset-x-2 top-0 z-0 rounded-md bg-sidebar-accent"
@@ -598,7 +598,7 @@ export const AdminSidebar = ({
                   </TooltipTrigger>
                   <TooltipContent side="right">
                     <p className="text-xs">
-                      {footer.status} — {footer.version}
+                      {footer.status} - {footer.version}
                     </p>
                   </TooltipContent>
                 </Tooltip>

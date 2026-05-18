@@ -45,7 +45,7 @@ async function main() {
       },
     },
     business_profile: {
-      headline: "Roadmaps Faciles — Gérer votre abonnement",
+      headline: "Roadmaps Faciles - Gérer votre abonnement",
       privacy_policy_url: `${SITE_URL}/politique-de-confidentialite`,
       terms_of_service_url: `${SITE_URL}/cgu`,
     },

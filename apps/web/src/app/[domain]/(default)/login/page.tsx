@@ -20,7 +20,7 @@ const TenantLoginPage = DomainPageHOP()(async props => {
     .searchParams;
   const invitationToken = searchParams?.invitation;
   if (invitationToken) {
-    // Validate invitation exists (for future use — pre-fill email)
+    // Validate invitation exists (for future use - pre-fill email)
     const tokenDigest = crypto.createHash("sha256").update(invitationToken).digest("hex");
     await prisma.invitation.findFirst({
       where: { tokenDigest, tenantId: props._data.tenant.id, acceptedAt: null },
@@ -30,7 +30,7 @@ const TenantLoginPage = DomainPageHOP()(async props => {
 
   const theme = await getTheme(props._data.settings);
 
-  // Handle bridge token — auto sign-in from root session via client component
+  // Handle bridge token - auto sign-in from root session via client component
   const bridgeToken = searchParams?.bridge_token;
   if (bridgeToken) {
     const bridgeContent = <BridgeAutoLogin token={bridgeToken} />;
@@ -55,7 +55,7 @@ const TenantLoginPage = DomainPageHOP()(async props => {
     );
   }
 
-  // Build bridge link URL — use request headers for protocol/host to support sslip/custom dev hosts
+  // Build bridge link URL - use request headers for protocol/host to support sslip/custom dev hosts
   const headersList = await headers();
   const protocol = headersList.get("x-forwarded-proto") || "http";
   const host = headersList.get("host") || "localhost";

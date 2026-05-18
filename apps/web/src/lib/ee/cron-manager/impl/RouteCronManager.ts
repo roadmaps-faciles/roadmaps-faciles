@@ -18,11 +18,11 @@ export class RouteCronManager implements ICronManager {
   constructor(private readonly deps: IRouteCronDeps) {}
 
   public async registerJob(_integration: TenantIntegration): Promise<void> {
-    // Schedule is stored in DB (syncIntervalMinutes field) — no external registration needed
+    // Schedule is stored in DB (syncIntervalMinutes field) - no external registration needed
   }
 
   public async unregisterJob(_integrationId: number): Promise<void> {
-    // Schedule is stored in DB — no external deregistration needed
+    // Schedule is stored in DB - no external deregistration needed
   }
 
   public async processDueJobs(): Promise<CronExecutionReport> {

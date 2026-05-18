@@ -17,7 +17,7 @@ export interface FilterAndSearchDsfrProps {
   view: View;
 }
 
-/** DSFR icon IDs for sort order segments — Lucide equivalents live in types.ts ORDER_OPTIONS */
+/** DSFR icon IDs for sort order segments - Lucide equivalents live in types.ts ORDER_OPTIONS */
 const ORDER_ICONS: Record<Order, FrIconClassName> = {
   trending: "fr-icon-star-s-line",
   top: "fr-icon-arrow-right-up-line",

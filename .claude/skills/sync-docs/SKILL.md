@@ -18,29 +18,29 @@ git log dev..HEAD --oneline
 
 Resume les features et decisions architecturales nouvelles.
 
-## 2. CLAUDE.md — Revise via skill
+## 2. CLAUDE.md - Revise via skill
 
 Lance le skill `/claude-md-management:revise-claude-md` avec comme arguments un resume des learnings de la session.
 
 Si le skill propose des modifications, les appliquer apres validation utilisateur.
 
-## 3. Memory — Synchronisation
+## 3. Memory - Synchronisation
 
-Lis le fichier MEMORY.md du projet. Le chemin est indique dans le system prompt (section "auto memory"). Si tu es dans un worktree, le MEMORY.md a lire/ecrire est celui du repo principal (pas celui du worktree) — remonte au chemin racine du projet original pour le trouver.
+Lis le fichier MEMORY.md du projet. Le chemin est indique dans le system prompt (section "auto memory"). Si tu es dans un worktree, le MEMORY.md a lire/ecrire est celui du repo principal (pas celui du worktree) - remonte au chemin racine du projet original pour le trouver.
 
 Lis aussi le `CLAUDE.md` du projet.
 
 Compare les deux et identifie :
-- **Doublons** : informations presentes dans les deux fichiers — proposer de les retirer de MEMORY.md (CLAUDE.md fait foi car partage avec l'equipe)
-- **Memory-only** : informations dans MEMORY.md absentes de CLAUDE.md — evaluer si elles meritent d'etre dans CLAUDE.md (partageables) ou si elles restent en memory (personnelles/contextuelles)
-- **Obsoletes** : informations qui ne correspondent plus au code actuel — proposer de les supprimer
-- **Nouveaux learnings** : patterns, gotchas, ou conventions decouverts dans la session — proposer de les ajouter au bon endroit
+- **Doublons** : informations presentes dans les deux fichiers - proposer de les retirer de MEMORY.md (CLAUDE.md fait foi car partage avec l'equipe)
+- **Memory-only** : informations dans MEMORY.md absentes de CLAUDE.md - evaluer si elles meritent d'etre dans CLAUDE.md (partageables) ou si elles restent en memory (personnelles/contextuelles)
+- **Obsoletes** : informations qui ne correspondent plus au code actuel - proposer de les supprimer
+- **Nouveaux learnings** : patterns, gotchas, ou conventions decouverts dans la session - proposer de les ajouter au bon endroit
 
 Presente les modifications proposees et applique-les apres validation utilisateur.
 
 **Regle** : MEMORY.md doit rester sous 200 lignes (au-dela, le contenu est tronque). Si necessaire, creer des fichiers de detail (ex: `debugging.md`, `patterns.md`) et y faire reference depuis MEMORY.md.
 
-## 4. README.md — Mise a jour
+## 4. README.md - Mise a jour
 
 Lis `README.md` a la racine et verifie sa coherence avec l'etat actuel du projet :
 
@@ -54,15 +54,15 @@ Ne modifier que ce qui est factuellement incorrect ou manquant. Ne pas changer l
 
 Presente les modifications proposees et applique-les apres validation utilisateur.
 
-## 5. Documentation utilisateur/technique — `content/`
+## 5. Documentation utilisateur/technique - `content/`
 
 Le dossier `content/docs/` contient la documentation utilisateur et technique du projet en MDX (rendue sur `/doc/*`). Elle est organisee en sections :
 
-- `content/docs/concepts/` — Concepts metier (roles, tableaux, statuts, espaces)
-- `content/docs/guides/` — Guides utilisateur (creer un compte, voter, etc.)
-- `content/docs/admin/` — Documentation admin (membres, webhooks, domaines, etc.)
-- `content/docs/moderation/` — Documentation moderateur
-- `content/docs/technical/` — Documentation technique (DNS, self-hosting, deploiement, securite)
+- `content/docs/concepts/` - Concepts metier (roles, tableaux, statuts, espaces)
+- `content/docs/guides/` - Guides utilisateur (creer un compte, voter, etc.)
+- `content/docs/admin/` - Documentation admin (membres, webhooks, domaines, etc.)
+- `content/docs/moderation/` - Documentation moderateur
+- `content/docs/technical/` - Documentation technique (DNS, self-hosting, deploiement, securite)
 
 ### Procedure
 
@@ -82,7 +82,7 @@ Le dossier `content/docs/` contient la documentation utilisateur et technique du
 3. Liste toutes les pages MDX dans `content/docs/` et effectue un audit rapide :
    - **Noms/references** : mentions de l'ancien nom de projet, anciens domaines, anciennes URLs
    - **Chemins de code** : references a des fichiers ou repertoires qui ont ete deplaces/renommes
-   - **Variables d'environnement** : comparer les env vars documentees dans `self-hosting.mdx` avec celles definies dans `src/config.ts` — signaler les manquantes ou obsoletes
+   - **Variables d'environnement** : comparer les env vars documentees dans `self-hosting.mdx` avec celles definies dans `src/config.ts` - signaler les manquantes ou obsoletes
    - **Fonctionnalites supprimees ou deplacees** : pages documentant des features qui n'existent plus ou dont le scope a change (ex: feature deplacee sous licence EE)
    - **Liens internes** : references `(/doc/...)` pointant vers des pages qui n'existent plus
 
@@ -97,7 +97,7 @@ Le dossier `content/docs/` contient la documentation utilisateur et technique du
 
 6. Presente les modifications proposees par priorite et applique-les apres validation utilisateur.
 
-## 6. ADR — Architecture Decision Records
+## 6. ADR - Architecture Decision Records
 
 Determine si les features implementees dans la session justifient un ou plusieurs nouveaux ADR. Un ADR est justifie si :
 - Une **decision architecturale significative** a ete prise (nouveau pattern, nouvelle abstraction, choix technique structurant)
@@ -123,11 +123,11 @@ Si un ADR est justifie :
 
 Presente le contenu de l'ADR propose et cree le fichier apres validation utilisateur.
 
-## 7. DDR — Design Decision Records
+## 7. DDR - Design Decision Records
 
 Les DDR sont l'equivalent des ADR pour les decisions de design system (palette, composants, patterns CSS, conventions visuelles). Ils vivent dans `docs/ddr/`.
 
-### ADR vs DDR — comment choisir
+### ADR vs DDR - comment choisir
 
 | Critere | ADR (`docs/adr/`) | DDR (`docs/ddr/`) |
 |---------|-------|-------|
@@ -136,7 +136,7 @@ Les DDR sont l'equivalent des ADR pour les decisions de design system (palette, 
 | **Impact** | Structure du code, abstractions, data flow | Rendu visuel, coherence UI, accessibilite visuelle |
 | **Template** | `docs/adr/0000-template.md` | `docs/ddr/0000-template.md` |
 
-**Regle** : si la decision concerne **comment le code est structure**, c'est un ADR. Si elle concerne **comment l'interface se presente** (couleurs, espacements, variants de composants, dark mode), c'est un DDR. Certaines decisions chevauchent les deux (ex: architecture conditionnelle DSFR est un ADR pour le code, un DDR pour les tokens CSS) — dans ce cas, creer un DDR et y faire reference depuis les sections concernees.
+**Regle** : si la decision concerne **comment le code est structure**, c'est un ADR. Si elle concerne **comment l'interface se presente** (couleurs, espacements, variants de composants, dark mode), c'est un DDR. Certaines decisions chevauchent les deux (ex: architecture conditionnelle DSFR est un ADR pour le code, un DDR pour les tokens CSS) - dans ce cas, creer un DDR et y faire reference depuis les sections concernees.
 
 ### Quand creer un DDR
 
@@ -166,9 +166,9 @@ Si un DDR est justifie :
 
 Presente le contenu du DDR propose et cree le fichier apres validation utilisateur.
 
-## 8. Design System doc — Mise a jour
+## 8. Design System doc - Mise a jour
 
-Le fichier `docs/design-system.md` est la **documentation combinee** du design system (theme "Default" / French Blue). C'est la reference interne pour les developpeurs — pas pour les utilisateurs finaux.
+Le fichier `docs/design-system.md` est la **documentation combinee** du design system (theme "Default" / French Blue). C'est la reference interne pour les developpeurs - pas pour les utilisateurs finaux.
 
 ### Quand mettre a jour
 

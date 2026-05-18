@@ -235,7 +235,7 @@ export async function runBulkSeed() {
         data: { rootBoardId: boards[0].id },
       });
 
-      console.log(`  📦 Tenant "${tenantName}" — ${tenantUsers.length} users, ${boards.length} boards`);
+      console.log(`  📦 Tenant "${tenantName}" - ${tenantUsers.length} users, ${boards.length} boards`);
       await createPostsForTenant(tenant.id, boards, statuses, tenantUserIds, postsRange);
     }
 

@@ -27,7 +27,7 @@ class IdentifyUserBoundary extends Component<{ children: ReactNode }, { hasError
 
 /**
  * Syncs the authenticated user identity to both Sentry and the tracking provider.
- * Renders nothing — side-effect only.
+ * Renders nothing - side-effect only.
  *
  * Place inside `TrackingProvider` and `SessionProvider`.
  */

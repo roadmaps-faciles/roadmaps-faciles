@@ -1,6 +1,6 @@
 import { search } from "node-emoji";
 
-describe("node-emoji search — smoke tests", () => {
+describe("node-emoji search - smoke tests", () => {
   it("returns results with correct structure", () => {
     const results = search("smile");
 
@@ -51,7 +51,7 @@ describe("node-emoji search — smoke tests", () => {
   });
 
   it.each(["+", "*", "?", "(", "[", "\\"])("throws on regex-special character %s", char => {
-    // node-emoji passes query directly to new RegExp() — known library limitation
+    // node-emoji passes query directly to new RegExp() - known library limitation
     expect(() => search(char)).toThrow();
   });
 

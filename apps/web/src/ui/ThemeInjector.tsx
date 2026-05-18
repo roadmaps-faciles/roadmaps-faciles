@@ -3,7 +3,7 @@ import { type UiTheme } from "./types";
 /**
  * Inline `<script>` that sets `data-ui-theme` on `<html>` BEFORE first paint.
  * Also adds `dsfr-pending` class for DSFR theme to prevent FOUC
- * (removed by DsfrCssLoader once DSFR CSS is loaded — see globals.scss).
+ * (removed by DsfrCssLoader once DSFR CSS is loaded - see globals.scss).
  *
  * This MUST be a server component rendering a `<script>` tag, NOT a "use client"
  * component with useEffect, because useEffect runs AFTER paint → flash.

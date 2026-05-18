@@ -71,7 +71,7 @@ describe("getUserMenuContext", () => {
     expect(result.user.email).toBe("");
   });
 
-  describe("flatItems — normal user", () => {
+  describe("flatItems - normal user", () => {
     it("includes org when role >= MODERATOR and all tenants", async () => {
       const org = makeOrgWithTenants({ id: 1, name: "Acme", slug: "acme" }, [
         { id: 10, settings: { name: "Espace 1", subdomain: "espace-1" } },
@@ -149,7 +149,7 @@ describe("getUserMenuContext", () => {
     });
   });
 
-  describe("flatItems — super admin", () => {
+  describe("flatItems - super admin", () => {
     it("loads all orgs via prisma, not just memberships", async () => {
       const org1 = makeOrgWithTenants({ id: 1, name: "Org A", slug: "org-a" }, [
         { id: 10, settings: { name: "T1", subdomain: "t1" } },

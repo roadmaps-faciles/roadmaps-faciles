@@ -274,7 +274,7 @@ export const AuditLogView = ({ actions, items, locale, page, pageSize, stats, to
                         <TooltipContent>{item.userId}</TooltipContent>
                       </Tooltip>
                     ) : (
-                      <span className="text-xs">—</span>
+                      <span className="text-xs">-</span>
                     )}
                   </TableCell>
                   <TableCell>
@@ -284,7 +284,7 @@ export const AuditLogView = ({ actions, items, locale, page, pageSize, stats, to
                         {item.targetId ? ` #${item.targetId}` : ""}
                       </span>
                     ) : (
-                      "—"
+                      "-"
                     )}
                   </TableCell>
                   <TableCell>
@@ -301,7 +301,7 @@ export const AuditLogView = ({ actions, items, locale, page, pageSize, stats, to
                         </TooltipContent>
                       </Tooltip>
                     ) : (
-                      "—"
+                      "-"
                     )}
                   </TableCell>
                   <TableCell>
@@ -311,7 +311,7 @@ export const AuditLogView = ({ actions, items, locale, page, pageSize, stats, to
                       <Badge variant="destructive">{t("errorLabel")}</Badge>
                     )}
                   </TableCell>
-                  <TableCell className="text-xs">{item.ipAddress ?? "—"}</TableCell>
+                  <TableCell className="text-xs">{item.ipAddress ?? "-"}</TableCell>
                 </TableRow>
               );
             })}

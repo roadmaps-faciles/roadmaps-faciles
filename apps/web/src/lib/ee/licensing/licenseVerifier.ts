@@ -7,7 +7,7 @@ import { type LicensePayload } from "./types";
 /**
  * Parse and verify an Ed25519-signed license key.
  *
- * Duplicated from apps/licensing/src/crypto/verify.ts — intentionally self-contained
+ * Duplicated from apps/licensing/src/crypto/verify.ts - intentionally self-contained
  * so apps/web/ can verify offline without depending on apps/licensing/.
  */
 export function parseLicenseKey(key: string): { payload: LicensePayload | null; valid: boolean } {

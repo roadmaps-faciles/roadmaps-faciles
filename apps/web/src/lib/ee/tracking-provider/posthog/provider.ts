@@ -12,10 +12,10 @@ import {
 } from "../types";
 
 /**
- * PostHog client-side tracking provider — "full" level.
+ * PostHog client-side tracking provider - "full" level.
  *
  * Wraps the posthog-js singleton. Must be initialized via PostHogReactProvider
- * before any calls — queued calls are buffered by posthog-js automatically.
+ * before any calls - queued calls are buffered by posthog-js automatically.
  */
 class PostHogTrackingProvider implements IFeatureFlagProvider, ITrackingProvider {
   public readonly level = "full" as const;

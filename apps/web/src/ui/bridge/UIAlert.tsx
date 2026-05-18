@@ -15,7 +15,7 @@ export type UIAlertProps = {
   description?: React.ReactNode;
   onClose?: () => void;
   title?: React.ReactNode;
-  /** Alert style variant — maps to DSFR `severity` internally */
+  /** Alert style variant - maps to DSFR `severity` internally */
   variant: "default" | "destructive" | "success" | "warning";
 };
 

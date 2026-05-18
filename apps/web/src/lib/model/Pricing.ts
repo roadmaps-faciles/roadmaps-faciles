@@ -19,11 +19,11 @@ export const BASE_FEATURES = [
 export type BaseFeature = (typeof BASE_FEATURES)[number];
 
 /**
- * Addon packs — grouped by value proposition.
+ * Addon packs - grouped by value proposition.
  * Each pack maps to a single Stripe Price ID.
  * When purchased, all addons in the pack are activated individually in OrgAddon.
  *
- * Prices are monthly in euros (indicative — actual billing via Stripe).
+ * Prices are monthly in euros (indicative - actual billing via Stripe).
  */
 export interface AddonPack {
   addons: AddonType[];
@@ -70,7 +70,7 @@ export const ADDON_PACKS: AddonPack[] = [
 ];
 
 /**
- * Bundle pricing — all packs at a discount.
+ * Bundle pricing - all packs at a discount.
  * Bundles are also Stripe Price IDs (one line item, not multiple packs).
  */
 export const BUNDLE_PRO = {

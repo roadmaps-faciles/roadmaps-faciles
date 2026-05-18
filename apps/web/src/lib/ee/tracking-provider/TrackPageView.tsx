@@ -11,7 +11,7 @@ interface TrackPageViewProps {
 
 /**
  * Fire-and-forget client-side page view tracking.
- * Renders nothing — just fires the event on mount.
+ * Renders nothing - just fires the event on mount.
  *
  * @example
  * ```tsx

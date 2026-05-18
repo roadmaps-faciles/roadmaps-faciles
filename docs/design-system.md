@@ -1,4 +1,4 @@
-# Design System — French Blue (thème "Default")
+# Design System - French Blue (thème "Default")
 
 > **Audience** : développeurs du projet. Ce document est la référence combinée pour le thème shadcn "Default" (French Blue). Pour les décisions individuelles, voir les DDR dans `docs/ddr/`.
 
@@ -20,7 +20,7 @@
 6. [Typographie](#typographie)
 7. [Layout & spacing](#layout--spacing)
 8. [Icônes](#icônes)
-9. [DSFR — séparation & coexistence](#dsfr--séparation--coexistence)
+9. [DSFR - séparation & coexistence](#dsfr--séparation--coexistence)
 10. [Fichiers clés](#fichiers-clés)
 
 ---
@@ -55,10 +55,10 @@
 | Fichier | Rôle |
 |---------|------|
 | `apps/web/src/ui/types.ts` | Type `UiTheme = "Default" \| "Dsfr"` |
-| `apps/web/src/ui/UIContext.tsx` | `UIProvider` + `useUI()` — React context pour le thème actif |
-| `apps/web/src/ui/server.ts` | `getTheme(settings)` — résolution server-side |
-| `apps/web/src/ui/ThemeInjector.tsx` | Client component — injecte `data-ui-theme` sur `<html>` au mount |
-| `apps/web/src/app/ThemeScript.tsx` | Script inline bloquant — dark mode sans FOUC |
+| `apps/web/src/ui/UIContext.tsx` | `UIProvider` + `useUI()` - React context pour le thème actif |
+| `apps/web/src/ui/server.ts` | `getTheme(settings)` - résolution server-side |
+| `apps/web/src/ui/ThemeInjector.tsx` | Client component - injecte `data-ui-theme` sur `<html>` au mount |
+| `apps/web/src/app/ThemeScript.tsx` | Script inline bloquant - dark mode sans FOUC |
 | `apps/web/src/app/globals.scss` | Tokens CSS + Tailwind bridge + DSFR resets |
 | `apps/web/src/app/root.module.scss` | Styles `.app` / `.content` conditionnels par thème |
 
@@ -68,7 +68,7 @@
 
 Palette **French Blue**, toutes les valeurs en **oklch** (espace perceptuellement uniforme, P3-ready).
 
-### Light mode — `[data-ui-theme="Default"]`
+### Light mode - `[data-ui-theme="Default"]`
 
 | Token | Valeur | Nom interne | Usage |
 |-------|--------|-------------|-------|
@@ -91,11 +91,11 @@ Palette **French Blue**, toutes les valeurs en **oklch** (espace perceptuellemen
 | `--input` | `oklch(0.885 0.020 265)` | = border | Bordure des inputs |
 | `--ring` | `oklch(0.542 0.104 265)` | Smart Blue | Focus ring |
 
-### Dark mode — `.dark[data-ui-theme="Default"]`
+### Dark mode - `.dark[data-ui-theme="Default"]`
 
 | Token | Valeur | Delta vs light |
 |-------|--------|----------------|
-| `--primary` | `oklch(0.620 0.130 264)` | +0.23 L, -0.02 C — bleu plus clair pour contraste |
+| `--primary` | `oklch(0.620 0.130 264)` | +0.23 L, -0.02 C - bleu plus clair pour contraste |
 | `--background` | `oklch(0.220 0.010 264)` | Carbon Black |
 | `--foreground` | `oklch(0.920 0.015 265)` | Near Lavender |
 | `--card` | `oklch(0.260 0.030 264)` | Prussian Blue |
@@ -142,7 +142,7 @@ Le `@theme inline` dans `globals.scss` mappe les CSS custom properties vers les 
 
 Ça permet d'écrire `bg-primary`, `text-muted-foreground`, `border-border/40` directement dans le JSX.
 
-**Piège connu** : les custom `--spacing-*` ne sont pas fiablement générés par Turbopack — pour des valeurs dynamiques basées sur des CSS vars (ex: `--sticky-offset`), utiliser des SCSS modules plutôt que des utilitaires Tailwind.
+**Piège connu** : les custom `--spacing-*` ne sont pas fiablement générés par Turbopack - pour des valeurs dynamiques basées sur des CSS vars (ex: `--sticky-offset`), utiliser des SCSS modules plutôt que des utilitaires Tailwind.
 
 ---
 
@@ -150,15 +150,15 @@ Le `@theme inline` dans `globals.scss` mappe les CSS custom properties vers les 
 
 ### Mécanisme
 
-1. **`ThemeScript`** (`apps/web/src/app/ThemeScript.tsx`) — script inline bloquant dans `<head>`
+1. **`ThemeScript`** (`apps/web/src/app/ThemeScript.tsx`) - script inline bloquant dans `<head>`
    - Lit `localStorage("theme")` (convention standard shadcn/next-themes)
    - Fallback sur `prefers-color-scheme` media query
    - Toggle `classList.toggle("dark", isDark)` sur `<html>`
    - S'exécute **avant le premier paint** → zéro FOUC
 
-2. **Classe** : `.dark` sur `<html>` — convention standard shadcn/next-themes
+2. **Classe** : `.dark` sur `<html>` - convention standard shadcn/next-themes
 
-3. **Sélecteur CSS** : `.dark[data-ui-theme="Default"]` — double sélecteur pour ne matcher que le thème Default en dark
+3. **Sélecteur CSS** : `.dark[data-ui-theme="Default"]` - double sélecteur pour ne matcher que le thème Default en dark
 
 4. **Fallback** : pas de classe `.dark` = light mode par défaut (si JS échoue)
 
@@ -179,7 +179,7 @@ Sur les pages `/doc`, next-themes (via Fumadocs `RootProvider`) gère le toggle 
 
 ### Button
 
-**Source** : `packages/ui/src/components/button.tsx` — cva avec 6 variants × 8 sizes.
+**Source** : `packages/ui/src/components/button.tsx` - cva avec 6 variants × 8 sizes.
 
 #### Variants
 
@@ -233,7 +233,7 @@ Sur les pages `/doc`, next-themes (via Fumadocs `RootProvider`) gère le toggle 
 
 ### Card
 
-**Source** : `packages/ui/src/components/card.tsx` — sub-components : `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardAction`, `CardContent`, `CardFooter`.
+**Source** : `packages/ui/src/components/card.tsx` - sub-components : `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardAction`, `CardContent`, `CardFooter`.
 
 **Defaults du composant** : `bg-card text-card-foreground rounded-xl border py-6 shadow-sm`.
 
@@ -244,7 +244,7 @@ Sur les pages `/doc`, next-themes (via Fumadocs `RootProvider`) gère le toggle 
 | **Outer** | `border-border/40 shadow-none` | `p-8` | Cartes principales (bento, sections) |
 | **Inner** | `border-border/30 shadow-none` | `p-4` | Cartes imbriquées (kanban items, formulaires) |
 | **Status** | `border-{color}/20 shadow-none` | `p-4` | Cartes avec indicateur sémantique |
-| **Accent bg** | `bg-muted/30` | — | Zone secondaire dans une carte outer |
+| **Accent bg** | `bg-muted/30` | - | Zone secondaire dans une carte outer |
 
 #### Exemples
 
@@ -265,7 +265,7 @@ Sur les pages `/doc`, next-themes (via Fumadocs `RootProvider`) gère le toggle 
 
 #### Règles
 
-1. **Toujours** `shadow-none` — le composant a `shadow-sm` par défaut.
+1. **Toujours** `shadow-none` - le composant a `shadow-sm` par défaut.
 2. **Jamais** de `shadow-md`/`shadow-lg` sur les cartes.
 3. Inner < Outer pour l'opacité des bordures (`/30` < `/40`).
 4. Pour les couleurs sémantiques (emerald, amber), prévoir les classes `dark:` explicites.
@@ -276,16 +276,16 @@ Sur les pages `/doc`, next-themes (via Fumadocs `RootProvider`) gère le toggle 
 
 ### Badge
 
-**Source** : `packages/ui/src/components/badge.tsx` — cva avec 6 variants.
+**Source** : `packages/ui/src/components/badge.tsx` - cva avec 6 variants.
 
 | Variant | Usage |
 |---------|-------|
-| `default` | `bg-primary text-primary-foreground` — statut actif, highlight |
-| `secondary` | `bg-secondary` — label informatif neutre |
-| `outline` | `border-border text-foreground` — tag subtil |
-| `destructive` | `bg-destructive text-white` — erreur, alerte |
-| `ghost` | Transparent — catégorie légère |
-| `link` | `text-primary underline` — lien en badge |
+| `default` | `bg-primary text-primary-foreground` - statut actif, highlight |
+| `secondary` | `bg-secondary` - label informatif neutre |
+| `outline` | `border-border text-foreground` - tag subtil |
+| `destructive` | `bg-destructive text-white` - erreur, alerte |
+| `ghost` | Transparent - catégorie légère |
+| `link` | `text-primary underline` - lien en badge |
 
 #### Patterns courants
 
@@ -339,7 +339,7 @@ Deux variantes : **RootHeader** (root pages) et **Header** (tenant pages).
 
 Même structure mais :
 - **Hauteur** : `h-14` (plus compact)
-- **Brand** : `serviceName` string (pas ReactNode) — juste le nom du tenant en `font-bold`
+- **Brand** : `serviceName` string (pas ReactNode) - juste le nom du tenant en `font-bold`
 - Pas de badge, pas d'icône brand
 
 ---
@@ -362,7 +362,7 @@ Deux variantes : **RootFooter** (root pages) et **Footer** (tenant pages).
 ```
 
 - **Background** : `border-t bg-muted/50`
-- **Grid** : `grid-cols-2 md:grid-cols-4 lg:grid-cols-5` — brand col-span-2 + 3 colonnes liens
+- **Grid** : `grid-cols-2 md:grid-cols-4 lg:grid-cols-5` - brand col-span-2 + 3 colonnes liens
 - **Brand** : icon + name en `text-primary`
 - **Links** : `text-muted-foreground hover:text-primary` + focus-visible ring
 - **Bottom** : `Separator` + copyright/license en `text-xs text-muted-foreground`
@@ -376,7 +376,7 @@ Plus simple : `serviceName` + `contentDescription` + `bottomLinks` (flat) + `lic
 
 ### SkipLinks
 
-**Source** : `apps/web/src/ui/SkipLinks.tsx` — navigation d'accessibilité.
+**Source** : `apps/web/src/ui/SkipLinks.tsx` - navigation d'accessibilité.
 
 - Deux liens : `#content` (main) et `#footer`
 - `sr-only` par défaut, visible au `focus-within`
@@ -487,7 +487,7 @@ Utilisé pour toutes les sections de la landing page. Les composants Header/Foot
 
 ---
 
-## DSFR — séparation & coexistence
+## DSFR - séparation & coexistence
 
 ### Principe (DDR-0002)
 
@@ -498,16 +498,16 @@ Le DSFR est **légalement restreint** aux entités publiques autorisées. Le roo
 | Scope | DSFR | shadcn/Default |
 |-------|------|----------------|
 | Root layout (`apps/web/src/app/layout.tsx`) | Aucun import | `ThemeScript`, `UIProvider("Default")` |
-| Tenant layout (theme=Dsfr) | `DsfrProvider` (toujours), `ConsentBanner`, `Header` DSFR, `Footer` DSFR | — |
+| Tenant layout (theme=Dsfr) | `DsfrProvider` (toujours), `ConsentBanner`, `Header` DSFR, `Footer` DSFR | - |
 | Tenant layout (theme=Default) | `DsfrProvider` (toujours, hooks DSFR dans les pages) | `ShadcnHeader`, `ShadcnFooter` |
 
 ### CSS resets (`globals.scss`)
 
 Le DSFR injecte des styles base non-layered qui battent Tailwind `@layer utilities`. Les resets dans `[data-ui-theme="Default"]` neutralisent :
 
-- `a { text-decoration: none; background-image: none; }` — DSFR force underline sur tous les `<a>`
-- `h1-h6 { font-size: revert-layer; line-height: revert-layer; }` — DSFR override les tailles de heading
-- `ul, ol { list-style: revert-layer; padding: revert-layer; }` — DSFR strip les puces de liste
+- `a { text-decoration: none; background-image: none; }` - DSFR force underline sur tous les `<a>`
+- `h1-h6 { font-size: revert-layer; line-height: revert-layer; }` - DSFR override les tailles de heading
+- `ul, ol { list-style: revert-layer; padding: revert-layer; }` - DSFR strip les puces de liste
 
 ### ThemeInjector (`apps/web/src/ui/ThemeInjector.tsx`)
 
@@ -544,16 +544,16 @@ Le root layout met `data-ui-theme="Default"` en statique. Le `ThemeInjector` ove
 |---------|---------|
 | `apps/web/src/app/globals.scss` | Tokens CSS (palette light+dark), Tailwind bridge, DSFR resets |
 | `apps/web/src/app/root.module.scss` | Styles `.app` / `.content` conditionnels par thème |
-| `apps/web/src/app/layout.tsx` | Root layout — DSFR-free, `ThemeScript`, `UIProvider("Default")` |
+| `apps/web/src/app/layout.tsx` | Root layout - DSFR-free, `ThemeScript`, `UIProvider("Default")` |
 | `apps/web/src/app/ThemeScript.tsx` | Script anti-FOUC dark mode |
-| `apps/web/src/app/[domain]/(domain)/layout.tsx` | Tenant layout — always `DsfrProvider`, conditional Header/Footer |
+| `apps/web/src/app/[domain]/(domain)/layout.tsx` | Tenant layout - always `DsfrProvider`, conditional Header/Footer |
 | `apps/web/src/ui/types.ts` | `UiTheme = "Default" \| "Dsfr"` |
 | `apps/web/src/ui/UIContext.tsx` | `UIProvider` + `useUI()` |
 | `apps/web/src/ui/server.ts` | `getTheme(settings)` |
 | `apps/web/src/ui/ThemeInjector.tsx` | Client-side `data-ui-theme` injection |
-| `apps/web/src/ui/bridge/` | 15 bridge components (UIAlert, UIBadge, UIButton, UIMarkdownEditor, UISwitch, etc.) — dual-theme via `React.lazy()` |
-| `apps/web/src/app/showcase/` | Showcase page — tous les bridges, toggle theme + dark mode |
-| `packages/ui/src/lib/cn.ts` | `cn()` — wrapper `clsx` + `tailwind-merge` |
+| `apps/web/src/ui/bridge/` | 15 bridge components (UIAlert, UIBadge, UIButton, UIMarkdownEditor, UISwitch, etc.) - dual-theme via `React.lazy()` |
+| `apps/web/src/app/showcase/` | Showcase page - tous les bridges, toggle theme + dark mode |
+| `packages/ui/src/lib/cn.ts` | `cn()` - wrapper `clsx` + `tailwind-merge` |
 | `packages/ui/src/components/button.tsx` | Button (cva, 6 variants, 8 sizes) |
 | `packages/ui/src/components/card.tsx` | Card + sub-components |
 | `packages/ui/src/components/badge.tsx` | Badge (cva, 6 variants) |

@@ -88,7 +88,7 @@ export const IntegrationDetail = ({ integration, mappings, syncRuns }: Integrati
           router.refresh();
         }
       } catch {
-        // Network error — ignore
+        // Network error - ignore
       }
     };
 

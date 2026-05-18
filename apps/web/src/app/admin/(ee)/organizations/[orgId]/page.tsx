@@ -60,7 +60,7 @@ const OrgDetailPage = async ({ params }: NextServerPageProps<{ orgId: string }>)
             </dd>
           </div>
           <div>
-            <dt className="inline font-bold">Stripe :</dt> <dd className="inline">{org.stripeCustomerId ?? "—"}</dd>
+            <dt className="inline font-bold">Stripe :</dt> <dd className="inline">{org.stripeCustomerId ?? "-"}</dd>
           </div>
           <div>
             <dt className="inline font-bold">{t("createdAt")} :</dt>{" "}

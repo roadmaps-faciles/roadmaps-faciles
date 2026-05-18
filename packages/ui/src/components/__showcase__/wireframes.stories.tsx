@@ -1,7 +1,7 @@
 import { type Meta, type StoryObj } from "@storybook/react-vite";
 
 /**
- * Wireframes Stitch — Maquettes HTML statiques de référence pour l'implémentation.
+ * Wireframes Stitch - Maquettes HTML statiques de référence pour l'implémentation.
  *
  * Chaque story affiche un écran Stitch dans un iframe plein page.
  * Le dark mode toggle est intégré dans chaque HTML (bouton flottant en bas à droite).
@@ -41,15 +41,15 @@ const meta: Meta = {
 
 export default meta;
 
-// — Admin —
+// - Admin -
 
 export const AdminAPIKeysListe: Story = {
-  name: "API Keys & Webhooks — Liste",
+  name: "API Keys & Webhooks - Liste",
   render: () => <WireframeIframe file="admin-auth-api-webhooks-1" />,
 };
 
 export const AdminAPIKeysDetail: Story = {
-  name: "API Keys & Webhooks — Détail",
+  name: "API Keys & Webhooks - Détail",
   render: () => <WireframeIframe file="admin-auth-api-webhooks-2" />,
 };
 
@@ -64,27 +64,27 @@ export const AdminStatuts: Story = {
 };
 
 export const AdminIntegrationsCatalogue: Story = {
-  name: "Intégrations — Catalogue",
+  name: "Intégrations - Catalogue",
   render: () => <WireframeIframe file="admin-integrations-notion-1" />,
 };
 
 export const AdminIntegrationsWizard: Story = {
-  name: "Intégrations — Wizard Config",
+  name: "Intégrations - Wizard Config",
   render: () => <WireframeIframe file="admin-integrations-notion-2" />,
 };
 
 export const AdminIntegrationsDetailSync: Story = {
-  name: "Intégrations — Détail Sync",
+  name: "Intégrations - Détail Sync",
   render: () => <WireframeIframe file="admin-integrations-notion-3" />,
 };
 
 export const AdminIntegrationsWizardDark: Story = {
-  name: "Intégrations — Wizard Dark",
+  name: "Intégrations - Wizard Dark",
   render: () => <WireframeIframe file="admin-integrations-notion-5" />,
 };
 
 export const AdminIntegrationsListeSync: Story = {
-  name: "Intégrations — Liste Sync",
+  name: "Intégrations - Liste Sync",
   render: () => <WireframeIframe file="admin-integrations-notion-6" />,
 };
 
@@ -99,45 +99,45 @@ export const AdminLayoutSidebar: Story = {
 };
 
 export const AdminMembresListe: Story = {
-  name: "Membres & Invitations — Liste",
+  name: "Membres & Invitations - Liste",
   render: () => <WireframeIframe file="admin-membres-invitations-1" />,
 };
 
 export const AdminMembresVue2: Story = {
-  name: "Membres & Invitations — Vue 2",
+  name: "Membres & Invitations - Vue 2",
   render: () => <WireframeIframe file="admin-membres-invitations-3" />,
 };
 
-// — Board —
+// - Board -
 
 export const BoardLayout3Colonnes: Story = {
-  name: "Board — Layout 3 Colonnes",
+  name: "Board - Layout 3 Colonnes",
   render: () => <WireframeIframe file="board-3-column-layout-light" />,
 };
 
 export const BoardModalPost: Story = {
-  name: "Board — Modal Post",
+  name: "Board - Modal Post",
   render: () => <WireframeIframe file="board-modal-dark" />,
 };
 
 export const BoardLayoutSidebar: Story = {
-  name: "Board — Layout avec Sidebar",
+  name: "Board - Layout avec Sidebar",
   render: () => <WireframeIframe file="board-sidebar-layout-light" />,
 };
 
-// — Detail —
+// - Detail -
 
 export const DetailPostFullPage: Story = {
-  name: "Detail — Post Full Page",
+  name: "Detail - Post Full Page",
   render: () => <WireframeIframe file="detail-page-inline-action-dark-variant" />,
 };
 
 export const DetailPostModal: Story = {
-  name: "Detail — Post Modal",
+  name: "Detail - Post Modal",
   render: () => <WireframeIframe file="detail-page-inline-actions-light" />,
 };
 
-// — Pages —
+// - Pages -
 
 export const Embeds: Story = {
   name: "Configuration Embeds",
@@ -168,12 +168,12 @@ export const LoginPage: Story = {
 };
 
 export const ModerationVue1: Story = {
-  name: "Modération — Vue 1",
+  name: "Modération - Vue 1",
   render: () => <WireframeIframe file="moderation-1" />,
 };
 
 export const ModerationVue2: Story = {
-  name: "Modération — Vue 2",
+  name: "Modération - Vue 2",
   render: () => <WireframeIframe file="moderation-2" />,
 };
 

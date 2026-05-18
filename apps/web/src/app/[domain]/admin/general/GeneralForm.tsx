@@ -174,7 +174,7 @@ type DomainFormType = {
   subdomain: string;
 };
 
-/** Quick nav section IDs — must match section `id` fields + extra sections */
+/** Quick nav section IDs - must match section `id` fields + extra sections */
 const ALL_SECTION_IDS = ["privacy", "moderation", "header", "visibility", "embedding", "ui-theme", "domain", "danger"];
 
 interface GeneralFormProps {
@@ -270,7 +270,7 @@ export const GeneralForm = ({ tenantSettings, isOwner, hasData }: GeneralFormPro
     [getValues, reset],
   );
 
-  /** Quick nav labels — matches ALL_SECTION_IDS */
+  /** Quick nav labels - matches ALL_SECTION_IDS */
   const quickNavItems = [
     ...SECTIONS.map(s => ({ id: s.id, label: s.title })),
     ...(themeSwitchingEnabled ? [{ id: "ui-theme", label: t("uiTheme.label") }] : []),

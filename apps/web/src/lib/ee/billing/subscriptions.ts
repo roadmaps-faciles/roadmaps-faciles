@@ -62,7 +62,7 @@ export async function updateSubscriptionAddons(org: Organization): Promise<void>
       where: { id: org.id },
       data: { stripeSubscriptionId: null },
     });
-    logger.info({ orgId: org.id }, "Subscription cancelled — no more active addons");
+    logger.info({ orgId: org.id }, "Subscription cancelled - no more active addons");
     return;
   }
 
@@ -92,7 +92,7 @@ export async function updateSubscriptionAddons(org: Organization): Promise<void>
  */
 export async function cancelSubscription(org: Organization): Promise<void> {
   if (!stripeInstance) {
-    // Dev mode — deactivate addons + clear subscription
+    // Dev mode - deactivate addons + clear subscription
     await prisma.organization.update({
       where: { id: org.id },
       data: { stripeSubscriptionId: null },
@@ -101,7 +101,7 @@ export async function cancelSubscription(org: Organization): Promise<void> {
       where: { organizationId: org.id, active: true },
       data: { active: false },
     });
-    logger.info({ orgId: org.id }, "[dev] Subscription cancelled — addons deactivated (Stripe bypassed)");
+    logger.info({ orgId: org.id }, "[dev] Subscription cancelled - addons deactivated (Stripe bypassed)");
     return;
   }
   if (!org.stripeCustomerId) return;

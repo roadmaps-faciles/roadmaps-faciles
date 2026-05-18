@@ -74,9 +74,9 @@ module.exports = async ({ github, context, core, dispatchEnvironment }) => {
     environment = dispatchEnvironment;
     ref = context.sha;
     shouldDeploy = true;
-    core.info("Manual dispatch — skipping CI gate");
+    core.info("Manual dispatch - skipping CI gate");
     if (environment === "production") {
-      core.warning(`Manual production deploy from ref ${ref} — ensure this is intentional`);
+      core.warning(`Manual production deploy from ref ${ref} - ensure this is intentional`);
     }
   } else if (eventName === "release") {
     environment = "production";
@@ -93,7 +93,7 @@ module.exports = async ({ github, context, core, dispatchEnvironment }) => {
 
     shouldDeploy = passed;
     if (!passed) {
-      core.info("Not all CI workflows passed yet — skipping. Next workflow_run event will re-check.");
+      core.info("Not all CI workflows passed yet - skipping. Next workflow_run event will re-check.");
     }
   }
 

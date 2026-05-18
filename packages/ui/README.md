@@ -15,7 +15,7 @@ Bibliothèque de composants UI partagés, basée sur [shadcn/ui](https://ui.shad
 ```
 src/
   components/     # 27 composants shadcn (accordion, button, dialog, etc.)
-    index.ts      # barrel — re-exporte tous les composants
+    index.ts      # barrel - re-exporte tous les composants
   lib/
     cn.ts         # utilitaire cn() (clsx + twMerge)
     use-mobile.ts # hook useIsMobile() (breakpoint 768px)
@@ -84,7 +84,7 @@ Palette **French Blue** (`#163C90`) en oklch :
 
 ## ESLint
 
-Pas de `eslint.config.ts` local — hérite naturellement de la config racine du monorepo.
+Pas de `eslint.config.ts` local - hérite naturellement de la config racine du monorepo.
 
 ```bash
 pnpm lint       # lint via config racine

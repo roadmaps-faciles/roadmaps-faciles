@@ -62,7 +62,7 @@ const OrgAuditLogPage = async ({ params }: { params: Promise<{ orgSlug: string }
                 <div className="space-y-0.5">
                   <p className="font-medium">{log.action}</p>
                   <p className="text-xs text-muted-foreground">
-                    {log.createdAt.toLocaleString()} — {log.userId ?? "system"}
+                    {log.createdAt.toLocaleString()} - {log.userId ?? "system"}
                   </p>
                 </div>
                 {log.success === false && <span className="text-xs text-destructive">Erreur</span>}

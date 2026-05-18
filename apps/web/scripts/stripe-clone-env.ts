@@ -7,10 +7,10 @@
  *   STRIPE_SOURCE_KEY=sk_test_xxx STRIPE_TARGET_KEY=sk_test_yyy tsx scripts/stripe-clone-env.ts
  *
  * Options (env vars):
- *   STRIPE_SOURCE_KEY  — API key of the source environment (required)
- *   STRIPE_TARGET_KEY  — API key of the target environment (required)
- *   DRY_RUN=1          — preview what would be cloned without writing (optional)
- *   SKIP=webhooks,portal — comma-separated resource types to skip (optional)
+ *   STRIPE_SOURCE_KEY  - API key of the source environment (required)
+ *   STRIPE_TARGET_KEY  - API key of the target environment (required)
+ *   DRY_RUN=1          - preview what would be cloned without writing (optional)
+ *   SKIP=webhooks,portal - comma-separated resource types to skip (optional)
  *
  * Output:
  *   Prints a JSON mapping file to stdout (old ID → new ID) at the end.
@@ -34,7 +34,7 @@ if (!sourceKey || !targetKey) {
 }
 
 if (sourceKey === targetKey) {
-  console.error("Source and target keys are the same — aborting to prevent duplicates.");
+  console.error("Source and target keys are the same - aborting to prevent duplicates.");
   process.exit(1);
 }
 
@@ -115,7 +115,7 @@ async function clonePrices() {
 
     const targetProductId = idMap[productId];
     if (!targetProductId) {
-      log("  ", `Skipping price ${price.id} — product ${productId} not cloned`);
+      log("  ", `Skipping price ${price.id} - product ${productId} not cloned`);
       continue;
     }
 
@@ -219,7 +219,7 @@ async function clonePromotionCodes() {
 
     const targetCouponId = idMap[couponId];
     if (!targetCouponId) {
-      log("  ", `Skipping promo ${promo.code} — coupon ${couponId} not cloned`);
+      log("  ", `Skipping promo ${promo.code} - coupon ${couponId} not cloned`);
       continue;
     }
 

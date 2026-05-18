@@ -10,7 +10,7 @@ import { isSyncLocked } from "./GitHubSyncGuard";
 
 export async function pushPostToGitHub(postId: number, postData: PostSyncData): Promise<void> {
   if (await isSyncLocked(postId)) {
-    logger.debug({ postId }, "GitHub outbound sync skipped — sync lock active (inbound webhook in progress)");
+    logger.debug({ postId }, "GitHub outbound sync skipped - sync lock active (inbound webhook in progress)");
     return;
   }
 

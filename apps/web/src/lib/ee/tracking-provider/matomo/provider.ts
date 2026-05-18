@@ -1,7 +1,7 @@
 import { type IFeatureFlagProvider, type ITrackingProvider } from "../types";
 
 /**
- * Matomo tracking provider — "simple" level.
+ * Matomo tracking provider - "simple" level.
  *
  * Only tracks page views via the matomo-next script injection.
  * All event/identify/group/feature-flag methods are noops.

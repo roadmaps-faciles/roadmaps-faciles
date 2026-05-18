@@ -68,22 +68,22 @@ const CguPage = () => {
       <p>Le Service propose les formules suivantes :</p>
       <ul>
         <li>
-          <strong>Gratuit</strong> — Fonctionnalités de base (roadmap, tableaux, votes, commentaires, intégration
+          <strong>Gratuit</strong> - Fonctionnalités de base (roadmap, tableaux, votes, commentaires, intégration
           iframe, stockage d&apos;images, authentification).
         </li>
         <li>
-          <strong>Add-ons à la carte</strong> — Fonctionnalités avancées activables individuellement ou en packs
+          <strong>Add-ons à la carte</strong> - Fonctionnalités avancées activables individuellement ou en packs
           (domaine personnalisé, multi-tenant, intégrations, API, audit, SSO, analytics). Facturation mensuelle ou
           annuelle.
         </li>
         <li>
-          <strong>Pack Pro</strong> — Tous les add-ons sauf SSO Entreprise, à prix réduit.
+          <strong>Pack Pro</strong> - Tous les add-ons sauf SSO Entreprise, à prix réduit.
         </li>
         <li>
-          <strong>Pack Complet</strong> — Tous les add-ons inclus, y compris SSO Entreprise.
+          <strong>Pack Complet</strong> - Tous les add-ons inclus, y compris SSO Entreprise.
         </li>
         <li>
-          <strong>Administration publique</strong> — Accès complet gratuit pour les entités disposant d&apos;un domaine
+          <strong>Administration publique</strong> - Accès complet gratuit pour les entités disposant d&apos;un domaine
           .gouv.fr vérifié.
         </li>
       </ul>
@@ -98,7 +98,7 @@ const CguPage = () => {
         <a href="https://stripe.com" target="_blank" rel="noopener noreferrer">
           Stripe
         </a>
-        . {brandName} ne stocke aucune donnée bancaire — celles-ci sont traitées exclusivement par Stripe.
+        . {brandName} ne stocke aucune donnée bancaire - celles-ci sont traitées exclusivement par Stripe.
       </p>
       <p>
         Les abonnements sont renouvelés automatiquement à chaque échéance (mensuelle ou annuelle). L&apos;utilisateur

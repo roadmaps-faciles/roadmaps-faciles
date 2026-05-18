@@ -11,13 +11,13 @@ export class CaddyDomainProvider implements IDomainProvider {
   // eslint-disable-next-line @typescript-eslint/require-await
   public async addDomain(domain: string, type: DomainType): Promise<void> {
     // On-demand TLS handles certificate provisioning automatically via the `ask` endpoint.
-    logger.debug({ domain, type }, "CaddyDomainProvider addDomain — on-demand TLS, no action needed");
+    logger.debug({ domain, type }, "CaddyDomainProvider addDomain - on-demand TLS, no action needed");
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await
   public async removeDomain(domain: string): Promise<void> {
     // Caddy's on-demand TLS will stop renewing once the `ask` endpoint returns 404.
-    logger.debug({ domain }, "CaddyDomainProvider removeDomain — domain removed from DB, cert will not renew");
+    logger.debug({ domain }, "CaddyDomainProvider removeDomain - domain removed from DB, cert will not renew");
   }
 
   public async checkStatus(domain: string): Promise<DomainStatus> {

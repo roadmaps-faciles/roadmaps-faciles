@@ -70,13 +70,13 @@ const PolitiqueDeConfidentialitePage = () => {
       <p>Les données personnelles peuvent être transmises aux sous-traitants suivants :</p>
       <ul>
         <li>
-          <strong>Stripe, Inc.</strong> — Traitement des paiements et gestion des abonnements.{" "}
+          <strong>Stripe, Inc.</strong> - Traitement des paiements et gestion des abonnements.{" "}
           <a href="https://stripe.com/fr/privacy" target="_blank" rel="noopener noreferrer">
             Politique de confidentialité Stripe
           </a>
         </li>
         <li>
-          <strong>{config.legal.hostingName}</strong> — Hébergement de l&apos;infrastructure
+          <strong>{config.legal.hostingName}</strong> - Hébergement de l&apos;infrastructure
         </li>
       </ul>
 
@@ -161,7 +161,7 @@ const PolitiqueDeConfidentialitePage = () => {
                     Voir
                   </a>
                 ) : (
-                  "—"
+                  "-"
                 )}
               </td>
             </tr>

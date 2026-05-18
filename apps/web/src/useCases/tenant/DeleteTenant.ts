@@ -35,7 +35,7 @@ export class DeleteTenant implements UseCase<DeleteTenantInput, DeleteTenantOutp
       throw new Error("Seul un propriétaire peut supprimer le tenant.");
     }
 
-    // Block deletion of the last active tenant — delete the org instead
+    // Block deletion of the last active tenant - delete the org instead
     const activeTenantCount = await this.tenantRepo.countByOrganizationId(tenant.organizationId);
     if (activeTenantCount <= 1) {
       throw new Error("LAST_TENANT");

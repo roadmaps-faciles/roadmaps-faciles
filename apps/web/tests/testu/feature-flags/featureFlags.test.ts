@@ -10,7 +10,7 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
-// Mock React.cache — passthrough (no caching in tests)
+// Mock React.cache - passthrough (no caching in tests)
 vi.mock("react", () => ({
   cache: (fn: unknown) => fn,
 }));

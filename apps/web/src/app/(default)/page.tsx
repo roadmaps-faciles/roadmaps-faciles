@@ -72,7 +72,7 @@ const Home = async (_: PageProps<"/">) => {
         <div className="mx-auto max-w-7xl">
           <h2 className="sr-only">{t("bento.roadmap.title")}</h2>
           <div className="grid auto-rows-min grid-cols-1 gap-6 md:grid-cols-12">
-            {/* Roadmap collaborative — 8col, 2row */}
+            {/* Roadmap collaborative - 8col, 2row */}
             <Card className="border-border/40 p-8 shadow-none md:col-span-8 md:row-span-2">
               <div className="mb-8 flex items-center justify-between">
                 <div>
@@ -143,7 +143,7 @@ const Home = async (_: PageProps<"/">) => {
               </div>
             </Card>
 
-            {/* Vote citoyen — 4col, 2row */}
+            {/* Vote citoyen - 4col, 2row */}
             <Card className="border-border/40 bg-muted/30 p-8 shadow-none md:col-span-4 md:row-span-2">
               <div className="mb-6 flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary">
                 <Vote className="size-6" />
@@ -185,7 +185,7 @@ const Home = async (_: PageProps<"/">) => {
               </div>
             </Card>
 
-            {/* Key facts — 4col */}
+            {/* Key facts - 4col */}
             <Card className="relative flex flex-col justify-between overflow-hidden border-border/40 p-8 shadow-none md:col-span-4">
               <div>
                 <h3 className="text-base font-semibold">{t("bento.facts.title")}</h3>
@@ -219,7 +219,7 @@ const Home = async (_: PageProps<"/">) => {
               </div>
             </Card>
 
-            {/* Intégrations — 8col */}
+            {/* Intégrations - 8col */}
             <Card className="flex flex-col justify-center border-border/40 p-8 shadow-none md:col-span-8">
               <div className="mb-8 flex items-center gap-2">
                 <Plug className="size-5 text-primary" />

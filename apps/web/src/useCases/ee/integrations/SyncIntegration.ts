@@ -40,12 +40,12 @@ export class SyncIntegration implements UseCase<SyncIntegrationInput, SyncIntegr
     private readonly boardRepo: IBoardRepo,
   ) {}
 
-  /** Best-effort progress callback — swallows errors so a disconnected client won't break sync */
+  /** Best-effort progress callback - swallows errors so a disconnected client won't break sync */
   private async safeProgress(onProgress: SyncIntegrationInput["onProgress"], progress: SyncProgress): Promise<void> {
     try {
       await onProgress?.(progress);
     } catch {
-      // Progress reporting is best-effort — a client disconnect should not abort sync
+      // Progress reporting is best-effort - a client disconnect should not abort sync
     }
   }
 

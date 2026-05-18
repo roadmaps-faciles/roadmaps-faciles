@@ -87,7 +87,7 @@ export async function POST(request: Request) {
   }
 
   if (isAppBotSender(payload.sender)) {
-    logger.debug({ event, deliveryId }, "GitHub webhook skipped — sent by app bot");
+    logger.debug({ event, deliveryId }, "GitHub webhook skipped - sent by app bot");
     return NextResponse.json({ ok: true, skipped: true });
   }
 
@@ -101,19 +101,19 @@ export async function POST(request: Request) {
   if (!integration || !integration.enabled) {
     logger.debug(
       { event, installationId: payload.installation.id },
-      "GitHub webhook — no matching enabled integration",
+      "GitHub webhook - no matching enabled integration",
     );
     return NextResponse.json({ ok: true, skipped: true });
   }
 
   if (!event || !shouldProcessEvent(event, payload.action)) {
-    logger.debug({ event, action: payload.action }, "GitHub webhook — event/action not handled");
+    logger.debug({ event, action: payload.action }, "GitHub webhook - event/action not handled");
     return NextResponse.json({ ok: true, skipped: true });
   }
 
   const remoteId = resolveRemoteId(event, payload);
   if (!remoteId) {
-    logger.warn({ event, action: payload.action }, "GitHub webhook — could not resolve remoteId");
+    logger.warn({ event, action: payload.action }, "GitHub webhook - could not resolve remoteId");
     return NextResponse.json({ ok: true, skipped: true });
   }
 
@@ -131,7 +131,7 @@ export async function POST(request: Request) {
   if (event !== expectedEvent) {
     logger.debug(
       { event, sourceType, integrationId: integration.id },
-      "GitHub webhook — event doesn't match integration source type",
+      "GitHub webhook - event doesn't match integration source type",
     );
     return NextResponse.json({ ok: true, skipped: true });
   }
@@ -141,13 +141,13 @@ export async function POST(request: Request) {
   try {
     const provider = createIntegrationProvider("GITHUB", decryptedConfig);
     if (!provider.getInboundChange) {
-      logger.warn({ sourceType }, "Provider doesn't support getInboundChange — webhook skipped");
+      logger.warn({ sourceType }, "Provider doesn't support getInboundChange - webhook skipped");
       return NextResponse.json({ ok: true, skipped: true });
     }
 
     const change = await provider.getInboundChange(remoteId);
     if (!change) {
-      logger.warn({ remoteId, sourceType }, "GitHub webhook — remote item not found, skipping");
+      logger.warn({ remoteId, sourceType }, "GitHub webhook - remote item not found, skipping");
       return NextResponse.json({ ok: true, skipped: true });
     }
 

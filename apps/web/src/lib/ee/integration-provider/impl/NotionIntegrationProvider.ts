@@ -272,7 +272,7 @@ export class NotionIntegrationProvider implements IIntegrationProvider {
     if (!fieldName) return;
 
     const url = `${tenantUrl}${postPath}`;
-    const text = count > 0 ? `${count} commentaire${count > 1 ? "s" : ""} — Voir sur ${url}` : `Voir sur ${url}`;
+    const text = count > 0 ? `${count} commentaire${count > 1 ? "s" : ""} - Voir sur ${url}` : `Voir sur ${url}`;
 
     await this.client.pages.update({
       page_id: remoteId,
@@ -303,7 +303,7 @@ export class NotionIntegrationProvider implements IIntegrationProvider {
         properties: { [fieldName]: primary },
       });
     } catch (error) {
-      // Type mismatch (old config or wrong mapping) — try the other type
+      // Type mismatch (old config or wrong mapping) - try the other type
       if ((error as { code?: string }).code === "validation_error") {
         await this.client.pages.update({
           page_id: remoteId,
@@ -366,7 +366,7 @@ export class NotionIntegrationProvider implements IIntegrationProvider {
       };
     }
 
-    // Date (only writable for "date" type — "created_time" is read-only in Notion)
+    // Date (only writable for "date" type - "created_time" is read-only in Notion)
     if (propertyMapping.date?.type === "date") {
       properties[propertyMapping.date.name] = {
         date: { start: post.createdAt.toISOString() },
@@ -423,9 +423,9 @@ export class NotionIntegrationProvider implements IIntegrationProvider {
           bulleted_list_item: { rich_text: [{ type: "text", text: { content: trimmed.slice(2) } }] },
         });
       }
-      // Code block (single backtick line — simplified)
+      // Code block (single backtick line - simplified)
       else if (trimmed.startsWith("```")) {
-        // Skip code fence markers — content between fences handled by paragraph fallback
+        // Skip code fence markers - content between fences handled by paragraph fallback
         continue;
       }
       // Paragraph
@@ -578,7 +578,7 @@ function extractMultiSelect(prop: PageProperty | undefined): string[] {
 
 function extractDate(prop: PageProperty | undefined): string | undefined {
   if (!prop) return undefined;
-  // Date property: { start, end } — take start
+  // Date property: { start, end } - take start
   if (prop.type === "date" && prop.date) return prop.date.start;
   // Created time property: ISO string directly
   if (prop.type === "created_time") return prop.created_time;

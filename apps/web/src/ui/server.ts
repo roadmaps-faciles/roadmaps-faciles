@@ -16,7 +16,7 @@ export const getTheme = async (settings?: null | Pick<TenantSettings, "uiTheme">
       const override = (await cookies()).get("ui-theme-dev")?.value;
       if (override === "Default" || override === "Dsfr") return override;
     } catch {
-      // Outside request scope (e.g., tests) — skip cookie override
+      // Outside request scope (e.g., tests) - skip cookie override
     }
   }
 

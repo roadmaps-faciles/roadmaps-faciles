@@ -7,7 +7,7 @@ import { type ReactNode, useSyncExternalStore } from "react";
 
 import { type UICardProps } from "./UICard";
 
-/** Detect dark mode from `.dark` class on `<html>` — works in both themes, no DSFR provider dependency. */
+/** Detect dark mode from `.dark` class on `<html>` - works in both themes, no DSFR provider dependency. */
 function subscribeIsDark(callback: () => void) {
   const observer = new MutationObserver(callback);
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
@@ -53,7 +53,7 @@ export const UICardDsfr = ({
 }: UICardProps) => {
   const resolvedShadow = useShadow(shadow);
 
-  // DSFR Card renders `desc` in a <p> — block-level children (div, form, h2, hr) cause
+  // DSFR Card renders `desc` in a <p> - block-level children (div, form, h2, hr) cause
   // invalid HTML nesting. When description is complex (not a string), render the card
   // structure manually using DSFR CSS classes with a <div> instead of <p> for the desc.
   const hasComplexDescription = description != null && typeof description !== "string";

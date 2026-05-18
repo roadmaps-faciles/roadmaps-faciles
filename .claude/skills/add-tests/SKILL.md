@@ -29,7 +29,7 @@ Pour chaque categorie de changements, evalue si des tests sont necessaires et pe
 
 ### Tests unitaires (`testu/`)
 - Fonctions pures, utilitaires, validations Zod, transformations de donnees
-- Pas de mocks, pas de DB — logique isolee uniquement
+- Pas de mocks, pas de DB - logique isolee uniquement
 - Conventions : `tests/testu/{domaine}/{nom}.test.ts`
 
 ### Tests integration (`testi/`)
@@ -99,7 +99,7 @@ Pour chaque couche validee :
    - E2E : `pnpm test:e2e -- {chemin_du_test}` (necessite dev server + services)
 
 Regles d'implementation :
-- Pas d'import de `describe`, `it`, `expect`, `vi` — Vitest globals actifs
+- Pas d'import de `describe`, `it`, `expect`, `vi` - Vitest globals actifs
 - Utiliser les path aliases (`@/`, `@/utils/`, `@/prisma/`)
 - Suivre le style et la structure des tests existants dans la meme couche
 - Preferer les assertions precises (`toBe`, `toEqual`, `toContain`) aux assertions vagues (`toBeTruthy`)

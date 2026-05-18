@@ -62,7 +62,7 @@ export async function POST(request: Request) {
 }
 
 /**
- * Checkout completed — store Stripe customer + subscription IDs on org,
+ * Checkout completed - store Stripe customer + subscription IDs on org,
  * then activate the purchased addons.
  */
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
@@ -127,10 +127,10 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         });
       }
     }
-    logger.info({ orgId, addons, interval, purchaseId }, "Checkout completed — addons activated");
+    logger.info({ orgId, addons, interval, purchaseId }, "Checkout completed - addons activated");
   }
 
-  logger.info({ orgId, customerId, subscriptionId }, "Checkout completed — subscription linked to org");
+  logger.info({ orgId, customerId, subscriptionId }, "Checkout completed - subscription linked to org");
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
@@ -172,12 +172,12 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     data: { active: false },
   });
 
-  logger.info({ orgId, subscriptionId: subscription.id }, "Subscription deleted — addons deactivated");
+  logger.info({ orgId, subscriptionId: subscription.id }, "Subscription deleted - addons deactivated");
 }
 
 /**
  * When an invoice is paid, verify addon line items are in sync with DB.
- * Safety net — primary sync is synchronous in the toggle action.
+ * Safety net - primary sync is synchronous in the toggle action.
  */
 async function handleInvoicePaid(invoice: Stripe.Invoice) {
   const customerId = typeof invoice.customer === "string" ? invoice.customer : invoice.customer?.id;
@@ -207,7 +207,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
       return priceId ? allPriceIds.has(priceId) : false;
     }).length ?? 0;
 
-  logger.info({ orgId: org.id, invoiceId: invoice.id, invoicePackCount }, "Invoice paid — sync verified");
+  logger.info({ orgId: org.id, invoiceId: invoice.id, invoicePackCount }, "Invoice paid - sync verified");
 }
 
 async function handlePaymentFailed(invoice: Stripe.Invoice) {

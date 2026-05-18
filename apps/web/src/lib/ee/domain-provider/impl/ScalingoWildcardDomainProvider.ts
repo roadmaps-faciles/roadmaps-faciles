@@ -5,7 +5,7 @@ import { ScalingoDomainProvider } from "./ScalingoDomainProvider";
 
 /**
  * Wildcard variant of ScalingoDomainProvider.
- * For subdomains: relies on the existing wildcard certificate (*.rootDomain) — no per-subdomain registration needed.
+ * For subdomains: relies on the existing wildcard certificate (*.rootDomain) - no per-subdomain registration needed.
  * For custom domains: delegates to the standard ScalingoDomainProvider.
  */
 export class ScalingoWildcardDomainProvider implements IDomainProvider {
@@ -21,7 +21,7 @@ export class ScalingoWildcardDomainProvider implements IDomainProvider {
 
   public async addDomain(domain: string, type: DomainType): Promise<void> {
     if (type === "subdomain") {
-      // Wildcard covers all subdomains — just verify it's active
+      // Wildcard covers all subdomains - just verify it's active
       const status = await this.delegate.checkStatus(`*.${this.rootDomain}`);
       if (status !== "active") {
         throw new Error(
@@ -37,7 +37,7 @@ export class ScalingoWildcardDomainProvider implements IDomainProvider {
 
   public async removeDomain(domain: string): Promise<void> {
     if (this.isSubdomain(domain)) {
-      // Wildcard covers subdomains — nothing to remove
+      // Wildcard covers subdomains - nothing to remove
       return;
     }
 

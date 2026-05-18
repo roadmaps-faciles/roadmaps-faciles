@@ -371,7 +371,7 @@ export const MembersList = ({
                   </TableCell>
                   <TableCell>
                     <span className="flex items-center gap-2">
-                      {member.user.name ?? "—"}
+                      {member.user.name ?? "-"}
                       {isSelf(member) && (
                         <Badge variant="outline" className="text-xs">
                           {t("you")}

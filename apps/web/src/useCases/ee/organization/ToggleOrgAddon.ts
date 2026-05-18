@@ -17,7 +17,7 @@ export type ToggleOrgAddonInput = z.infer<typeof ToggleOrgAddonInput>;
 export type ToggleOrgAddonOutput = OrgAddon;
 
 /**
- * Pure DB operation — upserts an OrgAddon record.
+ * Pure DB operation - upserts an OrgAddon record.
  * Stripe billing sync is handled by the caller (server action).
  */
 export class ToggleOrgAddon implements UseCase<ToggleOrgAddonInput, ToggleOrgAddonOutput> {

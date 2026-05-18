@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid code" }, { status: StatusCodes.BAD_REQUEST });
   }
 
-  // Store pre-login OTP proof with longer TTL (5 minutes — user still needs to click magic link)
+  // Store pre-login OTP proof with longer TTL (5 minutes - user still needs to click magic link)
   await redis.setItem(`otp:pre-login:${user.id}`, "1", { ttl: 300 });
 
   return NextResponse.json({ verified: true });

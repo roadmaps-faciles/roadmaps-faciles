@@ -49,7 +49,7 @@ export const EntitlementGate = async ({ tenantId, addon, children }: Entitlement
   // Cloud mode: link to addons page
   const org = await organizationRepo.findByTenantId(tenantId);
 
-  // Build root-host URL — this component renders on tenant subdomains where /upgrade doesn't exist
+  // Build root-host URL - this component renders on tenant subdomains where /upgrade doesn't exist
   const hdrs = await headers();
   const host = hdrs.get("x-forwarded-host") || hdrs.get("host") || new URL(config.host).host;
   const protocol = hdrs.get("x-forwarded-proto") || new URL(config.host).protocol.replace(":", "");

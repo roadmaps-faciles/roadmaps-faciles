@@ -10,7 +10,7 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
-// Mock React.cache — passthrough
+// Mock React.cache - passthrough
 vi.mock("react", () => ({
   cache: (fn: unknown) => fn,
 }));
@@ -64,12 +64,12 @@ function fakeAppSettings(featureFlags: unknown = null) {
   };
 }
 
-describe("Feature Flags — merge with populated registry", () => {
+describe("Feature Flags - merge with populated registry", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe("getFeatureFlags — merge behavior", () => {
+  describe("getFeatureFlags - merge behavior", () => {
     it("returns defaults when DB is null", async () => {
       mockGet.mockResolvedValue(fakeAppSettings(null));
 
@@ -144,7 +144,7 @@ describe("Feature Flags — merge with populated registry", () => {
     });
   });
 
-  describe("getEffectiveFlags — super admin bypass with real flags", () => {
+  describe("getEffectiveFlags - super admin bypass with real flags", () => {
     it("forces all flags to true for super admin", async () => {
       mockGet.mockResolvedValue(fakeAppSettings({ testFeature: false }));
       const session = fakeSession({ isSuperAdmin: true });
@@ -166,7 +166,7 @@ describe("Feature Flags — merge with populated registry", () => {
     });
   });
 
-  describe("assertFeature — with real flags", () => {
+  describe("assertFeature - with real flags", () => {
     it("throws forbidden when flag is OFF for normal user", async () => {
       mockGet.mockResolvedValue(fakeAppSettings({ testFeature: false }));
       const session = fakeSession();

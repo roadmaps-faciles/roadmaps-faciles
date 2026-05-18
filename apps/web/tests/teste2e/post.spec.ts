@@ -17,7 +17,7 @@ test.describe("Post Lifecycle", () => {
     await page.goto("/board/test-board");
     await page.waitForLoadState("networkidle");
 
-    // Click opens intercepted modal — URL updates without full navigation
+    // Click opens intercepted modal - URL updates without full navigation
     await page.getByRole("link", { name: "Test Post" }).first().click();
     await expect(page).toHaveURL(/\/post\/\d+/);
 

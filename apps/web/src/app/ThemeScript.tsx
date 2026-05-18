@@ -5,7 +5,7 @@
  * Reads localStorage key "theme" (shadcn/next-themes convention).
  * Falls back to system `prefers-color-scheme`.
  *
- * NOTE: dangerouslySetInnerHTML is intentional — this is a static trusted
+ * NOTE: dangerouslySetInnerHTML is intentional - this is a static trusted
  * string, not user input. Required for blocking script before React hydration.
  */
 export const ThemeScript = () => (

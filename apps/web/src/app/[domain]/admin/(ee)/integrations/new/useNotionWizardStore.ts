@@ -20,25 +20,25 @@ interface CreatedItem {
 }
 
 interface WizardState {
-  // Step 3 — Items created on-the-fly during mapping
+  // Step 3 - Items created on-the-fly during mapping
   additionalBoards: CreatedItem[];
   additionalStatuses: CreatedItem[];
-  // Step 1 — Connection
+  // Step 1 - Connection
   apiKey: string;
   boardMapping: Record<string, ValueMapping>;
   botName: string;
   connectionStatus: "error" | "idle" | "success" | "testing";
 
-  // Step 2 — Database selection
+  // Step 2 - Database selection
   databases: RemoteDatabase[];
   errorMessage: string;
-  // Step 4 — Sync configuration
+  // Step 4 - Sync configuration
   integrationName: string;
 
   loadingDatabases: boolean;
   loadingSchema: boolean;
   propertyMapping: PropertyMappingConfig;
-  // Step 3 — Property mapping
+  // Step 3 - Property mapping
   schema: null | RemoteDatabaseSchema;
   selectedDatabaseId: null | string;
 
@@ -160,7 +160,7 @@ export const useNotionWizardStore = create<WizardActions & WizardState>()(
         draft.selectedDatabaseId = id;
         const db = draft.databases.find(d => d.id === id);
         if (db && !draft.integrationName) {
-          draft.integrationName = `Notion — ${db.name}`;
+          draft.integrationName = `Notion - ${db.name}`;
         }
       });
     },

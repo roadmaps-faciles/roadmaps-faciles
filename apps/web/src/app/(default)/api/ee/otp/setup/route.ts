@@ -16,7 +16,7 @@ export async function POST() {
   const userId = session.user.uuid;
   const secret = generateSecret();
 
-  // Store temporary secret in Redis (not in DB yet — wait for verification)
+  // Store temporary secret in Redis (not in DB yet - wait for verification)
   await redis.setItem(`otp:setup:${userId}`, secret, { ttl: 600 }); // 10 minutes
 
   const otpAuthUrl = generateURI({ secret, issuer: config.brand.name, label: session.user.email });

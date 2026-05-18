@@ -2,9 +2,9 @@
  * Tracking provider abstraction.
  *
  * Three levels:
- *  - "noop"   — no tracking at all (default in dev)
- *  - "simple" — page views only (Matomo)
- *  - "full"   — events, identify, group, feature flags (PostHog)
+ *  - "noop"   - no tracking at all (default in dev)
+ *  - "simple" - page views only (Matomo)
+ *  - "full"   - events, identify, group, feature flags (PostHog)
  */
 
 export type TrackingProviderType = "matomo" | "noop" | "posthog";

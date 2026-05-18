@@ -1,4 +1,4 @@
-// Re-export from shared location — DomainPage is used by both (default)/ and admin/ routes
+// Re-export from shared location - DomainPage is used by both (default)/ and admin/ routes
 export {
   DomainPageHOP,
   type DomainPage,

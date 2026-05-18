@@ -718,65 +718,65 @@ model OrgAddon {
   // Partial unique indexes managed in raw SQL migration (20260321100000):
   // - OrgAddon_org_addon_unique: UNIQUE (organizationId, addon) WHERE tenantId IS NULL
   // - OrgAddon_org_tenant_addon_unique: UNIQUE (organizationId, tenantId, addon) WHERE tenantId IS NOT NULL
-  // ⚠️ NO @@index or @@unique here — Prisma cannot express partial indexes and will drop them
+  // ⚠️ NO @@index or @@unique here - Prisma cannot express partial indexes and will drop them
 }
 
 enum AuditAction {
-  // Tenant-scoped — Boards
+  // Tenant-scoped - Boards
   BOARD_CREATE
   BOARD_DELETE
   BOARD_REORDER
   BOARD_UPDATE
 
-  // Tenant-scoped — Post statuses
+  // Tenant-scoped - Post statuses
   POST_STATUS_CREATE
   POST_STATUS_DELETE
   POST_STATUS_REORDER
   POST_STATUS_UPDATE
 
-  // Tenant-scoped — Posts
+  // Tenant-scoped - Posts
   POST_CREATE
   POST_APPROVE
   POST_REJECT
   POST_DELETE
   POST_EDIT
 
-  // Tenant-scoped — Images
+  // Tenant-scoped - Images
   IMAGE_UPLOAD
 
-  // Tenant-scoped — Comments
+  // Tenant-scoped - Comments
   COMMENT_CREATE
   COMMENT_EDIT
   COMMENT_DELETE
 
-  // Tenant-scoped — Votes
+  // Tenant-scoped - Votes
   POST_VOTE
   POST_UNVOTE
 
-  // Tenant-scoped — API keys
+  // Tenant-scoped - API keys
   API_KEY_CREATE
   API_KEY_DELETE
 
-  // Tenant-scoped — Webhooks
+  // Tenant-scoped - Webhooks
   WEBHOOK_CREATE
   WEBHOOK_DELETE
 
-  // Tenant-scoped — Integrations
+  // Tenant-scoped - Integrations
   INTEGRATION_CREATE
   INTEGRATION_UPDATE
   INTEGRATION_DELETE
   INTEGRATION_SYNC
 
-  // Tenant-scoped — Members
+  // Tenant-scoped - Members
   MEMBER_REMOVE
   MEMBER_ROLE_UPDATE
   MEMBER_STATUS_UPDATE
 
-  // Tenant-scoped — Invitations
+  // Tenant-scoped - Invitations
   INVITATION_REVOKE
   INVITATION_SEND
 
-  // Tenant-scoped — Settings
+  // Tenant-scoped - Settings
   AUTHENTICATION_SETTINGS_UPDATE
   ROADMAP_SETTINGS_UPDATE
   TENANT_DELETE
@@ -785,16 +785,16 @@ enum AuditAction {
   TENANT_SEED_DATA
   TENANT_SETTINGS_UPDATE
 
-  // Tenant-scoped — Security
+  // Tenant-scoped - Security
   SECURITY_SETTINGS_UPDATE
 
-  // User-scoped — Profile
+  // User-scoped - Profile
   PROFILE_UPDATE
   ACCOUNT_DELETE
   EM_LINK_REQUEST
   EM_LINK_CONFIRM
 
-  // User-scoped — Security (2FA)
+  // User-scoped - Security (2FA)
   TWO_FACTOR_EMAIL_TOGGLE
   TWO_FACTOR_OTP_SETUP
   TWO_FACTOR_OTP_REMOVE

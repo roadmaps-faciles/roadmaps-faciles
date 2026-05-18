@@ -3,7 +3,7 @@ import { type IFeatureFlagProvider, type ITrackingProvider, type TrackingProvide
 type TrackingProviderInstance = IFeatureFlagProvider & ITrackingProvider;
 
 /**
- * Client-side factory — returns the tracking provider + feature flag provider.
+ * Client-side factory - returns the tracking provider + feature flag provider.
  *
  * Must only be called from client components. For server-side tracking,
  * use `getServerTrackingProvider()` from `./serverFactory` instead.
