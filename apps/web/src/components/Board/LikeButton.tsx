@@ -3,7 +3,7 @@
 import { Button as ShadcnButton } from "@roadmaps-faciles/ui";
 import * as Sentry from "@sentry/nextjs";
 import { ThumbsUp } from "lucide-react";
-import { lazy, type PropsWithChildren, startTransition, Suspense, useEffect, useRef, useState } from "react";
+import { lazy, type PropsWithChildren, startTransition, Suspense, useState } from "react";
 import UseAnimations from "react-useanimations";
 import thumbUp from "react-useanimations/lib/thumbUp";
 

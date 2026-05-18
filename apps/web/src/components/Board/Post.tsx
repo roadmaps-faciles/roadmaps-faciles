@@ -70,17 +70,23 @@ export const BoardPost = ({
               iconId="fr-icon-discuss-line"
               as="span"
               size="sm"
-              onClick={post._count.comments > 0 ? () => {
-                const url = dirtyDomainFixer(`/post/${post.id}`);
-                if (linkTarget) {
-                  window.open(url, linkTarget, "noopener,noreferrer");
-                } else {
-                  location.href = url;
-                }
-              } : undefined}
+              onClick={
+                post._count.comments > 0
+                  ? () => {
+                      const url = dirtyDomainFixer(`/post/${post.id}`);
+                      if (linkTarget) {
+                        window.open(url, linkTarget, "noopener,noreferrer");
+                      } else {
+                        location.href = url;
+                      }
+                    }
+                  : undefined
+              }
             >
               {post._count.comments > 0 ? (
-                <><b>{post._count.comments}</b>&nbsp;commentaire{post._count.comments > 1 ? "s" : ""}</>
+                <>
+                  <b>{post._count.comments}</b>&nbsp;commentaire{post._count.comments > 1 ? "s" : ""}
+                </>
               ) : (
                 <>Aucun commentaire</>
               )}
