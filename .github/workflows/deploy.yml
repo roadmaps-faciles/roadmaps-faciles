@@ -42,7 +42,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       environment: ${{ steps.resolve.outputs.environment }}
-      app_name: ${{ steps.resolve.outputs.app_name }}
+      web_app_name: ${{ steps.resolve.outputs.web_app_name }}
+      licensing_app_name: ${{ steps.resolve.outputs.licensing_app_name }}
       ref: ${{ steps.resolve.outputs.ref }}
       should_deploy: ${{ steps.resolve.outputs.should_deploy }}
     steps:
@@ -55,6 +56,10 @@ jobs:
       - name: Resolve deployment target
         id: resolve
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7
+        env:
+          SCALINGO_APP_WEB_PRODUCTION: ${{ vars.SCALINGO_APP_WEB_PRODUCTION }}
+          SCALINGO_APP_WEB_STAGING: ${{ vars.SCALINGO_APP_WEB_STAGING }}
+          SCALINGO_APP_LICENSING_PRODUCTION: ${{ vars.SCALINGO_APP_LICENSING_PRODUCTION }}
         with:
           script: |
             const script = require('./.github/scripts/resolve-deploy.js');
@@ -91,10 +96,11 @@ jobs:
   # ─────────────────────────────────────────────────
   # Deploy to Scalingo
   # ─────────────────────────────────────────────────
-  deploy:
-    name: Deploy to ${{ needs.resolve.outputs.environment }}
+  # Deploy web (staging + production)
+  # ─────────────────────────────────────────────────
+  deploy-web:
+    name: Deploy web to ${{ needs.resolve.outputs.environment }}
     needs: [resolve, ci-gate]
-    # ci-gate is skipped for non-release events — use always() + explicit checks
     if: >-
       always() &&
       needs.resolve.outputs.should_deploy == 'true' &&
@@ -116,23 +122,106 @@ jobs:
         with:
           region: osc-fr1
           api_token: ${{ secrets.SCALINGO_API_TOKEN }}
-          app_name: ${{ needs.resolve.outputs.app_name }}
+          app_name: ${{ needs.resolve.outputs.web_app_name }}
 
       - name: Setup ephemeral SSH key
         run: |
           mkdir -p ~/.ssh
           ssh-keygen -t ed25519 -f ~/.ssh/scalingo-deploy -N "" -q
-          scalingo keys-add "ci-deploy-${{ github.run_id }}" ~/.ssh/scalingo-deploy.pub
+          scalingo keys-add "ci-deploy-${{ github.run_id }}-web" ~/.ssh/scalingo-deploy.pub
           ssh-keyscan ssh.osc-fr1.scalingo.com >> ~/.ssh/known_hosts 2>/dev/null
           printf "Host ssh.osc-fr1.scalingo.com\n  IdentityFile ~/.ssh/scalingo-deploy\n" >> ~/.ssh/config
 
+      - name: Unlock git-crypt
+        run: |
+          sudo apt-get install -y git-crypt
+          echo "$GIT_CRYPT_KEY" | base64 -d | git-crypt unlock -
+        env:
+          GIT_CRYPT_KEY: ${{ secrets.GIT_CRYPT_KEY }}
+
+      - name: Create decrypted deploy commit
+        run: |
+          git add -A
+          git -c user.name="ci-deploy" -c user.email="ci@deploy" commit -m "deploy: decrypted" --allow-empty
+
       - name: Deploy to Scalingo
         run: |
-          echo "Deploying to ${{ needs.resolve.outputs.app_name }}"
-          echo "Ref: ${{ needs.resolve.outputs.ref }}"
+          echo "Deploying web to $APP_NAME"
+          echo "Ref: $REF"
           echo "---"
-          git push scalingo HEAD:refs/heads/master --force
+          git remote add scalingo-web "git@ssh.osc-fr1.scalingo.com:$APP_NAME.git"
+          git push scalingo-web HEAD:refs/heads/master --force
+        env:
+          APP_NAME: ${{ needs.resolve.outputs.web_app_name }}
+          REF: ${{ needs.resolve.outputs.ref }}
 
       - name: Cleanup ephemeral SSH key
         if: always()
-        run: scalingo keys-remove "ci-deploy-${{ github.run_id }}"
+        run: scalingo keys-remove "ci-deploy-${{ github.run_id }}-web"
+
+  # ─────────────────────────────────────────────────
+  # Deploy licensing (production only)
+  # ─────────────────────────────────────────────────
+  deploy-licensing:
+    name: Deploy licensing to production
+    needs: [resolve, ci-gate]
+    if: >-
+      always() &&
+      needs.resolve.outputs.should_deploy == 'true' &&
+      needs.resolve.result == 'success' &&
+      needs.resolve.outputs.environment == 'production' &&
+      needs.resolve.outputs.licensing_app_name != '' &&
+      (needs.ci-gate.result == 'success' || needs.ci-gate.result == 'skipped')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.resolve.outputs.ref }}
+          fetch-depth: 0
+
+      - name: Setup Scalingo CLI
+        uses: scalingo-community/setup-scalingo@87fe86eedc708ffb9d232c756b21f6a5784f6c8a # v0.1.1
+        with:
+          region: osc-fr1
+          api_token: ${{ secrets.SCALINGO_API_TOKEN }}
+          app_name: ${{ needs.resolve.outputs.licensing_app_name }}
+
+      - name: Setup ephemeral SSH key
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keygen -t ed25519 -f ~/.ssh/scalingo-deploy -N "" -q
+          scalingo keys-add "ci-deploy-${{ github.run_id }}-licensing" ~/.ssh/scalingo-deploy.pub
+          ssh-keyscan ssh.osc-fr1.scalingo.com >> ~/.ssh/known_hosts 2>/dev/null
+          printf "Host ssh.osc-fr1.scalingo.com\n  IdentityFile ~/.ssh/scalingo-deploy\n" >> ~/.ssh/config
+
+      - name: Unlock git-crypt
+        run: |
+          sudo apt-get install -y git-crypt
+          echo "$GIT_CRYPT_KEY" | base64 -d | git-crypt unlock -
+        env:
+          GIT_CRYPT_KEY: ${{ secrets.GIT_CRYPT_KEY }}
+
+      - name: Create decrypted deploy commit with licensing Procfile
+        run: |
+          cp Procfile.licensing Procfile
+          git add -A
+          git -c user.name="ci-deploy" -c user.email="ci@deploy" commit -m "deploy: decrypted + licensing procfile"
+
+      - name: Deploy to Scalingo
+        run: |
+          echo "Deploying licensing to $APP_NAME"
+          echo "Ref: $REF"
+          echo "---"
+          git remote add scalingo-licensing "git@ssh.osc-fr1.scalingo.com:$APP_NAME.git"
+          git push scalingo-licensing HEAD:refs/heads/master --force
+        env:
+          APP_NAME: ${{ needs.resolve.outputs.licensing_app_name }}
+          REF: ${{ needs.resolve.outputs.ref }}
+
+      - name: Cleanup ephemeral SSH key
+        if: always()
+        run: scalingo keys-remove "ci-deploy-${{ github.run_id }}-licensing"

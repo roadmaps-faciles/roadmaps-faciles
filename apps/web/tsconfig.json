@@ -2,35 +2,33 @@
   "extends": "@tsconfig/next",
   "compilerOptions": {
     "strict": true,
-    "downlevelIteration": true,
-    "baseUrl": ".",
     "paths": {
       "fumadocs-mdx:collections/*": [
-        ".source/*"
+        "./.source/*"
       ],
       "@/config": [
-        "src/config.ts"
+        "./src/config.ts"
       ],
       "@/ui": [
-        "src/ui/index.ts"
+        "./src/ui/index.ts"
       ],
       "@/ui/*": [
-        "src/ui/*"
+        "./src/ui/*"
       ],
       "@/gouv/dsfr": [
-        "src/gouv/dsfr/server.ts"
+        "./src/gouv/dsfr/server.ts"
       ],
       "@/gouv/dsfr/client": [
-        "src/gouv/dsfr/client.ts"
+        "./src/gouv/dsfr/client.ts"
       ],
       "@/gouv/dsfr/utils/*": [
-        "src/gouv/dsfr/utils/*"
+        "./src/gouv/dsfr/utils/*"
       ],
       "@/utils/*": [
-        "src/lib/utils/*"
+        "./src/lib/utils/*"
       ],
       "@/prisma/*": [
-        "src/generated/prisma/*"
+        "./src/generated/prisma/*"
       ],
       "@roadmaps-faciles/ui": [
         "../../packages/ui/src/index.ts"
@@ -39,10 +37,10 @@
         "../../packages/ui/src/*"
       ],
       "@/*": [
-        "src/*"
+        "./src/*"
       ],
     },
-    "target": "ES2017"
+    "target": "ES2024"
   },
   "include": [
     "src/.well-known/**/*.ts*",

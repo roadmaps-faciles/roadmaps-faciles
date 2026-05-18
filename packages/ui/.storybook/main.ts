@@ -10,7 +10,7 @@ const config: StorybookConfig = {
     getAbsolutePath("@storybook/addon-docs"),
     getAbsolutePath("@storybook/addon-a11y"),
     getAbsolutePath("@storybook/addon-vitest"),
-    "./addons/branch-switcher",
+    import.meta.resolve("./addons/branch-switcher-preset.ts"),
   ],
   framework: {
     name: getAbsolutePath("@storybook/react-vite"),

@@ -2,8 +2,13 @@ import "server-only";
 import { type Session } from "next-auth";
 
 import { config } from "@/config";
-import { orgMemberRepo, userOnTenantRepo } from "@/lib/repo";
-import { type OrgMenuGroup, type TenantMenuItem, type UserMenuData } from "@/ui/AdminSidebar";
+import { orgMemberRepo, organizationRepo, tenantRepo, userOnTenantRepo } from "@/lib/repo";
+import {
+  type CurrentTenantContext,
+  type OrgMenuGroup,
+  type TenantMenuItem,
+  type UserMenuData,
+} from "@/ui/AdminSidebar";
 
 interface UserMenuContextOptions {
   /** Current org context (e.g. in org admin or tenant admin) */
@@ -75,6 +80,37 @@ export async function getUserMenuContext({ session, currentTenantId }: UserMenuC
     };
   });
 
+  let currentTenant: CurrentTenantContext | undefined;
+  if (currentTenantId) {
+    for (const org of organizations) {
+      const tenant = org.tenants.find(t => t.id === currentTenantId);
+      if (tenant) {
+        currentTenant = {
+          name: tenant.name,
+          adminHref: tenant.tenantAdminHref,
+          org: { name: org.name, adminHref: org.orgAdminHref },
+        };
+        break;
+      }
+    }
+
+    // Fallback for super admins who may not have org membership
+    if (!currentTenant && session.user.isSuperAdmin) {
+      const tenantWithSettings = await tenantRepo.findByIdWithSettings(currentTenantId);
+      if (tenantWithSettings?.settings) {
+        const org = await organizationRepo.findById(tenantWithSettings.organizationId);
+        currentTenant = {
+          name: tenantWithSettings.settings.name ?? currentTenantId.toString(),
+          adminHref: `//${tenantWithSettings.settings.subdomain}.${hostUrl}/admin`,
+          org: {
+            name: org?.name ?? "",
+            adminHref: org ? `//${hostUrl}/org/${org.slug}` : undefined,
+          },
+        };
+      }
+    }
+  }
+
   return {
     user: {
       email: session.user.email ?? "",
@@ -82,6 +118,7 @@ export async function getUserMenuContext({ session, currentTenantId }: UserMenuC
     },
     organizations,
     currentTenantId,
+    currentTenant,
     isSuperAdmin: session.user.isSuperAdmin ?? false,
   };
 }

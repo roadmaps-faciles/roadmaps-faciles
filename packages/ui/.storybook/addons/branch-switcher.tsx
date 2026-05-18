@@ -1,5 +1,12 @@
 import { BranchIcon } from "@storybook/icons";
-import { Fragment } from "react";
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
+import React, { Fragment } from "react";
+
+// Workaround: SB 10.3 manager bundler maps "react" to __REACT__ destructured,
+// but some internal components expect a global `React` variable (React 19 compat issue)
+if (typeof globalThis !== "undefined" && !("React" in globalThis)) {
+  (globalThis as Record<string, unknown>).React = React;
+}
 import { IconButton, TooltipLinkList, WithTooltip } from "storybook/internal/components";
 import { addons, types } from "storybook/manager-api";
 
@@ -10,18 +17,15 @@ const BRANCHES: Array<{ id: string; title: string }> = [
   { id: "dev", title: "dev" },
 ];
 
-/** Derive sibling branch URL from current location. */
 const getBranchHref = (branchId: string) => {
   const { origin, pathname } = window.location;
-  // pathname is e.g. /roadmaps-faciles/main/... → replace the branch segment
-  const segments = pathname.split("/").filter(Boolean); // ["roadmaps-faciles", "main", ...]
+  const segments = pathname.split("/").filter(Boolean);
   if (segments.length >= 2) {
     segments[1] = branchId;
   }
   return `${origin}/${segments.join("/")}`;
 };
 
-/** Detect current branch from URL path. */
 const getCurrentBranch = () => {
   const segments = window.location.pathname.split("/").filter(Boolean);
   return segments[1] ?? "main";

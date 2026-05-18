@@ -26,7 +26,7 @@ export interface SubscriptionDetail {
 
 function mapSubscription(sub: Stripe.Subscription): SubscriptionDetail {
   const items: SubscriptionItem[] = sub.items.data.map(item => ({
-    description: item.price.nickname ?? item.price.product?.toString() ?? null,
+    description: item.price.nickname ?? (typeof item.price.product === "string" ? item.price.product : null),
     priceId: item.price.id,
     quantity: item.quantity ?? 1,
     unitAmount: item.price.unit_amount ?? 0,

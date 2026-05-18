@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 vi.mock("react", async () => {
   const actual = await vi.importActual("react");
-  return { ...actual, cache: (fn: Function) => fn };
+  return { ...actual, cache: <T extends (...args: never[]) => unknown>(fn: T) => fn };
 });
 
 const mockGet = vi.fn();

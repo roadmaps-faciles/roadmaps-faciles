@@ -14,8 +14,14 @@ vi.mock("@/lib/ee/licensing/licenseVerifier", () => ({
 }));
 
 const mockVerifyOnline = vi.fn();
+const mockActivateOnline = vi.fn();
 vi.mock("@/lib/ee/licensing/licenseFetcher", () => ({
+  activateLicenseOnline: (...args: unknown[]) => mockActivateOnline(...args),
   verifyLicenseOnline: (...args: unknown[]) => mockVerifyOnline(...args),
+}));
+
+vi.mock("@/lib/ee/licensing/instanceId", () => ({
+  getOrCreateInstanceId: () => Promise.resolve("test-instance-id"),
 }));
 
 describe("licenseService", () => {
@@ -24,6 +30,8 @@ describe("licenseService", () => {
     mockParseLicenseKey.mockReset();
     mockIsLicenseExpired.mockReset();
     mockVerifyOnline.mockReset();
+    mockActivateOnline.mockReset();
+    mockActivateOnline.mockResolvedValue(null);
   });
 
   async function importServiceWithConfig(licenseKey: string, instanceId = "inst-1") {

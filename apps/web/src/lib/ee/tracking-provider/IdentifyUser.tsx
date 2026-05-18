@@ -11,15 +11,15 @@ import { useTracking } from "./TrackingContext";
  * This can happen during Turbopack dev prerender edge cases.
  */
 class IdentifyUserBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
-  state = { hasError: false };
-  static getDerivedStateFromError() {
+  public state = { hasError: false };
+  public static getDerivedStateFromError() {
     return { hasError: true };
   }
-  componentDidCatch(error: Error, _info: ErrorInfo) {
+  public componentDidCatch(error: Error, _info: ErrorInfo) {
     if (error.message.includes("useSession")) return; // Expected edge case
     console.error(error);
   }
-  render() {
+  public render() {
     if (this.state.hasError) return null;
     return this.props.children;
   }

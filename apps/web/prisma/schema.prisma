@@ -358,6 +358,7 @@ model TenantSettings {
 
 model AppSettings {
   id                 Int      @id @default(0)
+  instanceId         String?
   force2FA           Boolean  @default(false)
   force2FAGraceDays  Int      @default(5)
   featureFlags       Json?
@@ -813,6 +814,7 @@ enum AuditAction {
   ROOT_ORG_PLAN_UPDATE
   ROOT_ORG_ADDON_TOGGLE
   ROOT_ORG_DELETE
+  ROOT_LICENSE_REFRESH
 
   // Password
   PASSWORD_SET

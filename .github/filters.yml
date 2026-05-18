@@ -66,6 +66,7 @@ test-unit:
   - 'apps/web/src/lib/ee/integration-provider/**'
   - 'apps/web/src/lib/ee/storage-provider/**'
   - 'apps/web/src/lib/ee/licensing/**'
+  - 'apps/web/src/emails/**'
   - 'apps/web/src/gouv/dsfr/**'
   - 'apps/web/src/config.ts'
   - 'apps/web/tests/testu/**'

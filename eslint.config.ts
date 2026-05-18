@@ -298,6 +298,7 @@ export default [
       globals: {
         module: "readonly",
         require: "readonly",
+        process: "readonly",
         __dirname: "readonly",
         __filename: "readonly",
         console: "readonly",

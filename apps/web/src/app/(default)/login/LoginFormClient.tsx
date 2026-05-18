@@ -5,7 +5,7 @@ import { type FormEvent, useState, useTransition } from "react";
 
 import { UIAlert, UIButton, UIInput } from "@/ui/bridge";
 
-import { loginAction } from "./actions";
+import { loginAction, preLoginCheckAction, preLoginVerifyAction } from "./actions";
 
 export interface LoginFormClientProps {
   defaultEmail?: string;
@@ -23,23 +23,14 @@ export const LoginFormClient = ({ loginWithEmail, defaultEmail }: LoginFormClien
 
   const handleIdentifierSubmit = (e: FormEvent) => {
     e.preventDefault();
+
     if (!identifier.trim()) return;
 
     setError(undefined);
     startTransition(async () => {
       try {
-        const res = await fetch("/api/ee/otp/pre-login-check", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ identifier: identifier.trim(), isUsername: !loginWithEmail }),
-        });
+        const data = await preLoginCheckAction(identifier.trim(), !loginWithEmail);
 
-        if (!res.ok) {
-          setError(t("twoFactor.error"));
-          return;
-        }
-
-        const data = (await res.json()) as { requiresOtp: boolean };
         if (data.requiresOtp) {
           setStep("otp");
         } else {
@@ -58,18 +49,7 @@ export const LoginFormClient = ({ loginWithEmail, defaultEmail }: LoginFormClien
     setError(undefined);
     startTransition(async () => {
       try {
-        const res = await fetch("/api/ee/otp/pre-login-verify", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ identifier: identifier.trim(), code: otpCode.trim(), isUsername: !loginWithEmail }),
-        });
-
-        if (!res.ok) {
-          setError(t("twoFactor.invalidCode"));
-          return;
-        }
-
-        const data = (await res.json()) as { verified: boolean };
+        const data = await preLoginVerifyAction(identifier.trim(), otpCode.trim(), !loginWithEmail);
         if (data.verified) {
           await loginAction(identifier.trim(), !!loginWithEmail);
         } else {

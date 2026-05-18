@@ -17,15 +17,14 @@ export const DefaultFooter = async ({ id }: DefaultFooterProps) => {
       title: t("columns.product.title"),
       links: [
         { text: t("columns.product.features"), href: "/pricing" },
-        { text: t("columns.product.publicRoadmap"), href: "#" },
-        { text: t("columns.product.hosting"), href: "#" },
+        { text: t("columns.product.publicRoadmap"), href: "/roadmap" },
+        { text: t("columns.product.hosting"), href: "/doc/technical/self-hosting" },
       ],
     },
     {
       title: t("columns.resources.title"),
       links: [
         { text: t("columns.resources.documentation"), href: "/doc" },
-        { text: t("columns.resources.api"), href: "#" },
         { text: t("columns.resources.github"), href: config.repositoryUrl },
       ],
     },
@@ -49,7 +48,7 @@ export const DefaultFooter = async ({ id }: DefaultFooterProps) => {
       columns={columns}
       badges={
         <Badge variant="outline" className="font-mono text-[10px] text-muted-foreground">
-          Apache 2.0
+          AGPL v3
         </Badge>
       }
       copyright={t("copyright", { year: new Date().getFullYear(), brandName: config.brand.name })}

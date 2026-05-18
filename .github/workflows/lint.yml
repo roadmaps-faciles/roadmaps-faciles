@@ -43,6 +43,12 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: "pnpm"
+      - name: Unlock git-crypt
+        run: |
+          sudo apt-get install -y git-crypt
+          echo "$GIT_CRYPT_KEY" | base64 -d | git-crypt unlock -
+        env:
+          GIT_CRYPT_KEY: ${{ secrets.GIT_CRYPT_KEY }}
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Cache Turbo
@@ -55,3 +61,5 @@ jobs:
       - run: pnpm --filter @roadmaps-faciles/web exec -- prisma generate
       - name: Lint
         run: pnpm lint
+        env:
+          NODE_OPTIONS: "--max-old-space-size=4096"

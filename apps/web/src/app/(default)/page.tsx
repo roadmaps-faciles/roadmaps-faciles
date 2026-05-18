@@ -40,7 +40,7 @@ const Home = async (_: PageProps<"/">) => {
         <div className="mx-auto max-w-7xl">
           <div className="mb-6 flex justify-center">
             <Badge variant="outline" className="flex gap-2 px-3 py-1">
-              <span className="font-bold text-primary">BETA</span>
+              <span className="font-bold text-primary">ALPHA</span>
               <span className="border-l border-border pl-2 text-muted-foreground">{t("badge")}</span>
             </Badge>
           </div>
@@ -185,20 +185,36 @@ const Home = async (_: PageProps<"/">) => {
               </div>
             </Card>
 
-            {/* Satisfaction — 4col */}
+            {/* Key facts — 4col */}
             <Card className="relative flex flex-col justify-between overflow-hidden border-border/40 p-8 shadow-none md:col-span-4">
               <div>
-                <h3 className="text-base font-semibold">{t("bento.satisfaction.title")}</h3>
-                <p className="text-xs text-muted-foreground">{t("bento.satisfaction.description")}</p>
+                <h3 className="text-base font-semibold">{t("bento.facts.title")}</h3>
+                <p className="text-xs text-muted-foreground">{t("bento.facts.description")}</p>
               </div>
-              <div className="mt-4 flex items-end justify-between gap-4">
-                <div className="text-4xl font-bold tracking-tight text-primary">89%</div>
-                <div className="flex h-12 flex-1 items-end gap-1.5 pb-1">
-                  <div className="h-[30%] w-full rounded-sm bg-primary/10" />
-                  <div className="h-[50%] w-full rounded-sm bg-primary/10" />
-                  <div className="h-[40%] w-full rounded-sm bg-primary/20" />
-                  <div className="h-[70%] w-full rounded-sm bg-primary/30" />
-                  <div className="h-full w-full rounded-sm bg-primary" />
+              <div className="mt-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">{t("bento.facts.openSource")}</span>
+                  <Badge variant="outline" className="text-[10px]">
+                    AGPL v3
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">{t("bento.facts.multiTenant")}</span>
+                  <Badge variant="outline" className="text-[10px]">
+                    {t("bento.facts.included")}
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">{t("bento.facts.selfHost")}</span>
+                  <Badge variant="outline" className="text-[10px]">
+                    {t("bento.facts.included")}
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">{t("bento.facts.dsfr")}</span>
+                  <Badge className="border-primary/20 bg-primary/10 text-[10px] text-primary">
+                    {t("bento.facts.gov")}
+                  </Badge>
                 </div>
               </div>
             </Card>
@@ -221,20 +237,69 @@ const Home = async (_: PageProps<"/">) => {
                     <LayoutDashboard className="size-6" />
                   </div>
                   <span className="text-[10px] font-bold">{t("bento.integrations.jira")}</span>
+                  <Badge variant="outline" className="text-[8px]">
+                    {t("bento.integrations.comingSoon")}
+                  </Badge>
                 </div>
                 <div className="flex flex-col items-center gap-2 opacity-30 grayscale">
                   <div className="flex size-12 items-center justify-center rounded-lg border border-border bg-muted">
                     <Terminal className="size-6" />
                   </div>
                   <span className="text-[10px] font-bold">{t("bento.integrations.slack")}</span>
+                  <Badge variant="outline" className="text-[8px]">
+                    {t("bento.integrations.comingSoon")}
+                  </Badge>
                 </div>
                 <div className="flex flex-col items-center gap-2 opacity-30 grayscale">
                   <div className="flex size-12 items-center justify-center rounded-lg border border-border bg-muted">
                     <Share2 className="size-6" />
                   </div>
                   <span className="text-[10px] font-bold">{t("bento.integrations.linear")}</span>
+                  <Badge variant="outline" className="text-[8px]">
+                    {t("bento.integrations.comingSoon")}
+                  </Badge>
                 </div>
               </div>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing overview */}
+      <section className="px-6 pb-24">
+        <div className="mx-auto max-w-7xl text-center">
+          <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-4xl">{t("pricing.title")}</h2>
+          <p className="mx-auto mb-12 max-w-2xl text-muted-foreground">{t("pricing.description")}</p>
+
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <Card className="flex flex-col border-border/40 p-8 shadow-none">
+              <h3 className="text-lg font-bold">{t("pricing.community.name")}</h3>
+              <p className="mt-1 text-3xl font-extrabold">{t("pricing.community.price")}</p>
+              <p className="mt-2 flex-1 text-sm text-muted-foreground">{t("pricing.community.description")}</p>
+              <Button asChild variant="outline" className="mt-6 w-full">
+                <Link href="/workspaces">{t("pricing.community.cta")}</Link>
+              </Button>
+            </Card>
+
+            <Card className="flex flex-col border-primary/40 p-8 shadow-none ring-1 ring-primary/20">
+              <div className="mb-2 flex items-center gap-2">
+                <h3 className="text-lg font-bold">{t("pricing.pro.name")}</h3>
+                <Badge className="bg-primary text-[10px] text-primary-foreground">{t("pricing.popular")}</Badge>
+              </div>
+              <p className="mt-1 text-3xl font-extrabold">{t("pricing.pro.price")}</p>
+              <p className="mt-2 flex-1 text-sm text-muted-foreground">{t("pricing.pro.description")}</p>
+              <Button asChild className="mt-6 w-full">
+                <Link href="/pricing">{t("pricing.pro.cta")}</Link>
+              </Button>
+            </Card>
+
+            <Card className="flex flex-col border-border/40 p-8 shadow-none">
+              <h3 className="text-lg font-bold">{t("pricing.complete.name")}</h3>
+              <p className="mt-1 text-3xl font-extrabold">{t("pricing.complete.price")}</p>
+              <p className="mt-2 flex-1 text-sm text-muted-foreground">{t("pricing.complete.description")}</p>
+              <Button asChild variant="outline" className="mt-6 w-full">
+                <Link href="/pricing">{t("pricing.complete.cta")}</Link>
+              </Button>
             </Card>
           </div>
         </div>
@@ -260,7 +325,7 @@ const Home = async (_: PageProps<"/">) => {
                 variant="ghost"
                 className="border border-primary-foreground/20 px-10 py-4 text-lg font-bold text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
               >
-                <Link href="/doc">{t("ctaSection.contact")}</Link>
+                <Link href="mailto:contact@roadmaps-faciles.fr">{t("ctaSection.contact")}</Link>
               </Button>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import "global.d";
+import "./global.d";
 
 import { type Locale } from "@/utils/i18n";
 

@@ -84,8 +84,8 @@ export const CheckoutSummary = ({ cartInit, orgSlug, autopay }: CheckoutSummaryP
   };
 
   const handlePay = () => {
-    setError(undefined);
     startTransition(async () => {
+      setError(undefined);
       // Group by interval — create one checkout per interval
       const groups: Record<BillingInterval, string[]> = { monthly: [], yearly: [] };
       for (const item of cartItems) {

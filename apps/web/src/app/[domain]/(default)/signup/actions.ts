@@ -59,6 +59,7 @@ export async function tenantSignupAction(data: {
       const html = await renderVerifyEmailEmail({
         baseUrl: config.host,
         url: verifyUrl,
+        theme: settings.uiTheme,
         translations: {
           title: "Vérifiez votre adresse email",
           body: "Cliquez sur le bouton ci-dessous pour activer votre compte.",

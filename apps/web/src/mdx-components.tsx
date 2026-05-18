@@ -22,6 +22,8 @@ export const anchorHeadingMDXComponents: MDXComponents = {
  * Avoid unauthorized HTML tags inside p tags. (e.g. no p inside p, no div inside p, etc.)
  */
 export const paragraphContentMDXComponents: MDXComponents = {
+  // Fragment strips <p> wrapper to avoid invalid nesting (p > p, p > div)
+  // @ts-expect-error -- Fragment is incompatible with MDX's p type after @types/react bump
   p: Fragment,
 };
 

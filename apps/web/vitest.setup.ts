@@ -3,6 +3,15 @@ import { vi } from "vitest";
 // Mock `server-only` — ce module throw si importé hors RSC
 vi.mock("server-only", () => ({}));
 
+// Mock renderEmails — importe des .tsx (email templates) que Rolldown ne parse pas
+vi.mock("@/emails/renderEmails", () => ({
+  renderInvitationEmail: vi.fn().mockResolvedValue("<html>mock</html>"),
+  renderMagicLinkEmail: vi.fn().mockResolvedValue("<html>mock</html>"),
+  renderResetPasswordEmail: vi.fn().mockResolvedValue("<html>mock</html>"),
+  renderVerifyEmailEmail: vi.fn().mockResolvedValue("<html>mock</html>"),
+  renderEmLinkConfirmEmail: vi.fn().mockResolvedValue("<html>mock</html>"),
+}));
+
 // Mock du logger pino — éviter les logs en test
 vi.mock("@/lib/logger", () => ({
   logger: {
