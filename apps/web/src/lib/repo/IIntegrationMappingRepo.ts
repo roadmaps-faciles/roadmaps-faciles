@@ -11,5 +11,6 @@ export interface IIntegrationMappingRepo {
   findByRemoteId(integrationId: number, remoteId: string): Promise<IntegrationMapping | null>;
   findInboundPostIdsForIntegration(integrationId: number): Promise<number[]>;
   findMappingsForPost(postId: number): Promise<IntegrationMappingWithIntegration[]>;
+  findMappingsForPosts(postIds: number[]): Promise<IntegrationMappingWithIntegration[]>;
   update(id: number, data: Prisma.IntegrationMappingUncheckedUpdateInput): Promise<IntegrationMapping>;
 }

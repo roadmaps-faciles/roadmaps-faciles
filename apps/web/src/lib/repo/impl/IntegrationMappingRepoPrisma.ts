@@ -42,6 +42,14 @@ export class IntegrationMappingRepoPrisma implements IIntegrationMappingRepo {
     });
   }
 
+  public findMappingsForPosts(postIds: number[]): Promise<IntegrationMappingWithIntegration[]> {
+    if (postIds.length === 0) return Promise.resolve([]);
+    return prisma.integrationMapping.findMany({
+      where: { localType: "post", localId: { in: postIds } },
+      include: { integration: true },
+    });
+  }
+
   public async findInboundPostIdsForIntegration(integrationId: number): Promise<number[]> {
     const mappings = await prisma.integrationMapping.findMany({
       where: {

@@ -11,6 +11,7 @@ import {
   type RemoteProperty,
   type SyncResult,
 } from "../../types";
+import { listAccessibleRepos, verifyGitHubConnection } from "./GitHubAuth";
 import {
   MANAGED_LABEL,
   buildBoardLabel,
@@ -19,7 +20,6 @@ import {
   parseBoardLabel,
   parseStatusLabel,
 } from "./GitHubLabels";
-import { listAccessibleRepos, verifyGitHubConnection } from "./GitHubAuth";
 import { type IGitHubSource } from "./IGitHubSource";
 import { parseRepoFullName } from "./types";
 
@@ -285,7 +285,19 @@ export class GitHubIssueSource implements IGitHubSource {
     if (existing) {
       await this.octokit.rest.issues.updateComment({ owner, repo, comment_id: existing, body });
     } else {
-      await this.octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body });
+      const { data: comment } = await this.octokit.rest.issues.createComment({
+        owner,
+        repo,
+        issue_number: issueNumber,
+        body,
+      });
+      await this.octokit
+        .request("POST /repos/{owner}/{repo}/issues/comments/{comment_id}/pin", {
+          owner,
+          repo,
+          comment_id: comment.id,
+        })
+        .catch(() => undefined);
     }
   }
 

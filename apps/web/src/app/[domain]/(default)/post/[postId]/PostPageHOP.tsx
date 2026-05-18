@@ -6,11 +6,13 @@ import { type ReactElement } from "react";
 import { MarkdownAsync } from "react-markdown";
 
 import { LikeButton } from "@/components/Board/LikeButton";
+import { RemoteStatsBadge } from "@/components/Board/RemoteStatsBadge";
 import { prisma } from "@/lib/db/prisma";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { POST_APPROVAL_STATUS } from "@/lib/model/Post";
 import { auth } from "@/lib/next-auth/auth";
 import { integrationMappingRepo } from "@/lib/repo";
+import { type IntegrationMappingWithIntegration } from "@/lib/repo/IIntegrationMappingRepo";
 import { type Activity, type Board } from "@/prisma/client";
 import { UserRole } from "@/prisma/enums";
 import { UIBadge, UISeparator } from "@/ui/bridge";
@@ -171,6 +173,7 @@ export const PostPageHOP = (page: (props: PostPageComponentProps) => ReactElemen
       allowAnonymousVoting: isInboundOnly ? false : settings.allowAnonymousVoting,
       allowComments: isInboundOnly ? false : settings.allowComments,
       notionUrl: isAdmin && notionMapping ? notionMapping.remoteUrl : undefined,
+      remoteMappings: postMappings,
     });
   });
 
@@ -187,12 +190,13 @@ export interface PostPageComponentProps {
   isModal?: boolean;
   notionUrl?: null | string;
   post: { activities: Activity[]; board: Board; editedBy?: { name: null | string } | null } & EnrichedPost;
+  remoteMappings?: IntegrationMappingWithIntegration[];
   user?: null | User;
   userId?: string;
 }
 
 export const PostPageComponent = async (props: PostPageComponentProps) => {
-  const { post, allowComments, canEdit, canDelete, boardSlug, isModal, notionUrl } = props;
+  const { post, allowComments, canEdit, canDelete, boardSlug, isModal, notionUrl, remoteMappings } = props;
   const [t, locale] = await Promise.all([getTranslations("post"), getLocale()]);
 
   return (
@@ -219,6 +223,11 @@ export const PostPageComponent = async (props: PostPageComponentProps) => {
           </a>
         )}
       </div>
+      {remoteMappings && remoteMappings.length > 0 && (
+        <div className="mt-3">
+          <RemoteStatsBadge mappings={remoteMappings} />
+        </div>
+      )}
       <p className="mt-4 text-sm text-muted-foreground">
         {t.rich("addedBy", {
           author: post.user?.name ?? post.sourceLabel ?? t("anonymous"),

@@ -9,7 +9,8 @@ import { postCreated, postFirstCreated } from "@/lib/ee/tracking-provider/tracki
 import { logger } from "@/lib/logger";
 import { POST_APPROVAL_STATUS } from "@/lib/model/Post";
 import { auth } from "@/lib/next-auth/auth";
-import { postRepo } from "@/lib/repo";
+import { integrationMappingRepo, postRepo } from "@/lib/repo";
+import { type IntegrationMappingWithIntegration } from "@/lib/repo/IIntegrationMappingRepo";
 import { type Like, type Post, type PostStatus, type PostWithHotness, type Prisma, type User } from "@/prisma/client";
 import { getAnonymousId } from "@/utils/anonymousId/getAnonymousId";
 import { audit, AuditAction, getRequestContext } from "@/utils/audit";
@@ -25,6 +26,7 @@ export type EnrichedPost = {
   _count: Prisma.PostCountOutputType;
   likes: Like[];
   postStatus: null | PostStatus;
+  remoteMappings?: IntegrationMappingWithIntegration[];
   user: null | User;
 } & Post;
 const cleanFullTextSearch = (text: string) => {
@@ -142,10 +144,26 @@ export async function fetchPostsForBoard<
         }),
   ]);
 
+  const enrichedPosts =
+    order === "trending"
+      ? (posts as Array<{ post: Post } & PostWithHotness>).map(p => p.post)
+      : (posts as EnrichedPost[]);
+
+  const postIds = enrichedPosts.map(p => p.id);
+  const mappings = await integrationMappingRepo.findMappingsForPosts(postIds);
+  const mappingsByPostId = new Map<number, IntegrationMappingWithIntegration[]>();
+  for (const m of mappings) {
+    const list = mappingsByPostId.get(m.localId) ?? [];
+    list.push(m);
+    mappingsByPostId.set(m.localId, list);
+  }
+  const withMappings = enrichedPosts.map(p => ({
+    ...p,
+    remoteMappings: mappingsByPostId.get(p.id) ?? [],
+  })) as EnrichedPost[];
+
   return {
-    posts: (order === "trending"
-      ? (posts as Array<{ post: Post } & PostWithHotness>).map(post => post.post)
-      : (posts as EnrichedPost[])) as R,
+    posts: withMappings as R,
     filteredCount: count,
   };
 }

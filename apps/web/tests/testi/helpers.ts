@@ -58,6 +58,7 @@ export function createMockIntegrationMappingRepo(): MockRepo<IIntegrationMapping
     findByRemoteId: vi.fn(),
     findInboundPostIdsForIntegration: vi.fn(),
     findMappingsForPost: vi.fn(),
+    findMappingsForPosts: vi.fn(),
     update: vi.fn(),
   };
 }
