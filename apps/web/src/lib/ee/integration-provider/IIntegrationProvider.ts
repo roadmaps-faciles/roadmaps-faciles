@@ -45,4 +45,14 @@ export interface IIntegrationProvider {
 
   /** Update the likes count field on a remote page */
   updateLikesField(remoteId: string, count: number): Promise<void>;
+
+  /**
+   * Update remote stats in a single operation (combined likes + comments).
+   * If implemented, the sync engine prefers this over `updateLikesField`/`updateCommentsField`.
+   * Useful for providers without custom fields (e.g. GitHub posts a single bot comment).
+   */
+  updateRemoteStats?(
+    remoteId: string,
+    stats: { commentCount: number; likeCount: number; postPath: string; tenantUrl: string },
+  ): Promise<void>;
 }

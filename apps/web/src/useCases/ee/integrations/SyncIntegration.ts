@@ -222,23 +222,25 @@ export class SyncIntegration implements UseCase<SyncIntegrationInput, SyncIntegr
       const isInbound =
         existingMapping?.metadata && (existingMapping.metadata as Record<string, unknown>).direction === "inbound";
 
-      // Inbound posts: only update comments/likes on Notion (metadata push, not counted as "synced")
+      // Inbound posts: only update comments/likes on the remote (metadata push, not counted as "synced")
       if (isInbound && existingMapping?.remoteId) {
         const { comments: commentCount, likes: likeCount } = await this.getPostCounts(post.id);
         const boardSlug = boardSlugMap.get(post.boardId) ?? String(post.boardId);
-        await Promise.all([
-          provider
-            .updateCommentsField(
-              existingMapping.remoteId,
-              commentCount,
-              tenantUrl,
-              `/board/${boardSlug}/post/${post.id}`,
-            )
-            .catch(err => logger.warn({ err }, "Failed to update comments field")),
-          provider
-            .updateLikesField(existingMapping.remoteId, likeCount)
-            .catch(err => logger.warn({ err }, "Failed to update likes field")),
-        ]);
+        const postPath = `/board/${boardSlug}/post/${post.id}`;
+        if (provider.updateRemoteStats) {
+          await provider
+            .updateRemoteStats(existingMapping.remoteId, { commentCount, likeCount, tenantUrl, postPath })
+            .catch(err => logger.warn({ err }, "Failed to update remote stats"));
+        } else {
+          await Promise.all([
+            provider
+              .updateCommentsField(existingMapping.remoteId, commentCount, tenantUrl, postPath)
+              .catch(err => logger.warn({ err }, "Failed to update comments field")),
+            provider
+              .updateLikesField(existingMapping.remoteId, likeCount)
+              .catch(err => logger.warn({ err }, "Failed to update likes field")),
+          ]);
+        }
         return { synced: 0, errors: 0 };
       }
 
@@ -283,22 +285,29 @@ export class SyncIntegration implements UseCase<SyncIntegrationInput, SyncIntegr
           });
         }
 
-        // Update comments and likes fields in parallel
+        // Update remote stats (combined for providers that support it, otherwise separate calls)
         if (syncResult.remoteId) {
           const boardSlug = boardSlugMap.get(post.boardId) ?? String(post.boardId);
-          await Promise.all([
-            provider
-              .updateCommentsField(
-                syncResult.remoteId,
-                postData.commentCount,
+          const postPath = `/board/${boardSlug}/post/${post.id}`;
+          if (provider.updateRemoteStats) {
+            await provider
+              .updateRemoteStats(syncResult.remoteId, {
+                commentCount: postData.commentCount,
+                likeCount: postData.likeCount,
                 tenantUrl,
-                `/board/${boardSlug}/post/${post.id}`,
-              )
-              .catch(err => logger.warn({ err }, "Failed to update comments field")),
-            provider
-              .updateLikesField(syncResult.remoteId, postData.likeCount)
-              .catch(err => logger.warn({ err }, "Failed to update likes field")),
-          ]);
+                postPath,
+              })
+              .catch(err => logger.warn({ err }, "Failed to update remote stats"));
+          } else {
+            await Promise.all([
+              provider
+                .updateCommentsField(syncResult.remoteId, postData.commentCount, tenantUrl, postPath)
+                .catch(err => logger.warn({ err }, "Failed to update comments field")),
+              provider
+                .updateLikesField(syncResult.remoteId, postData.likeCount)
+                .catch(err => logger.warn({ err }, "Failed to update likes field")),
+            ]);
+          }
         }
 
         await this.syncLogRepo.create({
@@ -486,10 +495,12 @@ export class SyncIntegration implements UseCase<SyncIntegrationInput, SyncIntegr
           updatedAt: syncedAt,
           ...(change.date ? { createdAt: new Date(change.date) } : {}),
         });
+        const existingMetadata = (existingMapping.metadata as Record<string, unknown>) ?? {};
         await this.integrationMappingRepo.update(existingMapping.id, {
           syncStatus: IntegrationSyncStatus.SYNCED,
           lastSyncAt: syncedAt,
           lastError: null,
+          metadata: { ...existingMetadata, remoteStats: change.remoteStats ?? null } as Prisma.InputJsonValue,
         });
       } else {
         // Create new post from inbound data
@@ -513,7 +524,7 @@ export class SyncIntegration implements UseCase<SyncIntegrationInput, SyncIntegr
           remoteUrl: change.remoteUrl,
           syncStatus: IntegrationSyncStatus.SYNCED,
           lastSyncAt: new Date(),
-          metadata: { direction: "inbound" },
+          metadata: { direction: "inbound", remoteStats: change.remoteStats ?? null } as Prisma.InputJsonValue,
         });
         existingMapping = newMapping;
       }

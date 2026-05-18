@@ -10,6 +10,7 @@ import {
   type RemoteDatabaseSchema,
   type SyncResult,
 } from "../../types";
+import { listAccessibleRepos, verifyGitHubConnection } from "./GitHubAuth";
 import { isRoadmapsFacilesLabel, parseStatusLabel } from "./GitHubLabels";
 import { type IGitHubSource } from "./IGitHubSource";
 import { parseRepoFullName } from "./types";
@@ -46,40 +47,12 @@ export class GitHubDiscussionSource implements IGitHubSource {
     private readonly config: IntegrationConfig,
   ) {}
 
-  async testConnection(): Promise<ConnectionTestResult> {
-    try {
-      const { data: user } = await this.octokit.rest.users.getAuthenticated();
-      return { success: true, botName: user.login, workspaceName: user.name ?? undefined };
-    } catch (error) {
-      return { success: false, error: (error as Error).message };
-    }
+  testConnection(): Promise<ConnectionTestResult> {
+    return verifyGitHubConnection(this.octokit, this.config);
   }
 
-  async listRemoteDatabases(): Promise<RemoteDatabase[]> {
-    const repos: RemoteDatabase[] = [];
-    const iterator = this.octokit.paginate.iterator(this.octokit.rest.repos.listForAuthenticatedUser, {
-      per_page: 100,
-      sort: "updated",
-      affiliation: "owner,collaborator,organization_member",
-    });
-
-    for await (const response of iterator) {
-      for (const repo of response.data) {
-        if (!repo.permissions?.push) continue;
-        if (!repo.has_discussions) continue;
-        repos.push({
-          id: repo.full_name,
-          name: repo.full_name,
-          description: repo.description ?? undefined,
-          url: repo.html_url,
-          propertyCount: 0,
-          parentName: repo.owner.login,
-          icon: repo.owner.avatar_url ? { type: "url", url: repo.owner.avatar_url } : undefined,
-        });
-      }
-    }
-
-    return repos;
+  listRemoteDatabases(): Promise<RemoteDatabase[]> {
+    return listAccessibleRepos(this.octokit, this.config, repo => repo.has_discussions === true);
   }
 
   async getRemoteDatabaseSchema(repoFullName: string): Promise<RemoteDatabaseSchema> {

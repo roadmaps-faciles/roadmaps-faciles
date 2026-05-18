@@ -91,12 +91,18 @@ export interface SyncResult {
   success: boolean;
 }
 
+export interface RemoteStats {
+  commentCount?: number;
+  reactionCount?: number;
+}
+
 export interface InboundChange {
   boardRemoteOptionId?: string;
   date?: string;
   description?: string;
   lastEditedTime: string;
   remoteId: string;
+  remoteStats?: RemoteStats;
   remoteUrl: string;
   statusRemoteOptionId?: string;
   tags?: string[];

@@ -66,7 +66,10 @@ export const testNotionConnection = async (data: {
   try {
     const useCase = new TestIntegrationConnection();
     const result = await useCase.execute({ type: "NOTION", apiKey: data.apiKey });
-    return { ok: true, data: { success: result.success, botName: result.botName } };
+    if (!result.success) {
+      return { ok: false, error: result.error };
+    }
+    return { ok: true, data: { success: true, botName: result.botName } };
   } catch (error) {
     return { ok: false, error: (error as Error).message };
   }
@@ -394,7 +397,10 @@ export const testGitHubConnection = async (data: {
   try {
     const useCase = new TestIntegrationConnection();
     const result = await useCase.execute({ type: "GITHUB", ...data });
-    return { ok: true, data: { success: result.success, botName: result.botName } };
+    if (!result.success) {
+      return { ok: false, error: result.error };
+    }
+    return { ok: true, data: { success: true, botName: result.botName } };
   } catch (error) {
     return { ok: false, error: (error as Error).message };
   }

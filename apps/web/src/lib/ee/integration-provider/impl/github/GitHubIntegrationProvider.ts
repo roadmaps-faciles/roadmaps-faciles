@@ -82,6 +82,14 @@ export class GitHubIntegrationProvider implements IIntegrationProvider {
 
   async updateLikesField(): Promise<void> {}
 
+  updateRemoteStats(
+    remoteId: string,
+    stats: { commentCount: number; likeCount: number; postPath: string; tenantUrl: string },
+  ): Promise<void> {
+    if (!this.source.updateRemoteStats) return Promise.resolve();
+    return this.source.updateRemoteStats(remoteId, stats);
+  }
+
   private async collectStream(gen: AsyncGenerator<InboundChange>): Promise<InboundChange[]> {
     const results: InboundChange[] = [];
     for await (const change of gen) {

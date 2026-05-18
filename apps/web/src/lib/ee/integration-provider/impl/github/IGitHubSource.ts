@@ -19,4 +19,8 @@ export interface IGitHubSource {
   syncInboundStream(since?: Date): AsyncGenerator<InboundChange>;
   syncOutbound(post: PostSyncData, existingRemoteId?: string): Promise<SyncResult>;
   testConnection(): Promise<ConnectionTestResult>;
+  updateRemoteStats?(
+    remoteId: string,
+    stats: { commentCount: number; likeCount: number; postPath: string; tenantUrl: string },
+  ): Promise<void>;
 }

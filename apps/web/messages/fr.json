@@ -190,6 +190,11 @@
       "headline": "Désolé, le service rencontre un problème, nous travaillons pour le résoudre le plus rapidement possible.",
       "body": "Essayez de rafraichir la page ou bien reessayez plus tard."
     },
+    "503": {
+      "title": "Service indisponible",
+      "headline": "Le service est temporairement indisponible.",
+      "body": "Notre base de données est injoignable pour le moment. Réessayez dans quelques instants."
+    },
     "construction": {
       "title": "En construction",
       "headline": "Ce service est en cours de construction.",
@@ -687,9 +692,9 @@
         "syncing": "Synchronisation...",
         "syncInProgress": "Synchronisation en cours, cela peut prendre quelques instants…",
         "syncFetchingOutbound": "Récupération des posts locaux…",
-        "syncFetchingInbound": "Récupération des pages depuis Notion…",
-        "syncProgressOutbound": "Export vers Notion : {current}/{total}",
-        "syncProgressInbound": "Import depuis Notion : {current}/{total}",
+        "syncFetchingInbound": "Récupération des éléments distants…",
+        "syncProgressOutbound": "Export vers le service distant : {current}/{total}",
+        "syncProgressInbound": "Import depuis le service distant : {current}/{total}",
         "syncStreamingProgress": "Récupération en cours — {count, plural, one {# élément récupéré} other {# éléments récupérés}}…",
         "delete": "Supprimer",
         "lastSyncAt": "Dernière synchronisation : {date}",

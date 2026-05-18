@@ -242,7 +242,7 @@ describe("SyncIntegration", () => {
       expect(mockMappingRepo.create).toHaveBeenCalledWith(
         expect.objectContaining({
           remoteId: "page-1",
-          metadata: { direction: "inbound" },
+          metadata: expect.objectContaining({ direction: "inbound" }),
         }),
       );
       expect(result.synced).toBe(1);

@@ -74,7 +74,14 @@ export const GitHubConnectionStep = ({ appName }: GitHubConnectionStepProps) => 
     tWizard,
   ]);
 
-  const installAppUrl = appName ? `https://github.com/apps/${appName}/installations/new` : null;
+  const installAppUrl = (() => {
+    if (!appName) return null;
+    const url = new URL(`https://github.com/apps/${appName}/installations/new`);
+    if (typeof window !== "undefined") {
+      url.searchParams.set("state", window.location.host);
+    }
+    return url.toString();
+  })();
 
   return (
     <div>

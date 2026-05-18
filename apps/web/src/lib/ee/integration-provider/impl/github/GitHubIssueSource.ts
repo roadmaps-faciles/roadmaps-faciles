@@ -19,6 +19,7 @@ import {
   parseBoardLabel,
   parseStatusLabel,
 } from "./GitHubLabels";
+import { listAccessibleRepos, verifyGitHubConnection } from "./GitHubAuth";
 import { type IGitHubSource } from "./IGitHubSource";
 import { parseRepoFullName } from "./types";
 
@@ -28,39 +29,12 @@ export class GitHubIssueSource implements IGitHubSource {
     private readonly config: IntegrationConfig,
   ) {}
 
-  async testConnection(): Promise<ConnectionTestResult> {
-    try {
-      const { data: user } = await this.octokit.rest.users.getAuthenticated();
-      return { success: true, botName: user.login, workspaceName: user.name ?? undefined };
-    } catch (error) {
-      return { success: false, error: (error as Error).message };
-    }
+  testConnection(): Promise<ConnectionTestResult> {
+    return verifyGitHubConnection(this.octokit, this.config);
   }
 
-  async listRemoteDatabases(): Promise<RemoteDatabase[]> {
-    const repos: RemoteDatabase[] = [];
-    const iterator = this.octokit.paginate.iterator(this.octokit.rest.repos.listForAuthenticatedUser, {
-      per_page: 100,
-      sort: "updated",
-      affiliation: "owner,collaborator,organization_member",
-    });
-
-    for await (const response of iterator) {
-      for (const repo of response.data) {
-        if (!repo.permissions?.push) continue;
-        repos.push({
-          id: repo.full_name,
-          name: repo.full_name,
-          description: repo.description ?? undefined,
-          url: repo.html_url,
-          propertyCount: 0,
-          parentName: repo.owner.login,
-          icon: repo.owner.avatar_url ? { type: "url", url: repo.owner.avatar_url } : undefined,
-        });
-      }
-    }
-
-    return repos;
+  listRemoteDatabases(): Promise<RemoteDatabase[]> {
+    return listAccessibleRepos(this.octokit, this.config);
   }
 
   async getRemoteDatabaseSchema(repoFullName: string): Promise<RemoteDatabaseSchema> {
@@ -239,11 +213,13 @@ export class GitHubIssueSource implements IGitHubSource {
 
   private issueToInboundChange(issue: {
     body?: null | string;
+    comments?: number;
     created_at: string;
     html_url: string;
     labels: Array<{ name?: string } | string>;
     milestone?: { number: number; title: string } | null;
     number: number;
+    reactions?: { total_count?: number };
     title: string;
     updated_at: string;
   }): InboundChange {
@@ -288,6 +264,48 @@ export class GitHubIssueSource implements IGitHubSource {
       tags,
       statusRemoteOptionId,
       boardRemoteOptionId,
+      remoteStats: {
+        commentCount: issue.comments,
+        reactionCount: issue.reactions?.total_count,
+      },
     };
+  }
+
+  async updateRemoteStats(
+    remoteId: string,
+    stats: { commentCount: number; likeCount: number; postPath: string; tenantUrl: string },
+  ): Promise<void> {
+    const { owner, repo } = parseRepoFullName(this.config.databaseId);
+    const issueNumber = parseInt(remoteId, 10);
+    const marker = "<!-- roadmaps-faciles:stats -->";
+    const link = `${stats.tenantUrl}${stats.postPath}`;
+    const body = `${marker}\n_Roadmaps Faciles_ — 👍 ${stats.likeCount} · 💬 ${stats.commentCount} · [voir le post](${link})`;
+
+    const existing = await this.findStatsComment(owner, repo, issueNumber, marker);
+    if (existing) {
+      await this.octokit.rest.issues.updateComment({ owner, repo, comment_id: existing, body });
+    } else {
+      await this.octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body });
+    }
+  }
+
+  private async findStatsComment(
+    owner: string,
+    repo: string,
+    issueNumber: number,
+    marker: string,
+  ): Promise<number | undefined> {
+    const iterator = this.octokit.paginate.iterator(this.octokit.rest.issues.listComments, {
+      owner,
+      repo,
+      issue_number: issueNumber,
+      per_page: 100,
+    });
+    for await (const response of iterator) {
+      for (const comment of response.data) {
+        if (comment.body?.includes(marker)) return comment.id;
+      }
+    }
+    return undefined;
   }
 }

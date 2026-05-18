@@ -190,6 +190,11 @@
       "headline": "Sorry, the service is experiencing a problem. We are working to resolve it as quickly as possible.",
       "body": "Try refreshing the page or try again later."
     },
+    "503": {
+      "title": "Service unavailable",
+      "headline": "The service is temporarily unavailable.",
+      "body": "Our database is unreachable at the moment. Please try again in a few moments."
+    },
     "construction": {
       "title": "Under construction",
       "headline": "This service is under construction.",
@@ -687,9 +692,9 @@
         "syncing": "Syncing...",
         "syncInProgress": "Sync in progress, this may take a moment…",
         "syncFetchingOutbound": "Fetching local posts…",
-        "syncFetchingInbound": "Fetching pages from Notion…",
-        "syncProgressOutbound": "Exporting to Notion: {current}/{total}",
-        "syncProgressInbound": "Importing from Notion: {current}/{total}",
+        "syncFetchingInbound": "Fetching remote items…",
+        "syncProgressOutbound": "Exporting to remote service: {current}/{total}",
+        "syncProgressInbound": "Importing from remote service: {current}/{total}",
         "syncStreamingProgress": "Fetching — {count, plural, one {# item retrieved} other {# items retrieved}}…",
         "delete": "Delete",
         "lastSyncAt": "Last sync: {date}",

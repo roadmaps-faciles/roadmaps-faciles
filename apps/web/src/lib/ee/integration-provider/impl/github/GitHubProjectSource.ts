@@ -10,6 +10,7 @@ import {
   type RemoteDatabaseSchema,
   type SyncResult,
 } from "../../types";
+import { verifyGitHubConnection } from "./GitHubAuth";
 import { type IGitHubSource } from "./IGitHubSource";
 import { parseRepoFullName } from "./types";
 
@@ -61,13 +62,8 @@ export class GitHubProjectSource implements IGitHubSource {
     private readonly config: IntegrationConfig,
   ) {}
 
-  async testConnection(): Promise<ConnectionTestResult> {
-    try {
-      const { data: user } = await this.octokit.rest.users.getAuthenticated();
-      return { success: true, botName: user.login, workspaceName: user.name ?? undefined };
-    } catch (error) {
-      return { success: false, error: (error as Error).message };
-    }
+  testConnection(): Promise<ConnectionTestResult> {
+    return verifyGitHubConnection(this.octokit, this.config);
   }
 
   async listRemoteDatabases(): Promise<RemoteDatabase[]> {

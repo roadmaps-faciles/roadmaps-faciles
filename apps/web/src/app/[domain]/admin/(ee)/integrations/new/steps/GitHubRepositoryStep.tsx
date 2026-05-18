@@ -23,6 +23,8 @@ export const GitHubRepositoryStep = () => {
   const tWizard = useTranslations("domainAdmin.integrations.wizard");
   const {
     apiKey,
+    authType,
+    installationId,
     sourceType,
     repositories,
     selectedRepoId,
@@ -39,6 +41,7 @@ export const GitHubRepositoryStep = () => {
   } = useGitHubWizardStore();
 
   const [search, setSearch] = useState("");
+  const [error, setError] = useState<null | string>(null);
 
   const filteredRepos = useMemo(() => {
     if (!search.trim()) return repositories;
@@ -46,17 +49,28 @@ export const GitHubRepositoryStep = () => {
     return repositories.filter(r => r.name.toLowerCase().includes(q) || r.description?.toLowerCase().includes(q));
   }, [repositories, search]);
 
+  const authPayload = useMemo(
+    () =>
+      authType === "app" && installationId
+        ? { authType: "app" as const, installationId }
+        : { authType: "pat" as const, apiKey },
+    [authType, installationId, apiKey],
+  );
+
   const loadRepos = useCallback(async () => {
     setLoadingRepos(true);
+    setError(null);
     try {
-      const result = await fetchGitHubRepositories({ apiKey, authType: "pat" });
+      const result = await fetchGitHubRepositories(authPayload);
       if (result.ok) {
         setRepositories(result.data);
+      } else {
+        setError(result.error);
       }
     } finally {
       setLoadingRepos(false);
     }
-  }, [apiKey, setLoadingRepos, setRepositories]);
+  }, [authPayload, setLoadingRepos, setRepositories]);
 
   useEffect(() => {
     if (repositories.length > 0) return;
@@ -68,23 +82,25 @@ export const GitHubRepositoryStep = () => {
       if (repoId === selectedRepoId && schema) return;
       setSelectedRepoId(repoId);
       setLoadingSchema(true);
+      setError(null);
       try {
         const repo = repositories.find(r => r.id === repoId);
         if (!repo) return;
         const result = await fetchGitHubRepositorySchema({
-          apiKey,
-          authType: "pat",
+          ...authPayload,
           repoFullName: repo.name,
           sourceType,
         });
         if (result.ok) {
           setSchema(result.data);
+        } else {
+          setError(result.error);
         }
       } finally {
         setLoadingSchema(false);
       }
     },
-    [apiKey, sourceType, repositories, selectedRepoId, schema, setSelectedRepoId, setLoadingSchema, setSchema],
+    [authPayload, sourceType, repositories, selectedRepoId, schema, setSelectedRepoId, setLoadingSchema, setSchema],
   );
 
   if (loadingRepos) {
@@ -95,7 +111,7 @@ export const GitHubRepositoryStep = () => {
     return (
       <div className="flex flex-col items-start gap-4">
         <Alert variant="destructive">
-          <AlertDescription>{t("noRepos")}</AlertDescription>
+          <AlertDescription>{error || t("noRepos")}</AlertDescription>
         </Alert>
         <Button variant="outline" onClick={() => void loadRepos()}>
           <RefreshCw className="mr-1 size-4" />
@@ -128,6 +144,12 @@ export const GitHubRepositoryStep = () => {
           type="search"
           className="my-4"
         />
+      )}
+
+      {error && (
+        <Alert variant="destructive" className="my-4">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
 
       <div className="flex flex-col gap-2">

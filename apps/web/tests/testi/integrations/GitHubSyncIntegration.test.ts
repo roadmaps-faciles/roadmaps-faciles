@@ -112,7 +112,7 @@ describe("SyncIntegration — GitHub provider", () => {
         expect.objectContaining({
           remoteId: "issue-42",
           remoteUrl: "https://github.com/owner/repo/issues/42",
-          metadata: { direction: "inbound" },
+          metadata: expect.objectContaining({ direction: "inbound" }),
         }),
       );
       expect(result.synced).toBe(1);
