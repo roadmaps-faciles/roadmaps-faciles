@@ -16,6 +16,8 @@ import { type PublicMappingSummary } from "@/lib/repo/IIntegrationMappingRepo";
 import { type Activity, type Board } from "@/prisma/client";
 import { UserRole } from "@/prisma/enums";
 import { UIBadge, UISeparator } from "@/ui/bridge";
+import { getTheme } from "@/ui/server";
+import { type UiTheme } from "@/ui/types";
 import { getAnonymousId } from "@/utils/anonymousId/getAnonymousId";
 import { assertPublicAccess } from "@/utils/auth";
 import { formatDate } from "@/utils/date";
@@ -159,6 +161,8 @@ export const PostPageHOP = (page: (props: PostPageComponentProps) => Promise<Rea
       }
     }
 
+    const theme = await getTheme(settings);
+
     return page({
       post,
       user: session?.user,
@@ -178,6 +182,7 @@ export const PostPageHOP = (page: (props: PostPageComponentProps) => Promise<Rea
         remoteUrl: m.remoteUrl,
         metadata: m.metadata,
       })),
+      theme,
     });
   });
 
@@ -195,6 +200,7 @@ export interface PostPageComponentProps {
   notionUrl?: null | string;
   post: { activities: Activity[]; board: Board; editedBy?: { name: null | string } | null } & EnrichedPost;
   remoteMappings?: PublicMappingSummary[];
+  theme: UiTheme;
   user?: null | User;
   userId?: string;
 }

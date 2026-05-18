@@ -1,14 +1,11 @@
 import { DsfrPage } from "@/gouv/dsfr/layout/DsfrPage";
-import { getTheme } from "@/ui/server";
 
 import { PostPageComponent, PostPageHOP, PostPageTitle } from "../../../post/[postId]/PostPageHOP";
 import { PostDialogModal } from "./PostDialogModal";
 import { PostSimpleModal } from "./PostSimpleModal";
 
-const PostModal = PostPageHOP(async props => {
-  const theme = await getTheme();
-
-  if (theme === "Dsfr") {
+const PostModal = PostPageHOP(props => {
+  if (props.theme === "Dsfr") {
     return (
       <DsfrPage>
         <PostSimpleModal
