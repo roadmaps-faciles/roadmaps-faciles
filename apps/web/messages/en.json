@@ -860,6 +860,11 @@
     "edited": "(edited)"
   },
   "post": {
+    "remoteStats": {
+      "reactions": "reactions",
+      "comments": "comments",
+      "viewOn": "view on {provider}"
+    },
     "unclassified": "Unclassified",
     "addedBy": "Added by <b>{author}</b> on {date}",
     "editedBy": "(edited by {editor})",

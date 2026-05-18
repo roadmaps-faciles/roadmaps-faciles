@@ -38,51 +38,51 @@ export class GitHubIntegrationProvider implements IIntegrationProvider {
     }
   }
 
-  testConnection(): Promise<ConnectionTestResult> {
+  public testConnection(): Promise<ConnectionTestResult> {
     return this.source.testConnection();
   }
 
-  listRemoteDatabases(): Promise<RemoteDatabase[]> {
+  public listRemoteDatabases(): Promise<RemoteDatabase[]> {
     return this.source.listRemoteDatabases();
   }
 
-  getRemoteDatabaseSchema(databaseId: string): Promise<RemoteDatabaseSchema> {
+  public getRemoteDatabaseSchema(databaseId: string): Promise<RemoteDatabaseSchema> {
     return this.source.getRemoteDatabaseSchema(databaseId);
   }
 
-  syncOutbound(post: PostSyncData, existingRemoteId?: string): Promise<SyncResult> {
+  public syncOutbound(post: PostSyncData, existingRemoteId?: string): Promise<SyncResult> {
     return this.source.syncOutbound(post, existingRemoteId);
   }
 
-  syncInbound(since?: Date): Promise<InboundChange[]> {
+  public syncInbound(since?: Date): Promise<InboundChange[]> {
     return this.collectStream(this.source.syncInboundStream(since));
   }
 
-  async *syncInboundStream(since?: Date): AsyncGenerator<InboundChange> {
+  public async *syncInboundStream(since?: Date): AsyncGenerator<InboundChange> {
     yield* this.source.syncInboundStream(since);
   }
 
-  countInbound(since?: Date): Promise<number> {
+  public countInbound(since?: Date): Promise<number> {
     return this.source.countInbound(since);
   }
 
-  getInboundChange(remoteId: string): Promise<InboundChange | null> {
+  public getInboundChange(remoteId: string): Promise<InboundChange | null> {
     return this.source.getInboundChange(remoteId);
   }
 
-  getPageContent(remoteId: string): Promise<string | undefined> {
+  public getPageContent(remoteId: string): Promise<string | undefined> {
     return this.source.getPageContent(remoteId);
   }
 
-  buildRemoteUrl(remoteId: string): string {
+  public buildRemoteUrl(remoteId: string): string {
     return this.source.buildRemoteUrl(remoteId);
   }
 
-  async updateCommentsField(): Promise<void> {}
+  public async updateCommentsField(): Promise<void> {}
 
-  async updateLikesField(): Promise<void> {}
+  public async updateLikesField(): Promise<void> {}
 
-  updateRemoteStats(
+  public updateRemoteStats(
     remoteId: string,
     stats: { commentCount: number; likeCount: number; postPath: string; tenantUrl: string },
   ): Promise<void> {

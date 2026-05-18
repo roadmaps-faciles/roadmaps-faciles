@@ -1,6 +1,8 @@
 import "server-only";
 import { type Octokit } from "octokit";
 
+import { logger } from "@/lib/logger";
+
 import {
   type ConnectionTestResult,
   type InboundChange,
@@ -29,15 +31,15 @@ export class GitHubIssueSource implements IGitHubSource {
     private readonly config: IntegrationConfig,
   ) {}
 
-  testConnection(): Promise<ConnectionTestResult> {
+  public testConnection(): Promise<ConnectionTestResult> {
     return verifyGitHubConnection(this.octokit, this.config);
   }
 
-  listRemoteDatabases(): Promise<RemoteDatabase[]> {
+  public listRemoteDatabases(): Promise<RemoteDatabase[]> {
     return listAccessibleRepos(this.octokit, this.config);
   }
 
-  async getRemoteDatabaseSchema(repoFullName: string): Promise<RemoteDatabaseSchema> {
+  public async getRemoteDatabaseSchema(repoFullName: string): Promise<RemoteDatabaseSchema> {
     const { owner, repo } = parseRepoFullName(repoFullName);
     const properties: RemoteProperty[] = [];
 
@@ -94,7 +96,7 @@ export class GitHubIssueSource implements IGitHubSource {
     return { id: repoFullName, name: repoFullName, properties };
   }
 
-  async syncOutbound(post: PostSyncData, existingRemoteId?: string): Promise<SyncResult> {
+  public async syncOutbound(post: PostSyncData, existingRemoteId?: string): Promise<SyncResult> {
     const { owner, repo } = parseRepoFullName(this.config.databaseId);
     const labels = [MANAGED_LABEL];
 
@@ -141,7 +143,7 @@ export class GitHubIssueSource implements IGitHubSource {
     }
   }
 
-  async *syncInboundStream(since?: Date): AsyncGenerator<InboundChange> {
+  public async *syncInboundStream(since?: Date): AsyncGenerator<InboundChange> {
     const { owner, repo } = parseRepoFullName(this.config.databaseId);
     const includePRs = this.config.includePullRequests ?? false;
 
@@ -163,7 +165,7 @@ export class GitHubIssueSource implements IGitHubSource {
     }
   }
 
-  async countInbound(since?: Date): Promise<number> {
+  public async countInbound(since?: Date): Promise<number> {
     const { owner, repo } = parseRepoFullName(this.config.databaseId);
     const includePRs = this.config.includePullRequests ?? false;
     let count = 0;
@@ -188,7 +190,7 @@ export class GitHubIssueSource implements IGitHubSource {
     return count;
   }
 
-  async getInboundChange(remoteId: string): Promise<InboundChange | null> {
+  public async getInboundChange(remoteId: string): Promise<InboundChange | null> {
     const { owner, repo } = parseRepoFullName(this.config.databaseId);
     try {
       const { data: issue } = await this.octokit.rest.issues.get({
@@ -202,11 +204,11 @@ export class GitHubIssueSource implements IGitHubSource {
     }
   }
 
-  getPageContent(remoteId: string): Promise<string | undefined> {
+  public getPageContent(remoteId: string): Promise<string | undefined> {
     return this.getInboundChange(remoteId).then(change => change?.description);
   }
 
-  buildRemoteUrl(remoteId: string): string {
+  public buildRemoteUrl(remoteId: string): string {
     const { owner, repo } = parseRepoFullName(this.config.databaseId);
     return `https://github.com/${owner}/${repo}/issues/${remoteId}`;
   }
@@ -271,7 +273,7 @@ export class GitHubIssueSource implements IGitHubSource {
     };
   }
 
-  async updateRemoteStats(
+  public async updateRemoteStats(
     remoteId: string,
     stats: { commentCount: number; likeCount: number; postPath: string; tenantUrl: string },
   ): Promise<void> {
@@ -299,13 +301,15 @@ export class GitHubIssueSource implements IGitHubSource {
   }
 
   private async pinComment(owner: string, repo: string, commentId: number): Promise<void> {
-    await this.octokit
-      .request("POST /repos/{owner}/{repo}/issues/comments/{comment_id}/pin", {
+    try {
+      await this.octokit.request("PUT /repos/{owner}/{repo}/issues/comments/{comment_id}/pin", {
         owner,
         repo,
         comment_id: commentId,
-      })
-      .catch(() => undefined);
+      });
+    } catch (error) {
+      logger.warn({ err: error, commentId }, "GitHub pin stats comment failed (non-fatal)");
+    }
   }
 
   private async findStatsComment(

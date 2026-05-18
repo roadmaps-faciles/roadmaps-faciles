@@ -62,11 +62,11 @@ export class GitHubProjectSource implements IGitHubSource {
     private readonly config: IntegrationConfig,
   ) {}
 
-  testConnection(): Promise<ConnectionTestResult> {
+  public testConnection(): Promise<ConnectionTestResult> {
     return verifyGitHubConnection(this.octokit, this.config);
   }
 
-  async listRemoteDatabases(): Promise<RemoteDatabase[]> {
+  public async listRemoteDatabases(): Promise<RemoteDatabase[]> {
     if (!this.config.databaseId) {
       throw new Error("ProjectSource requires a repository to list projects");
     }
@@ -97,7 +97,7 @@ export class GitHubProjectSource implements IGitHubSource {
     }));
   }
 
-  async getRemoteDatabaseSchema(projectId: string): Promise<RemoteDatabaseSchema> {
+  public async getRemoteDatabaseSchema(projectId: string): Promise<RemoteDatabaseSchema> {
     const result = await this.octokit.graphql<{
       node: {
         fields: { nodes: ProjectV2FieldNode[] };
@@ -146,7 +146,7 @@ export class GitHubProjectSource implements IGitHubSource {
     };
   }
 
-  async syncOutbound(post: PostSyncData, existingRemoteId?: string): Promise<SyncResult> {
+  public async syncOutbound(post: PostSyncData, existingRemoteId?: string): Promise<SyncResult> {
     if (!existingRemoteId) {
       return { success: false, remoteId: "", error: "Cannot create project items — link existing issues instead" };
     }
@@ -183,7 +183,7 @@ export class GitHubProjectSource implements IGitHubSource {
     return { success: true, remoteId: existingRemoteId };
   }
 
-  async *syncInboundStream(since?: Date): AsyncGenerator<InboundChange> {
+  public async *syncInboundStream(since?: Date): AsyncGenerator<InboundChange> {
     let shouldContinue = true;
     let cursor: null | string = null;
 
@@ -228,7 +228,7 @@ export class GitHubProjectSource implements IGitHubSource {
     }
   }
 
-  async countInbound(since?: Date): Promise<number> {
+  public async countInbound(since?: Date): Promise<number> {
     let count = 0;
     for await (const _ of this.syncInboundStream(since)) {
       void _;
@@ -237,7 +237,7 @@ export class GitHubProjectSource implements IGitHubSource {
     return count;
   }
 
-  async getInboundChange(remoteId: string): Promise<InboundChange | null> {
+  public async getInboundChange(remoteId: string): Promise<InboundChange | null> {
     try {
       const result = await this.octokit.graphql<{ node: null | ProjectV2ItemNode }>(
         `query($id: ID!) {
@@ -268,12 +268,12 @@ export class GitHubProjectSource implements IGitHubSource {
     }
   }
 
-  async getPageContent(remoteId: string): Promise<string | undefined> {
+  public async getPageContent(remoteId: string): Promise<string | undefined> {
     const change = await this.getInboundChange(remoteId);
     return change?.description;
   }
 
-  buildRemoteUrl(_remoteId: string): string {
+  public buildRemoteUrl(_remoteId: string): string {
     return "";
   }
 

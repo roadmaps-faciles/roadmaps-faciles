@@ -47,15 +47,15 @@ export class GitHubDiscussionSource implements IGitHubSource {
     private readonly config: IntegrationConfig,
   ) {}
 
-  testConnection(): Promise<ConnectionTestResult> {
+  public testConnection(): Promise<ConnectionTestResult> {
     return verifyGitHubConnection(this.octokit, this.config);
   }
 
-  listRemoteDatabases(): Promise<RemoteDatabase[]> {
+  public listRemoteDatabases(): Promise<RemoteDatabase[]> {
     return listAccessibleRepos(this.octokit, this.config, repo => repo.has_discussions === true);
   }
 
-  async getRemoteDatabaseSchema(repoFullName: string): Promise<RemoteDatabaseSchema> {
+  public async getRemoteDatabaseSchema(repoFullName: string): Promise<RemoteDatabaseSchema> {
     const { owner, repo } = parseRepoFullName(repoFullName);
 
     const { repository } = await this.octokit.graphql<{
@@ -100,7 +100,7 @@ export class GitHubDiscussionSource implements IGitHubSource {
     };
   }
 
-  async syncOutbound(post: PostSyncData, existingRemoteId?: string): Promise<SyncResult> {
+  public async syncOutbound(post: PostSyncData, existingRemoteId?: string): Promise<SyncResult> {
     const { owner, repo } = parseRepoFullName(this.config.databaseId);
 
     if (existingRemoteId) {
@@ -158,7 +158,7 @@ export class GitHubDiscussionSource implements IGitHubSource {
     }
   }
 
-  async *syncInboundStream(since?: Date): AsyncGenerator<InboundChange> {
+  public async *syncInboundStream(since?: Date): AsyncGenerator<InboundChange> {
     const { owner, repo } = parseRepoFullName(this.config.databaseId);
     let shouldContinue = true;
     let cursor: null | string = null;
@@ -194,7 +194,7 @@ export class GitHubDiscussionSource implements IGitHubSource {
     }
   }
 
-  async countInbound(since?: Date): Promise<number> {
+  public async countInbound(since?: Date): Promise<number> {
     let count = 0;
     for await (const _ of this.syncInboundStream(since)) {
       void _;
@@ -203,7 +203,7 @@ export class GitHubDiscussionSource implements IGitHubSource {
     return count;
   }
 
-  async getInboundChange(remoteId: string): Promise<InboundChange | null> {
+  public async getInboundChange(remoteId: string): Promise<InboundChange | null> {
     try {
       const result = await this.octokit.graphql<{ node: GraphQLDiscussionNode | null }>(
         `query($id: ID!) {
@@ -224,12 +224,12 @@ export class GitHubDiscussionSource implements IGitHubSource {
     }
   }
 
-  async getPageContent(remoteId: string): Promise<string | undefined> {
+  public async getPageContent(remoteId: string): Promise<string | undefined> {
     const change = await this.getInboundChange(remoteId);
     return change?.description;
   }
 
-  buildRemoteUrl(remoteId: string): string {
+  public buildRemoteUrl(remoteId: string): string {
     void remoteId;
     const { owner, repo } = parseRepoFullName(this.config.databaseId);
     return `https://github.com/${owner}/${repo}/discussions`;

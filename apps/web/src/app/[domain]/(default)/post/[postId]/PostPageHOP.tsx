@@ -12,7 +12,7 @@ import { isFeatureEnabled } from "@/lib/feature-flags";
 import { POST_APPROVAL_STATUS } from "@/lib/model/Post";
 import { auth } from "@/lib/next-auth/auth";
 import { integrationMappingRepo } from "@/lib/repo";
-import { type IntegrationMappingWithIntegration } from "@/lib/repo/IIntegrationMappingRepo";
+import { type PublicMappingSummary } from "@/lib/repo/IIntegrationMappingRepo";
 import { type Activity, type Board } from "@/prisma/client";
 import { UserRole } from "@/prisma/enums";
 import { UIBadge, UISeparator } from "@/ui/bridge";
@@ -173,7 +173,11 @@ export const PostPageHOP = (page: (props: PostPageComponentProps) => ReactElemen
       allowAnonymousVoting: isInboundOnly ? false : settings.allowAnonymousVoting,
       allowComments: isInboundOnly ? false : settings.allowComments,
       notionUrl: isAdmin && notionMapping ? notionMapping.remoteUrl : undefined,
-      remoteMappings: postMappings,
+      remoteMappings: postMappings.map<PublicMappingSummary>(m => ({
+        integrationType: m.integration.type,
+        remoteUrl: m.remoteUrl,
+        metadata: m.metadata,
+      })),
     });
   });
 
@@ -190,7 +194,7 @@ export interface PostPageComponentProps {
   isModal?: boolean;
   notionUrl?: null | string;
   post: { activities: Activity[]; board: Board; editedBy?: { name: null | string } | null } & EnrichedPost;
-  remoteMappings?: IntegrationMappingWithIntegration[];
+  remoteMappings?: PublicMappingSummary[];
   user?: null | User;
   userId?: string;
 }
