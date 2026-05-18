@@ -15,7 +15,7 @@
     top: 0px;
     visibility: hidden;
     width: 100%;
-    z-index: 1750;
+    z-index: var(--z-modal-overlay);
     border-width: initial;
     border-style: none;
     border-color: initial;

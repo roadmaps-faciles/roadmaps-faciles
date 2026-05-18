@@ -84,7 +84,7 @@ export const UICard = ({
     <ShadcnCard className={cn(shadowClass, isSmall && "p-3", className)}>
       <CardHeader className={cn(isSmall && "p-0 pb-1")}>
         {subtitle && <CardDescription>{subtitle}</CardDescription>}
-        <CardTitle className={cn(isSmall && "text-sm font-medium")}>
+        <CardTitle className={cn(isSmall && "text-base font-semibold")}>
           <TitleTag className="m-0">{title}</TitleTag>
         </CardTitle>
       </CardHeader>

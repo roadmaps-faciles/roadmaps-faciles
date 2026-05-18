@@ -2,6 +2,10 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+
+    --z-sticky: 501;
+    --z-modal-overlay: 1750;
+    --z-modal: 1800;
 }
 
 /* Default/shadcn theme — use shadcn tokens (applied on <html>) */

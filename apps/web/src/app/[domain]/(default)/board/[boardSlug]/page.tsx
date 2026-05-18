@@ -122,7 +122,7 @@ const BoardPage = withValidation({
           <UIGridCol span={showSuggestionForm ? 9 : 12}>
             <UIGrid
               className={cn(
-                "sticky self-start z-501 mb-4",
+                "sticky self-start z-(--z-sticky) mb-4",
                 isDsfr
                   ? cn(style.header, "fr-py-2w")
                   : "top-0 rounded-xl border bg-background/95 px-4 py-3 shadow-sm backdrop-blur",
