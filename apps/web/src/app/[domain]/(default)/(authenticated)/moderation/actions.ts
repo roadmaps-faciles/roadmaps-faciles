@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { notifyPostMutation } from "@/lib/ee/integration-provider/notifyPostMutation";
 import { trackServerEvent } from "@/lib/ee/tracking-provider/serverTracking";
 import { moderationPostApproved, moderationPostRejected } from "@/lib/ee/tracking-provider/trackingPlan";
 import { logger } from "@/lib/logger";
@@ -44,6 +45,8 @@ export async function approvePost(data: { postId: number }): Promise<ServerActio
       session.user.uuid,
       moderationPostApproved({ postId: String(data.postId), tenantId: String(tenant.id) }),
     );
+
+    void notifyPostMutation(data.postId, `https://${domain}`);
 
     revalidatePath("/moderation");
     return { ok: true };

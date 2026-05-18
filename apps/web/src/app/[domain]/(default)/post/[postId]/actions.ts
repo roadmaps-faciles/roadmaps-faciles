@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import z from "zod";
 
 import { prisma } from "@/lib/db/prisma";
+import { notifyPostMutation } from "@/lib/ee/integration-provider/notifyPostMutation";
 import { logger } from "@/lib/logger";
 import { auth } from "@/lib/next-auth/auth";
 import { integrationMappingRepo, postRepo } from "@/lib/repo";
@@ -95,6 +96,8 @@ export const updatePost = async (data: unknown): Promise<ServerActionResponse> =
       },
       reqCtx,
     );
+
+    void notifyPostMutation(validated.data.postId, `https://${domain}`);
 
     revalidatePath(`/${domain}/post/${validated.data.postId}`);
     return { ok: true };

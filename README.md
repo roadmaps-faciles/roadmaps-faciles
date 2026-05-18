@@ -274,6 +274,12 @@ Variables pour le framework d'intégrations tierces (connecteur Notion). Voir `d
 | `INTEGRATION_ENCRYPTION_KEY` | **Obligatoire en prod.** Clé de chiffrement AES-256-GCM pour les clés API des intégrations (≥ 32 caractères) | — |
 | `INTEGRATION_CRON_MANAGER` | Type de cron manager (`noop`, `route`) | `noop` |
 | `INTEGRATION_CRON_SECRET` | Secret Bearer pour le endpoint cron `/api/ee/cron/integrations` | — |
+| `GITHUB_APP_ID` | ID de la GitHub App (mode App, optionnel — sans = PAT uniquement) | — |
+| `GITHUB_APP_PRIVATE_KEY` | Clé privée PEM de la GitHub App, encodée en base64 | — |
+| `GITHUB_APP_CLIENT_ID` | Client ID OAuth de la GitHub App | — |
+| `GITHUB_APP_CLIENT_SECRET` | Client secret OAuth de la GitHub App | — |
+| `GITHUB_APP_WEBHOOK_SECRET` | Secret pour vérifier les signatures webhook GitHub | — |
+| `GITHUB_APP_NAME` | Slug de la GitHub App (pour l'URL d'installation) | `roadmaps-faciles` |
 
 #### Licensing (self-host)
 

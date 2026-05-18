@@ -1,6 +1,6 @@
 import { config } from "@/config";
 
-const SOURCE = `${config.brand.name}.${config.appVersionCommit}`;
+const SOURCE = `${config.brand?.name ?? "app"}.${config.appVersionCommit ?? "0"}`;
 
 export function clientParseError(error: Error): AppError | Error {
   try {
@@ -34,6 +34,10 @@ export class UnexpectedRepositoryError extends UnexpectedError {
   public readonly name: string = "UnexpectedRepositoryError";
 }
 
+export class DatabaseUnavailableError extends UnexpectedRepositoryError {
+  public readonly name: string = "DatabaseUnavailableError";
+}
+
 export class UnexpectedMailerError extends UnexpectedError {
   public readonly name: string = "UnexpectedMailerError";
 }
@@ -57,12 +61,13 @@ export class JsonifiedError<T extends Error = Error> extends AppError {
 
 const ERROR_MAP: Record<string, typeof AppError> = {
   AppError,
+  DatabaseUnavailableError,
   IllogicalError,
-  UnexpectedError,
-  UnexpectedRepositoryError,
-  UnexpectedMailerError,
-  UnexpectedSessionError,
   NotImplementError,
+  UnexpectedError,
+  UnexpectedMailerError,
+  UnexpectedRepositoryError,
+  UnexpectedSessionError,
 };
 
 export const notImplemented = () => {

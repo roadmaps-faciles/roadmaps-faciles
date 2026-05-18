@@ -4,12 +4,14 @@ import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/db/prisma";
+import { notifyPostMutation } from "@/lib/ee/integration-provider/notifyPostMutation";
 import { trackServerEvent } from "@/lib/ee/tracking-provider/serverTracking";
 import { postCreated, postFirstCreated } from "@/lib/ee/tracking-provider/trackingPlan";
 import { logger } from "@/lib/logger";
 import { POST_APPROVAL_STATUS } from "@/lib/model/Post";
 import { auth } from "@/lib/next-auth/auth";
-import { postRepo } from "@/lib/repo";
+import { integrationMappingRepo, postRepo } from "@/lib/repo";
+import { type PublicMappingSummary } from "@/lib/repo/IIntegrationMappingRepo";
 import { type Like, type Post, type PostStatus, type PostWithHotness, type Prisma, type User } from "@/prisma/client";
 import { getAnonymousId } from "@/utils/anonymousId/getAnonymousId";
 import { audit, AuditAction, getRequestContext } from "@/utils/audit";
@@ -25,6 +27,7 @@ export type EnrichedPost = {
   _count: Prisma.PostCountOutputType;
   likes: Like[];
   postStatus: null | PostStatus;
+  remoteMappings?: PublicMappingSummary[];
   user: null | User;
 } & Post;
 const cleanFullTextSearch = (text: string) => {
@@ -142,10 +145,20 @@ export async function fetchPostsForBoard<
         }),
   ]);
 
+  const enrichedPosts =
+    order === "trending"
+      ? (posts as Array<{ post: Post } & PostWithHotness>).map(p => p.post)
+      : (posts as EnrichedPost[]);
+
+  const postIds = enrichedPosts.map(p => p.id);
+  const mappingsByPostId = await integrationMappingRepo.findPublicMappingsForPosts(postIds);
+  const withMappings = enrichedPosts.map(p => ({
+    ...p,
+    remoteMappings: mappingsByPostId.get(p.id) ?? [],
+  })) as EnrichedPost[];
+
   return {
-    posts: (order === "trending"
-      ? (posts as Array<{ post: Post } & PostWithHotness>).map(post => post.post)
-      : (posts as EnrichedPost[])) as R,
+    posts: withMappings as R,
     filteredCount: count,
   };
 }
@@ -235,6 +248,8 @@ export async function submitPost(data: {
         }
       });
     }
+
+    void notifyPostMutation(post.id, `https://${domain}`);
 
     revalidatePath(`/board`);
     return { ok: true, data: { pending: settings.requirePostApproval } };

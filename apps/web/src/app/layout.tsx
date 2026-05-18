@@ -1,21 +1,27 @@
 import "./tailwind-entry.css";
 import "./globals.scss";
 import "react-loading-skeleton/dist/skeleton.css";
+import * as Sentry from "@sentry/nextjs";
 import { type Metadata } from "next";
+import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { Suspense } from "react";
 import { SkeletonTheme } from "react-loading-skeleton";
 
+import { TechnicalErrorDisplay } from "@/components/Error/TechnicalErrorDisplay";
 import { config } from "@/config";
 import { IdentifyUser } from "@/lib/ee/tracking-provider/IdentifyUser";
 import { TrackingProvider } from "@/lib/ee/tracking-provider/TrackingProvider";
-import { getEffectiveFlags } from "@/lib/feature-flags";
+import { getEffectiveFlags, type FeatureFlagsMap } from "@/lib/feature-flags";
 import { FeatureFlagProvider } from "@/lib/feature-flags/client";
+import { FEATURE_FLAGS } from "@/lib/feature-flags/flags";
+import { logger } from "@/lib/logger";
 import { auth } from "@/lib/next-auth/auth";
 import { UIProvider } from "@/ui";
 import { SkipLinks } from "@/ui/SkipLinks";
+import { isDatabaseUnavailableError } from "@/utils/dbError";
 
 import styles from "./root.module.scss";
 import { sharedMetadata } from "./shared-metadata";
@@ -38,8 +44,27 @@ export const metadata: Metadata = {
 };
 
 const RootLayout = async ({ children }: LayoutProps<"/">) => {
-  const [lang, messages, session] = await Promise.all([getLocale(), getMessages(), auth()]);
-  const effectiveFlags = await getEffectiveFlags(session);
+  const [lang, messages] = await Promise.all([getLocale(), getMessages()]);
+
+  let session: null | Session = null;
+  let effectiveFlags: FeatureFlagsMap = { ...FEATURE_FLAGS };
+  let dbError: Error | null = null;
+
+  try {
+    session = await auth();
+    effectiveFlags = await getEffectiveFlags(session);
+  } catch (error) {
+    if (error instanceof Error && isDatabaseUnavailableError(error)) {
+      logger.error({ err: error }, "RootLayout: database unavailable, rendering 503 fallback");
+      Sentry.captureException(error);
+      const plain = new Error(error.message);
+      plain.name = error.name;
+      plain.stack = error.stack;
+      dbError = plain;
+    } else {
+      throw error;
+    }
+  }
 
   return (
     <html lang={lang} suppressHydrationWarning data-ui-theme="Default" className={styles.app}>
@@ -73,7 +98,7 @@ const RootLayout = async ({ children }: LayoutProps<"/">) => {
                 <FeatureFlagProvider value={effectiveFlags}>
                   <UIProvider value="Default">
                     <Suspense>
-                      <div className={styles.app}>{children}</div>
+                      <div className={styles.app}>{dbError ? <TechnicalErrorDisplay error={dbError} /> : children}</div>
                     </Suspense>
                   </UIProvider>
                 </FeatureFlagProvider>

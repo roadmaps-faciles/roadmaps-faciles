@@ -5,7 +5,6 @@ import { decrypt } from "@/lib/ee/integration-provider/encryption";
 import { type SyncProgress } from "@/lib/ee/integration-provider/sync-types";
 import { type InboundChange, type IntegrationConfig, type PostSyncData } from "@/lib/ee/integration-provider/types";
 import { logger } from "@/lib/logger";
-import { POST_APPROVAL_STATUS } from "@/lib/model/Post";
 import { type IBoardRepo } from "@/lib/repo/IBoardRepo";
 import { type IIntegrationMappingRepo } from "@/lib/repo/IIntegrationMappingRepo";
 import { type IIntegrationRepo } from "@/lib/repo/IIntegrationRepo";
@@ -15,6 +14,7 @@ import { type Post, type Prisma, type TenantIntegration } from "@/prisma/client"
 import { IntegrationSyncStatus, SyncDirection, SyncLogStatus } from "@/prisma/enums";
 
 import { type UseCase } from "../../types";
+import { ApplyInboundChange } from "./ApplyInboundChange";
 
 export type { SyncProgress } from "@/lib/ee/integration-provider/sync-types";
 
@@ -222,23 +222,39 @@ export class SyncIntegration implements UseCase<SyncIntegrationInput, SyncIntegr
       const isInbound =
         existingMapping?.metadata && (existingMapping.metadata as Record<string, unknown>).direction === "inbound";
 
-      // Inbound posts: only update comments/likes on Notion (metadata push, not counted as "synced")
+      // Inbound posts: only update comments/likes on the remote (metadata push, not counted as "synced")
       if (isInbound && existingMapping?.remoteId) {
         const { comments: commentCount, likes: likeCount } = await this.getPostCounts(post.id);
         const boardSlug = boardSlugMap.get(post.boardId) ?? String(post.boardId);
-        await Promise.all([
-          provider
-            .updateCommentsField(
+        const postPath = `/board/${boardSlug}/post/${post.id}`;
+        if (provider.updateRemoteStats) {
+          const meta = (existingMapping.metadata as Record<string, unknown>) ?? {};
+          const cachedId = typeof meta.statsCommentId === "number" ? meta.statsCommentId : undefined;
+          const result = await provider
+            .updateRemoteStats(
               existingMapping.remoteId,
-              commentCount,
-              tenantUrl,
-              `/board/${boardSlug}/post/${post.id}`,
+              { commentCount, likeCount, tenantUrl, postPath },
+              cachedId ? { statsCommentId: cachedId } : undefined,
             )
-            .catch(err => logger.warn({ err }, "Failed to update comments field")),
-          provider
-            .updateLikesField(existingMapping.remoteId, likeCount)
-            .catch(err => logger.warn({ err }, "Failed to update likes field")),
-        ]);
+            .catch(err => {
+              logger.warn({ err }, "Failed to update remote stats");
+              return undefined;
+            });
+          if (result && "statsCommentId" in result && result.statsCommentId !== cachedId) {
+            await this.integrationMappingRepo.update(existingMapping.id, {
+              metadata: { ...meta, statsCommentId: result.statsCommentId } as Prisma.InputJsonValue,
+            });
+          }
+        } else {
+          await Promise.all([
+            provider
+              .updateCommentsField(existingMapping.remoteId, commentCount, tenantUrl, postPath)
+              .catch(err => logger.warn({ err }, "Failed to update comments field")),
+            provider
+              .updateLikesField(existingMapping.remoteId, likeCount)
+              .catch(err => logger.warn({ err }, "Failed to update likes field")),
+          ]);
+        }
         return { synced: 0, errors: 0 };
       }
 
@@ -263,6 +279,8 @@ export class SyncIntegration implements UseCase<SyncIntegrationInput, SyncIntegr
       const syncResult = await provider.syncOutbound(postData, existingMapping?.remoteId);
 
       if (syncResult.success) {
+        let mappingId: number;
+        let mappingMeta: Record<string, unknown>;
         if (existingMapping) {
           await this.integrationMappingRepo.update(existingMapping.id, {
             syncStatus: IntegrationSyncStatus.SYNCED,
@@ -270,8 +288,10 @@ export class SyncIntegration implements UseCase<SyncIntegrationInput, SyncIntegr
             lastError: null,
             remoteUrl: syncResult.remoteUrl,
           });
+          mappingId = existingMapping.id;
+          mappingMeta = (existingMapping.metadata as Record<string, unknown>) ?? { direction: "outbound" };
         } else {
-          await this.integrationMappingRepo.create({
+          const created = await this.integrationMappingRepo.create({
             integrationId: integration.id,
             localType: "post",
             localId: post.id,
@@ -281,24 +301,46 @@ export class SyncIntegration implements UseCase<SyncIntegrationInput, SyncIntegr
             lastSyncAt: new Date(),
             metadata: { direction: "outbound" },
           });
+          mappingId = created.id;
+          mappingMeta = { direction: "outbound" };
         }
 
-        // Update comments and likes fields in parallel
+        // Update remote stats (combined for providers that support it, otherwise separate calls)
         if (syncResult.remoteId) {
           const boardSlug = boardSlugMap.get(post.boardId) ?? String(post.boardId);
-          await Promise.all([
-            provider
-              .updateCommentsField(
+          const postPath = `/board/${boardSlug}/post/${post.id}`;
+          if (provider.updateRemoteStats) {
+            const cachedId = typeof mappingMeta.statsCommentId === "number" ? mappingMeta.statsCommentId : undefined;
+            const result = await provider
+              .updateRemoteStats(
                 syncResult.remoteId,
-                postData.commentCount,
-                tenantUrl,
-                `/board/${boardSlug}/post/${post.id}`,
+                {
+                  commentCount: postData.commentCount,
+                  likeCount: postData.likeCount,
+                  tenantUrl,
+                  postPath,
+                },
+                cachedId ? { statsCommentId: cachedId } : undefined,
               )
-              .catch(err => logger.warn({ err }, "Failed to update comments field")),
-            provider
-              .updateLikesField(syncResult.remoteId, postData.likeCount)
-              .catch(err => logger.warn({ err }, "Failed to update likes field")),
-          ]);
+              .catch(err => {
+                logger.warn({ err }, "Failed to update remote stats");
+                return undefined;
+              });
+            if (result && "statsCommentId" in result && result.statsCommentId !== cachedId) {
+              await this.integrationMappingRepo.update(mappingId, {
+                metadata: { ...mappingMeta, statsCommentId: result.statsCommentId } as Prisma.InputJsonValue,
+              });
+            }
+          } else {
+            await Promise.all([
+              provider
+                .updateCommentsField(syncResult.remoteId, postData.commentCount, tenantUrl, postPath)
+                .catch(err => logger.warn({ err }, "Failed to update comments field")),
+              provider
+                .updateLikesField(syncResult.remoteId, postData.likeCount)
+                .catch(err => logger.warn({ err }, "Failed to update likes field")),
+            ]);
+          }
         }
 
         await this.syncLogRepo.create({
@@ -385,8 +427,9 @@ export class SyncIntegration implements UseCase<SyncIntegrationInput, SyncIntegr
       }
 
       // Process DB writes in parallel, emit progress per item
+      const applyInbound = new ApplyInboundChange(this.integrationMappingRepo, this.syncLogRepo, this.postRepo);
       const results = await Promise.allSettled(
-        batch.map(change => this.processOneInboundChange(change, integration, config, syncRunId)),
+        batch.map(change => applyInbound.execute({ change, integration, config, syncRunId })),
       );
       for (const result of results) {
         if (result.status === "fulfilled") {
@@ -415,128 +458,6 @@ export class SyncIntegration implements UseCase<SyncIntegrationInput, SyncIntegr
     await flushBatch();
 
     return { synced, errors, conflicts };
-  }
-
-  private async processOneInboundChange(
-    change: InboundChange,
-    integration: TenantIntegration,
-    config: IntegrationConfig,
-    syncRunId: string,
-  ): Promise<{ conflicts: number; errors: number; synced: number }> {
-    try {
-      let existingMapping = await this.integrationMappingRepo.findByRemoteId(integration.id, change.remoteId);
-      const sourceLabel = `${integration.name} (${integration.type})`;
-
-      // Resolve board from the mapping config
-      let boardId: number | undefined;
-      if (change.boardNotionOptionId && config.boardMapping[change.boardNotionOptionId]) {
-        boardId = config.boardMapping[change.boardNotionOptionId].localId;
-      } else {
-        const firstBoard = Object.values(config.boardMapping)[0];
-        boardId = firstBoard?.localId ?? config.defaultBoardId;
-      }
-
-      if (!boardId) {
-        await this.syncLogRepo.create({
-          integrationId: integration.id,
-          syncRunId,
-          direction: SyncDirection.INBOUND,
-          status: SyncLogStatus.SKIPPED,
-          message: `No board mapping found for remote page ${change.remoteId}`,
-        });
-        return { synced: 0, errors: 0, conflicts: 0 };
-      }
-
-      // Resolve status
-      let postStatusId: null | number = null;
-      if (change.statusNotionOptionId && config.statusMapping[change.statusNotionOptionId]) {
-        postStatusId = config.statusMapping[change.statusNotionOptionId].localId;
-      }
-
-      if (existingMapping) {
-        // Check for conflict in bidirectional mode
-        if (config.syncDirection === "bidirectional" && existingMapping.lastSyncAt) {
-          const post = await this.postRepo.findById(existingMapping.localId);
-          if (post && post.updatedAt > existingMapping.lastSyncAt) {
-            await this.integrationMappingRepo.update(existingMapping.id, {
-              syncStatus: IntegrationSyncStatus.CONFLICT,
-              lastError: "Both local and remote were modified since last sync",
-            });
-            await this.syncLogRepo.create({
-              integrationId: integration.id,
-              syncRunId,
-              mappingId: existingMapping.id,
-              direction: SyncDirection.INBOUND,
-              status: SyncLogStatus.CONFLICT,
-              message: `Conflict detected for post ${existingMapping.localId}`,
-            });
-            return { synced: 0, errors: 0, conflicts: 1 };
-          }
-        }
-
-        // Update existing post — use a shared timestamp so updatedAt matches lastSyncAt
-        // (prevents false conflict detection on next bidirectional sync)
-        const syncedAt = new Date();
-        await this.postRepo.update(existingMapping.localId, {
-          title: change.title,
-          description: change.description ?? null,
-          postStatusId,
-          tags: change.tags ?? [],
-          sourceLabel,
-          updatedAt: syncedAt,
-          ...(change.date ? { createdAt: new Date(change.date) } : {}),
-        });
-        await this.integrationMappingRepo.update(existingMapping.id, {
-          syncStatus: IntegrationSyncStatus.SYNCED,
-          lastSyncAt: syncedAt,
-          lastError: null,
-        });
-      } else {
-        // Create new post from inbound data
-        const newPost = await this.postRepo.create({
-          title: change.title,
-          description: change.description ?? null,
-          boardId,
-          postStatusId,
-          tenantId: integration.tenantId,
-          tags: change.tags ?? [],
-          approvalStatus: POST_APPROVAL_STATUS.APPROVED,
-          sourceLabel,
-          ...(change.date ? { createdAt: new Date(change.date) } : {}),
-        });
-
-        const newMapping = await this.integrationMappingRepo.create({
-          integrationId: integration.id,
-          localType: "post",
-          localId: newPost.id,
-          remoteId: change.remoteId,
-          remoteUrl: change.remoteUrl,
-          syncStatus: IntegrationSyncStatus.SYNCED,
-          lastSyncAt: new Date(),
-          metadata: { direction: "inbound" },
-        });
-        existingMapping = newMapping;
-      }
-
-      await this.syncLogRepo.create({
-        integrationId: integration.id,
-        syncRunId,
-        mappingId: existingMapping?.id,
-        direction: SyncDirection.INBOUND,
-        status: SyncLogStatus.SUCCESS,
-      });
-      return { synced: 1, errors: 0, conflicts: 0 };
-    } catch (error) {
-      await this.syncLogRepo.create({
-        integrationId: integration.id,
-        syncRunId,
-        direction: SyncDirection.INBOUND,
-        status: SyncLogStatus.ERROR,
-        message: (error as Error).message,
-        details: { remoteId: change.remoteId },
-      });
-      return { synced: 0, errors: 1, conflicts: 0 };
-    }
   }
 
   private async getPostCounts(postId: number): Promise<{ comments: number; likes: number }> {

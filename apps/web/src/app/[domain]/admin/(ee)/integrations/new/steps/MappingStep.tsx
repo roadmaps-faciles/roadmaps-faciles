@@ -118,7 +118,7 @@ export const MappingStep = ({ boards, statuses }: MappingStepProps) => {
       if (currentMapping[opt.id]) continue;
       const match = statuses.find(s => s.name.toLowerCase().trim() === opt.name.toLowerCase().trim());
       if (match) {
-        setStatusMapping(opt.id, { localId: match.id, notionName: opt.name });
+        setStatusMapping(opt.id, { localId: match.id, remoteName: opt.name });
       }
     }
   }, [propertyMapping.status?.name, schema, statuses, setStatusMapping]);
@@ -143,7 +143,7 @@ export const MappingStep = ({ boards, statuses }: MappingStepProps) => {
       setCreatingStatusLoading(false);
       if (result.ok) {
         addAdditionalStatus({ id: result.data.id, name: result.data.name });
-        setStatusMapping(notionOptionId, { localId: result.data.id, notionName: notionOptionName });
+        setStatusMapping(notionOptionId, { localId: result.data.id, remoteName: notionOptionName });
         setCreatingStatusForOptionId(null);
         setNewStatusName("");
       }
@@ -159,7 +159,7 @@ export const MappingStep = ({ boards, statuses }: MappingStepProps) => {
       setCreatingBoardLoading(false);
       if (result.ok) {
         addAdditionalBoard({ id: result.data.id, name: result.data.name });
-        setBoardMapping(notionOptionId, { localId: result.data.id, notionName: notionOptionName });
+        setBoardMapping(notionOptionId, { localId: result.data.id, remoteName: notionOptionName });
         setCreatingBoardForOptionId(null);
         setNewBoardName("");
       }
@@ -371,7 +371,7 @@ export const MappingStep = ({ boards, statuses }: MappingStepProps) => {
                           onChange={e => {
                             const localId = Number(e.target.value);
                             if (localId) {
-                              setStatusMapping(opt.id, { localId, notionName: opt.name });
+                              setStatusMapping(opt.id, { localId, remoteName: opt.name });
                             }
                           }}
                         >
@@ -583,7 +583,7 @@ export const MappingStep = ({ boards, statuses }: MappingStepProps) => {
                           onChange={e => {
                             const localId = Number(e.target.value);
                             if (localId) {
-                              setBoardMapping(opt.id, { localId, notionName: opt.name });
+                              setBoardMapping(opt.id, { localId, remoteName: opt.name });
                             }
                           }}
                         >

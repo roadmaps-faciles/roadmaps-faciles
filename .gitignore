@@ -126,3 +126,6 @@ header-*.png
 .vibe/
 .windsurf/
 .zencoder/
+
+# Worktree metadata (local only, created by scripts/worktree-new.sh)
+.rm-worktree-info.json

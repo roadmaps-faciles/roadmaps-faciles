@@ -45,4 +45,18 @@ export interface IIntegrationProvider {
 
   /** Update the likes count field on a remote page */
   updateLikesField(remoteId: string, count: number): Promise<void>;
+
+  /**
+   * Update remote stats in a single operation (combined likes + comments).
+   * If implemented, the sync engine prefers this over `updateLikesField`/`updateCommentsField`.
+   * Useful for providers without custom fields (e.g. GitHub posts a single bot comment).
+   *
+   * `hints` lets the engine pass cached state (e.g. a previously-known comment ID)
+   * to avoid expensive lookups. The returned `hints` are persisted by the engine.
+   */
+  updateRemoteStats?(
+    remoteId: string,
+    stats: { commentCount: number; likeCount: number; postPath: string; tenantUrl: string },
+    hints?: { statsCommentId?: number },
+  ): Promise<{ statsCommentId?: number } | void>;
 }

@@ -19,6 +19,16 @@ export class IntegrationRepoPrisma implements IIntegrationRepo {
     });
   }
 
+  public findByGitHubInstallationId(installationId: number): Promise<null | TenantIntegration> {
+    return prisma.tenantIntegration.findFirst({
+      where: {
+        type: "GITHUB",
+        enabled: true,
+        config: { path: ["installationId"], equals: installationId },
+      },
+    });
+  }
+
   public findDueForSync(): Promise<TenantIntegration[]> {
     return prisma.$queryRaw<TenantIntegration[]>`
       SELECT * FROM "TenantIntegration"

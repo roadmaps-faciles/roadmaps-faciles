@@ -11,6 +11,7 @@ import { UIBadge, UICard, UITag } from "@/ui/bridge";
 import { formatRelativeDate } from "@/utils/date";
 
 import { LikeButton } from "./LikeButton";
+import { RemoteStatsBadge } from "./RemoteStatsBadge";
 
 export interface BoardPostProps {
   allowAnonymousVoting?: boolean;
@@ -47,42 +48,45 @@ export const BoardPost = ({
       footer={
         <span
           className={cn(
-            "flex items-center justify-between py-2 text-xs",
+            "flex flex-col gap-1 py-2 text-xs",
             isDsfr
               ? "-mx-8 -mb-px w-[calc(100%+4rem)] px-8 bg-[var(--background-contrast-grey)] text-[var(--text-mention-grey)]"
               : "-mx-3 -mb-3 w-[calc(100%+1.5rem)] rounded-b-xl bg-muted/50 px-3 text-muted-foreground",
           )}
         >
-          <span className="truncate">
-            {post.user?.name ?? post.sourceLabel ?? "Anonyme"}
-            <span className="mx-1">·</span>
-            {formatRelativeDate(new Date(post.createdAt), locale)}
-            {post.editedAt && <span className="ml-1 font-light">(modifié)</span>}
+          <span className="flex items-center justify-between">
+            <span className="truncate">
+              {post.user?.name ?? post.sourceLabel ?? "Anonyme"}
+              <span className="mx-1">·</span>
+              {formatRelativeDate(new Date(post.createdAt), locale)}
+              {post.editedAt && <span className="ml-1 font-light">(modifié)</span>}
+            </span>
+            <UITag
+              className={cn(
+                "shrink-0",
+                isDsfr ? "!bg-[var(--background-default-grey)]" : "!bg-background",
+                post._count.comments > 0 ? "cursor-pointer" : "opacity-50",
+              )}
+              iconId="fr-icon-discuss-line"
+              as="span"
+              size="sm"
+              onClick={post._count.comments > 0 ? () => {
+                const url = dirtyDomainFixer(`/post/${post.id}`);
+                if (linkTarget) {
+                  window.open(url, linkTarget, "noopener,noreferrer");
+                } else {
+                  location.href = url;
+                }
+              } : undefined}
+            >
+              {post._count.comments > 0 ? (
+                <><b>{post._count.comments}</b>&nbsp;commentaire{post._count.comments > 1 ? "s" : ""}</>
+              ) : (
+                <>Aucun commentaire</>
+              )}
+            </UITag>
           </span>
-          <UITag
-            className={cn(
-              "shrink-0",
-              isDsfr ? "!bg-[var(--background-default-grey)]" : "!bg-background",
-              post._count.comments > 0 ? "cursor-pointer" : "opacity-50",
-            )}
-            iconId="fr-icon-discuss-line"
-            as="span"
-            size="sm"
-            onClick={post._count.comments > 0 ? () => {
-              const url = dirtyDomainFixer(`/post/${post.id}`);
-              if (linkTarget) {
-                window.open(url, linkTarget, "noopener,noreferrer");
-              } else {
-                location.href = url;
-              }
-            } : undefined}
-          >
-            {post._count.comments > 0 ? (
-              <><b>{post._count.comments}</b>&nbsp;commentaire{post._count.comments > 1 ? "s" : ""}</>
-            ) : (
-              <>Aucun commentaire</>
-            )}
-          </UITag>
+          {post.remoteMappings && post.remoteMappings.length > 0 && <RemoteStatsBadge mappings={post.remoteMappings} />}
         </span>
       }
       subtitle={
