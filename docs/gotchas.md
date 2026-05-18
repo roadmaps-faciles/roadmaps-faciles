@@ -71,3 +71,12 @@ Pièges connus et solutions dans le codebase Roadmaps Faciles.
 - release-please: editing PR title/body doesn't change the release version — must edit files in the release branch (manifest `.release-please-manifest.json`, `package.json`); title mismatch causes "Duplicate release tag" errors
 - GitHub Environment branch policies: tags must be explicitly allowed (e.g. pattern `v*`) for `release: published` deploys to work on production environment
 - Out-of-scope bugs: when spotting bugs or issues outside the current feature scope, propose corrections rather than ignoring them
+
+## Docker / Coolify
+
+- Corepack pin : pas besoin de `corepack prepare pnpm@X.Y.Z --activate` dans les Dockerfiles. `corepack enable` seul suffit — au premier appel `pnpm` dans un stage qui a copié `package.json`, corepack lit `packageManager` et télécharge la version. Plus de drift à maintenir si on bump pnpm
+- pnpm node_modules + COPY entre stages : les `node_modules` pnpm contiennent des **symlinks vers `.pnpm/`** qui se cassent au COPY entre stages Docker (le COPY suit les liens et duplique). Pour packager une app non-standalone (ex: `apps/licensing/` Hono), utiliser `pnpm deploy --prod /target` qui produit un dossier autosuffisant sans symlinks
+- Prisma CLI au runtime : ne pas utiliser `npx --yes prisma@7` dans un entrypoint container — télécharge le binaire à chaque cold start (~10s + dépendance npm registry). Bake le CLI dans l'image runner en copiant `node_modules/.bin/prisma` + `node_modules/prisma` + `node_modules/@prisma` depuis le builder stage
+- `INCLUDE_PSQL` build arg pattern : conditionner l'install d'`apk add postgresql-client` via `ARG INCLUDE_PSQL=0` + `RUN if [ "$INCLUDE_PSQL" = "1" ]; then apk add ... fi` — économise ~30 MB sur les images prod qui n'ont pas besoin de `psql` (utile uniquement dans les review apps Coolify pour créer la DB par PR depuis l'entrypoint)
+- Validation entrée Coolify côté entrypoint : `COOLIFY_PR_NUMBER` est utilisé en interpolation SQL pour `CREATE DATABASE "rf_pr_$N"` — toujours valider en regex `[0-9]+` avant (`case "$VAR" in *[!0-9]*) exit 1;; esac`) pour éviter l'injection si la variable est compromise
+- Wildcard cert Let's Encrypt via Gandi : Traefik supporte le provider `gandiv5` nativement (DNS-01 challenge). Token Gandi avec scope `Manage DNS records`, env var `GANDIV5_PERSONAL_ACCESS_TOKEN` côté proxy. Couvre `*.domaine.fr` en un seul cert (limite Let's Encrypt : 50 certs/semaine par registered domain)

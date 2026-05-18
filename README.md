@@ -365,24 +365,17 @@ pnpm test:e2e                   # Tests E2E Playwright (nécessite dev server + 
 pnpm --filter @roadmaps-faciles/ui storybook        # Lancer Storybook en dev
 pnpm --filter @roadmaps-faciles/ui build-storybook  # Build statique Storybook
 
-# Déploiement
-./scripts/setup-github-environments.sh  # Setup one-shot des GitHub Environments + secrets Scalingo
 ```
 
 ---
 
-## 🚢 Déploiement
+## 🚢 Self-hosting
 
-Le déploiement est géré par GitHub Actions (push vers Scalingo) :
+Roadmaps Faciles est self-hostable sous licence AGPL v3. L'application produit un build standalone Next.js (sortie dans `apps/web/.next/standalone/apps/web/server.js`) packageable avec n'importe quel runtime Node 24, derrière un reverse proxy gérant TLS.
 
-| Branche / Événement | Environnement | App Scalingo |
-|---|---|---|
-| Push sur `dev` (après CI) | staging | `roadmaps-faciles-staging` |
-| Release (release-please tag) | production | `roadmaps-faciles` |
-| `workflow_dispatch` | staging ou production | Au choix |
-| Pull Request | review app | Créée automatiquement par Scalingo |
+Documentation utilisateur : [`/doc/technical/deployment`](https://roadmaps-faciles.fr/doc/technical/deployment) — prérequis, plateformes supportées (Scalingo, Clever Cloud, Coolify, Docker/VPS via Caddy), variables d'environnement, observabilité.
 
-Le workflow `.github/workflows/deploy.yml` attend que Build, Lint et Tests passent avant de déployer. Les review apps sont gérées nativement par l'intégration Scalingo (auto-deploy désactivé, review apps activées).
+> **À venir** : templates de déploiement self-host packagés (Dockerfiles génériques, docker-compose, manifests k8s, exemples Coolify). Les configurations actuelles dans `docs/deploy/` sont chiffrées car spécifiques à l'instance `roadmaps-faciles.fr`.
 
 ---
 

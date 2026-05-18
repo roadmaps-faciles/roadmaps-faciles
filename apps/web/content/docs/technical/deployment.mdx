@@ -10,7 +10,7 @@ Cette page s'adresse aux équipes techniques en charge du déploiement et de l'h
 ## Prérequis
 
 - **Node.js 24** ou supérieur
-- **PostgreSQL 15** — Base de données principale
+- **PostgreSQL 17** — Base de données principale
 - **Redis** — Cache et sessions
 - **SMTP** — Envoi d'emails (magic links, invitations)
 
@@ -41,21 +41,34 @@ Pour un déploiement sur serveur dédié ou VPS, utilisez [Caddy](https://caddys
 
 Caddy interroge l'endpoint `/api/domains/check?domain=...` avant d'émettre un certificat, pour vérifier que le domaine est autorisé.
 
+### Coolify (self-host)
+
+Roadmaps Faciles peut être déployé sur une instance [Coolify](https://coolify.io) self-hosted, qui orchestre Docker Compose + Traefik + ressources managées (PostgreSQL, Redis). Configuration complète, Dockerfiles et workflows GHA fournis dans le dépôt.
+
+L'architecture recommandée s'appuie sur :
+- **Wildcard DNS** (Gandi LiveDNS ou équivalent) pour couvrir les sous-domaines tenants en un seul certificat Let's Encrypt
+- **DNS challenge** Traefik (provider `gandiv5`) pour la génération automatique des certificats wildcard
+- **MinIO** comme stockage S3-compatible self-hosted (ou S3 externe)
+- **`STORAGE_S3_KEY_PREFIX`** pour mutualiser un bucket S3 entre environnements (review apps notamment)
+
+3 environnements isolés : production (deploy sur tag `v*`), staging (deploy sur push `dev`), review (preview deployment par PR). Chaque PR ouverte spawn une app éphémère avec sa propre DB Postgres (créée à la volée par l'entrypoint) et un préfixe S3 dédié, automatiquement nettoyés à la fermeture de la PR.
+
 ## Déploiement automatisé (CI/CD)
 
-Le déploiement est piloté par GitHub Actions via le workflow `deploy.yml` qui push le code vers Scalingo :
+Le dépôt fournit un workflow d'exemple `.github/workflows/deploy.yml` qui couvre un schéma classique trois-tiers : staging, production, review apps. Il peut servir de base pour votre propre instance, à adapter selon votre plateforme cible.
 
-| Événement | Environnement | App Scalingo |
-|-----------|---------------|--------------|
-| Push sur `dev` (après CI) | Staging | `roadmaps-faciles-staging` |
-| Release (tag release-please) | Production | `roadmaps-faciles` |
-| Déclenchement manuel | Staging ou Production | Au choix |
+Pattern recommandé :
 
-Les **review apps** sont gérées nativement par l'intégration GitHub de Scalingo : une app éphémère est créée automatiquement pour chaque pull request.
+| Événement | Environnement | Action |
+|-----------|---------------|--------|
+| Push sur la branche d'intégration (ex: `dev`) | Staging | Déploiement automatique après passage des jobs CI |
+| Tag de release (ex: pattern `v*`) | Production | Déploiement automatique sur tag stable |
+| `workflow_dispatch` | Staging ou Production | Déclenchement manuel ponctuel |
+| Pull request | Review app | Spawn d'une instance éphémère par PR |
 
-Le workflow attend que les jobs CI (build, lint, tests) passent avant de déployer. Un déclenchement manuel (`workflow_dispatch`) est disponible pour les deux environnements.
+Quel que soit l'orchestrateur utilisé (Scalingo, Clever Cloud, Coolify, k8s…), les **review apps** méritent une attention particulière : prévoir une DB par PR (créée à la volée à l'entrypoint, ou via une instance partagée + base par PR) et un stockage S3 isolé (bucket dédié, ou bucket partagé avec préfixe par PR via `STORAGE_S3_KEY_PREFIX=pr-<n>/`). Le cleanup à la fermeture de PR (drop DB + purge prefix S3) est typiquement géré par un workflow GHA dédié.
 
-Les secrets Scalingo (`SCALINGO_API_TOKEN`) sont stockés dans les GitHub Environments (`staging`, `production`).
+Les secrets de la plateforme (token API, credentials S3, etc.) gagnent à être scopés par GitHub Environment (`staging`, `production`, `review-cleanup`) plutôt qu'en secrets globaux du dépôt.
 
 ## Variables d'environnement principales
 

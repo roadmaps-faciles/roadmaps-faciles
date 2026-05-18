@@ -38,7 +38,7 @@
 - `pnpm test:e2e` — E2E tests (Playwright, requires dev server + docker services)
 
 ## Local services (docker-compose)
-- PostgreSQL 15 → `localhost:5432` (db: roadmaps-faciles, user/pass: postgres/postgres)
+- PostgreSQL 17 → `localhost:5432` (db: roadmaps-faciles, user/pass: postgres/postgres)
   - Second DB `licensing` created via `docker/init-db.sh` (docker-entrypoint-initdb.d — runs on first volume init only; `docker compose down -v` to reset)
 - Redis → `localhost:6379`
 - Maildev SMTP → `localhost:1025` (web UI: localhost:1080)
@@ -176,6 +176,7 @@
   - S3 impl: `@aws-sdk/client-s3` — PutObject/DeleteObject, `forcePathStyle: true` for MinIO compatibility
   - Upload: `uploadImage()` server action in `src/app/[domain]/(domain)/upload-image.ts` — auth + tenant-scoped, file type/size validation, audit trail
   - Key structure: `tenants/{tenantId}/images/{uuid}.{ext}` — images served from S3 public URL
+  - Key prefix multi-env: `STORAGE_S3_KEY_PREFIX` (default `""`) prepended transparent au upload/delete/URL côté provider — keys logiques en DB inchangées entre envs. Utilisé en review apps Coolify (prefix `pr-<n>/`) pour mutualiser un seul bucket S3
   - CSP: `img-src` in `next.config.ts` dynamically includes `STORAGE_S3_PUBLIC_URL` host
 - Markdown editor: `MarkdownEditor` component in `src/gouv/dsfr/base/client/MarkdownEditor.tsx`
   - Toolbar: bold, italic, heading, list, ordered list, quote, code, link, image upload
@@ -317,6 +318,7 @@
   - Unit tests on PRs: `vitest --changed <base_sha>` runs only tests whose import graph touches changed files
   - Edit `.github/filters.yml` to add/modify path rules (shared across all workflows)
 - Deployment (Scalingo): `Procfile`, `scalingo.json`, `.slugignore` live at monorepo root — standalone build path is `apps/web/.next/standalone/apps/web/server.js`
+- Deployment (Coolify, en préparation) : config complète dans `docs/deploy/coolify/` (chiffré git-crypt) — Dockerfile multi-stage avec Prisma bundlé + `INCLUDE_PSQL` build arg conditionnel, entrypoint qui run migrate deploy + crée la DB review par PR, wildcard DNS Gandi via Traefik gandiv5 resolver, MinIO self-hosted avec `STORAGE_S3_KEY_PREFIX` pour mutualiser le bucket review entre PRs (prefix `pr-<n>/`)
 - release-please: configs (`release-please-config.*.json`, `.release-please-manifest.json`) at monorepo root — `packages` key is `"apps/web"`, `exclude-paths` must be repo-root-relative (release-please blocks `../../` path traversal)
 - Vitest alias `@/gouv/dsfr` resolves to `src/gouv/dsfr/server.ts` barrel — deep client imports fail in tests; use relative paths for non-barrel modules
 - `vi.doMock()` + dynamic `await import()` required for testing modules with module-level singleton state (e.g., `getStorageProvider()` factory)

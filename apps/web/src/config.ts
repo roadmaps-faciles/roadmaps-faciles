@@ -199,6 +199,7 @@ export const config = {
       accessKeyId: ensureApiEnvVar(process.env.STORAGE_S3_ACCESS_KEY_ID, ""),
       secretAccessKey: ensureApiEnvVar(process.env.STORAGE_S3_SECRET_ACCESS_KEY, ""),
       publicUrl: ensureApiEnvVar(process.env.STORAGE_S3_PUBLIC_URL, ""),
+      keyPrefix: ensureApiEnvVar(process.env.STORAGE_S3_KEY_PREFIX, ""),
     },
   },
   dnsProvider: {
