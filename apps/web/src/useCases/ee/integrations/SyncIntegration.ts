@@ -228,9 +228,23 @@ export class SyncIntegration implements UseCase<SyncIntegrationInput, SyncIntegr
         const boardSlug = boardSlugMap.get(post.boardId) ?? String(post.boardId);
         const postPath = `/board/${boardSlug}/post/${post.id}`;
         if (provider.updateRemoteStats) {
-          await provider
-            .updateRemoteStats(existingMapping.remoteId, { commentCount, likeCount, tenantUrl, postPath })
-            .catch(err => logger.warn({ err }, "Failed to update remote stats"));
+          const meta = (existingMapping.metadata as Record<string, unknown>) ?? {};
+          const cachedId = typeof meta.statsCommentId === "number" ? meta.statsCommentId : undefined;
+          const result = await provider
+            .updateRemoteStats(
+              existingMapping.remoteId,
+              { commentCount, likeCount, tenantUrl, postPath },
+              cachedId ? { statsCommentId: cachedId } : undefined,
+            )
+            .catch(err => {
+              logger.warn({ err }, "Failed to update remote stats");
+              return undefined;
+            });
+          if (result && "statsCommentId" in result && result.statsCommentId !== cachedId) {
+            await this.integrationMappingRepo.update(existingMapping.id, {
+              metadata: { ...meta, statsCommentId: result.statsCommentId } as Prisma.InputJsonValue,
+            });
+          }
         } else {
           await Promise.all([
             provider
@@ -265,6 +279,8 @@ export class SyncIntegration implements UseCase<SyncIntegrationInput, SyncIntegr
       const syncResult = await provider.syncOutbound(postData, existingMapping?.remoteId);
 
       if (syncResult.success) {
+        let mappingId: number;
+        let mappingMeta: Record<string, unknown>;
         if (existingMapping) {
           await this.integrationMappingRepo.update(existingMapping.id, {
             syncStatus: IntegrationSyncStatus.SYNCED,
@@ -272,8 +288,10 @@ export class SyncIntegration implements UseCase<SyncIntegrationInput, SyncIntegr
             lastError: null,
             remoteUrl: syncResult.remoteUrl,
           });
+          mappingId = existingMapping.id;
+          mappingMeta = (existingMapping.metadata as Record<string, unknown>) ?? { direction: "outbound" };
         } else {
-          await this.integrationMappingRepo.create({
+          const created = await this.integrationMappingRepo.create({
             integrationId: integration.id,
             localType: "post",
             localId: post.id,
@@ -283,6 +301,8 @@ export class SyncIntegration implements UseCase<SyncIntegrationInput, SyncIntegr
             lastSyncAt: new Date(),
             metadata: { direction: "outbound" },
           });
+          mappingId = created.id;
+          mappingMeta = { direction: "outbound" };
         }
 
         // Update remote stats (combined for providers that support it, otherwise separate calls)
@@ -290,14 +310,27 @@ export class SyncIntegration implements UseCase<SyncIntegrationInput, SyncIntegr
           const boardSlug = boardSlugMap.get(post.boardId) ?? String(post.boardId);
           const postPath = `/board/${boardSlug}/post/${post.id}`;
           if (provider.updateRemoteStats) {
-            await provider
-              .updateRemoteStats(syncResult.remoteId, {
-                commentCount: postData.commentCount,
-                likeCount: postData.likeCount,
-                tenantUrl,
-                postPath,
-              })
-              .catch(err => logger.warn({ err }, "Failed to update remote stats"));
+            const cachedId = typeof mappingMeta.statsCommentId === "number" ? mappingMeta.statsCommentId : undefined;
+            const result = await provider
+              .updateRemoteStats(
+                syncResult.remoteId,
+                {
+                  commentCount: postData.commentCount,
+                  likeCount: postData.likeCount,
+                  tenantUrl,
+                  postPath,
+                },
+                cachedId ? { statsCommentId: cachedId } : undefined,
+              )
+              .catch(err => {
+                logger.warn({ err }, "Failed to update remote stats");
+                return undefined;
+              });
+            if (result && "statsCommentId" in result && result.statsCommentId !== cachedId) {
+              await this.integrationMappingRepo.update(mappingId, {
+                metadata: { ...mappingMeta, statsCommentId: result.statsCommentId } as Prisma.InputJsonValue,
+              });
+            }
           } else {
             await Promise.all([
               provider

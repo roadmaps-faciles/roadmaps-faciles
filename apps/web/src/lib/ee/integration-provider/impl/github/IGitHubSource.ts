@@ -22,5 +22,6 @@ export interface IGitHubSource {
   updateRemoteStats?(
     remoteId: string,
     stats: { commentCount: number; likeCount: number; postPath: string; tenantUrl: string },
-  ): Promise<void>;
+    hints?: { statsCommentId?: number },
+  ): Promise<{ statsCommentId?: number } | void>;
 }

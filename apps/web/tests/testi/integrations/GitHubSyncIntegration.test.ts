@@ -25,12 +25,15 @@ const mockSyncOutbound = vi.fn();
 const mockSyncInbound = vi.fn();
 const mockUpdateCommentsField = vi.fn();
 const mockUpdateLikesField = vi.fn();
+const mockUpdateRemoteStats = vi.fn();
+let exposeUpdateRemoteStats = false;
 vi.mock("@/lib/ee/integration-provider", () => ({
   createIntegrationProvider: () => ({
     syncOutbound: mockSyncOutbound,
     syncInbound: mockSyncInbound,
     updateCommentsField: mockUpdateCommentsField,
     updateLikesField: mockUpdateLikesField,
+    ...(exposeUpdateRemoteStats ? { updateRemoteStats: mockUpdateRemoteStats } : {}),
   }),
 }));
 
@@ -68,6 +71,9 @@ describe("SyncIntegration — GitHub provider", () => {
     mockSyncInbound.mockReset();
     mockUpdateCommentsField.mockReset().mockResolvedValue(undefined);
     mockUpdateLikesField.mockReset().mockResolvedValue(undefined);
+    mockUpdateRemoteStats.mockReset().mockResolvedValue(undefined);
+    exposeUpdateRemoteStats = false;
+    mockMappingRepo.create.mockResolvedValue(fakeIntegrationMapping({ id: 999 }));
   });
 
   describe("inbound sync", () => {
@@ -300,6 +306,104 @@ describe("SyncIntegration — GitHub provider", () => {
       expect(mockMappingRepo.update).toHaveBeenCalledWith(21, expect.objectContaining({ syncStatus: "SYNCED" }));
       expect(result.synced).toBe(1);
       expect(result.conflicts).toBe(0);
+    });
+  });
+
+  describe("remote stats", () => {
+    const inboundIntegration = fakeIntegration({
+      id: 1,
+      tenantId: 1,
+      type: "GITHUB",
+      config: { ...githubConfig, syncDirection: "inbound" },
+    });
+
+    it("persists remoteStats from InboundChange into mapping metadata", async () => {
+      mockIntegrationRepo.findById.mockResolvedValue(inboundIntegration);
+      mockSyncInbound.mockResolvedValue([
+        {
+          remoteId: "issue-42",
+          title: "Bug",
+          remoteUrl: "https://github.com/owner/repo/issues/42",
+          lastEditedTime: new Date().toISOString(),
+          boardRemoteOptionId: "board-opt-1",
+          remoteStats: { commentCount: 5, reactionCount: 12 },
+        },
+      ]);
+      mockMappingRepo.findByRemoteId.mockResolvedValue(null);
+      mockPostRepo.create.mockResolvedValue(fakePost({ id: 300 }));
+
+      await useCase.execute(baseInput);
+
+      expect(mockMappingRepo.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metadata: expect.objectContaining({
+            direction: "inbound",
+            remoteStats: { commentCount: 5, reactionCount: 12 },
+          }),
+        }),
+      );
+    });
+
+    it("prefers updateRemoteStats over separate field updates when available", async () => {
+      exposeUpdateRemoteStats = true;
+      mockUpdateRemoteStats.mockResolvedValue({ statsCommentId: 999 });
+      const outboundIntegration = fakeIntegration({
+        id: 1,
+        tenantId: 1,
+        type: "GITHUB",
+        config: { ...githubConfig, syncDirection: "outbound" },
+      });
+      mockIntegrationRepo.findById.mockResolvedValue(outboundIntegration);
+      const post = fakePost({ id: 50, boardId: 10, tenantId: 1 });
+      mockPostRepo.findAllForBoards.mockResolvedValue([post]);
+      mockMappingRepo.findByLocalEntity.mockResolvedValue(null);
+      mockPostRepo.getPostCounts.mockResolvedValue({ comments: 4, likes: 8 });
+      mockMappingRepo.create.mockResolvedValue(fakeIntegrationMapping({ id: 77, integrationId: 1, localId: 50 }));
+      mockSyncOutbound.mockResolvedValue({
+        success: true,
+        remoteId: "issue-100",
+        remoteUrl: "https://github.com/owner/repo/issues/100",
+      });
+
+      await useCase.execute(baseInput);
+
+      expect(mockUpdateRemoteStats).toHaveBeenCalledWith(
+        "issue-100",
+        expect.objectContaining({ commentCount: 4, likeCount: 8 }),
+        undefined,
+      );
+      expect(mockUpdateCommentsField).not.toHaveBeenCalled();
+      expect(mockUpdateLikesField).not.toHaveBeenCalled();
+      expect(mockMappingRepo.update).toHaveBeenCalledWith(
+        77,
+        expect.objectContaining({ metadata: expect.objectContaining({ statsCommentId: 999 }) }),
+      );
+    });
+
+    it("falls back to separate updateCommentsField + updateLikesField when updateRemoteStats unavailable", async () => {
+      exposeUpdateRemoteStats = false;
+      const outboundIntegration = fakeIntegration({
+        id: 1,
+        tenantId: 1,
+        type: "GITHUB",
+        config: { ...githubConfig, syncDirection: "outbound" },
+      });
+      mockIntegrationRepo.findById.mockResolvedValue(outboundIntegration);
+      const post = fakePost({ id: 50, boardId: 10, tenantId: 1 });
+      mockPostRepo.findAllForBoards.mockResolvedValue([post]);
+      mockMappingRepo.findByLocalEntity.mockResolvedValue(null);
+      mockPostRepo.getPostCounts.mockResolvedValue({ comments: 2, likes: 6 });
+      mockSyncOutbound.mockResolvedValue({
+        success: true,
+        remoteId: "issue-101",
+        remoteUrl: "https://github.com/owner/repo/issues/101",
+      });
+
+      await useCase.execute(baseInput);
+
+      expect(mockUpdateCommentsField).toHaveBeenCalledWith("issue-101", 2, expect.any(String), expect.any(String));
+      expect(mockUpdateLikesField).toHaveBeenCalledWith("issue-101", 6);
+      expect(mockUpdateRemoteStats).not.toHaveBeenCalled();
     });
   });
 });

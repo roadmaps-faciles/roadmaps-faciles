@@ -276,28 +276,44 @@ export class GitHubIssueSource implements IGitHubSource {
   public async updateRemoteStats(
     remoteId: string,
     stats: { commentCount: number; likeCount: number; postPath: string; tenantUrl: string },
-  ): Promise<void> {
+    hints?: { statsCommentId?: number },
+  ): Promise<{ statsCommentId?: number }> {
     const { owner, repo } = parseRepoFullName(this.config.databaseId);
     const issueNumber = parseInt(remoteId, 10);
     const marker = "<!-- roadmaps-faciles:stats -->";
     const link = `${stats.tenantUrl}${stats.postPath}`;
     const body = `${marker}\n_Roadmaps Faciles_ — 👍 ${stats.likeCount} · 💬 ${stats.commentCount} · [voir le post](${link})`;
 
-    const existing = await this.findStatsComment(owner, repo, issueNumber, marker);
-    let commentId: number;
-    if (existing) {
-      await this.octokit.rest.issues.updateComment({ owner, repo, comment_id: existing, body });
-      commentId = existing;
-    } else {
-      const { data: comment } = await this.octokit.rest.issues.createComment({
-        owner,
-        repo,
-        issue_number: issueNumber,
-        body,
-      });
-      commentId = comment.id;
+    let commentId: number | undefined;
+
+    if (hints?.statsCommentId) {
+      try {
+        await this.octokit.rest.issues.updateComment({ owner, repo, comment_id: hints.statsCommentId, body });
+        commentId = hints.statsCommentId;
+      } catch (error) {
+        if ((error as { status?: number }).status !== 404) throw error;
+        // Comment was deleted on GitHub side — fall through to recreate
+      }
     }
+
+    if (!commentId) {
+      const existing = await this.findStatsComment(owner, repo, issueNumber, marker);
+      if (existing) {
+        await this.octokit.rest.issues.updateComment({ owner, repo, comment_id: existing, body });
+        commentId = existing;
+      } else {
+        const { data: comment } = await this.octokit.rest.issues.createComment({
+          owner,
+          repo,
+          issue_number: issueNumber,
+          body,
+        });
+        commentId = comment.id;
+      }
+    }
+
     await this.pinComment(owner, repo, commentId);
+    return { statsCommentId: commentId };
   }
 
   private async pinComment(owner: string, repo: string, commentId: number): Promise<void> {

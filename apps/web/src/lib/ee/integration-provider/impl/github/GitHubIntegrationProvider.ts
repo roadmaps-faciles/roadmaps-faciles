@@ -17,11 +17,13 @@ import { GitHubProjectSource } from "./GitHubProjectSource";
 import { type IGitHubSource } from "./IGitHubSource";
 
 export class GitHubIntegrationProvider implements IIntegrationProvider {
+  private readonly authType: "app" | "pat";
   private readonly source: IGitHubSource;
 
   constructor(config: IntegrationConfig) {
     const octokit = createGitHubClient(config);
     const sourceType = config.sourceType ?? "issues";
+    this.authType = config.authType ?? "pat";
 
     switch (sourceType) {
       case "issues":
@@ -85,9 +87,14 @@ export class GitHubIntegrationProvider implements IIntegrationProvider {
   public updateRemoteStats(
     remoteId: string,
     stats: { commentCount: number; likeCount: number; postPath: string; tenantUrl: string },
-  ): Promise<void> {
+    hints?: { statsCommentId?: number },
+  ): Promise<{ statsCommentId?: number } | void> {
+    // In PAT mode, comments would be attributed to the user (not a bot),
+    // so they could trigger webhook loops if we ever handle issue_comment events.
+    // Skip stats updates entirely until anti-loop covers PAT mode.
+    if (this.authType !== "app") return Promise.resolve();
     if (!this.source.updateRemoteStats) return Promise.resolve();
-    return this.source.updateRemoteStats(remoteId, stats);
+    return this.source.updateRemoteStats(remoteId, stats, hints);
   }
 
   private async collectStream(gen: AsyncGenerator<InboundChange>): Promise<InboundChange[]> {

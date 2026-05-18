@@ -58,6 +58,7 @@ describe("SyncIntegration", () => {
     mockSyncInbound.mockReset();
     mockUpdateCommentsField.mockReset().mockResolvedValue(undefined);
     mockUpdateLikesField.mockReset().mockResolvedValue(undefined);
+    mockMappingRepo.create.mockResolvedValue(fakeIntegrationMapping({ id: 999 }));
   });
 
   it("throws when integration not found", async () => {
