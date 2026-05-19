@@ -110,21 +110,9 @@ export interface CurrentTenantContext {
   };
 }
 
-export interface SwitcherItem {
-  adminHref?: string;
-  hint?: string;
-  href: string;
-  isCurrent?: boolean;
-  isMember?: boolean;
-  name: string;
-  role: string;
-  type: "org" | "tenant";
-}
-
 export interface UserMenuData {
   currentTenant?: CurrentTenantContext;
   currentTenantId?: number;
-  flatItems?: SwitcherItem[];
   isSuperAdmin?: boolean;
   organizations: OrgMenuGroup[];
   user: {
@@ -190,7 +178,7 @@ const subscribeTheme = (cb: () => void) => {
 };
 
 const DarkModeToggle = ({ collapsed }: { collapsed?: boolean }) => {
-  const theme = useSyncExternalStore(subscribeTheme, getStoredTheme, () => "system" as Theme);
+  const theme = useSyncExternalStore(subscribeTheme, getStoredTheme, () => "system");
 
   useEffect(() => {
     applyTheme(theme);

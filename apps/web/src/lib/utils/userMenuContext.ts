@@ -7,7 +7,6 @@ import { orgMemberRepo, organizationRepo, tenantRepo, userOnTenantRepo } from "@
 import {
   type CurrentTenantContext,
   type OrgMenuGroup,
-  type SwitcherItem,
   type TenantMenuItem,
   type UserMenuData,
 } from "@/ui/AdminSidebar";
@@ -147,34 +146,6 @@ export async function getUserMenuContext({ session, currentTenantId }: UserMenuC
     }
   }
 
-  const flatItems: SwitcherItem[] = [];
-  const isOrgVisible = (role: string) => role === "ADMIN" || role === "OWNER" || role === "MODERATOR";
-
-  for (const org of organizations) {
-    if (isOrgVisible(org.role) && org.orgAdminHref) {
-      flatItems.push({
-        type: "org",
-        name: org.name,
-        hint: org.slug,
-        href: org.orgAdminHref,
-        role: org.role,
-      });
-    }
-
-    for (const tenant of org.tenants) {
-      flatItems.push({
-        type: "tenant",
-        name: tenant.name,
-        hint: tenant.subdomain,
-        href: tenant.href,
-        adminHref: tenant.tenantAdminHref,
-        role: tenant.role ?? "MEMBER",
-        isMember: tenant.isMember,
-        isCurrent: tenant.id === currentTenantId,
-      });
-    }
-  }
-
   return {
     user: {
       email: session.user.email ?? "",
@@ -182,7 +153,6 @@ export async function getUserMenuContext({ session, currentTenantId }: UserMenuC
       name: session.user.name ?? session.user.email ?? "",
     },
     organizations,
-    flatItems,
     currentTenantId,
     currentTenant,
     isSuperAdmin: session.user.isSuperAdmin ?? false,

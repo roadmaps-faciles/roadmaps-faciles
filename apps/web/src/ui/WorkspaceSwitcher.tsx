@@ -2,8 +2,10 @@
 
 import {
   Badge,
+  cn,
   CommandDialog,
   CommandEmpty,
+  CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
@@ -13,12 +15,12 @@ import {
   TooltipTrigger,
 } from "@roadmaps-faciles/ui";
 import { useIsMobile } from "@roadmaps-faciles/ui/lib/use-mobile";
-import { Building2, Check, ExternalLink, LayoutDashboard } from "lucide-react";
+import { Building2, Check, LayoutDashboard, Settings } from "lucide-react";
 import { motion } from "motion/react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
-import { type SwitcherItem, type UserMenuData } from "@/ui/AdminSidebar";
+import { type UserMenuData } from "@/ui/AdminSidebar";
 
 export interface WorkspaceSwitcherProps {
   onOpenChangeAction?: (open: boolean) => void;
@@ -51,7 +53,12 @@ const useCmdkHighlight = (container: HTMLDivElement | null) => {
     };
 
     const observer = new MutationObserver(update);
-    observer.observe(container, { attributes: true, subtree: true, attributeFilter: ["data-selected"] });
+    observer.observe(container, {
+      attributes: true,
+      attributeFilter: ["data-selected"],
+      childList: true,
+      subtree: true,
+    });
     update();
 
     return () => {
@@ -63,73 +70,87 @@ const useCmdkHighlight = (container: HTMLDivElement | null) => {
   return highlight;
 };
 
-const SwitcherRow = ({
-  item,
-  navigate,
-  t,
-  tr,
-}: {
-  item: SwitcherItem;
+interface RowProps {
+  adminHref?: string;
+  disabled?: boolean;
+  hint: string;
+  href: string;
+  isCurrent?: boolean;
+  keywords: string[];
+  name: string;
   navigate: (href: string) => void;
+  role: string;
+  showAdmin: boolean;
+  showRole: boolean;
   t: ReturnType<typeof useTranslations<"sidebar">>;
   tr: ReturnType<typeof useTranslations<"roles">>;
-}) => {
-  const isAdmin = ADMIN_ROLES.has(item.role);
-  const disabled = item.isMember === false;
+  type: "org" | "tenant";
+}
 
+const SwitcherRow = ({
+  adminHref,
+  disabled = false,
+  href,
+  hint,
+  isCurrent = false,
+  keywords,
+  name,
+  navigate,
+  role,
+  showAdmin,
+  showRole,
+  t,
+  tr,
+  type,
+}: RowProps) => {
   return (
     <CommandItem
-      value={item.href}
-      keywords={[item.name, item.hint ?? ""]}
+      value={href}
+      keywords={keywords}
       disabled={disabled}
-      onSelect={() => !disabled && navigate(item.href)}
-      className="flex items-center gap-2 bg-transparent! text-inherit!"
+      onSelect={() => !disabled && navigate(href)}
+      className={cn("flex items-center gap-2 bg-transparent! text-inherit!", isCurrent && "border-l-2 border-primary")}
     >
       <span className="relative z-10 flex w-full items-center gap-2">
-        {item.type === "org" ? (
+        {type === "org" ? (
           <Building2 className="size-4 shrink-0 text-muted-foreground" />
         ) : (
           <LayoutDashboard className="size-4 shrink-0 text-muted-foreground" />
         )}
-        <Badge variant="outline" className="shrink-0 px-1.5 py-0 text-[10px]">
-          {item.type === "org" ? t("organization") : t("workspace")}
-        </Badge>
-        <span className="flex-1 truncate">{item.name}</span>
-        {item.hint && <span className="shrink-0 text-[10px] text-muted-foreground">{item.hint}</span>}
-        {item.isCurrent && <Check className="size-4 shrink-0 text-primary" />}
-        {isAdmin && item.adminHref ? (
+        <span className="flex min-w-0 flex-1 flex-col leading-tight">
+          <span className={cn("truncate text-sm", isCurrent && "font-medium")}>{name}</span>
+          <span className="truncate text-[11px] text-muted-foreground">{hint}</span>
+        </span>
+        {isCurrent && <Check className="size-4 shrink-0 text-primary" />}
+        {disabled ? (
+          <Badge variant="outline" className="shrink-0 px-1.5 py-0 text-[10px] text-muted-foreground">
+            {t("notRegistered")}
+          </Badge>
+        ) : showRole ? (
+          <Badge variant="secondary" className="shrink-0 px-1.5 py-0 text-[10px]">
+            {tr(role as "OWNER")}
+          </Badge>
+        ) : null}
+        {!disabled && showAdmin && adminHref && (
           <TooltipProvider delayDuration={300}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <a
-                  href={item.adminHref}
-                  className="z-10"
+                  href={adminHref}
+                  aria-label={type === "org" ? t("orgAdmin") : t("tenantAdmin")}
+                  className="z-10 inline-flex shrink-0 items-center justify-center rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
                   onClick={e => {
                     e.preventDefault();
                     e.stopPropagation();
-                    navigate(item.adminHref!);
+                    navigate(adminHref);
                   }}
                 >
-                  <Badge
-                    variant="secondary"
-                    className="shrink-0 cursor-pointer gap-1 px-1.5 py-0 text-[10px] hover:bg-accent"
-                  >
-                    {tr(item.role as "OWNER")}
-                    <ExternalLink className="size-2.5" />
-                  </Badge>
+                  <Settings className="size-3.5" />
                 </a>
               </TooltipTrigger>
-              <TooltipContent side="left">{t("tenantAdmin")}</TooltipContent>
+              <TooltipContent side="left">{type === "org" ? t("orgAdmin") : t("tenantAdmin")}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
-        ) : disabled ? (
-          <Badge variant="outline" className="shrink-0 px-1.5 py-0 text-[10px] text-muted-foreground">
-            {t("notRegistered")}
-          </Badge>
-        ) : (
-          <Badge variant="secondary" className="shrink-0 px-1.5 py-0 text-[10px]">
-            {tr(item.role as "OWNER")}
-          </Badge>
         )}
       </span>
     </CommandItem>
@@ -170,8 +191,6 @@ export const WorkspaceSwitcher = ({ userMenu, open: controlledOpen, onOpenChange
     [setOpen],
   );
 
-  const items = userMenu.flatItems ?? [];
-
   return (
     <CommandDialog
       open={open}
@@ -191,10 +210,68 @@ export const WorkspaceSwitcher = ({ userMenu, open: controlledOpen, onOpenChange
           />
         )}
         <CommandEmpty>{t("noResults")}</CommandEmpty>
-        {items.map(item => (
-          <SwitcherRow key={item.href} item={item} navigate={navigate} t={t} tr={tr} />
-        ))}
+        {userMenu.organizations.map(org => {
+          const orgIsAdmin = ADMIN_ROLES.has(org.role);
+          const showOrgRow = orgIsAdmin && Boolean(org.orgAdminHref);
+          return (
+            <CommandGroup key={org.id} heading={org.name}>
+              {showOrgRow && org.orgAdminHref && (
+                <SwitcherRow
+                  type="org"
+                  name={org.name}
+                  hint={org.slug}
+                  href={org.orgAdminHref}
+                  role={org.role}
+                  showRole={false}
+                  showAdmin={false}
+                  keywords={[org.name, org.slug]}
+                  navigate={navigate}
+                  t={t}
+                  tr={tr}
+                />
+              )}
+              {org.tenants.map(tenant => {
+                const role = tenant.role ?? "MEMBER";
+                const isAdmin = ADMIN_ROLES.has(role);
+                const slugPath = `${org.slug}/${tenant.subdomain}`;
+                return (
+                  <SwitcherRow
+                    key={tenant.href}
+                    type="tenant"
+                    name={tenant.name}
+                    hint={slugPath}
+                    href={tenant.href}
+                    adminHref={tenant.tenantAdminHref}
+                    role={role}
+                    isCurrent={tenant.id === userMenu.currentTenantId}
+                    disabled={!tenant.isMember}
+                    showRole={role !== "OWNER"}
+                    showAdmin={isAdmin && Boolean(tenant.tenantAdminHref)}
+                    keywords={[tenant.name, slugPath, tenant.subdomain, org.name, org.slug]}
+                    navigate={navigate}
+                    t={t}
+                    tr={tr}
+                  />
+                );
+              })}
+            </CommandGroup>
+          );
+        })}
       </CommandList>
+      <div className="flex items-center gap-4 border-t px-3 py-2 text-[11px] text-muted-foreground">
+        <span className="inline-flex items-center gap-1">
+          <kbd className="rounded border bg-muted px-1 font-mono text-[10px]">↑↓</kbd>
+          {t("hintNavigate")}
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <kbd className="rounded border bg-muted px-1 font-mono text-[10px]">↵</kbd>
+          {t("hintOpen")}
+        </span>
+        <span className="ml-auto inline-flex items-center gap-1">
+          <kbd className="rounded border bg-muted px-1 font-mono text-[10px]">⌘K</kbd>
+          {t("hintClose")}
+        </span>
+      </div>
     </CommandDialog>
   );
 };
