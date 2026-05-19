@@ -11,7 +11,10 @@
     "tenantAdmin": "Admin espace",
     "switchWorkspace": "Changer d'espace",
     "searchWorkspace": "Rechercher un espace...",
-    "noResults": "Aucun résultat"
+    "noResults": "Aucun résultat",
+    "hintNavigate": "naviguer",
+    "hintOpen": "ouvrir",
+    "hintClose": "fermer"
   },
   "validation": {
     "nameRequired": "Le nom est requis.",

@@ -11,7 +11,10 @@
     "tenantAdmin": "Workspace admin",
     "switchWorkspace": "Switch workspace",
     "searchWorkspace": "Search for a workspace...",
-    "noResults": "No results"
+    "noResults": "No results",
+    "hintNavigate": "navigate",
+    "hintOpen": "open",
+    "hintClose": "close"
   },
   "validation": {
     "nameRequired": "Name is required.",
