@@ -42,13 +42,23 @@ const MenuItemContent = ({ children }: { children: React.ReactNode }) => (
   <span className="relative z-10 flex items-center gap-2">{children}</span>
 );
 
-const DropdownMenuSwitcherTrigger = ({ onOpenAction }: { onOpenAction: () => void }) => {
+const DropdownMenuSwitcherTrigger = ({
+  clearHighlight,
+  handleItemHover,
+  onOpenAction,
+}: {
+  clearHighlight: () => void;
+  handleItemHover: (event: React.MouseEvent) => void;
+  onOpenAction: () => void;
+}) => {
   const t = useTranslations("sidebar");
 
   return (
     <DropdownMenuItem
       className={itemClass}
       style={itemStyle}
+      onMouseEnter={handleItemHover}
+      onMouseLeave={clearHighlight}
       onSelect={e => {
         e.preventDefault();
         onOpenAction();
@@ -184,18 +194,19 @@ export const ShadcnUserHeaderItem = ({
         <>
           <DropdownMenu onOpenChange={clearHighlight}>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-auto gap-2 px-2 py-1.5">
-                <UserAvatar name={displayName} image={user.image} className="size-8 rounded-lg text-xs" />
-                <div className="hidden text-left text-sm leading-tight sm:grid">
-                  <span className="truncate font-semibold">{displayName}</span>
-                  <span className="truncate text-xs text-muted-foreground">{email}</span>
-                </div>
-                {pendingModerationCount > 0 && (
-                  <Badge variant="destructive" className="ml-1 px-1.5 py-0.5 text-xs">
-                    {pendingModerationCount}
-                  </Badge>
-                )}
-                <ChevronsUpDown className="ml-auto size-3.5 shrink-0 text-muted-foreground/40" />
+              <Button variant="ghost" className="h-auto gap-1 px-1.5 py-1" aria-label={displayName}>
+                <span className="relative">
+                  <UserAvatar name={displayName} image={user.image} className="size-8 rounded-lg text-xs" />
+                  {pendingModerationCount > 0 && (
+                    <Badge
+                      variant="destructive"
+                      className="absolute -right-1 -top-1 h-4 min-w-4 justify-center px-1 text-[10px] leading-none"
+                    >
+                      {pendingModerationCount}
+                    </Badge>
+                  )}
+                </span>
+                <ChevronsUpDown className="size-3.5 shrink-0 text-muted-foreground/40" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="relative min-w-72 max-h-[70vh] overflow-y-auto">
@@ -268,7 +279,11 @@ export const ShadcnUserHeaderItem = ({
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 {userMenu && userMenu.organizations.length > 0 && (
-                  <DropdownMenuSwitcherTrigger onOpenAction={() => setSwitcherOpen(true)} />
+                  <DropdownMenuSwitcherTrigger
+                    clearHighlight={clearHighlight}
+                    handleItemHover={handleItemHover}
+                    onOpenAction={() => setSwitcherOpen(true)}
+                  />
                 )}
 
                 {/* Root admin */}
