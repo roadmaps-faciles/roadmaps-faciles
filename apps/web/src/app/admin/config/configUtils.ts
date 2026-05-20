@@ -31,6 +31,15 @@ export function maskValue(value: string): string {
 export type ConfigEntry = { key: string; masked: boolean; value: string };
 export type ConfigSection = { entries: ConfigEntry[]; section: string };
 
+const stringifyConfigValue = (value: unknown): string => {
+  if (Array.isArray(value)) return value.join(", ");
+  if (value == null) return "";
+  if (typeof value === "object") return JSON.stringify(value);
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean" || typeof value === "bigint") return String(value);
+  return "";
+};
+
 export function flattenConfig(obj: Record<string, unknown>, prefix = ""): ConfigEntry[] {
   const entries: ConfigEntry[] = [];
 
@@ -39,19 +48,16 @@ export function flattenConfig(obj: Record<string, unknown>, prefix = ""): Config
 
     if (value !== null && typeof value === "object" && !Array.isArray(value)) {
       entries.push(...flattenConfig(value as Record<string, unknown>, fullKey));
-    } else {
-      const strValue = Array.isArray(value)
-        ? (value as string[]).join(", ")
-        : value == null
-          ? ""
-          : String(value as boolean | number | string);
-      const sensitive = isSensitiveKey(key);
-      entries.push({
-        key: fullKey,
-        value: sensitive && strValue ? maskValue(strValue) : strValue,
-        masked: sensitive && !!strValue,
-      });
+      continue;
     }
+
+    const strValue = stringifyConfigValue(value);
+    const sensitive = isSensitiveKey(key);
+    entries.push({
+      key: fullKey,
+      value: sensitive && strValue ? maskValue(strValue) : strValue,
+      masked: sensitive && !!strValue,
+    });
   }
 
   return entries;

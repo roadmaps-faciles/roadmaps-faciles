@@ -178,7 +178,7 @@ const subscribeTheme = (cb: () => void) => {
 };
 
 const DarkModeToggle = ({ collapsed }: { collapsed?: boolean }) => {
-  const theme = useSyncExternalStore(subscribeTheme, getStoredTheme, () => "system");
+  const theme = useSyncExternalStore<Theme>(subscribeTheme, getStoredTheme, () => "system");
 
   useEffect(() => {
     applyTheme(theme);

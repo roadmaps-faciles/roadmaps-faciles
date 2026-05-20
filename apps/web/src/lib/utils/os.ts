@@ -41,7 +41,9 @@ const ensureNextEnvVar_: DefaultEnsureNextEnvVar = (envVar, transformerOrDefault
 
   return envVar ?? transformerOrDefaultValue!;
 };
-// TODO use "satisfies"
+// Cast required to expose the overloaded `EnsureNextEnvVar` signature to downstream consumers
+// (config.ts narrows transformer return types). typescript-eslint flags this as a false positive.
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 export const ensureNextEnvVar = ensureNextEnvVar_ as EnsureNextEnvVar;
 
 const ensureApiEnvVar_: DefaultEnsureNextEnvVar = (key, transformerOrDefaultValue, defaultValue) => {
@@ -51,4 +53,5 @@ const ensureApiEnvVar_: DefaultEnsureNextEnvVar = (key, transformerOrDefaultValu
   const defaultValueToTest = typeof transformerOrDefaultValue !== "function" ? transformerOrDefaultValue : defaultValue;
   return defined(defaultValueToTest);
 };
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 export const ensureApiEnvVar = ensureApiEnvVar_ as EnsureNextEnvVar;

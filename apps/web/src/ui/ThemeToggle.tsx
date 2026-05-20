@@ -44,7 +44,7 @@ export interface ThemeToggleProps {
 
 export const ThemeToggle = ({ compact }: ThemeToggleProps = {}) => {
   const t = useTranslations("themeToggle");
-  const theme = useSyncExternalStore(subscribe, getStoredTheme, () => "system" as Theme);
+  const theme = useSyncExternalStore<Theme>(subscribe, getStoredTheme, () => "system");
 
   useEffect(() => {
     if (theme !== "system") return;
