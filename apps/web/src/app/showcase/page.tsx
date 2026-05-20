@@ -13,6 +13,7 @@ import { UICard } from "@/ui/bridge/UICard";
 import { UIInput } from "@/ui/bridge/UIInput";
 import { UILabel } from "@/ui/bridge/UILabel";
 import { UIModal } from "@/ui/bridge/UIModal";
+import { UINotice } from "@/ui/bridge/UINotice";
 import { UISeparator } from "@/ui/bridge/UISeparator";
 import { UISkeleton } from "@/ui/bridge/UISkeleton";
 import { UITable } from "@/ui/bridge/UITable";
@@ -145,6 +146,24 @@ const ShowcasePage = () => {
           <UIAlert variant="warning" title="Warning" description="Please be careful." />
           <UIAlert variant="destructive" title="Error" description="Something went wrong." />
           <UIAlert variant="default" description="Small alert without title." />
+        </div>
+      </Section>
+
+      <Separator />
+
+      {/* UINotice */}
+      <Section title="UINotice">
+        <div className="space-y-3">
+          <UINotice severity="info" title="Information importante" description="Un complément d'information." />
+          <UINotice
+            severity="info"
+            title="Bandeau avec lien"
+            link={{ href: "#", text: "En savoir plus" }}
+            closable
+            onClose={() => {}}
+          />
+          <UINotice severity="warning" title="Attention" description="Une action peut être requise." />
+          <UINotice severity="alert" title="Alerte" description="Un problème critique a été détecté." />
         </div>
       </Section>
 

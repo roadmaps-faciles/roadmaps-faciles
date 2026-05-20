@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import { ClientAnimate } from "@/components/utils/ClientAnimate";
 import { ClientBodyPortal } from "@/components/utils/ClientBodyPortal";
 import { ClientOnly } from "@/components/utils/ClientOnly";
+import { config } from "@/config";
 import { ConsentBannerAndConsentManagement } from "@/consentManagement";
 import { DsfrProvider } from "@/gouv/dsfr-bootstrap";
 import { prisma } from "@/lib/db/prisma";
@@ -28,6 +29,7 @@ import { getUserMenuContext } from "@/utils/userMenuContext";
 
 import { ShadcnUserHeaderItem } from "../../(default)/ShadcnUserHeaderItem";
 import styles from "../../root.module.scss";
+import { BridgeBanner } from "./BridgeBanner";
 import { DsfrHeader } from "./DsfrHeader";
 import { PublicFooter } from "./PublicFooter";
 import { ShadcnDomainNavigation } from "./ShadcnDomainNavigation";
@@ -77,6 +79,9 @@ const DashboardLayout = async ({ children, modal, params }: LayoutProps<"/[domai
 
   const mainContent = (
     <>
+      {!session && (
+        <BridgeBanner rootUrl={config.host} brandName={config.brand.name} tenantName={tenantSettings.name} />
+      )}
       <ClientAnimate as="main" id="content" className={styles.content}>
         {children}
       </ClientAnimate>

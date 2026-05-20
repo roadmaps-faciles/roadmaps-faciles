@@ -10,6 +10,7 @@ export { UIInput, type UIInputProps } from "./UIInput";
 export { UILabel, type UILabelProps } from "./UILabel";
 export { UIMarkdownEditor, type UIMarkdownEditorProps } from "./UIMarkdownEditor";
 export { UIModal, type UIModalProps } from "./UIModal";
+export { UINotice, type UINoticeProps } from "./UINotice";
 export { UISeparator, type UISeparatorProps } from "./UISeparator";
 export { UISkeleton, type UISkeletonProps } from "./UISkeleton";
 export { UISwitch, type UISwitchProps } from "./UISwitch";
