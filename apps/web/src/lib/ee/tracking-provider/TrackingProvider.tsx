@@ -1,15 +1,14 @@
 "use client";
 
-import { type ReactNode, useCallback, lazy } from "react";
+import { lazy, type ReactNode, useCallback } from "react";
 
-// TODO: restore useConsent from @/consentManagement once DSFR CSS isolation is done.
-// import { useConsent } from "@/consentManagement";
-const useConsent = () => ({ finalityConsent: undefined as Record<string, boolean> | undefined });
+import { useConsent } from "@/consent";
 
-const MatomoClient = lazy(() => import("./matomo/MatomoClient").then(m => ({ default: m.MatomoClient })));
 import { PostHogReactProvider } from "./posthog/PostHogReactProvider";
 import { TrackingContextProvider } from "./TrackingContext";
 import { type TrackingProviderType } from "./types";
+
+const MatomoClient = lazy(() => import("./matomo/MatomoClient").then(m => ({ default: m.MatomoClient })));
 
 interface TrackingProviderProps {
   children: ReactNode;
@@ -24,20 +23,11 @@ interface TrackingProviderProps {
   providerType: TrackingProviderType;
 }
 
-/**
- * Top-level tracking provider that:
- * 1. Checks DSFR consent before enabling tracking
- * 2. Renders the correct SDK provider (PostHog / Matomo / noop)
- * 3. Provides the TrackingContext for hooks
- */
 export function TrackingProvider({ children, matomo, posthog, providerType }: TrackingProviderProps) {
   const { finalityConsent } = useConsent();
 
   const isConsented = useCallback(
-    (finality: string) => {
-      if (!finalityConsent) return false;
-      return finalityConsent[finality] === true;
-    },
+    (finality: "matomo" | "posthog") => finalityConsent?.[finality] === true,
     [finalityConsent],
   );
 

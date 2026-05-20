@@ -1001,8 +1001,34 @@
     "markdownSupported": "Markdown supported"
   },
   "consent": {
-    "matomoTitle": "Matomo",
-    "matomoDescription": "User behavior analytics tool."
+    "banner": {
+      "title": "About cookies on this site",
+      "description": "Welcome! We use cookies to improve your experience and measure site audience. You can accept, decline, or customize your choice at any time.",
+      "acceptAll": "Accept all",
+      "declineAll": "Decline all",
+      "customize": "Customize",
+      "ariaLabel": "Cookie consent banner"
+    },
+    "management": {
+      "title": "Cookie management panel",
+      "description": "Choose which services you allow. Your preferences are kept for 13 months.",
+      "save": "Confirm my choices",
+      "back": "Back to the banner"
+    },
+    "footer": {
+      "manage": "Cookie settings",
+      "policy": "Privacy policy"
+    },
+    "finalities": {
+      "matomo": {
+        "title": "Matomo",
+        "description": "User behavior analytics tool."
+      },
+      "posthog": {
+        "title": "PostHog",
+        "description": "Product analytics and behavioral tracking tool."
+      }
+    }
   },
   "serverErrors": {
     "invalidData": "Invalid data.",

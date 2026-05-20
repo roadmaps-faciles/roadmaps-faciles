@@ -12,6 +12,7 @@ import { SkeletonTheme } from "react-loading-skeleton";
 
 import { TechnicalErrorDisplay } from "@/components/Error/TechnicalErrorDisplay";
 import { config } from "@/config";
+import { ConsentProvider } from "@/consent";
 import { IdentifyUser } from "@/lib/ee/tracking-provider/IdentifyUser";
 import { TrackingProvider } from "@/lib/ee/tracking-provider/TrackingProvider";
 import { getEffectiveFlags, type FeatureFlagsMap } from "@/lib/feature-flags";
@@ -20,6 +21,7 @@ import { FEATURE_FLAGS } from "@/lib/feature-flags/flags";
 import { logger } from "@/lib/logger";
 import { auth } from "@/lib/next-auth/auth";
 import { UIProvider } from "@/ui";
+import { UIConsentBanner } from "@/ui/bridge";
 import { SkipLinks } from "@/ui/SkipLinks";
 import { isDatabaseUnavailableError } from "@/utils/dbError";
 
@@ -74,36 +76,41 @@ const RootLayout = async ({ children }: LayoutProps<"/">) => {
       <body suppressHydrationWarning>
         <SessionProvider refetchOnWindowFocus>
           <NextIntlClientProvider messages={messages}>
-            <TrackingProvider
-              providerType={config.tracking.provider}
-              posthog={
-                config.tracking.provider === "posthog"
-                  ? { apiKey: config.tracking.posthogKey, host: config.tracking.posthogHost }
-                  : undefined
-              }
-              matomo={
-                config.tracking.provider === "matomo"
-                  ? { url: config.matomo.url, siteId: config.matomo.siteId }
-                  : undefined
-              }
-            >
-              <IdentifyUser />
-              <SkeletonTheme
-                baseColor="var(--muted)"
-                highlightColor="var(--accent)"
-                borderRadius="0.625rem"
-                duration={2}
+            <ConsentProvider>
+              <TrackingProvider
+                providerType={config.tracking.provider}
+                posthog={
+                  config.tracking.provider === "posthog"
+                    ? { apiKey: config.tracking.posthogKey, host: config.tracking.posthogHost }
+                    : undefined
+                }
+                matomo={
+                  config.tracking.provider === "matomo"
+                    ? { url: config.matomo.url, siteId: config.matomo.siteId }
+                    : undefined
+                }
               >
-                <SkipLinks />
-                <FeatureFlagProvider value={effectiveFlags}>
-                  <UIProvider value="Default">
-                    <Suspense>
-                      <div className={styles.app}>{dbError ? <TechnicalErrorDisplay error={dbError} /> : children}</div>
-                    </Suspense>
-                  </UIProvider>
-                </FeatureFlagProvider>
-              </SkeletonTheme>
-            </TrackingProvider>
+                <IdentifyUser />
+                <SkeletonTheme
+                  baseColor="var(--muted)"
+                  highlightColor="var(--accent)"
+                  borderRadius="0.625rem"
+                  duration={2}
+                >
+                  <SkipLinks />
+                  <FeatureFlagProvider value={effectiveFlags}>
+                    <UIProvider value="Default">
+                      <UIConsentBanner />
+                      <Suspense>
+                        <div className={styles.app}>
+                          {dbError ? <TechnicalErrorDisplay error={dbError} /> : children}
+                        </div>
+                      </Suspense>
+                    </UIProvider>
+                  </FeatureFlagProvider>
+                </SkeletonTheme>
+              </TrackingProvider>
+            </ConsentProvider>
           </NextIntlClientProvider>
         </SessionProvider>
       </body>

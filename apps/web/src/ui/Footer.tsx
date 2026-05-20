@@ -13,6 +13,7 @@ interface FooterLink {
 
 export interface FooterProps {
   badges?: React.ReactNode;
+  bottomExtra?: React.ReactNode;
   bottomLinks?: FooterLink[];
   brandIcon?: React.ReactNode;
   brandName?: string;
@@ -42,6 +43,7 @@ export const Footer = ({
   columns,
   badges,
   bottomLinks,
+  bottomExtra,
   copyright,
   license,
   version,
@@ -101,6 +103,9 @@ export const Footer = ({
               {copyright && <p>{copyright}</p>}
               {license && <p>{license}</p>}
             </div>
+            {bottomExtra && (
+              <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">{bottomExtra}</div>
+            )}
           </div>
         </div>
       </footer>
@@ -130,6 +135,7 @@ export const Footer = ({
                 {link.text}
               </Link>
             ))}
+            {bottomExtra}
           </div>
           {license && <p>{license}</p>}
         </div>

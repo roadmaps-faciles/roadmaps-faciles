@@ -3,6 +3,7 @@ import { Map } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 import { config } from "@/config";
+import { ConsentManagementLink } from "@/ui/ConsentManagementLink";
 import { RootFooter } from "@/ui/RootFooter";
 
 export interface DefaultFooterProps {
@@ -69,6 +70,7 @@ export const DefaultFooter = async ({ id }: DefaultFooterProps) => {
         </>
       }
       version={`v${config.appVersion}.${config.appVersionCommit.slice(0, 7)}`}
+      bottomExtra={<ConsentManagementLink />}
     />
   );
 };

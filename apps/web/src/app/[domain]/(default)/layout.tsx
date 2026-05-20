@@ -8,13 +8,14 @@ import { ClientAnimate } from "@/components/utils/ClientAnimate";
 import { ClientBodyPortal } from "@/components/utils/ClientBodyPortal";
 import { ClientOnly } from "@/components/utils/ClientOnly";
 import { config } from "@/config";
-import { ConsentBannerAndConsentManagement } from "@/consentManagement";
 import { DsfrProvider } from "@/gouv/dsfr-bootstrap";
 import { prisma } from "@/lib/db/prisma";
 import { type DomainParams, type DomainProps } from "@/lib/DomainPage";
 import { POST_APPROVAL_STATUS } from "@/lib/model/Post";
 import { auth } from "@/lib/next-auth/auth";
 import { UIProvider } from "@/ui";
+import { UIConsentBanner } from "@/ui/bridge";
+import { ConsentManagementLink } from "@/ui/ConsentManagementLink";
 import { DsfrCssLoaderClient } from "@/ui/DsfrCssLoaderClient";
 import { Footer as ShadcnFooter } from "@/ui/Footer";
 import { Header as ShadcnHeader } from "@/ui/Header";
@@ -100,7 +101,7 @@ const DashboardLayout = async ({ children, modal, params }: LayoutProps<"/[domai
       <ThemeInjector theme={theme} />
       <DsfrProvider lang={lang}>
         {theme === "Dsfr" && <DsfrCssLoaderClient />}
-        {theme === "Dsfr" && <ConsentBannerAndConsentManagement />}
+        <UIConsentBanner />
         <AppRouterCacheProvider>
           <MuiDsfrThemeProvider>
             {theme === "Dsfr" ? (
@@ -137,7 +138,7 @@ const DashboardLayout = async ({ children, modal, params }: LayoutProps<"/[domai
             {theme === "Dsfr" ? (
               <PublicFooter id="footer" />
             ) : (
-              <ShadcnFooter id="footer" serviceName={tenantSettings.name} />
+              <ShadcnFooter id="footer" serviceName={tenantSettings.name} bottomExtra={<ConsentManagementLink />} />
             )}
           </MuiDsfrThemeProvider>
         </AppRouterCacheProvider>

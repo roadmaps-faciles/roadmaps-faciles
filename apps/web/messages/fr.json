@@ -1001,8 +1001,34 @@
     "markdownSupported": "Markdown supporté"
   },
   "consent": {
-    "matomoTitle": "Matomo",
-    "matomoDescription": "Outil d'analyse comportementale des utilisateurs."
+    "banner": {
+      "title": "À propos des cookies sur ce site",
+      "description": "Bienvenue ! Nous utilisons des cookies pour améliorer votre expérience et mesurer l'audience du site. Vous pouvez accepter, refuser ou personnaliser votre choix à tout moment.",
+      "acceptAll": "Tout accepter",
+      "declineAll": "Tout refuser",
+      "customize": "Personnaliser",
+      "ariaLabel": "Bannière de consentement aux cookies"
+    },
+    "management": {
+      "title": "Panneau de gestion des cookies",
+      "description": "Choisissez les services que vous autorisez. Vos préférences sont conservées 13 mois.",
+      "save": "Confirmer mes choix",
+      "back": "Retour à la bannière"
+    },
+    "footer": {
+      "manage": "Gestion des cookies",
+      "policy": "Politique de confidentialité"
+    },
+    "finalities": {
+      "matomo": {
+        "title": "Matomo",
+        "description": "Outil d'analyse comportementale des utilisateurs."
+      },
+      "posthog": {
+        "title": "PostHog",
+        "description": "Outil d'analyse produit et de suivi comportemental."
+      }
+    }
   },
   "serverErrors": {
     "invalidData": "Données invalides.",

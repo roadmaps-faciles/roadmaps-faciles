@@ -3,6 +3,7 @@ export { UIBadge, type UIBadgeProps } from "./UIBadge";
 export { UIButton, type UIButtonProps } from "./UIButton";
 export { UIButtonsGroup, type UIButtonsGroupProps } from "./UIButtonsGroup";
 export { UICard, type UICardProps } from "./UICard";
+export { UIConsentBanner } from "./UIConsentBanner";
 export { UIContainer, type UIContainerProps } from "./UIContainer";
 export { UIGrid, type UIGridProps } from "./UIGrid";
 export { UIGridCol, type UIGridColProps } from "./UIGridCol";
