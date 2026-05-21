@@ -43,6 +43,7 @@
     "@formkit/auto-animate": "^0.9.0",
     "@github/text-expander-element": "^2.9.4",
     "@hookform/resolvers": "^5.2.2",
+    "@icons-pack/react-simple-icons": "^13.13.0",
     "@incubateur-ademe/next-auth-espace-membre-provider": "^0.3.3",
     "@mdx-js/react": "^3.1.1",
     "@mui/lab": "7.0.1-beta.23",
