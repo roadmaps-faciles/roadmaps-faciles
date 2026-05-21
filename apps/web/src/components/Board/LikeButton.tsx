@@ -1,11 +1,10 @@
 "use client";
 
 import { Button as ShadcnButton } from "@roadmaps-faciles/ui";
+import { cn } from "@roadmaps-faciles/ui/lib/cn";
 import * as Sentry from "@sentry/nextjs";
 import { ThumbsUp } from "lucide-react";
 import { lazy, type PropsWithChildren, startTransition, Suspense, useState } from "react";
-import UseAnimations from "react-useanimations";
-import thumbUp from "react-useanimations/lib/thumbUp";
 
 import { useUI } from "@/ui";
 
@@ -30,14 +29,12 @@ export const LikeButton = ({
   size = "default",
 }: PropsWithChildren<LikeButtonProps>) => {
   const [liked, setLiked] = useState(alreadyLiked);
-  const [hasInteracted, setHasInteracted] = useState(false);
   const theme = useUI();
+  const iconSizeClass = size === "sm" ? "size-5" : "size-6";
 
   const handleLikeToggle = (e: React.MouseEvent) => {
     e.preventDefault();
-    e.stopPropagation();
 
-    setHasInteracted(true);
     startTransition(() => {
       setLiked(prevLiked => !prevLiked);
     });
@@ -74,22 +71,9 @@ export const LikeButton = ({
     );
   }
 
-  if (!hasInteracted && liked) {
-    return (
-      <ShadcnButton title="Vote" variant="secondary" size={size} onClick={handleLikeToggle}>
-        <ThumbsUp className="size-5 fill-current" />
-        {children}
-      </ShadcnButton>
-    );
-  }
-
   return (
     <ShadcnButton title="Vote" variant={liked ? "secondary" : "ghost"} size={size} onClick={handleLikeToggle}>
-      {hasInteracted ? (
-        <UseAnimations animation={thumbUp} size={24} reverse={liked} strokeColor="currentColor" />
-      ) : (
-        <ThumbsUp className="size-5" />
-      )}
+      <ThumbsUp className={cn(iconSizeClass, liked && "fill-current stroke-primary")} />
       {children}
     </ShadcnButton>
   );
