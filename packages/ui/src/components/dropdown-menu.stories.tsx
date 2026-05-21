@@ -15,7 +15,7 @@ import {
   Users,
 } from "lucide-react";
 import { useState } from "react";
-import { type Meta, type StoryObj } from "storybook";
+import { type Meta, type StoryObj } from "@storybook/react-vite";
 
 import { Button } from "./button";
 import {

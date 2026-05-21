@@ -1,4 +1,4 @@
-import { type Meta, type StoryObj } from "storybook";
+import { type Meta, type StoryObj } from "@storybook/react-vite";
 
 import {
   NavigationMenu,
@@ -38,11 +38,11 @@ export const Default: Story = {
         <NavigationMenuItem>
           <NavigationMenuTrigger>Getting Started</NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+            <ul className="grid gap-3 p-4 md:w-100 lg:w-125 lg:grid-cols-[.75fr_1fr]">
               <li className="row-span-3">
                 <NavigationMenuLink href="#">
                   <div className="text-lg font-medium">shadcn/ui</div>
-                  <p className="text-muted-foreground text-sm leading-tight">
+                  <p className="text-muted-foreground text-sm/tight">
                     Beautifully designed components built with Radix UI and Tailwind CSS.
                   </p>
                 </NavigationMenuLink>
@@ -50,7 +50,7 @@ export const Default: Story = {
               <li>
                 <NavigationMenuLink href="#">
                   <div className="text-sm font-medium leading-none">Introduction</div>
-                  <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
+                  <p className="text-muted-foreground line-clamp-2 text-sm/snug">
                     Re-usable components built using Radix UI and Tailwind CSS.
                   </p>
                 </NavigationMenuLink>
@@ -58,7 +58,7 @@ export const Default: Story = {
               <li>
                 <NavigationMenuLink href="#">
                   <div className="text-sm font-medium leading-none">Installation</div>
-                  <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
+                  <p className="text-muted-foreground line-clamp-2 text-sm/snug">
                     How to install dependencies and structure your app.
                   </p>
                 </NavigationMenuLink>
@@ -69,11 +69,11 @@ export const Default: Story = {
         <NavigationMenuItem>
           <NavigationMenuTrigger>Components</NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2">
+            <ul className="grid w-100 gap-3 p-4 md:w-125 md:grid-cols-2">
               <li>
                 <NavigationMenuLink href="#">
                   <div className="text-sm font-medium leading-none">Alert Dialog</div>
-                  <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
+                  <p className="text-muted-foreground line-clamp-2 text-sm/snug">
                     A modal dialog that interrupts the user.
                   </p>
                 </NavigationMenuLink>
@@ -81,7 +81,7 @@ export const Default: Story = {
               <li>
                 <NavigationMenuLink href="#">
                   <div className="text-sm font-medium leading-none">Hover Card</div>
-                  <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
+                  <p className="text-muted-foreground line-clamp-2 text-sm/snug">
                     For sighted users to preview content.
                   </p>
                 </NavigationMenuLink>
@@ -114,7 +114,7 @@ export const WithoutViewport: Story = {
         <NavigationMenuItem>
           <NavigationMenuTrigger>Menu</NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid w-[200px] gap-2 p-2">
+            <ul className="grid w-50 gap-2 p-2">
               <li>
                 <NavigationMenuLink href="#">Item One</NavigationMenuLink>
               </li>
@@ -176,11 +176,11 @@ export const WithIndicator: Story = {
         <NavigationMenuItem>
           <NavigationMenuTrigger>Getting Started</NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+            <ul className="grid gap-3 p-4 md:w-100 lg:w-125 lg:grid-cols-[.75fr_1fr]">
               <li className="row-span-3">
                 <NavigationMenuLink href="#">
                   <div className="text-lg font-medium">shadcn/ui</div>
-                  <p className="text-muted-foreground text-sm leading-tight">
+                  <p className="text-muted-foreground text-sm/tight">
                     Beautifully designed components built with Radix UI and Tailwind CSS.
                   </p>
                 </NavigationMenuLink>
@@ -188,7 +188,7 @@ export const WithIndicator: Story = {
               <li>
                 <NavigationMenuLink href="#">
                   <div className="text-sm font-medium leading-none">Introduction</div>
-                  <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
+                  <p className="text-muted-foreground line-clamp-2 text-sm/snug">
                     Re-usable components built using Radix UI and Tailwind CSS.
                   </p>
                 </NavigationMenuLink>
@@ -196,7 +196,7 @@ export const WithIndicator: Story = {
               <li>
                 <NavigationMenuLink href="#">
                   <div className="text-sm font-medium leading-none">Installation</div>
-                  <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
+                  <p className="text-muted-foreground line-clamp-2 text-sm/snug">
                     How to install dependencies and structure your app.
                   </p>
                 </NavigationMenuLink>
@@ -207,11 +207,11 @@ export const WithIndicator: Story = {
         <NavigationMenuItem>
           <NavigationMenuTrigger>Components</NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2">
+            <ul className="grid w-100 gap-3 p-4 md:w-125 md:grid-cols-2">
               <li>
                 <NavigationMenuLink href="#">
                   <div className="text-sm font-medium leading-none">Alert Dialog</div>
-                  <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
+                  <p className="text-muted-foreground line-clamp-2 text-sm/snug">
                     A modal dialog that interrupts the user.
                   </p>
                 </NavigationMenuLink>
@@ -219,7 +219,7 @@ export const WithIndicator: Story = {
               <li>
                 <NavigationMenuLink href="#">
                   <div className="text-sm font-medium leading-none">Hover Card</div>
-                  <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
+                  <p className="text-muted-foreground line-clamp-2 text-sm/snug">
                     For sighted users to preview content.
                   </p>
                 </NavigationMenuLink>

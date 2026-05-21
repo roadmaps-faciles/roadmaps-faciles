@@ -1,5 +1,5 @@
 import { CheckIcon, CircleAlertIcon, CircleDotIcon, MessageSquareIcon, StarIcon, ThumbsUpIcon } from "lucide-react";
-import { type Meta, type StoryObj } from "storybook";
+import { type Meta, type StoryObj } from "@storybook/react-vite";
 
 import { Avatar, AvatarFallback } from "./avatar";
 import { Badge } from "./badge";

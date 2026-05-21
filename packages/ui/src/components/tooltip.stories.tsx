@@ -1,4 +1,4 @@
-import { type Meta, type StoryObj } from "storybook";
+import { type Meta, type StoryObj } from "@storybook/react-vite";
 
 import { Button } from "./button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip";
@@ -41,7 +41,7 @@ export const Default: Story = {
 
 export const SideTop: Story = {
   render: () => (
-    <div className="flex min-h-[100px] items-center justify-center">
+    <div className="flex min-h-25 items-center justify-center">
       <Tooltip>
         <TooltipTrigger asChild>
           <Button variant="outline">Top</Button>

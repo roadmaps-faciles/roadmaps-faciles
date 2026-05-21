@@ -1,4 +1,4 @@
-import { type Meta, type StoryObj } from "storybook";
+import { type Meta, type StoryObj } from "@storybook/react-vite";
 
 import { Button } from "./button";
 import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./card";
@@ -23,7 +23,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   render: () => (
-    <Card className="w-[350px]">
+    <Card className="w-87.5">
       <CardHeader>
         <CardTitle>Card Title</CardTitle>
         <CardDescription>Card description text goes here.</CardDescription>
@@ -48,7 +48,7 @@ export const WithAction: Story = {
     },
   },
   render: () => (
-    <Card className="w-[350px]">
+    <Card className="w-87.5">
       <CardHeader>
         <CardTitle>Notifications</CardTitle>
         <CardDescription>You have 3 unread messages.</CardDescription>
@@ -67,7 +67,7 @@ export const WithAction: Story = {
 
 export const WithForm: Story = {
   render: () => (
-    <Card className="w-[350px]">
+    <Card className="w-87.5">
       <CardHeader>
         <CardTitle>Create project</CardTitle>
         <CardDescription>Deploy your new project in one-click.</CardDescription>
@@ -90,7 +90,7 @@ export const WithForm: Story = {
 
 export const Simple: Story = {
   render: () => (
-    <Card className="w-[350px]">
+    <Card className="w-87.5">
       <CardHeader>
         <CardTitle>Simple Card</CardTitle>
       </CardHeader>

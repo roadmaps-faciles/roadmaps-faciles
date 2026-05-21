@@ -1,4 +1,4 @@
-import { type Meta, type StoryObj } from "storybook";
+import { type Meta, type StoryObj } from "@storybook/react-vite";
 
 import { Label } from "./label";
 import { Switch } from "./switch";

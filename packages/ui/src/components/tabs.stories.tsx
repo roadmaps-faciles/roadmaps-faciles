@@ -1,4 +1,4 @@
-import { type Meta, type StoryObj } from "storybook";
+import { type Meta, type StoryObj } from "@storybook/react-vite";
 
 import { Button } from "./button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./card";
@@ -24,7 +24,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   render: () => (
-    <Tabs defaultValue="account" className="w-[400px]">
+    <Tabs defaultValue="account" className="w-100">
       <TabsList>
         <TabsTrigger value="account">Account</TabsTrigger>
         <TabsTrigger value="password">Password</TabsTrigger>
@@ -85,7 +85,7 @@ export const LineVariant: Story = {
     },
   },
   render: () => (
-    <Tabs defaultValue="tab1" className="w-[400px]">
+    <Tabs defaultValue="tab1" className="w-100">
       <TabsList variant="line">
         <TabsTrigger value="tab1">Overview</TabsTrigger>
         <TabsTrigger value="tab2">Analytics</TabsTrigger>
@@ -113,7 +113,7 @@ export const Vertical: Story = {
     },
   },
   render: () => (
-    <Tabs defaultValue="general" orientation="vertical" className="w-[400px]">
+    <Tabs defaultValue="general" orientation="vertical" className="w-100">
       <TabsList>
         <TabsTrigger value="general">General</TabsTrigger>
         <TabsTrigger value="security">Security</TabsTrigger>
@@ -142,7 +142,7 @@ export const VerticalLine: Story = {
     },
   },
   render: () => (
-    <Tabs defaultValue="general" orientation="vertical" className="w-[400px]">
+    <Tabs defaultValue="general" orientation="vertical" className="w-100">
       <TabsList variant="line">
         <TabsTrigger value="general">General</TabsTrigger>
         <TabsTrigger value="security">Security</TabsTrigger>
@@ -163,7 +163,7 @@ export const VerticalLine: Story = {
 
 export const DisabledTab: Story = {
   render: () => (
-    <Tabs defaultValue="tab1" className="w-[400px]">
+    <Tabs defaultValue="tab1" className="w-100">
       <TabsList>
         <TabsTrigger value="tab1">Active</TabsTrigger>
         <TabsTrigger value="tab2" disabled>

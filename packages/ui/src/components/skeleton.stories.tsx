@@ -1,4 +1,4 @@
-import { type Meta, type StoryObj } from "storybook";
+import { type Meta, type StoryObj } from "@storybook/react-vite";
 
 import { Skeleton } from "./skeleton";
 
@@ -42,8 +42,8 @@ export const Card: Story = {
     <div className="flex items-center gap-4">
       <Skeleton className="size-12 rounded-full" />
       <div className="space-y-2">
-        <Skeleton className="h-4 w-[250px]" />
-        <Skeleton className="h-4 w-[200px]" />
+        <Skeleton className="h-4 w-62.5" />
+        <Skeleton className="h-4 w-50" />
       </div>
     </div>
   ),
@@ -71,14 +71,14 @@ export const FormSkeleton: Story = {
   render: () => (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Skeleton className="h-4 w-[100px]" />
+        <Skeleton className="h-4 w-25" />
         <Skeleton className="h-9 w-full" />
       </div>
       <div className="space-y-2">
-        <Skeleton className="h-4 w-[100px]" />
+        <Skeleton className="h-4 w-25" />
         <Skeleton className="h-9 w-full" />
       </div>
-      <Skeleton className="h-9 w-[120px]" />
+      <Skeleton className="h-9 w-30" />
     </div>
   ),
 };
