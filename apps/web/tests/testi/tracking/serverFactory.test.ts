@@ -28,7 +28,7 @@ describe("getServerTrackingProvider", () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     const configMod = await import("@/config");
-    config = configMod.config as typeof config;
+    config = configMod.config;
     // Reset to noop defaults
     config.tracking.provider = "noop";
     config.tracking.posthogKey = "";

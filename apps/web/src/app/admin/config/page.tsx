@@ -10,7 +10,7 @@ import { ConfigView } from "./ConfigView";
 function buildConfigSections(): ConfigSection[] {
   const { _dbUrl, _seeding, seed: _seed, ...safeConfig } = config;
 
-  const allEntries = flattenConfig(safeConfig as unknown as Record<string, unknown>);
+  const allEntries = flattenConfig(safeConfig);
 
   const sectionMap = new Map<string, ConfigEntry[]>();
   for (const entry of allEntries) {

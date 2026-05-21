@@ -242,7 +242,7 @@ export class SyncIntegration implements UseCase<SyncIntegrationInput, SyncIntegr
             });
           if (result && "statsCommentId" in result && result.statsCommentId !== cachedId) {
             await this.integrationMappingRepo.update(existingMapping.id, {
-              metadata: { ...meta, statsCommentId: result.statsCommentId } as Prisma.InputJsonValue,
+              metadata: { ...meta, statsCommentId: result.statsCommentId },
             });
           }
         } else {
@@ -328,7 +328,7 @@ export class SyncIntegration implements UseCase<SyncIntegrationInput, SyncIntegr
               });
             if (result && "statsCommentId" in result && result.statsCommentId !== cachedId) {
               await this.integrationMappingRepo.update(mappingId, {
-                metadata: { ...mappingMeta, statsCommentId: result.statsCommentId } as Prisma.InputJsonValue,
+                metadata: { ...mappingMeta, statsCommentId: result.statsCommentId },
               });
             }
           } else {

@@ -73,7 +73,7 @@ export const Icon = ({
             ...(textColor && {
               color: `var(--${textColor})`,
             }),
-          } as React.CSSProperties,
+          },
         })}
     onClick={onClick}
     onKeyDown={onClick}

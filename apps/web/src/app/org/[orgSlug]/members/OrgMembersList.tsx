@@ -155,7 +155,7 @@ export const OrgMembersList = ({ members, orgId, isOwner }: OrgMembersListProps)
                   </SelectContent>
                 </Select>
               ) : (
-                <Badge variant={ROLE_BADGE_VARIANT[member.role as keyof typeof ROLE_BADGE_VARIANT] ?? "outline"}>
+                <Badge variant={ROLE_BADGE_VARIANT[member.role] ?? "outline"}>
                   {t(`role${member.role.charAt(0)}${member.role.slice(1).toLowerCase()}` as "roleOwner")}
                 </Badge>
               )}

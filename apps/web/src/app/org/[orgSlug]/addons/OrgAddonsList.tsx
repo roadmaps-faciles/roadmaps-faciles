@@ -144,7 +144,7 @@ export const OrgAddonsList = ({
     setPendingPack(purchaseId);
     startTransition(async () => {
       if (useStripeCheckout) {
-        const result = await startCheckout({ orgSlug, purchaseId: purchaseId as never, interval: billingInterval });
+        const result = await startCheckout({ orgSlug, purchaseId: purchaseId, interval: billingInterval });
         setPendingPack(null);
         if (result.ok) {
           window.location.href = result.data.url;

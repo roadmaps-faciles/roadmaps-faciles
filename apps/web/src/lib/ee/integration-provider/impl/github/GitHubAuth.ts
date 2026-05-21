@@ -81,8 +81,8 @@ export async function listAccessibleRepos(
   for await (const response of iterator) {
     for (const repo of response.data) {
       if (!repo.permissions?.push) continue;
-      if (filter && !filter(repo as RepoSummary)) continue;
-      repos.push(repoToRemoteDatabase(repo as RepoSummary));
+      if (filter && !filter(repo)) continue;
+      repos.push(repoToRemoteDatabase(repo));
     }
   }
   return repos;

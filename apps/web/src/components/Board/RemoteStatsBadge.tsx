@@ -21,7 +21,7 @@ function extractStats(
   const obj = metadata as Record<string, unknown>;
   const remoteStats = obj.remoteStats;
   if (!remoteStats || typeof remoteStats !== "object") return null;
-  return remoteStats as { commentCount?: number; reactionCount?: number };
+  return remoteStats;
 }
 
 export const RemoteStatsBadge = ({ mappings }: RemoteStatsBadgeProps) => {

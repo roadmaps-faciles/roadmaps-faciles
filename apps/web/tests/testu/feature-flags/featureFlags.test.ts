@@ -1,8 +1,6 @@
 import { type Session } from "next-auth";
 import { vi } from "vitest";
 
-import { type UserRole, type UserStatus } from "@/prisma/enums";
-
 // Mock next/navigation
 vi.mock("next/navigation", () => ({
   forbidden: vi.fn(() => {
@@ -33,8 +31,8 @@ function fakeSession(overrides: Partial<Session["user"]> = {}): Session {
       name: "Test",
       isSuperAdmin: false,
       isBetaGouvMember: false,
-      role: "USER" as UserRole,
-      status: "ACTIVE" as UserStatus,
+      role: "USER",
+      status: "ACTIVE",
       twoFactorEnabled: false,
       emailVerified: new Date(),
       id: "user-1",

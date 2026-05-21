@@ -44,6 +44,6 @@ export class SubmitPost implements UseCase<SubmitPostInput, SubmitPostOutput> {
       approvalStatus,
     });
 
-    return post as SubmitPostOutput;
+    return post;
   }
 }

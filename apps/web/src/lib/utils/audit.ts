@@ -38,7 +38,7 @@ export function audit(input: AuditInput, reqCtx: RequestContext): void {
   auditLogRepo
     .create({
       ...input,
-      metadata: metadata as Prisma.InputJsonValue,
+      metadata: metadata,
       ipAddress: reqCtx.ipAddress,
       userAgent: reqCtx.userAgent,
     })

@@ -3,7 +3,7 @@ import { fakerFR as faker } from "@faker-js/faker";
 import { config } from "@/config";
 import { prisma } from "@/lib/db/prisma";
 import { getSeedTenant } from "@/lib/seedContext";
-import { type Comment, type Follow, type Like } from "@/prisma/client";
+import { type Comment, type Follow } from "@/prisma/client";
 
 import { type IWorkflow } from "./IWorkflow";
 
@@ -97,7 +97,7 @@ export class CreateFakePostsWorkflow implements IWorkflow {
           postId: post.id,
           anonymousId: faker.string.uuid(),
           tenantId: tenant.id,
-        })) as Like[],
+        })),
       });
 
       await prisma.comment.createMany({

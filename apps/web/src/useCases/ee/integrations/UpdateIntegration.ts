@@ -40,7 +40,7 @@ export class UpdateIntegration implements UseCase<UpdateIntegrationInput, Update
         mergedConfig.apiKey = encrypt(input.config.apiKey);
       }
 
-      updateData.config = mergedConfig as unknown as Record<string, unknown>;
+      updateData.config = mergedConfig;
     }
 
     return this.integrationRepo.update(input.id, updateData);
