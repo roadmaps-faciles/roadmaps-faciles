@@ -114,7 +114,7 @@ const EmbedRoadmapPageInner = async ({ params, searchParams }: EmbedRoadmapPageP
   });
 
   return (
-    <div className="flex-1 flex flex-col overflow-x-hidden mx-auto w-full max-w-7xl px-4 py-4">
+    <div className="flex-1 flex flex-col overflow-x-hidden mx-auto w-full max-w-7xl p-4">
       <h2 className="text-2xl font-bold mb-4">{tr("title")}</h2>
       <div className="flex flex-1 min-h-0 gap-2 w-full overflow-x-auto scrollbar-thin snap-x">
         {postStatuses.map(statusColumn => {

@@ -138,7 +138,7 @@ const SwitcherRow = ({
                 <a
                   href={adminHref}
                   aria-label={type === "org" ? t("orgAdmin") : t("tenantAdmin")}
-                  className="z-10 inline-flex shrink-0 items-center justify-center rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
+                  className="z-10 inline-flex shrink-0 items-center justify-center rounded-sm p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
                   onClick={e => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -260,15 +260,15 @@ export const WorkspaceSwitcher = ({ userMenu, open: controlledOpen, onOpenChange
       </CommandList>
       <div className="flex items-center gap-4 border-t px-3 py-2 text-[11px] text-muted-foreground">
         <span className="inline-flex items-center gap-1">
-          <kbd className="rounded border bg-muted px-1 font-mono text-[10px]">↑↓</kbd>
+          <kbd className="rounded-sm border bg-muted px-1 font-mono text-[10px]">↑↓</kbd>
           {t("hintNavigate")}
         </span>
         <span className="inline-flex items-center gap-1">
-          <kbd className="rounded border bg-muted px-1 font-mono text-[10px]">↵</kbd>
+          <kbd className="rounded-sm border bg-muted px-1 font-mono text-[10px]">↵</kbd>
           {t("hintOpen")}
         </span>
         <span className="ml-auto inline-flex items-center gap-1">
-          <kbd className="rounded border bg-muted px-1 font-mono text-[10px]">⌘K</kbd>
+          <kbd className="rounded-sm border bg-muted px-1 font-mono text-[10px]">⌘K</kbd>
           {t("hintClose")}
         </span>
       </div>

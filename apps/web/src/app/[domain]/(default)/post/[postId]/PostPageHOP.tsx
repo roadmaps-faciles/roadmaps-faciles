@@ -282,7 +282,7 @@ export const PostPageComponent = async (props: PostPageComponentProps) => {
         <>
           <div className="relative my-6">
             <UISeparator />
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap bg-background px-3 text-sm text-muted-foreground">
+            <span className="absolute left-1/2 top-1/2 -translate-1/2 whitespace-nowrap bg-background px-3 text-sm text-muted-foreground">
               {t("activityFeed")}
             </span>
           </div>
@@ -301,7 +301,7 @@ export const PostPageTitle = ({
   allowAnonymousVoting,
   user,
 }: PostPageComponentProps) => (
-  <span className="relative z-[1] flex justify-between items-center gap-[2rem]">
+  <span className="relative z-1 flex justify-between items-center gap-8">
     <MarkdownAsync {...reactMarkdownConfig}>{post.title}</MarkdownAsync>
     {allowVoting && (allowAnonymousVoting || user?.id) && (
       <LikeButton alreadyLiked={alreadyLiked} postId={post.id} tenantId={post.tenantId} userId={user?.id}>

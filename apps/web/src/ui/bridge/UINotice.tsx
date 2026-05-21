@@ -68,7 +68,7 @@ export const UINotice = ({
 
   return (
     <div role="region" className={cn("w-full border-b", SEVERITY_STYLES[severity], className)}>
-      <div className="mx-auto flex max-w-screen-xl items-center gap-3 px-4 py-3">
+      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3">
         <Icon className="size-5 shrink-0" aria-hidden="true" />
         <div className="min-w-0 flex-1 text-sm">
           <span className="font-semibold">{title}</span>

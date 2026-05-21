@@ -64,7 +64,7 @@ export const Footer = ({
                 <span className="text-lg font-bold tracking-tight">{brandName}</span>
               </div>
               {contentDescription && (
-                <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">{contentDescription}</p>
+                <p className="max-w-xs text-sm/relaxed text-muted-foreground">{contentDescription}</p>
               )}
               {badges && <div className="mt-8 flex gap-3">{badges}</div>}
               {version && (

@@ -40,7 +40,7 @@ export const BoardPost = ({
 
   return (
     <UICard
-      wrapperClassName={cn(!first && "scroll-mt-[var(--header-scroll-offset)]")}
+      wrapperClassName={cn(!first && "scroll-mt-(--header-scroll-offset)")}
       title={post.title}
       href={dirtyDomainFixer(`/post/${post.id}`)}
       linkTarget={linkTarget}
@@ -50,7 +50,7 @@ export const BoardPost = ({
           className={cn(
             "flex flex-col gap-1 py-2 text-xs",
             isDsfr
-              ? "-mx-8 -mb-px w-[calc(100%+4rem)] px-8 bg-[var(--background-contrast-grey)] text-[var(--text-mention-grey)]"
+              ? "-mx-8 -mb-px w-[calc(100%+4rem)] px-8 bg-(--background-contrast-grey) text-(--text-mention-grey)"
               : "-mx-3 -mb-3 w-[calc(100%+1.5rem)] rounded-b-xl bg-muted/50 px-3 text-muted-foreground",
           )}
         >
@@ -64,7 +64,7 @@ export const BoardPost = ({
             <UITag
               className={cn(
                 "shrink-0",
-                isDsfr ? "!bg-[var(--background-default-grey)]" : "!bg-background",
+                isDsfr ? "bg-(--background-default-grey)!" : "bg-background!",
                 post._count.comments > 0 ? "cursor-pointer" : "opacity-50",
               )}
               iconId="fr-icon-discuss-line"

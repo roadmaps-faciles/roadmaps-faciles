@@ -110,7 +110,7 @@ export const MarkdownEditor = ({
             <ToggleSwitch
               className="mb-0"
               label={
-                <Text inline variant="sm" className="mr-[-1.5rem]">
+                <Text inline variant="sm" className="-mr-6">
                   {t("preview")}
                 </Text>
               }

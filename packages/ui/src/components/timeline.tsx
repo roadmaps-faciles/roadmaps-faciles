@@ -88,7 +88,7 @@ function TimelineConnector({
     <div
       data-slot="timeline-connector"
       className={cn(
-        "bg-border w-[3px] flex-1 group-last/timeline-item:hidden",
+        "bg-border w-0.75 flex-1 group-last/timeline-item:hidden",
         variant === "connected" && "-mb-8 group-last/timeline-item:mb-0",
         variant === "spaced" && "mt-2 -mb-6",
         className,

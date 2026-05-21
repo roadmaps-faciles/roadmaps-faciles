@@ -278,7 +278,7 @@ const SidebarUserMenu = ({ userMenu }: { userMenu: UserMenuData }) => {
               <UserAvatar name={displayName} image={userMenu.user.image} className="size-8 rounded-lg text-xs" />
               {!collapsed && (
                 <>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
+                  <div className="grid flex-1 text-left text-sm/tight">
                     <span className="truncate font-semibold">{displayName}</span>
                     <span className="truncate text-xs text-sidebar-foreground/60">{userMenu.user.email}</span>
                   </div>
@@ -349,7 +349,7 @@ const SidebarUserMenu = ({ userMenu }: { userMenu: UserMenuData }) => {
                 >
                   <Repeat className="size-4 shrink-0 text-muted-foreground" />
                   <span>{t("switchWorkspace")}</span>
-                  <kbd className="ml-auto rounded border bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                  <kbd className="ml-auto rounded-sm border bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
                     ⌘K
                   </kbd>
                 </DropdownMenuItem>
@@ -493,7 +493,7 @@ export const AdminSidebar = ({
               {icon}
             </div>
             <div className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
-              <span className="truncate text-sm font-bold leading-tight">{title}</span>
+              <span className="truncate text-sm/tight font-bold">{title}</span>
               {subtitle && (
                 <span className="truncate text-[10px] font-medium text-sidebar-foreground/50">{subtitle}</span>
               )}

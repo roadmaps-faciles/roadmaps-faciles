@@ -1,3 +1,13 @@
+import js from "@eslint/js";
+import prettierConfig from "eslint-config-prettier";
+import betterTailwindcss from "eslint-plugin-better-tailwindcss";
+import importPlugin from "eslint-plugin-import";
+import perfectionist from "eslint-plugin-perfectionist";
+import prettierPlugin from "eslint-plugin-prettier";
+import reactPlugin from "eslint-plugin-react";
+// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
+import storybook from "eslint-plugin-storybook";
+import unusedImportsPlugin from "eslint-plugin-unused-imports";
 /**
  * Root ESLint config - monorepo shared rules.
  *
@@ -22,16 +32,10 @@
  * Solution : `base` déclare les rules import/react, mais seul le default export (ou
  * nextConfig côté web) enregistre les plugins.
  */
-import js from "@eslint/js";
-import prettierConfig from "eslint-config-prettier";
-import importPlugin from "eslint-plugin-import";
-import perfectionist from "eslint-plugin-perfectionist";
-import prettierPlugin from "eslint-plugin-prettier";
-import reactPlugin from "eslint-plugin-react";
-// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
-import storybook from "eslint-plugin-storybook";
-import unusedImportsPlugin from "eslint-plugin-unused-imports";
+import path from "node:path";
 import tseslint from "typescript-eslint";
+
+const tailwindEntryPoint = path.resolve(import.meta.dirname, "apps/web/src/app/tailwind-entry.css");
 
 /** Options Prettier partagées - utilisées par le plugin ESLint prettier/prettier. */
 export const prettierOptions = {
@@ -219,6 +223,32 @@ export const base = [
       "perfectionist/sort-enums": "error",
       "perfectionist/sort-union-types": "warn",
       "perfectionist/sort-intersection-types": "warn",
+    },
+  },
+
+  // ─── Better Tailwind CSS ────────────────────────────────────────────────────
+  // Lint des classes Tailwind dans className, cn(), clsx(), cva(), tv(), twMerge()…
+  // entryPoint pointe vers le CSS d'entrée TW v4 du monorepo (qui @source vers
+  // apps/web/src et packages/ui/src), permettant la résolution des utilities custom.
+  // On limite volontairement aux règles à forte valeur (canonisation + dépréciations
+  // + duplications) sans toucher au sort/wrapping pour ne pas conflicter avec
+  // prettier ou perfectionist ailleurs dans la stack.
+  {
+    files: ["**/*.{js,jsx,ts,tsx}"],
+    plugins: {
+      "better-tailwindcss": betterTailwindcss,
+    },
+    settings: {
+      "better-tailwindcss": {
+        entryPoint: tailwindEntryPoint,
+        rootFontSize: 16,
+      },
+    },
+    rules: {
+      "better-tailwindcss/enforce-canonical-classes": "warn",
+      "better-tailwindcss/no-deprecated-classes": "warn",
+      "better-tailwindcss/no-duplicate-classes": "warn",
+      "better-tailwindcss/no-unnecessary-whitespace": "warn",
     },
   },
 ];

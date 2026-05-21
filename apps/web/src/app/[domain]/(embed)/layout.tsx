@@ -40,7 +40,7 @@ const EmbedLayoutInner = async ({ children, params }: EmbedLayoutProps) => {
         <UIProvider value={theme}>
           <ThemeInjector theme={theme} />
           {theme === "Dsfr" && <DsfrCssLoaderClient />}
-          <main className="flex items-center justify-center min-h-[200px] p-6">
+          <main className="flex items-center justify-center min-h-50 p-6">
             <UIAlert variant="destructive" description={t("embeddingDisabled")} />
           </main>
         </UIProvider>

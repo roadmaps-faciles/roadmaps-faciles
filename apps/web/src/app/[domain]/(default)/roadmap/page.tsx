@@ -71,7 +71,7 @@ const RoadmapPage = DomainPageHOP()(async props => {
   const [t, tc] = await Promise.all([getTranslations("roadmap"), getTranslations("common")]);
 
   return (
-    <div className="flex-1 flex flex-col overflow-x-hidden mx-auto w-full max-w-7xl px-4 py-4">
+    <div className="flex-1 flex flex-col overflow-x-hidden mx-auto w-full max-w-7xl p-4">
       <h2 className="text-2xl font-bold mb-4">{t("title")}</h2>
       {showAdminHint && (
         <UIAlert

@@ -12,7 +12,7 @@ export const UISkeleton = ({ className }: UISkeletonProps) => {
   const theme = useUI();
 
   if (theme === "Dsfr") {
-    return <div className={cn("animate-pulse rounded bg-[var(--background-contrast-grey)]", className)} />;
+    return <div className={cn("animate-pulse rounded-sm bg-(--background-contrast-grey)", className)} />;
   }
 
   return <ShadcnSkeleton className={className} />;

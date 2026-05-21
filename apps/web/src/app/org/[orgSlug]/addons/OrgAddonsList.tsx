@@ -388,9 +388,7 @@ export const OrgAddonsList = ({
                       </Badge>
                     )}
                   </div>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                    {tp(`${pack.id}.description` as never)}
-                  </p>
+                  <p className="mt-1 text-xs/relaxed text-muted-foreground">{tp(`${pack.id}.description` as never)}</p>
                   <p className="mt-1 text-xs font-medium text-primary">{priceLabel}</p>
                   <div className="mt-2 flex flex-wrap gap-1">
                     {pack.addons.map(addon => (

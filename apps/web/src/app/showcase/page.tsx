@@ -67,15 +67,15 @@ const ShowcasePage = () => {
       {/* Header */}
       <div className="flex items-center gap-4">
         <h1 className="text-2xl font-bold">Showcase</h1>
-        <span className="rounded bg-muted px-2 py-1 text-xs font-mono">UI: {theme}</span>
-        <span className="rounded bg-muted px-2 py-1 text-xs font-mono">{darkMode ? "Dark" : "Light"}</span>
+        <span className="rounded-sm bg-muted px-2 py-1 text-xs font-mono">UI: {theme}</span>
+        <span className="rounded-sm bg-muted px-2 py-1 text-xs font-mono">{darkMode ? "Dark" : "Light"}</span>
       </div>
 
       <div className="flex gap-2">
-        <button onClick={toggleUiTheme} className="rounded border px-3 py-1.5 text-sm font-medium hover:bg-accent">
+        <button onClick={toggleUiTheme} className="rounded-sm border px-3 py-1.5 text-sm font-medium hover:bg-accent">
           Switch → {theme === "Default" ? "Dsfr" : "Default"}
         </button>
-        <button onClick={toggleDarkMode} className="rounded border px-3 py-1.5 text-sm font-medium hover:bg-accent">
+        <button onClick={toggleDarkMode} className="rounded-sm border px-3 py-1.5 text-sm font-medium hover:bg-accent">
           Switch → {darkMode ? "Light" : "Dark"}
         </button>
       </div>

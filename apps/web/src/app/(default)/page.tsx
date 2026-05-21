@@ -52,7 +52,7 @@ const Home = async (_: PageProps<"/">) => {
             </span>
           </h1>
 
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">{t("description")}</p>
+          <p className="mx-auto mt-6 max-w-2xl text-lg/relaxed text-muted-foreground">{t("description")}</p>
 
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Button asChild size="lg" className="w-full px-8 py-6 text-base sm:w-auto">
@@ -227,7 +227,7 @@ const Home = async (_: PageProps<"/">) => {
               </div>
               <div className="flex flex-wrap items-center justify-around gap-4">
                 <div className="flex flex-col items-center gap-2">
-                  <div className="flex size-12 items-center justify-center rounded-lg border-2 border-primary/20 bg-primary/[0.02] text-primary">
+                  <div className="flex size-12 items-center justify-center rounded-lg border-2 border-primary/20 bg-primary/2 text-primary">
                     <StickyNote className="size-6" />
                   </div>
                   <span className="text-[10px] font-bold text-primary">{t("bento.integrations.notion")}</span>
@@ -315,7 +315,7 @@ const Home = async (_: PageProps<"/">) => {
               <Button
                 asChild
                 size="lg"
-                className="bg-primary-foreground px-10 py-4 text-lg font-bold !text-primary hover:bg-primary-foreground/90 hover:!text-primary"
+                className="bg-primary-foreground px-10 py-4 text-lg font-bold text-primary! hover:bg-primary-foreground/90 hover:text-primary!"
               >
                 <Link href="/workspaces">{t("ctaSection.cta")}</Link>
               </Button>

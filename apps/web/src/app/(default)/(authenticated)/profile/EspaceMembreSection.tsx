@@ -87,7 +87,7 @@ export const EspaceMembreSection = ({ isBetaGouvMember, username }: EspaceMembre
         <UIButton
           variant="outline"
           size="sm"
-          className="mb-[1.75rem]"
+          className="mb-7"
           disabled={pending || !emLogin.trim()}
           onClick={() => void handleRequestLink()}
         >

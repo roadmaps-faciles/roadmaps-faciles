@@ -125,7 +125,7 @@ const BoardPage = withValidation({
                 "sticky self-start z-(--z-sticky) mb-4",
                 isDsfr
                   ? cn(style.header, "fr-py-2w")
-                  : "top-0 rounded-xl border bg-background/95 px-4 py-3 shadow-sm backdrop-blur",
+                  : "top-0 rounded-xl border bg-background/95 px-4 py-3 shadow-sm backdrop-blur-sm",
               )}
             >
               <UIGridCol span={12} className="flex items-start justify-between gap-4">

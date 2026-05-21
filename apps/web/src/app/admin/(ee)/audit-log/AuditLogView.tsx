@@ -298,7 +298,7 @@ export const AuditLogView = ({ actions, items, locale, page, pageSize, stats, to
                             <span className="sr-only">{t("details")}</span>
                           </span>
                         </TooltipTrigger>
-                        <TooltipContent className="max-w-[400px]">
+                        <TooltipContent className="max-w-100">
                           <pre className="whitespace-pre-wrap text-xs">{metadata}</pre>
                         </TooltipContent>
                       </Tooltip>

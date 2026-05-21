@@ -33,7 +33,7 @@ export const PostDialogModal = ({ title, children }: PostDialogModalProps) => {
     <>
       <style>{`[data-slot="dialog-overlay"] { z-index: var(--z-modal-overlay) !important; }`}</style>
       <Dialog open={open} onOpenChange={val => !val && handleClose()}>
-        <DialogContent className="z-(--z-modal) max-h-[85vh] !max-w-5xl overflow-y-auto">
+        <DialogContent className="z-(--z-modal) max-h-[85vh] max-w-5xl! overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl">{title}</DialogTitle>
             <DialogDescription className="sr-only">{title}</DialogDescription>

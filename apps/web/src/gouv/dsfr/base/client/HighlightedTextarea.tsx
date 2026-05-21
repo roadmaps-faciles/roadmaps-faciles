@@ -87,7 +87,7 @@ export const HighlightedTextarea = ({
           disabled
           className="float-right mb-[.8rem]"
           label={
-            <Text inline variant="sm" className="mr-[-1.5rem]">
+            <Text inline variant="sm" className="-mr-6">
               Aperçu
             </Text>
           }
