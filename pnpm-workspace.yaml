@@ -30,3 +30,16 @@ peerDependencyRules:
   allowedVersions:
     react: "19"
     "react-dom": "19"
+allowBuilds:
+  '@parcel/watcher': true
+  '@prisma/engines': true
+  '@sentry/cli': true
+  '@swc/core': true
+  argon2: true
+  core-js: true
+  esbuild: true
+  msw: true
+  prisma: true
+  protobufjs: true
+  sharp: true
+  unrs-resolver: true
