@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { type FormEvent, useState, useTransition } from "react";
+import { type SubmitEvent, useState, useTransition } from "react";
 
 import { UIAlert, UIButton, UIInput } from "@/ui/bridge";
 
@@ -16,7 +16,7 @@ export const PasswordLoginForm = () => {
   const [error, setError] = useState<string>();
   const [isPending, startTransition] = useTransition();
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!email.trim() || !password) return;
 

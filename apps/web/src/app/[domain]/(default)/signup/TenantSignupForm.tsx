@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { type FormEvent, useState, useTransition } from "react";
+import { type SubmitEvent, useState, useTransition } from "react";
 
 import { PASSWORD_MIN_LENGTH } from "@/lib/utils/passwordConstants";
 import { UIAlert, UIButton, UIInput } from "@/ui/bridge";
@@ -20,7 +20,7 @@ export const TenantSignupForm = () => {
   const [success, setSuccess] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!name.trim() || !email.trim() || !password || !passwordConfirm) return;
 
