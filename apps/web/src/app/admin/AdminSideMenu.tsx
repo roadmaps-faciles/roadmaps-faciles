@@ -12,6 +12,7 @@ import {
   Shield,
   ToggleLeft,
   Users,
+  Wrench,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
@@ -19,19 +20,12 @@ import Image from "next/image";
 import { config } from "@/config";
 import { AdminSidebar, type NavGroup, type UserMenuData } from "@/ui/AdminSidebar";
 
-import { DevToolsPanel } from "./DevToolsPanel";
-
 interface AdminSideMenuProps {
   isDev: boolean;
   userMenu: UserMenuData;
-  useStripe: boolean;
 }
 
-function setCookie(name: string, value: string) {
-  document.cookie = `${name}=${value};path=/;max-age=${60 * 60 * 24 * 365}`;
-}
-
-export const AdminSideMenu = ({ userMenu, isDev, useStripe }: AdminSideMenuProps) => {
+export const AdminSideMenu = ({ userMenu, isDev }: AdminSideMenuProps) => {
   const t = useTranslations("rootAdmin");
 
   const groups: NavGroup[] = [
@@ -64,24 +58,10 @@ export const AdminSideMenu = ({ userMenu, isDev, useStripe }: AdminSideMenuProps
       items: [
         { label: t("config.menu"), href: "/admin/config", icon: Settings2 },
         { label: t("emailTest.menu"), href: "/admin/email-test", icon: Mail },
+        ...(isDev ? [{ label: t("devTools.menu"), href: "/admin/dev-tools", icon: Wrench }] : []),
       ],
     },
   ];
-
-  const devToggles = isDev
-    ? [
-        {
-          id: "useStripe",
-          label: "Stripe Checkout",
-          description: "Utiliser le vrai flow Stripe au lieu du dev-checkout",
-          defaultValue: useStripe,
-          onChangeAction: (value: boolean) => {
-            setCookie("dev-use-stripe", value ? "1" : "0");
-            window.location.reload();
-          },
-        },
-      ]
-    : [];
 
   return (
     <AdminSidebar
@@ -93,7 +73,6 @@ export const AdminSideMenu = ({ userMenu, isDev, useStripe }: AdminSideMenuProps
       backHref="/"
       backLabel={t("backToSite")}
       footer={{ status: t("systemOperational"), version: `v${config.appVersion}` }}
-      devTools={isDev ? <DevToolsPanel toggles={devToggles} /> : undefined}
       userMenu={userMenu}
     />
   );

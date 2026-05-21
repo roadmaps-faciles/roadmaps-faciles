@@ -16,7 +16,7 @@
     "generate-keypair": "tsx scripts/generate-keypair.ts",
     "seed": "tsx --env-file-if-exists=.env scripts/seed.ts",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
+    "prisma:migrate": "node --env-file-if-exists=.env node_modules/.bin/prisma migrate dev"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.14",

@@ -256,6 +256,7 @@ export const config = {
   },
   licenseKey: ensureApiEnvVar(process.env.LICENSE_KEY, ""),
   licensingServerUrl: ensureApiEnvVar(process.env.LICENSING_SERVER_URL, "https://licensing.roadmaps-faciles.fr"),
+  licensingAdminApiKey: ensureApiEnvVar(process.env.LICENSING_ADMIN_API_KEY, ""),
   instanceId: ensureApiEnvVar(process.env.INSTANCE_ID, ""),
 } as const;
 

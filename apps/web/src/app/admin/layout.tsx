@@ -1,5 +1,5 @@
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@roadmaps-faciles/ui";
-import { cookies, headers } from "next/headers";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 
@@ -30,13 +30,12 @@ const AdminLayout = async ({ children }: LayoutProps<"/admin">) => {
 
   const userMenu = await getUserMenuContext({ session });
   const isDev = config.env === "dev";
-  const useStripe = isDev ? (await cookies()).get("dev-use-stripe")?.value === "1" : false;
 
   return (
     <UIProvider value="Default">
       <DefaultThemeForcer />
       <SidebarProvider>
-        <AdminSideMenu userMenu={userMenu} isDev={isDev} useStripe={useStripe} />
+        <AdminSideMenu userMenu={userMenu} isDev={isDev} />
         <SidebarInset id="content" className="max-h-svh overflow-x-hidden overflow-y-auto">
           <header className="sticky top-0 z-10 flex h-12 items-center border-b bg-background px-4 md:hidden">
             <span className="truncate text-sm font-semibold">Administration</span>

@@ -289,6 +289,7 @@ Variables pour le mode self-host avec licence. Voir `docs/adr/0028-licensing-ser
 |---|---|---|
 | `LICENSE_KEY` | Clé de licence (format `rf_live_...`) - vide = mode Cloud | - |
 | `LICENSING_SERVER_URL` | URL du serveur de licences | `https://licensing.roadmaps-faciles.fr` |
+| `LICENSING_ADMIN_API_KEY` | Bearer pour l'API admin du serveur licensing (cloud only, gestion des licences vendues via `/admin/licensing`) | - |
 | `INSTANCE_ID` | Identifiant unique de l'instance self-hosted | - |
 
 #### Seed (dev uniquement)

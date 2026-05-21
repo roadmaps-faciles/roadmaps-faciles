@@ -27,6 +27,8 @@ Pièges connus et solutions dans le codebase Roadmaps Faciles.
 - Prisma JSON fields: `Record<string, unknown>` is not assignable to `Prisma.InputJsonValue` - use `as unknown as Prisma.InputJsonValue` explicit cast
 - Prisma enum values: always use model constants (`POST_APPROVAL_STATUS.APPROVED`) instead of string literals (`"APPROVED"`) in queries and use cases
 - Prisma `findMany` + `distinct` + `.length` loads all rows into memory - use `$queryRaw COUNT(DISTINCT ...)` for counting distinct values on large tables (audit log, etc.)
+- Prisma 7 `prisma migrate dev` does NOT auto-load `.env` - it reads `datasource.url` from `prisma.config.ts` which itself reads `process.env.DATABASE_URL`. Either export `DATABASE_URL=...` before the command, or prefix scripts with `node --env-file-if-exists=.env node_modules/.bin/prisma migrate dev` (as done in `apps/licensing/package.json`). The default `pnpm prisma:migrate` script silently fails with "datasource.url property is required" otherwise.
+- `prisma db execute --file <path>` to apply a single migration SQL bypassing the migration history check - useful when `migrate dev` wants to reset due to drift on an unrelated old migration. Follow with `prisma migrate resolve --applied <name>` to register it in `_prisma_migrations`.
 
 ## DSFR / Dual-theme
 
@@ -61,6 +63,16 @@ Pièges connus et solutions dans le codebase Roadmaps Faciles.
 - HTTP status codes: never utiliser de magic numbers (`{ status: 400 }`) - toujours `import { StatusCodes } from "http-status-codes"` et `{ status: StatusCodes.BAD_REQUEST }`. Le package est déjà installé et utilisé dans plusieurs route handlers
 - GraphQL pagination in async generators: `const result = await octokit.graphql<{...}>()` inside a `while(shouldContinue)` loop causes TS7022 circular inference when destructuring fields that feed back into `shouldContinue`. Fix: extract the response type into a named interface and annotate explicitly (`const response: MyResponseType = await octokit.graphql(...)`)
 - GitHub pin issue comment endpoint is `PUT /repos/{owner}/{repo}/issues/comments/{comment_id}/pin` (NOT `POST` - older docs and AI suggestions get this wrong). `POST` returns 404. App installation must have the "Issues: Write" permission. Idempotent: pinning an already-pinned comment returns 200 (or 422 in some cases - non-fatal, ignore).
+
+## Stripe
+
+- `Checkout.Session.customer_email` est null pour les returning customers (session créée avec `customer` au lieu de `customer_email`, ou paiement via saved payment methods). Sur webhook `checkout.session.completed`, fallback obligatoire sur `session.customer_details?.email` puis `stripe.customers.retrieve(customerId).email`, sinon le client est facturé mais aucune entité downstream n'est créée (license non émise, etc.)
+- Stripe checkout `mode: "subscription"` rejette les Prices one-time (gratuit ou montant fixe non-récurrent). Pour vendre / distribuer un produit ponctuel (ex: licence gratuite GOV), soit utiliser `mode: "payment"` côté checkout + `payment_intent.succeeded` côté webhook, soit émettre hors Stripe via une route admin (préférable pour les flow "0€" qui n'ont pas vraiment leur place dans Stripe)
+
+## Cookies / Server Actions
+
+- Cookies sensibles set côté server action : toujours `httpOnly: true` + `sameSite: "lax"`. La valeur n'a besoin d'être lue côté client que dans de rares cas (toggle CSR sans round-trip server). Pour un secret comme une clé Ed25519, jamais d'exposition JS
+- `ServerActionResponse<void>` : retourner `{ ok: true }` sans champ `data` (le type conditionnel l'exige). Pour `ServerActionResponse<T>` avec data, `{ data, ok: true }`
 
 ## Tooling
 
