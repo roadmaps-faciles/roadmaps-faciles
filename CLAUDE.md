@@ -89,159 +89,48 @@
 - TypeScript: `ServerActionResponse<T>` requires explicit `!result.ok` check in else blocks for type narrowing
 
 ## Architecture
-- Monorepo pnpm workspaces + Turborepo:
-  - `apps/web/` — Next.js 16 app (multi-tenant, DSFR + shadcn)
-  - `apps/licensing/` — `@roadmaps-faciles/licensing` : Hono API server for license management (Ed25519 signing, Stripe, Prisma). Entirely under git-crypt (BSL 1.1). Separate DB (`licensing`), own Prisma schema + `prisma.config.ts`. Deploy: standalone via `@hono/node-server`
-  - `packages/ui/` — `@roadmaps-faciles/ui` : 30 composants shadcn/Radix UI, design tokens French Blue (oklch), utilitaire `cn()`, hook `useIsMobile()`
-    - Composants : accordion, alert, avatar, badge, breadcrumb, button, card, checkbox, dialog, dropdown-menu, hint, input, label, navigation-menu, pagination, popover, progress, radio-group, segmented-control, select, separator, sheet, sidebar, skeleton, sonner, switch, table, tabs, textarea, tooltip
-    - Imports : `@roadmaps-faciles/ui` (barrel), `@roadmaps-faciles/ui/components/*` (direct), `@roadmaps-faciles/ui/lib/cn`, `@roadmaps-faciles/ui/tokens/theme.css`
-    - Design tokens : scopés à `[data-ui-theme="Default"]`, light + dark (`.dark[data-ui-theme="Default"]`)
-    - Storybook 10 : `.storybook/` in packages/ui, dark mode toggle (`@vueless/storybook-dark-mode`), addon-a11y, addon-vitest (browser tests in Chromium)
-    - Tests : Vitest unit tests (happy-dom) + Storybook browser tests (Playwright) — `vitest.config.unit.ts` + `vitest.config.storybook.ts`
-    - Pas de `eslint.config.ts` local — hérite du root (ESLint 9 flat config walk-up)
-- Multi-tenant: domain-based routing via `src/app/[domain]/`
-  - Tenant utils: `src/lib/utils/tenant.ts` — `getDomainFromHost()`, `getTenantFromDomain()`, `getTenantSubdomain()`
-  - Server actions resolve domain internally via `getDomainFromHost()` (reads `x-forwarded-host`/`host` headers) — no `domain` param needed
-  - `DomainParams`/`DomainProps` types exported from `src/app/[domain]/(default)/layout.tsx`
-  - `DomainPageHOP` in `src/app/[domain]/(default)/DomainPage.tsx` wraps pages with tenant/settings
-  - `EmptyObject` type: import from `@/utils/types` (not `react-hook-form`)
-  - Auth: `assertTenantAdmin(domain)` takes domain explicitly — type `TenantAccessCheck = { domain: string } & AccessCheck` in `src/lib/utils/auth.ts`
-  - Auth: `assertTenantModerator(domain)` — same pattern, min role MODERATOR. Used by `/moderation` section (separate from `/admin`)
-  - Auth: `checkTenantUser()` has defense-in-depth super admin bypass — `isSuperAdmin` users skip tenant membership check (primary bypass is in `assertSession()`)
-  - Session role helpers: `isSessionAdmin()`/`isSessionModerator()` in `src/lib/utils/sessionRoles.ts` — shared between `ShadcnUserHeaderItem` and `AuthHeaderItems` (DSFR), avoids drift
-  - Seed context: `setSeedTenant()`/`getSeedTenant()` in `src/lib/seedContext.ts` — for seed scripts only
-- Auth: NextAuth v5 beta (`src/lib/next-auth/`), JWT sessions, multiple Credentials providers
-  - **Password auth** (primary): Credentials provider `"password"` — argon2 hash, email verification required. Utils in `src/lib/utils/password.ts` (server-only) + `src/lib/utils/passwordConstants.ts` (client-safe)
-  - **Signup**: `src/useCases/users/SignupWithPassword.ts` — creates user + sends verification email via `VerificationToken` model
-  - **Forgot/reset password**: verification tokens via `src/lib/utils/verificationToken.ts`, reuses NextAuth's `VerificationToken` model with `verify:{email}` / `reset:{email}` identifier prefixes
-  - **Espace Membre**: secondary login at `/login/espace-membre` (French gov employees)
-  - **Magic link**: tertiary at `/login/passwordless`
-  - SSO Bridge: `src/lib/authBridge.ts` — HMAC token transfer from root session to tenant via Credentials provider `"bridge"`. Conditional: checks `UserOnTenant` membership before issuing token. Non-members redirected to tenant login with `?from=root` hint for bridge signup
-  - OAuth SSO: GitHub, Google, ProConnect — root + tenant, configured via `OAUTH_*` env vars in `src/config.ts`. Root providers toggled via `AppSettings.rootOAuthProviders` (admin page `/admin/authentication`), tenant providers via `TenantDefaultOAuth`
-  - 2FA: passkey (WebAuthn), OTP (TOTP), email — APIs in `src/app/(default)/api/ee/{webauthn,otp,2fa}/`
-  - 2FA verification: Redis proof (`2fa:proof:{userId}`, TTL 60s) — endpoint stores proof on success, JWT callback consumes it on `session.update()`
-  - Force 2FA: admin toggle (root + tenant level) with grace period (0–5 days), deadline stored in `User.twoFactorDeadline`
-  - `DefaultAuthenticatedLayout`: reads `x-pathname` header (set in `src/proxy.ts`) for redirect loop prevention (2FA setup vs verify)
-- Data layer: Prisma repos in `src/lib/repo/`, services in `src/lib/services/`, use cases in `src/useCases/`
-- Audit log: fire-and-forget `audit()` in `src/lib/utils/audit.ts`
-  - Pattern in server actions: call `getRequestContext()` BEFORE try/catch and early returns, then `audit()` on success, catch, AND validation early returns. `RequestContext` includes `correlationId` (from proxy header).
-  - `AuditInput.metadata` accepts `Record<string, unknown>` — cast to `Prisma.InputJsonValue` happens internally in `audit()`
-  - TS interfaces lack implicit index signatures — use `{ ...obj }` spread to convert interface to `Record<string, unknown>`
-  - `AuditLog` Prisma model has no FK intentionally — logs survive user/tenant deletion; batch user lookup via Map in repo
-- Observability: Pino (structured logging) + Sentry (error tracking/tracing) + PostHog (product analytics)
-  - Logger: `src/lib/logger.ts` — `server-only` singleton; `pino-pretty` in dev, JSON in prod
-  - Sentry: enabled by `SENTRY_DSN` env var; when empty, fully disabled (zero overhead)
-  - Sentry source maps: only uploaded in prod/staging (`APP_ENV` check in `next.config.ts`)
-  - Sentry hardening: environment from `NEXT_PUBLIC_APP_ENV`, release from `NEXT_PUBLIC_APP_VERSION`, sampling by env (prod=0.1, staging=0.5, dev=1.0), `beforeSend` noise filter (ResizeObserver, extensions, CORS), PostHog cross-integration (session/distinct ID as Sentry tags)
-  - Sentry scope: `enrichSentryScope(reqCtx)` in `src/lib/utils/sentry.ts` — injects correlation ID + IP as Sentry tags
-  - Correlation ID: generated in `src/proxy.ts`, propagated via `x-correlation-id` header (request + response)
-  - Request logger: `createRequestLogger(reqCtx)` in `src/lib/utils/requestLogger.ts` — child logger with correlationId
-  - Health check: `/api/healthz` route handler (JSON, checks DB + Redis, 200/503)
-  - Server-side `console.*` → use `logger` from `@/lib/logger`; client-side `console.error` stays (Sentry captures automatically)
-- Tracking: `src/lib/ee/tracking-provider/` — provider abstraction (like domain-provider/dns-provider)
-  - Three providers: `noop` (dev default), `matomo` (page views only), `posthog` (full tracking + feature flags)
-  - Config: `NEXT_PUBLIC_TRACKING_PROVIDER` env var (`"noop"` | `"matomo"` | `"posthog"`), `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_POSTHOG_HOST` (default `https://eu.i.posthog.com`)
-  - PostHog: EU host, no session replay (`disable_session_recording: true`), feature flags prepared (`useFeatureFlags()` hook)
-  - PostHog has separate preprod + prod projects; Sentry has one project with `environment` tag distinction
-  - Client-side: `useTracking()` hook from `TrackingContext.tsx`, `<TrackPageView event={...} />` for page views
-  - Server-side: `void trackServerEvent(distinctId, event)` from `@/lib/ee/tracking-provider/serverTracking` — fire-and-forget like `audit()`
-  - Server imports: `import { trackServerEvent } from "@/lib/ee/tracking-provider/serverTracking"` (never from barrel `index.ts` — it's client-safe only)
-  - Tracking plan: `trackingPlan.ts` — 25 typed events organized by AARRI (Acquisition → Activation → Engagement → Retention → Referral → Impact)
-  - Adding a new event: 1) define factory in `trackingPlan.ts`, 2) add to `TRACKING_EVENTS` const, 3) wire in server action with `void trackServerEvent()` or in page with `<TrackPageView>`, 4) update event count in this doc + JSDoc header comment in `trackingPlan.ts`
-  - Consent: DSFR consent banner with conditional finalities per provider in `src/consentManagement.tsx`
-  - Identity sync: `IdentifyUser.tsx` client component — syncs NextAuth session → Sentry user context + tracking provider identify/group
-  - Auth tracking: `user.signed_up`, `user.first_login`, `user.signed_in` fired in NextAuth jwt callback; `invitation.accepted` in signIn callback
-  - Activation events: `post.first_created` / `vote.first_cast` use fire-and-forget count check (`prisma.post.count().then(...)`) after creation
-- Domain providers: `src/lib/ee/domain-provider/` — `IDomainProvider` abstraction + factory `getDomainProvider()` (noop, scalingo, scalingo-wildcard, clevercloud, caddy)
-- Licensing (self-host): `src/lib/ee/licensing/` — offline Ed25519 verification + 24h online refresh + 7-day grace period
-  - `licenseVerifier.ts`: duplicated from `apps/licensing/` (intentional — no shared package for ~30 lines)
-  - `licenseService.ts`: singleton with `getLicenseStatus()` (async, refresh) + `getCachedLicenseStatus()` (sync)
-  - `publicKey.ts`: embedded Ed25519 public key (NOT a secret)
-  - Self-host entitlements: `config.licenseKey` truthy → all EE features unlocked (all-or-nothing); `GOV_LICENSED` plan also unlocks `THEME_DSFR`
-  - Cloud detection: `!config.licenseKey` (empty string default = cloud mode), NOT `status.mode`
-  - Config: `LICENSE_KEY`, `LICENSING_SERVER_URL`, `INSTANCE_ID` in `src/config.ts`
-- Billing (Cloud): `src/lib/ee/billing/` — Stripe-based subscription billing per organization
-  - **Pack model**: 7 addon packs + 2 bundles (Pro 39€, Complete 49€) defined in `src/lib/model/Pricing.ts`
-  - **Stripe Price IDs**: hardcoded in `src/lib/ee/billing/pricing.ts` per env (test/prod) — NOT in env vars (they're public identifiers)
-  - **Checkout**: `createMultiPackCheckoutSession()` supports N packs with auto-bundle substitution, billing address, TVA ID, CGV acceptance, promo codes
-  - **Multi-interval**: user can mix monthly + yearly per pack → creates 2 Stripe subscriptions. Sequential checkout flow with `autopay` on return
-  - **Cart page**: `/org/{slug}/checkout?items=pack1,pack2&interval=monthly` with per-item interval toggle, bundle incentives
-  - **Webhook**: `handleCheckoutCompleted` expands `addons` CSV metadata → creates `OrgAddon` records with `billingInterval` + `purchaseId`
-  - **Restore purchases**: `restorePurchases()` server action — Stripe is source of truth, syncs DB addons from active subscriptions
-  - **Desync detection**: server-side comparison Stripe subscriptions vs DB addons, warning banner on billing page
-  - **Dev tools**: `DevToolsPanel` in sidebar with Stripe toggle (cookie `dev-use-stripe`) + "Clean Stripe" destructive action (dev-only guard)
-  - **Dev checkout bypass**: `/api/ee/billing/dev-checkout` route simulates checkout without Stripe when toggle is off
-- Storage providers: `src/lib/ee/storage-provider/` — `IStorageProvider` abstraction + factory `getStorageProvider()` (noop, s3)
-  - Config: `config.storageProvider` in `src/config.ts` — `STORAGE_PROVIDER`, `STORAGE_S3_*` env vars
-  - S3 impl: `@aws-sdk/client-s3` — PutObject/DeleteObject, `forcePathStyle: true` for MinIO compatibility
-  - Upload: `uploadImage()` server action in `src/app/[domain]/(domain)/upload-image.ts` — auth + tenant-scoped, file type/size validation, audit trail
-  - Key structure: `tenants/{tenantId}/images/{uuid}.{ext}` — images served from S3 public URL
-  - Key prefix multi-env: `STORAGE_S3_KEY_PREFIX` (default `""`) prepended transparent au upload/delete/URL côté provider — keys logiques en DB inchangées entre envs. Utilisé en review apps Coolify (prefix `pr-<n>/`) pour mutualiser un seul bucket S3
-  - CSP: `img-src` in `next.config.ts` dynamically includes `STORAGE_S3_PUBLIC_URL` host
-- Markdown editor: `MarkdownEditor` component in `src/gouv/dsfr/base/client/MarkdownEditor.tsx`
-  - Toolbar: bold, italic, heading, list, ordered list, quote, code, link, image upload
-  - Keyboard shortcuts: Ctrl+B (bold), Ctrl+I (italic)
-  - Preview toggle: `reactMarkdownPreviewConfig` in `src/lib/utils/react-markdown.tsx` (full paragraph rendering)
-  - Image upload: drag & drop, clipboard paste, file picker → `uploadImage()` server action → `![alt](url)` insertion
-  - Used in `SubmitPostForm` and `PostEditForm` — replaces plain `<Input textArea>`
-  - Emoji autocomplete: `@github/text-expander-element` — must be dynamically imported in `useEffect` (`customElements.define()` at module scope requires `HTMLElement`, not available during SSR)
-  - `node-emoji.search()` passes query to `new RegExp()` — special chars (+, *, ?, etc.) crash it; always wrap in try/catch
-- DNS providers: `src/lib/ee/dns-provider/` — `IDnsProvider` abstraction + factory `getDnsProvider()` (noop, manual, ovh, cloudflare)
-  - `DNS_ZONE_NAME` env var: when zone differs from rootDomain (nested subdomains), `computeDnsNames()` in `src/lib/ee/dns-provider/dnsUtils.ts` computes zone-relative subdomain
-  - DNS errors are non-blocking in use cases (try/catch + `logger.warn`)
-  - `CreateNewTenantOutput` is `{ tenant: TenantWithSettings, dns?: DnsProvisionResult }` — access `result.tenant.id`, not `result.id`
-- Integration providers: `src/lib/ee/integration-provider/` — `IIntegrationProvider` abstraction + factory `createIntegrationProvider(type, config)` (Notion, GitHub)
-  - Per-tenant instantiation (not singleton) — each integration gets its own provider instance with decrypted credentials
-  - Encryption: AES-256-GCM with scrypt key derivation in `src/lib/ee/integration-provider/encryption.ts` — env var `INTEGRATION_ENCRYPTION_KEY`
-  - Cron: `POST /api/ee/cron/integrations` route handler with Bearer auth (`INTEGRATION_CRON_SECRET`)
-  - Inbound posts are readonly — double guard: UI (`canEdit=false`/`canDelete=false` in PostPageHOP) + server actions (reject with i18n error)
-  - Notion SDK v5.9.0: uses `dataSources.query()` (not `databases.query()`), `isFullDataSource` type guard, search filter `"data_source"` (not `"database"`)
-  - GitHub provider: `src/lib/ee/integration-provider/impl/github/` — 3 source types via `IGitHubSource` interface (issues REST, discussions GraphQL, project v2 GraphQL)
-  - GitHub auth: dual mode App (`@octokit/auth-app`, auto-refresh) + PAT fallback — config in `config.integrations.github.*` (`GITHUB_APP_ID`, `GITHUB_APP_PRIVATE_KEY` base64, `GITHUB_APP_CLIENT_ID`, `GITHUB_APP_CLIENT_SECRET`, `GITHUB_APP_WEBHOOK_SECRET`, `GITHUB_APP_NAME`)
-  - GitHub labels namespaced: `roadmaps-faciles:status:<name>`, `roadmaps-faciles:board:<name>`, `roadmaps-faciles:managed` — auto-created at setup, not used in project source (has its own Status field)
-  - GitHub webhook: `POST /api/ee/integrations/github/webhook` — HMAC signature verification, bot detection via `sender.login === appName[bot]`, idempotence via `X-GitHub-Delivery`
-  - GitHub anti-loop: bot sender check (primary) + Redis `github-sync-lock:{postId}` TTL 30s (secondary) — prevents webhook→outbound→webhook cycles
-  - GitHub outbound: `pushPostToGitHub()` fire-and-forget on post mutations, checks sync lock before pushing
-  - Reactive sync mode: when a provider supports webhooks + outbound hooks (GitHub App), changes propagate in near-real-time. Inbound: webhook → `getInboundChange(remoteId)` → `ApplyInboundChange` use case (shared with full sync). Outbound: post mutation → `notifyPostMutation(postId, tenantUrl)` → `pushPostToGitHub` (fire-and-forget). Cron/manual sync becomes a catch-up safety net. `notifyPostMutation` is wired in `submitPost`, `updatePostContent`, `approvePost` server actions
-  - `notifyPostMutation` anti-loop: skips posts that have a mapping with `metadata.direction === "inbound"` to prevent loops when applying inbound changes
-  - Remote stats sync: `IIntegrationProvider.updateRemoteStats?(remoteId, stats, hints?)` is the unified single-call API; SyncIntegration prefers it over the legacy `updateCommentsField` + `updateLikesField` when available. GitHub posts a pinned bot comment with marker `<!-- roadmaps-faciles:stats -->`, caches the comment ID in `IntegrationMapping.metadata.statsCommentId` to avoid paginating all issue comments on each sync, falls back to find-by-marker on 404. **Skipped in PAT mode** (anti-loop concern: PAT-attributed comments could trigger issue_comment webhook loops). Inbound: `InboundChange.remoteStats` carries `commentCount` + `reactionCount`, persisted in `IntegrationMapping.metadata.remoteStats`
-  - Public UI exposure: never pass full `TenantIntegration` (contains encrypted `apiKey`, `installationId`, full config) to public UI. Use `findPublicMappingsForPosts(ids)` which returns `PublicMappingSummary[]` (only `integrationType`, `remoteUrl`, `metadata`). Board pages are public — leaking config would expose internal IDs and the database identifier.
-  - `RemoteStatsBadge` component (`src/components/Board/RemoteStatsBadge.tsx`): client-side renderer using `useTranslations`. Reads `metadata.remoteStats` via type-guard helper; renders nothing when no stats AND no remoteUrl (handles Project source which doesn't expose stats)
-  - Server actions: `withIntegrationContext(role)` helper in `actions.ts` centralizes auth/feature/entitlement boilerplate for all integration actions
-  - Sync architecture: `syncRunId` (UUID) groups all logs per sync run; phase markers (SKIPPED + `message: "phase_marker"`) ensure `findSyncRuns` derives correct direction even for empty phases
-  - Bidirectional conflict detection: compares `post.updatedAt > mapping.lastSyncAt` — detected conflicts stored as `CONFLICT` status, resolved via `ResolveSyncConflict` use case (local=push outbound, remote=pull inbound)
-  - SSE sync progress: `/api/ee/integrations/[id]/sync` route uses `ReadableStream` + `TextEncoder` for Server-Sent Events; `onProgress` callback is best-effort (swallows errors so client disconnect doesn't abort sync)
-  - `Post.sourceLabel`: inbound posts display "imported from {integration}" label; field is readonly-guarded in UI + server actions
-- Post approval: `TenantSettings.requirePostApproval` → posts created as PENDING (filtered from board) until moderator approves
-  - Anonymous posts: `Post.userId` nullable + `anonymousId` field; always null-check `post.user` in renders
-- Embed mode: `src/app/[domain]/(embed)/` — iframe-embeddable views with minimal layout (no header/footer/nav), controlled by `TenantSettings.allowEmbedding`
-- Comment edit/delete: author can always edit/delete own comments; admin/mod/owner can delete any; no dedicated TenantSettings toggle — follows GitHub/Slack conventions
-- Board views: `view=list|cards` URL param toggles compact list vs card layout; `VIEW_ENUM`/`ORDER_ENUM` pattern for `z.enum()` search param validation in `types.ts`
-- Documentation: Fumadocs (fumadocs-core, fumadocs-mdx, fumadocs-ui) — rendered at `/doc/*`
-  - Source: `content/docs/` — MDX files organized by section (concepts, guides, admin, moderation, technical)
-  - App: `src/app/doc/` — layout, MDX component registration, DSFR theme bridge
-  - Custom MDX components: registered in `src/app/doc/mdx-components.ts` via `getDocMDXComponents()`
-  - `ImageWithTheme`: client component for theme-aware screenshots (crossfade toggle, IntersectionObserver preload)
-  - Theme bridge: `src/app/doc/theme.css` maps design tokens → Fumadocs CSS variables, handles `.dark` class dark mode
-- Legal pages: custom pages at `/mentions-legales`, `/politique-de-confidentialite`, `/accessibilite`, `/cgu` — configurable via `NEXT_PUBLIC_LEGAL_*` env vars in `src/config.ts` (publisher, hosting, contact emails) for self-hosting
-- Caching: Redis via ioredis + unstorage
-- Email: react-email templates (`src/emails/`) + Nodemailer (`src/lib/mailer.ts` — shared `sendEmail()`, maildev in dev)
-  - Theme-aware: emails render with Default or DSFR layout based on `theme?: UiTheme` prop (default `"Default"`)
-  - `src/emails/themed.tsx` — `getEmailKit(theme)` returns Layout/Button/Text/Heading/Spacer per theme
-  - DSFR: `DsfrEmailLayout` (`src/emails/gouv/`) + `DsfrButton`, `DsfrText`, `DsfrHeading`, `DsfrSpacer` (`src/emails/components.tsx`)
-  - Default: `DefaultEmailLayout` (`src/emails/default/`) + `DefaultButton`, `DefaultText`, `DefaultHeading`, `DefaultSpacer` — French Blue `#163C90`, logo `roadmaps-faciles.png`
-  - Render facade: `src/emails/renderEmails.ts` — `renderXxxEmail()` functions, uses `createElement()` (no JSX — Rolldown can't parse `.tsx` in vitest import graph analysis)
-  - Callers: root emails → Default (implicit), tenant emails → `settings.uiTheme`, magic link → resolved from host header
-  - i18n: `getEmailTranslations()` in `src/emails/getEmailTranslations.ts` — standalone (loads JSON directly, no next-intl server context dependency)
-- i18n: next-intl v4 — cookie-based locale (no URL prefix), fr (default) + en
-  - Config: `src/i18n/request.ts` (reads `NEXT_LOCALE` cookie), utils/types in `src/lib/utils/i18n.ts`
-  - Messages: `messages/fr.json` + `messages/en.json` — 24 namespaces, ICU plural syntax supported
-  - Navigation: `src/i18n/navigation.tsx` — simple re-exports from `next/link` / `next/navigation` (no locale prefix)
-  - Server components/actions: `await getTranslations("namespace")` + `await getLocale()` from `next-intl/server`
-  - Client components: `useTranslations("namespace")` + `useLocale()` from `next-intl`
-  - Zod validation schemas: accept `ValidationTranslator` param for translated error messages (`src/lib/utils/zod-schema.ts`)
-  - Date formatting: `formatDateHour(date, locale)` / `formatRelativeDate(date, locale)` in `src/lib/utils/date.ts`
-  - Language switch: DSFR `LanguageSelect` + cookie set + `window.location.reload()` in `src/app/LanguageSelectClient.tsx`
+
+### Monorepo
+
+pnpm workspaces + Turborepo :
+- `apps/web/` : Next.js 16 app multi-tenant, DSFR + shadcn
+- `apps/licensing/` : `@roadmaps-faciles/licensing`, Hono API pour la gestion de licenses (Ed25519, Stripe, Prisma). Entièrement chiffré git-crypt (BSL 1.1), DB séparée (`licensing`), schema Prisma + `prisma.config.ts` dédiés. Deploy standalone via `@hono/node-server`. Détail : [docs/architecture/licensing.md](docs/architecture/licensing.md)
+- `packages/ui/` : `@roadmaps-faciles/ui`, 30 composants shadcn / Radix UI, design tokens French Blue (oklch), utilitaire `cn()`, hook `useIsMobile()`. Imports : `@roadmaps-faciles/ui` (barrel), `@roadmaps-faciles/ui/components/*` (direct), `@roadmaps-faciles/ui/lib/cn`, `@roadmaps-faciles/ui/tokens/theme.css`. Design tokens scopés à `[data-ui-theme="Default"]`, light + dark (`.dark[data-ui-theme="Default"]`). Storybook 10 (addon-a11y, addon-vitest, dark mode toggle), Vitest unit (happy-dom) + Storybook browser tests (Playwright)
+
+### Sous-systèmes
+
+Carte rapide. Détail dans `docs/architecture/<sujet>.md`. Si tu codes dans un de ces sujets, lis la doc dédiée.
+
+- **Multi-tenancy + auth** : routing `[domain]`, NextAuth v5 beta (password / espace-membre / magic link / OAuth / SSO bridge), 2FA passkey / OTP / email, helpers `assertTenant*`. Code : `src/app/[domain]/`, `src/lib/next-auth/`, `src/lib/utils/{auth,tenant}.ts`. Détail : [docs/architecture/multi-tenancy-and-auth.md](docs/architecture/multi-tenancy-and-auth.md)
+- **Data layer + audit log** : Prisma repos + services + use cases, fire-and-forget `audit()` avec correlation ID propagée depuis le proxy. Code : `src/lib/repo/`, `src/lib/services/`, `src/useCases/`, `src/lib/utils/audit.ts`. Détail : [docs/architecture/data-and-audit.md](docs/architecture/data-and-audit.md)
+- **Observability + tracking** : Pino structured logging + Sentry + PostHog (ou Matomo / noop). Health check `/api/healthz`. Tracking plan AARRI (25 events). Code : `src/lib/logger.ts`, `src/lib/utils/{sentry,requestLogger}.ts`, `src/lib/ee/tracking-provider/`. Détail : [docs/architecture/observability.md](docs/architecture/observability.md)
+- **Billing Cloud** : Stripe pack model (7 packs + 2 bundles), multi-interval, cart, restore purchases, dev tools (toggle Stripe + dev-checkout bypass). Code : `src/lib/ee/billing/`, `src/lib/model/Pricing.ts`. Détail : [docs/architecture/billing.md](docs/architecture/billing.md)
+- **Licensing self-host** : vérification offline Ed25519 + refresh 24h + grace 7j. Détection cloud vs self-host via `!config.licenseKey`. Code : `src/lib/ee/licensing/`. Détail : [docs/architecture/licensing.md](docs/architecture/licensing.md)
+- **Integration providers** : Notion + GitHub (Issues / Discussions / Project v2), encryption AES-256-GCM, reactive sync (webhooks GitHub App + outbound), anti-loop double protection (bot sender + Redis lock), conflict detection bidirectionnelle, SSE progress, helper `withIntegrationContext(role)`. Code : `src/lib/ee/integration-provider/`. Détail : [docs/architecture/integrations.md](docs/architecture/integrations.md)
+- **Providers (storage / DNS / domain / email / markdown editor)** : pattern interface + factory partout. Storage S3 avec key prefix multi-env (`STORAGE_S3_KEY_PREFIX`), DNS noop / manual / ovh / cloudflare, domain Scalingo / Clevercloud / Caddy, email theme-aware (Default / DSFR), markdown editor avec emoji autocomplete + image upload. Code : `src/lib/ee/{storage,dns,domain}-provider/`, `src/emails/`, `src/gouv/dsfr/base/client/MarkdownEditor.tsx`. Détail : [docs/architecture/providers.md](docs/architecture/providers.md)
+- **i18n** : next-intl v4 cookie-based (pas de prefix URL), fr (défaut) + en, 24 namespaces, ICU plural. Code : `src/i18n/`, `src/lib/utils/i18n.ts`, `messages/`. Détail : [docs/architecture/i18n.md](docs/architecture/i18n.md)
+- **Caching** : Redis via ioredis + unstorage
+
+### Features transverses
+
+- **Post approval** : `TenantSettings.requirePostApproval` → posts créés PENDING (filtrés du board) jusqu'à approval modérateur. Anonymous posts : `Post.userId` nullable + `anonymousId`, null-check `post.user` obligatoire dans les renders
+- **Embed mode** : `src/app/[domain]/(embed)/` rend des vues iframe-embeddable avec layout minimal (pas de header / footer / nav), contrôlé par `TenantSettings.allowEmbedding`
+- **Comment edit / delete** : auteur peut toujours edit / delete ses comments, admin / mod / owner peut delete n'importe lequel. Pas de toggle dédié dans `TenantSettings` (conventions GitHub / Slack)
+- **Board views** : URL param `view=list|cards` toggle compact list vs card layout. Pattern `VIEW_ENUM` / `ORDER_ENUM` pour `z.enum()` search param validation dans `types.ts`
+- **Markdown editor** : utilisé dans `SubmitPostForm` et `PostEditForm`. Voir providers.md pour les détails (emoji autocomplete, image upload)
+
+### Documentation utilisateur (Fumadocs)
+
+Doc rendue sur `/doc/*` :
+- Source : `content/docs/` (MDX par section : concepts, guides, admin, moderation, technical)
+- App : `src/app/doc/` (layout, MDX components, theme bridge DSFR)
+- Custom MDX : `src/app/doc/mdx-components.ts` via `getDocMDXComponents()`
+- `ImageWithTheme` : screenshots theme-aware (crossfade + IntersectionObserver preload)
+- Theme bridge : `src/app/doc/theme.css` mappe design tokens vers CSS vars Fumadocs
+
+### Legal pages
+
+Pages custom : `/mentions-legales`, `/politique-de-confidentialite`, `/accessibilite`, `/cgu`. Configurables via `NEXT_PUBLIC_LEGAL_*` (publisher, hosting, contact emails) pour le self-hosting
 
 ## Feature Flags
 - Registre : `src/lib/feature-flags/flags.ts` — ajouter un flag = une ligne (`myFlag: false`) + clés i18n (`rootAdmin.featureFlags.flags.myFlag.{label,description}`)
