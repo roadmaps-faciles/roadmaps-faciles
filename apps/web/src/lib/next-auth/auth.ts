@@ -443,18 +443,52 @@ const {
           if (userId) {
             const existing = await userOnTenantRepo.findMembership(userId, tenant.id);
             if (!existing) {
+              const dbUser = await userRepo.findById(userId);
+              const isSuperAdmin = dbUser?.username ? config.admins.includes(dbUser.username) : false;
+              if (isSuperAdmin) {
+                return true;
+              }
+
               const isSignup =
                 (params as unknown as { credentials?: Record<string, unknown> }).credentials?.isSignup === "1";
-              if (isSignup) {
-                await userOnTenantRepo.create({
-                  userId,
-                  tenantId: tenant.id,
-                  role: "INHERITED",
-                  status: "ACTIVE",
-                });
-              } else {
+              if (!isSignup) {
                 return false;
               }
+
+              const email = params.user.email;
+              if (!email || !tenantSettings) {
+                return false;
+              }
+              const emailDomain = email.split("@")[1];
+              if (!emailDomain) {
+                return false;
+              }
+
+              const pendingInvitation = await prisma.invitation.findFirst({
+                where: { email, tenantId: tenant.id, acceptedAt: null },
+              });
+
+              if (!pendingInvitation) {
+                if (tenantSettings.emailRegistrationPolicy === "NOONE") {
+                  return false;
+                }
+                if (tenantSettings.emailRegistrationPolicy === "DOMAINS") {
+                  const isAllowedDomain =
+                    tenantSettings.allowedEmailDomains.includes(emailDomain) ||
+                    tenantSettings.allowedEmailDomains.includes("*") ||
+                    tenantSettings.allowedEmailDomains.length === 0;
+                  if (!isAllowedDomain) {
+                    return false;
+                  }
+                }
+              }
+
+              await userOnTenantRepo.create({
+                userId,
+                tenantId: tenant.id,
+                role: "INHERITED",
+                status: "ACTIVE",
+              });
             }
           }
         }
