@@ -32,12 +32,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@roadmaps-faciles/ui";
-import { Activity, AlertTriangle, Info, Users } from "lucide-react";
+import { Activity, AlertTriangle, Download, Info, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import UseAnimations from "react-useanimations";
-import download from "react-useanimations/lib/download";
 
 import { type AuditLogWithUser } from "@/lib/repo/IAuditLogRepo";
 import { type AuditAction } from "@/prisma/enums";
@@ -234,13 +232,7 @@ export const AuditLogView = ({ actions, items, locale, page, pageSize, stats, to
               {t("resetFilters")}
             </Button>
             <Button variant="ghost" size="sm" disabled={exporting} onClick={() => void handleExport()}>
-              <UseAnimations
-                animation={download}
-                size={16}
-                autoplay={exporting}
-                loop={exporting}
-                strokeColor="currentColor"
-              />
+              <Download className={exporting ? "size-4 animate-pulse" : "size-4"} />
               {exporting ? t("exporting") : t("export")}
             </Button>
           </div>
