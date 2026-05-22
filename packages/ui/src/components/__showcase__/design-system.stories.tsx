@@ -1,3 +1,4 @@
+import { type Meta, type StoryObj } from "@storybook/react-vite";
 import {
   BellIcon,
   CheckIcon,
@@ -17,7 +18,6 @@ import {
   UserIcon,
 } from "lucide-react";
 import { useState } from "react";
-import { type Meta, type StoryObj } from "@storybook/react-vite";
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../accordion";
 import { Alert, AlertDescription, AlertTitle } from "../alert";

@@ -19,7 +19,7 @@
 
 import Stripe from "stripe";
 
-const STRIPE_API_VERSION = "2026-02-25.clover" as const;
+const STRIPE_API_VERSION = "2026-04-22.dahlia" as const;
 
 type ResourceType = "coupons" | "portal" | "prices" | "products" | "promotionCodes" | "taxRates" | "webhooks";
 
