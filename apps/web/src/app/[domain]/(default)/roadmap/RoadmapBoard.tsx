@@ -2,6 +2,7 @@
 
 import { Button } from "@roadmaps-faciles/ui/components/button";
 import { cn } from "@roadmaps-faciles/ui/lib/cn";
+import { useIsMobile } from "@roadmaps-faciles/ui/lib/use-mobile";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
@@ -64,6 +65,7 @@ export const RoadmapBoard = ({
   emptyMessage,
 }: RoadmapBoardProps) => {
   const t = useTranslations("roadmap");
+  const isMobile = useIsMobile();
   const [filter, setFilter] = useState<RoadmapFilter>({
     search: "",
     selectedTag: null,
@@ -158,47 +160,47 @@ export const RoadmapBoard = ({
         </div>
       )}
 
-      {/* Mobile */}
-      <section className="md:hidden mx-auto max-w-7xl px-4 pt-4 pb-16">
-        {columns.length > 0 && (
-          <UISegmentedTabs
-            name="roadmap-status"
-            legend={t("title")}
-            value={activeColumnId}
-            onValueChange={setActiveColumnId}
-            segments={columns.map(c => ({
-              value: String(c.id),
-              label: (
-                <span className="inline-flex items-center gap-1.5">
-                  {c.name}
-                  <span className="text-[10px] opacity-60 tabular-nums">{groupedByColumn.get(c.id)?.length ?? 0}</span>
-                </span>
-              ),
-            }))}
-            className="mb-4"
-          />
-        )}
-        {activeColumn && renderColumn(activeColumn, groupedByColumn.get(activeColumn.id) ?? [], true)}
-      </section>
-
-      {/* Desktop */}
-      <section className="hidden md:block mx-auto max-w-7xl px-6 lg:px-8 pt-6 pb-16">
-        <div
-          className={cn("grid gap-5 items-stretch", {
-            "grid-cols-1": columns.length === 1,
-            "grid-cols-2": columns.length === 2,
-            "grid-cols-3": columns.length === 3,
-            "grid-cols-4": columns.length === 4,
-            "grid-cols-5": columns.length >= 5,
-          })}
-        >
-          {columns.map(col => (
-            <div key={col.id} className="h-full">
-              {renderColumn(col, groupedByColumn.get(col.id) ?? [], false)}
-            </div>
-          ))}
-        </div>
-      </section>
+      {isMobile ? (
+        <section className="mx-auto max-w-7xl px-4 pt-4 pb-16">
+          {columns.length > 0 && (
+            <UISegmentedTabs
+              name="roadmap-status"
+              legend={t("title")}
+              value={activeColumnId}
+              onValueChange={setActiveColumnId}
+              segments={columns.map(c => ({
+                value: String(c.id),
+                label: (
+                  <span className="inline-flex items-center gap-1.5">
+                    {c.name}
+                    <span className="text-[10px] opacity-60 tabular-nums">{groupedByColumn.get(c.id)?.length ?? 0}</span>
+                  </span>
+                ),
+              }))}
+              className="mb-4"
+            />
+          )}
+          {activeColumn && renderColumn(activeColumn, groupedByColumn.get(activeColumn.id) ?? [], true)}
+        </section>
+      ) : (
+        <section className="mx-auto max-w-7xl px-6 lg:px-8 pt-6 pb-16">
+          <div
+            className={cn("grid gap-5 items-stretch", {
+              "grid-cols-1": columns.length === 1,
+              "grid-cols-2": columns.length === 2,
+              "grid-cols-3": columns.length === 3,
+              "grid-cols-4": columns.length === 4,
+              "grid-cols-5": columns.length >= 5,
+            })}
+          >
+            {columns.map(col => (
+              <div key={col.id} className="h-full">
+                {renderColumn(col, groupedByColumn.get(col.id) ?? [], false)}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </>
   );
 };
