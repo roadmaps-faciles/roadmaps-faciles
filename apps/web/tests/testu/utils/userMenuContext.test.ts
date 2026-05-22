@@ -67,12 +67,11 @@ describe("getUserMenuContext", () => {
   it("returns empty data when session has no uuid", async () => {
     const result = await getUserMenuContext({ session: { expires: "", user: {} } as Session });
     expect(result.organizations).toEqual([]);
-    expect(result.flatItems).toBeUndefined();
     expect(result.user.email).toBe("");
   });
 
-  describe("flatItems - normal user", () => {
-    it("includes org when role >= MODERATOR and all tenants", async () => {
+  describe("organizations - normal user", () => {
+    it("exposes org with orgAdminHref when role is OWNER", async () => {
       const org = makeOrgWithTenants({ id: 1, name: "Acme", slug: "acme" }, [
         { id: 10, settings: { name: "Espace 1", subdomain: "espace-1" } },
       ]);
@@ -83,12 +82,14 @@ describe("getUserMenuContext", () => {
 
       const result = await getUserMenuContext({ session: makeSession() });
 
-      expect(result.flatItems).toHaveLength(2);
-      expect(result.flatItems![0]).toMatchObject({ type: "org", name: "Acme", hint: "acme" });
-      expect(result.flatItems![1]).toMatchObject({ type: "tenant", name: "Espace 1", hint: "espace-1" });
+      expect(result.organizations).toHaveLength(1);
+      expect(result.organizations[0]).toMatchObject({ name: "Acme", slug: "acme", role: "OWNER" });
+      expect(result.organizations[0].orgAdminHref).toBeDefined();
+      expect(result.organizations[0].tenants).toHaveLength(1);
+      expect(result.organizations[0].tenants[0]).toMatchObject({ name: "Espace 1", subdomain: "espace-1" });
     });
 
-    it("excludes org when role is USER (< MODERATOR)", async () => {
+    it("hides orgAdminHref when role is MEMBER", async () => {
       const org = makeOrgWithTenants({ id: 1, name: "Acme", slug: "acme" }, [
         { id: 10, settings: { name: "Espace 1", subdomain: "espace-1" } },
       ]);
@@ -99,11 +100,13 @@ describe("getUserMenuContext", () => {
 
       const result = await getUserMenuContext({ session: makeSession() });
 
-      expect(result.flatItems!.filter(i => i.type === "org")).toHaveLength(0);
-      expect(result.flatItems!.filter(i => i.type === "tenant")).toHaveLength(1);
+      expect(result.organizations).toHaveLength(1);
+      expect(result.organizations[0].role).toBe("MEMBER");
+      expect(result.organizations[0].orgAdminHref).toBeUndefined();
+      expect(result.organizations[0].tenants).toHaveLength(1);
     });
 
-    it("includes org when role is ADMIN", async () => {
+    it("exposes orgAdminHref when role is ADMIN", async () => {
       const org = makeOrgWithTenants({ id: 1, name: "Acme", slug: "acme" }, []);
       mockOrgMemberRepo.findByUserIdWithOrgsAndTenants.mockResolvedValue([
         { ...fakeOrgMember({ organizationId: 1, userId: "user-1", role: "ADMIN" }), organization: org },
@@ -111,10 +114,11 @@ describe("getUserMenuContext", () => {
 
       const result = await getUserMenuContext({ session: makeSession() });
 
-      expect(result.flatItems!.filter(i => i.type === "org")).toHaveLength(1);
+      expect(result.organizations).toHaveLength(1);
+      expect(result.organizations[0].orgAdminHref).toBeDefined();
     });
 
-    it("marks current tenant with isCurrent", async () => {
+    it("tracks currentTenantId and exposes currentTenant context", async () => {
       const org = makeOrgWithTenants({ id: 1, name: "Acme", slug: "acme" }, [
         { id: 10, settings: { name: "E1", subdomain: "e1" } },
         { id: 20, settings: { name: "E2", subdomain: "e2" } },
@@ -129,12 +133,11 @@ describe("getUserMenuContext", () => {
 
       const result = await getUserMenuContext({ session: makeSession(), currentTenantId: 20 });
 
-      const tenants = result.flatItems!.filter(i => i.type === "tenant");
-      expect(tenants.find(t => t.name === "E1")!.isCurrent).toBe(false);
-      expect(tenants.find(t => t.name === "E2")!.isCurrent).toBe(true);
+      expect(result.currentTenantId).toBe(20);
+      expect(result.currentTenant).toMatchObject({ name: "E2" });
     });
 
-    it("sets tenant hint to subdomain", async () => {
+    it("sets tenant subdomain", async () => {
       const org = makeOrgWithTenants({ id: 1, name: "Acme", slug: "acme" }, [
         { id: 10, settings: { name: "Mon Espace", subdomain: "mon-espace" } },
       ]);
@@ -145,11 +148,11 @@ describe("getUserMenuContext", () => {
 
       const result = await getUserMenuContext({ session: makeSession() });
 
-      expect(result.flatItems![1].hint).toBe("mon-espace");
+      expect(result.organizations[0].tenants[0].subdomain).toBe("mon-espace");
     });
   });
 
-  describe("flatItems - super admin", () => {
+  describe("organizations - super admin", () => {
     it("loads all orgs via prisma, not just memberships", async () => {
       const org1 = makeOrgWithTenants({ id: 1, name: "Org A", slug: "org-a" }, [
         { id: 10, settings: { name: "T1", subdomain: "t1" } },
@@ -163,9 +166,8 @@ describe("getUserMenuContext", () => {
 
       expect(mockPrisma.organization.findMany).toHaveBeenCalled();
       expect(mockOrgMemberRepo.findByUserIdWithOrgsAndTenants).toHaveBeenCalled();
-      expect(result.flatItems).toHaveLength(4);
-      expect(result.flatItems!.filter(i => i.type === "org")).toHaveLength(2);
-      expect(result.flatItems!.filter(i => i.type === "tenant")).toHaveLength(2);
+      expect(result.organizations).toHaveLength(2);
+      expect(result.organizations.flatMap(o => o.tenants)).toHaveLength(2);
     });
 
     it("sets effective OWNER role on all orgs", async () => {
@@ -174,7 +176,7 @@ describe("getUserMenuContext", () => {
 
       const result = await getUserMenuContext({ session: makeSession({ isSuperAdmin: true }) });
 
-      expect(result.flatItems![0].role).toBe("OWNER");
+      expect(result.organizations[0].role).toBe("OWNER");
     });
 
     it("preserves actual tenant role when super admin is member", async () => {
@@ -186,8 +188,7 @@ describe("getUserMenuContext", () => {
 
       const result = await getUserMenuContext({ session: makeSession({ isSuperAdmin: true }) });
 
-      const tenant = result.flatItems!.find(i => i.type === "tenant")!;
-      expect(tenant.role).toBe("MODERATOR");
+      expect(result.organizations[0].tenants[0].role).toBe("MODERATOR");
     });
 
     it("defaults tenant role to OWNER when super admin has no membership", async () => {
@@ -198,8 +199,7 @@ describe("getUserMenuContext", () => {
 
       const result = await getUserMenuContext({ session: makeSession({ isSuperAdmin: true }) });
 
-      const tenant = result.flatItems!.find(i => i.type === "tenant")!;
-      expect(tenant.role).toBe("OWNER");
+      expect(result.organizations[0].tenants[0].role).toBe("OWNER");
     });
 
     it("sets isSuperAdmin flag on result", async () => {
