@@ -44,7 +44,7 @@ export abstract class AbstractCachedUseCase<TRequest, TResponse extends object> 
   public async execute(request: TRequest, options = this.defaultOptions): Promise<TResponse> {
     const cache = this.getCache(options);
     const cacheKey = this.getCacheKey(request);
-    const status: LRUCache.Status<TResponse> = {};
+    const status: LRUCache.Status<string, TResponse> = {};
     const hasValue = cache.has(cacheKey, { status });
 
     if (!hasValue) {

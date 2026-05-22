@@ -197,6 +197,8 @@ model Post {
   approvalStatus PostApprovalStatus @default(APPROVED)
   tags           String[]
   sourceLabel    String?
+  progress       Int?
+  eta            String?
 
   board      Board            @relation(fields: [boardId], references: [id], onDelete: Cascade)
   user       User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -740,6 +742,7 @@ enum AuditAction {
   POST_REJECT
   POST_DELETE
   POST_EDIT
+  POST_ROADMAP_META_UPDATE
 
   // Tenant-scoped - Images
   IMAGE_UPLOAD

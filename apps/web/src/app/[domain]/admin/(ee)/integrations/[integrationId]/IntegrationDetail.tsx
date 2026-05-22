@@ -49,7 +49,7 @@ export const IntegrationDetail = ({ integration, mappings, syncRuns }: Integrati
   const [syncProgress, setSyncProgress] = useState<null | SyncProgress>(null);
   const [cleanupPosts, setCleanupPosts] = useState(false);
   const [syncStartedAt, setSyncStartedAt] = useState<null | number>(null);
-  const [elapsedMs, setElapsedMs] = useState(0);
+  const [, setTick] = useState(0);
   const [remoteSyncing, setRemoteSyncing] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
@@ -100,17 +100,13 @@ export const IntegrationDetail = ({ integration, mappings, syncRuns }: Integrati
     };
   }, [integration.id, syncing, router]);
 
-  // Elapsed timer
+  // Elapsed timer: bump a tick every second while a sync runs; elapsedMs is derived.
   useEffect(() => {
-    if (!syncStartedAt) {
-      setElapsedMs(0);
-      return;
-    }
-    const interval = setInterval(() => {
-      setElapsedMs(Date.now() - syncStartedAt);
-    }, 1000);
+    if (!syncStartedAt) return;
+    const interval = setInterval(() => setTick(t => t + 1), 1000);
     return () => clearInterval(interval);
   }, [syncStartedAt]);
+  const elapsedMs = syncStartedAt ? Date.now() - syncStartedAt : 0;
 
   const handleToggleEnabled = useCallback(async () => {
     await updateIntegration({ id: integration.id, enabled: !integration.enabled });

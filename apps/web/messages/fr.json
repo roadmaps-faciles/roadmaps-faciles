@@ -38,6 +38,7 @@
   },
   "common": {
     "save": "Sauvegarder",
+    "saving": "Enregistrement…",
     "cancel": "Annuler",
     "delete": "Supprimer",
     "create": "Créer",
@@ -583,7 +584,16 @@
       "title": "Page principale (Roadmap)",
       "rootBoard": "Board de la page principale",
       "none": "Aucun",
-      "description": "Choisissez le board principal affiché sur la page roadmap."
+      "description": "Choisissez le board principal affiché sur la page roadmap.",
+      "postsListTitle": "Posts visibles sur la roadmap",
+      "postsListDescription": "Renseignez la progression (%) et l'estimation (ex: Q3 2026) affichées sur les cartes publiques.",
+      "colPost": "Post",
+      "colStatus": "Statut",
+      "colProgress": "Progression",
+      "colEta": "Estimation",
+      "etaPlaceholder": "Ex: Q3 2026",
+      "noRoadmapPosts": "Aucun post n'est actuellement visible sur la roadmap.",
+      "progressInvalid": "La progression doit être un entier entre 0 et 100."
     },
     "authentication": {
       "title": "Paramètres d'authentification",
@@ -949,6 +959,37 @@
     "emptyColumn": "Partagez vos retours et revenez plus tard pour découvrir les nouveautés !",
     "empty": "La feuille de route n'est pas encore disponible.",
     "submitFeedback": "Proposer une idée",
+    "hero": {
+      "eyebrow": "Roadmap publique",
+      "title": "Voici ce que nous construisons pour {tenantName}.",
+      "subtitle": "Suivez les chantiers en cours, anticipez ce qui arrive, et votez pour les idées qui comptent le plus.",
+      "ctaSuggest": "Suggérer une idée",
+      "ctaSuggestUnavailable": "Aucun board principal configuré",
+      "ctaSubscribe": "S'abonner aux mises à jour",
+      "ctaSubscribeTooltip": "Bientôt disponible"
+    },
+    "filterBar": {
+      "searchPlaceholder": "Rechercher une feature, une idée…",
+      "sortBy": "Trier par",
+      "sortVotes": "Votes",
+      "sortRecent": "Récents",
+      "sortProgress": "Progression",
+      "allCategories": "Toutes les catégories",
+      "showMoreTags": "+{count} autres",
+      "showLess": "Voir moins"
+    },
+    "column": {
+      "viewAll": "Voir les {count, plural, one {# élément} other {# éléments}}",
+      "showLess": "Réduire"
+    },
+    "card": {
+      "shipped": "Livré · {date}",
+      "eta": "Estimé · {eta}",
+      "etaInline": "{eta}",
+      "commentsCount": "{count, plural, one {# commentaire} other {# commentaires}}",
+      "progressLabel": "Progression"
+    },
+    "noResults": "Aucun résultat ne correspond à votre recherche.",
     "notConfigured": "La feuille de route n'est pas configurée.",
     "adminNoStatusHint": "{count, plural, one {# post a un statut} other {# posts ont un statut}} mais aucun statut n'est configuré comme visible dans la feuille de route.",
     "adminNoStatusLink": "Configurer les statuts"

@@ -1,0 +1,11 @@
+.filterBar {
+    top: var(--sticky-offset, 3.5rem);
+}
+
+.noScrollbar {
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}

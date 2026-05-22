@@ -38,6 +38,7 @@
   },
   "common": {
     "save": "Save",
+    "saving": "Saving…",
     "cancel": "Cancel",
     "delete": "Delete",
     "create": "Create",
@@ -583,7 +584,16 @@
       "title": "Main page (Roadmap)",
       "rootBoard": "Main page board",
       "none": "None",
-      "description": "Choose the main board displayed on the roadmap page."
+      "description": "Choose the main board displayed on the roadmap page.",
+      "postsListTitle": "Posts visible on the roadmap",
+      "postsListDescription": "Set the progress (%) and the estimate (e.g. Q3 2026) displayed on public cards.",
+      "colPost": "Post",
+      "colStatus": "Status",
+      "colProgress": "Progress",
+      "colEta": "Estimate",
+      "etaPlaceholder": "e.g. Q3 2026",
+      "noRoadmapPosts": "No posts are currently visible on the roadmap.",
+      "progressInvalid": "Progress must be an integer between 0 and 100."
     },
     "authentication": {
       "title": "Authentication settings",
@@ -949,6 +959,37 @@
     "emptyColumn": "Share your feedback and come back later to discover what's new!",
     "empty": "The roadmap is not yet available.",
     "submitFeedback": "Submit an idea",
+    "hero": {
+      "eyebrow": "Public roadmap",
+      "title": "Here is what we are building for {tenantName}.",
+      "subtitle": "Track work in progress, anticipate what's coming, and vote for the ideas that matter most.",
+      "ctaSuggest": "Suggest an idea",
+      "ctaSuggestUnavailable": "No primary board configured",
+      "ctaSubscribe": "Subscribe to updates",
+      "ctaSubscribeTooltip": "Coming soon"
+    },
+    "filterBar": {
+      "searchPlaceholder": "Search a feature, an idea…",
+      "sortBy": "Sort by",
+      "sortVotes": "Votes",
+      "sortRecent": "Recent",
+      "sortProgress": "Progress",
+      "allCategories": "All categories",
+      "showMoreTags": "+{count} more",
+      "showLess": "Show less"
+    },
+    "column": {
+      "viewAll": "View {count, plural, one {# item} other {# items}}",
+      "showLess": "Show less"
+    },
+    "card": {
+      "shipped": "Shipped · {date}",
+      "eta": "Estimated · {eta}",
+      "etaInline": "{eta}",
+      "commentsCount": "{count, plural, one {# comment} other {# comments}}",
+      "progressLabel": "Progress"
+    },
+    "noResults": "No results match your search.",
     "notConfigured": "The roadmap is not configured.",
     "adminNoStatusHint": "{count, plural, one {# post has a status} other {# posts have a status}} but no status is configured as visible in the roadmap.",
     "adminNoStatusLink": "Configure statuses"
