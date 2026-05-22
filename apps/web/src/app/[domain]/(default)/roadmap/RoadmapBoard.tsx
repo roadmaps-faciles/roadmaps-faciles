@@ -173,7 +173,9 @@ export const RoadmapBoard = ({
                 label: (
                   <span className="inline-flex items-center gap-1.5">
                     {c.name}
-                    <span className="text-[10px] opacity-60 tabular-nums">{groupedByColumn.get(c.id)?.length ?? 0}</span>
+                    <span className="text-[10px] opacity-60 tabular-nums">
+                      {groupedByColumn.get(c.id)?.length ?? 0}
+                    </span>
                   </span>
                 ),
               }))}
