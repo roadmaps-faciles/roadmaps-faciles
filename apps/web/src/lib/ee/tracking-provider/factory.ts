@@ -20,6 +20,11 @@ export function getTrackingProvider(type: TrackingProviderType): TrackingProvide
       const { matomoTrackingProvider } = require("./matomo/provider") as typeof import("./matomo/provider");
       return matomoTrackingProvider;
     }
+    case "memory": {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { memoryTrackingProvider } = require("./memory/provider") as typeof import("./memory/provider");
+      return memoryTrackingProvider;
+    }
     default: {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { noopTrackingProvider } = require("./noop") as typeof import("./noop");

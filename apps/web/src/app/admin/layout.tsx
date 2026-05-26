@@ -30,12 +30,13 @@ const AdminLayout = async ({ children }: LayoutProps<"/admin">) => {
 
   const userMenu = await getUserMenuContext({ session });
   const isDev = config.env === "dev";
+  const showAnalyticsDebug = config.tracking.provider === "memory";
 
   return (
     <UIProvider value="Default">
       <DefaultThemeForcer />
       <SidebarProvider>
-        <AdminSideMenu userMenu={userMenu} isDev={isDev} />
+        <AdminSideMenu userMenu={userMenu} isDev={isDev} showAnalyticsDebug={showAnalyticsDebug} />
         <SidebarInset id="content" className="max-h-svh overflow-x-hidden overflow-y-auto">
           <header className="sticky top-0 z-10 flex h-12 items-center border-b bg-background px-4 md:hidden">
             <span className="truncate text-sm font-semibold">Administration</span>

@@ -12,7 +12,7 @@ export const PublicFooter = async ({ id }: PublicFooterProps) => {
   const t = await getTranslations("footer");
 
   const bottomItems =
-    config.tracking.provider === "noop"
+    config.tracking.provider === "noop" || config.tracking.provider === "memory"
       ? [<FooterPersonalDataPolicyItem key="rgpd" />]
       : [<FooterPersonalDataPolicyItem key="rgpd" />, <FooterConsentManagementItem key="consent" />];
 

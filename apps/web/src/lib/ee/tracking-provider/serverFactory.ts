@@ -15,5 +15,10 @@ export async function getServerTrackingProvider(): Promise<IServerTrackingProvid
     return postHogServerTrackingProvider;
   }
 
+  if (config.tracking.provider === "memory") {
+    const { memoryServerTrackingProvider } = await import("./memory/server");
+    return memoryServerTrackingProvider;
+  }
+
   return noopServerTrackingProvider;
 }

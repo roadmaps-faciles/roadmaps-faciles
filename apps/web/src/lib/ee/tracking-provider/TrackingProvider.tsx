@@ -38,7 +38,9 @@ export function TrackingProvider({ children, matomo, posthog, providerType }: Tr
         ? isConsented("posthog")
         : providerType === "matomo"
           ? isConsented("matomo")
-          : false;
+          : providerType === "memory"
+            ? true
+            : false;
 
   // PostHog needs to wrap children (it's a React Context Provider)
   // Matomo is a side-effect-only component (renders nothing)

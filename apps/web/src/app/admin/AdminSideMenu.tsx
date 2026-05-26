@@ -2,6 +2,7 @@
 
 import {
   Building2,
+  ChartLine,
   Database,
   KeyRound,
   LayoutDashboard,
@@ -22,10 +23,11 @@ import { AdminSidebar, type NavGroup, type UserMenuData } from "@/ui/AdminSideba
 
 interface AdminSideMenuProps {
   isDev: boolean;
+  showAnalyticsDebug: boolean;
   userMenu: UserMenuData;
 }
 
-export const AdminSideMenu = ({ userMenu, isDev }: AdminSideMenuProps) => {
+export const AdminSideMenu = ({ userMenu, isDev, showAnalyticsDebug }: AdminSideMenuProps) => {
   const t = useTranslations("rootAdmin");
 
   const groups: NavGroup[] = [
@@ -58,6 +60,9 @@ export const AdminSideMenu = ({ userMenu, isDev }: AdminSideMenuProps) => {
       items: [
         { label: t("config.menu"), href: "/admin/config", icon: Settings2 },
         { label: t("emailTest.menu"), href: "/admin/email-test", icon: Mail },
+        ...(showAnalyticsDebug
+          ? [{ label: t("analyticsDebug.menu"), href: "/admin/analytics-debug", icon: ChartLine }]
+          : []),
         ...(isDev ? [{ label: t("devTools.menu"), href: "/admin/dev-tools", icon: Wrench }] : []),
       ],
     },
