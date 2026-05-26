@@ -1,6 +1,8 @@
-import { cn } from "@roadmaps-faciles/ui";
+import { Badge } from "@codegouvfr/react-dsfr/Badge";
+import { cx } from "@codegouvfr/react-dsfr/tools/cx";
 
 import { type PostStatusColor } from "@/lib/model/PostStatus";
+import { getTone, TONE_TO_DSFR_SEVERITY } from "@/lib/utils/postStatusTone";
 
 export interface UIRoadmapColumnHeaderDsfrProps {
   color: null | PostStatusColor;
@@ -9,12 +11,14 @@ export interface UIRoadmapColumnHeaderDsfrProps {
 }
 
 export const UIRoadmapColumnHeaderDsfr = ({ color, label, count }: UIRoadmapColumnHeaderDsfrProps) => {
-  // globals.scss generates `.fr-roadmap-column--color-{camelCaseKey}` so we feed the raw enum value, not the kebab map
-  const dsfrClass = color ? `fr-roadmap-column--color-${color}` : undefined;
+  const severity = TONE_TO_DSFR_SEVERITY[getTone(color)];
+
   return (
-    <div className={cn(dsfrClass, "flex items-center justify-between gap-2 rounded-[10px] px-3 py-2.5")}>
-      <span className="text-[11px] font-bold uppercase tracking-wider">{label}</span>
-      <span className="text-[11px] font-semibold tabular-nums opacity-70">{count}</span>
-    </div>
+    <h2 className={cx("fr-h6 fr-mb-2w", "flex items-center gap-2")}>
+      {label}
+      <Badge severity={severity ?? undefined} small noIcon={severity === null}>
+        {String(count)}
+      </Badge>
+    </h2>
   );
 };

@@ -85,3 +85,14 @@ export const ROADMAP_TONE_CLASSES: Record<RoadmapTone, ToneClasses> = {
 
 export const getTone = (color: null | PostStatusColor): RoadmapTone =>
   color ? POST_STATUS_COLOR_TONE[color] : "muted";
+
+export type DsfrBadgeSeverity = "error" | "info" | "new" | "success" | "warning";
+
+export const TONE_TO_DSFR_SEVERITY: Record<RoadmapTone, DsfrBadgeSeverity | null> = {
+  primary: "info",
+  success: "success",
+  warning: "warning",
+  destructive: "error",
+  accent: "new",
+  muted: null,
+};

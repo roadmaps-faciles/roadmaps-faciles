@@ -969,7 +969,9 @@
       "ctaSubscribeTooltip": "Bientôt disponible"
     },
     "filterBar": {
+      "searchLabel": "Rechercher",
       "searchPlaceholder": "Rechercher une feature, une idée…",
+      "categoriesLabel": "Catégories",
       "sortBy": "Trier par",
       "sortVotes": "Votes",
       "sortRecent": "Récents",

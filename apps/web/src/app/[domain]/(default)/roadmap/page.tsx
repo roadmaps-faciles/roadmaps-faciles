@@ -97,6 +97,7 @@ const RoadmapPage = DomainPageHOP()(async props => {
       alreadyLiked: post.likes.some(l => (userId && l.userId === userId) || l.anonymousId === anonymousId),
       boardName: post.board.name,
       statusColor: post.postStatus?.color ?? null,
+      statusName: post.postStatus?.name ?? null,
       postStatusId: post.postStatusId,
       createdAt: post.createdAt,
       postUrl: dirtyDomainFixer(`/post/${post.id}`),

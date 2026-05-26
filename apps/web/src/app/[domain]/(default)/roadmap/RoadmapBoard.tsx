@@ -1,15 +1,16 @@
 "use client";
 
-import { Button } from "@roadmaps-faciles/ui/components/button";
 import { cn } from "@roadmaps-faciles/ui/lib/cn";
 import { useIsMobile } from "@roadmaps-faciles/ui/lib/use-mobile";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronRight, ChevronUp } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { type PostStatusColor } from "@/lib/model/PostStatus";
-import { UIAlert, UIRoadmapColumnHeader, UISegmentedTabs } from "@/ui/bridge";
+import { useUI } from "@/ui";
+import { UIAlert, UIButton, UIRoadmapColumnHeader, UISegmentedTabs } from "@/ui/bridge";
 
+import emptyStyles from "./RoadmapBoard.module.scss";
 import { type AvailableTag, type RoadmapFilter, RoadmapFilterBar, type RoadmapSort } from "./RoadmapFilterBar";
 import { RoadmapPostCard, type RoadmapPostCardData } from "./RoadmapPostCard";
 
@@ -66,6 +67,7 @@ export const RoadmapBoard = ({
 }: RoadmapBoardProps) => {
   const t = useTranslations("roadmap");
   const isMobile = useIsMobile();
+  const theme = useUI();
   const [filter, setFilter] = useState<RoadmapFilter>({
     search: "",
     selectedTag: null,
@@ -103,8 +105,20 @@ export const RoadmapBoard = ({
         <UIRoadmapColumnHeader color={col.color} label={col.name} count={allPosts.length} />
         <div className="flex-1 flex flex-col gap-3">
           {visible.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border/40 px-4 py-6 text-center">
-              <p className="text-xs text-muted-foreground text-balance">{emptyMessage}</p>
+            <div
+              className={
+                theme === "Dsfr"
+                  ? emptyStyles.emptyState
+                  : "rounded-xl border border-dashed border-border/40 px-4 py-6 text-center"
+              }
+            >
+              <p
+                className={
+                  theme === "Dsfr" ? "fr-text--sm fr-text--center fr-m-0" : "text-xs text-muted-foreground text-balance"
+                }
+              >
+                {emptyMessage}
+              </p>
             </div>
           ) : (
             visible.map(post => (
@@ -119,11 +133,10 @@ export const RoadmapBoard = ({
             ))
           )}
           {hasMore && (
-            <Button
-              type="button"
+            <UIButton
               variant="ghost"
               size="sm"
-              className="mt-auto justify-between border-t border-border/40 rounded-none rounded-b-[10px] pt-3 text-muted-foreground hover:text-foreground"
+              className="mt-auto"
               onClick={() => setExpandedColumns(prev => ({ ...prev, [col.id]: !expanded }))}
               aria-expanded={expanded}
             >
@@ -135,10 +148,10 @@ export const RoadmapBoard = ({
               ) : (
                 <>
                   <span>{t("column.viewAll", { count: allPosts.length })}</span>
-                  <ChevronDown className="size-3.5" aria-hidden="true" />
+                  <ChevronRight className="size-3.5" aria-hidden="true" />
                 </>
               )}
-            </Button>
+            </UIButton>
           )}
         </div>
       </div>
