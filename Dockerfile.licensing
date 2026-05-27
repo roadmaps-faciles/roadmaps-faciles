@@ -43,10 +43,12 @@ RUN --mount=type=secret,id=GIT_CRYPT_KEY_B64,target=/tmp/git-crypt.key.b64 \
     fi \
     && base64 -d /tmp/git-crypt.key.b64 > /tmp/git-crypt.key \
     && git-crypt unlock /tmp/git-crypt.key \
-    && echo "Encrypted files detected by git-crypt :" \
-    && git-crypt status -e 2>&1 | head -5 \
-    && rm -rf apps/licensing \
-    && git checkout HEAD -- apps/licensing \
+    && echo "=== Manual smudge (git checkout ne re-écrit pas les fichiers identiques aux blobs) ===" \
+    && find apps/licensing -type f | while read -r f; do \
+         if head -c 9 "$f" 2>/dev/null | grep -q 'GITCRYPT'; then \
+           git-crypt smudge < "$f" > "$f.dec" && mv "$f.dec" "$f" ; \
+         fi ; \
+       done \
     && if head -c 8 apps/licensing/prisma.config.ts | grep -q '^import'; then \
          echo "OK: apps/licensing/prisma.config.ts decrypted (starts with 'import')" ; \
        else \
