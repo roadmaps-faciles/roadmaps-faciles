@@ -1,0 +1,21 @@
+name: "Roadmaps Faciles CodeQL config"
+
+paths:
+  - apps
+  - packages
+
+paths-ignore:
+  - "**/node_modules/**"
+  - "**/.next/**"
+  - "**/.turbo/**"
+  - "**/dist/**"
+  - "**/build/**"
+  - "**/coverage/**"
+  - "**/storybook-static/**"
+  - "apps/web/src/generated/**"
+  - "apps/web/public/**"
+  - "apps/web/messages/**"
+  - "apps/web/content/docs/**"
+  - "**/*.stories.tsx"
+  - "**/*.stories.ts"
+  - "**/teste2e/**"
