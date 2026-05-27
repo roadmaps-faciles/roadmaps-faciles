@@ -9,11 +9,13 @@ import packageJson from "./package.json" with { type: "json" };
 
 const { version } = packageJson;
 
-const isDeployment = !!process.env.SOURCE_VERSION;
+// SOURCE_VERSION (Scalingo) / SOURCE_COMMIT (Coolify) : git commit hash injecté au build par le PaaS
+const sourceCommit = process.env.SOURCE_VERSION || process.env.SOURCE_COMMIT;
+const isDeployment = !!sourceCommit;
 
 const env = {
   NEXT_PUBLIC_APP_VERSION: version,
-  NEXT_PUBLIC_APP_VERSION_COMMIT: isDeployment ? process.env.SOURCE_VERSION : "dev",
+  NEXT_PUBLIC_APP_VERSION_COMMIT: isDeployment ? sourceCommit : "dev",
   NEXT_PUBLIC_APP_ENV: process.env.APP_ENV || "dev",
 };
 
