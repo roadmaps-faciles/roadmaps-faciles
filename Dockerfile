@@ -92,6 +92,9 @@ RUN addgroup -g 1001 -S nodejs && adduser -S -u 1001 -G nodejs nextjs
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 # Schema + migrations Prisma pour migrate deploy au démarrage
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/prisma ./apps/web/prisma
+# prisma.config.ts (TypeScript, chargé par Prisma 7 built-in TS loader) — fournit
+# datasource.url depuis process.env.DATABASE_URL, sans quoi migrate deploy refuse.
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/prisma.config.ts ./apps/web/prisma.config.ts
 
 COPY --chown=nextjs:nodejs scripts/docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
