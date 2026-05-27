@@ -44,6 +44,13 @@ ARG NEXT_PUBLIC_POSTHOG_KEY
 ARG NEXT_PUBLIC_POSTHOG_HOST
 ARG NEXT_PUBLIC_REPOSITORY_URL
 
+# Le provider NextAuth EspaceMembre (cf src/lib/gouv/espaceMembre.ts) instancie un client
+# au top-level qui throw si pas d'API key, ce qui pète `next build`. Valeur fake suffit
+# au build, Coolify pousse la vraie env au runtime.
+# TODO: lazy-init du client pour ne pas dépendre d'env var au build.
+ARG ESPACE_MEMBRE_API_KEY=fakesecret
+ENV ESPACE_MEMBRE_API_KEY=${ESPACE_MEMBRE_API_KEY}
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
 COPY --from=deps /app/packages/ui/node_modules ./packages/ui/node_modules
