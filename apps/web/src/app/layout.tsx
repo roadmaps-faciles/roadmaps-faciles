@@ -52,28 +52,19 @@ const RootLayout = async ({ children }: LayoutProps<"/">) => {
   let effectiveFlags: FeatureFlagsMap = { ...FEATURE_FLAGS };
   let dbError: Error | null = null;
 
-  // Skip auth() + DB queries pendant le build Next.js. Si DATABASE_URL est set au build
-  // (cas Coolify avec "Is Build Variable") et que la DB est joignable mais les tables
-  // pas encore migrées (migrations tournent à l'entrypoint runtime), Prisma plante avec
-  // P2021 ("Table not found") qui n'est pas catché comme "DB unavailable" → rethrow →
-  // fail sur le prerender de /_not-found. Les défaults (session=null, flags par défaut)
-  // suffisent pour le prerender statique.
-  const isBuildPhase = process.env.NEXT_PHASE === "phase-production-build";
-  if (!isBuildPhase) {
-    try {
-      session = await auth();
-      effectiveFlags = await getEffectiveFlags(session);
-    } catch (error) {
-      if (error instanceof Error && isDatabaseUnavailableError(error)) {
-        logger.error({ err: error }, "RootLayout: database unavailable, rendering 503 fallback");
-        Sentry.captureException(error);
-        const plain = new Error(error.message);
-        plain.name = error.name;
-        plain.stack = error.stack;
-        dbError = plain;
-      } else {
-        throw error;
-      }
+  try {
+    session = await auth();
+    effectiveFlags = await getEffectiveFlags(session);
+  } catch (error) {
+    if (error instanceof Error && isDatabaseUnavailableError(error)) {
+      logger.error({ err: error }, "RootLayout: database unavailable, rendering 503 fallback");
+      Sentry.captureException(error);
+      const plain = new Error(error.message);
+      plain.name = error.name;
+      plain.stack = error.stack;
+      dbError = plain;
+    } else {
+      throw error;
     }
   }
 
