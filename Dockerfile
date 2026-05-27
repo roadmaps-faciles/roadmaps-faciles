@@ -1,4 +1,11 @@
 # syntax=docker/dockerfile:1.7
+#
+# Image multi-usage :
+#   - SaaS prod (roadmaps-faciles.fr) : déployée avec Dockerfile.licensing à côté
+#   - Self-host (ADEME, AGPL) : déployée seule, sans licensing server
+#     (apps/licensing est BSL 1.1 et chiffré git-crypt, indispo aux self-hosters).
+#     Mode "gracieux sans clé" géré au runtime via getEffectiveLicenseKey().
+#
 # Build args :
 #   INCLUDE_PSQL=1      Inclut postgresql-client dans l'image runner (review apps uniquement,
 #                       pour permettre la création de DB par PR depuis l'entrypoint).
