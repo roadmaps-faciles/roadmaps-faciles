@@ -15,9 +15,24 @@ services:
   web:
     image: ghcr.io/roadmaps-faciles/roadmaps-faciles-web:${WEB_IMAGE_TAG:-chore-coolify-bootstrap}
     restart: unless-stopped
+    networks:
+      - default
+      - coolify
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/healthz"]
+      # Utiliser 127.0.0.1 explicite (IPv4) car Next écoute sur 0.0.0.0 (IPv4 all)
+      # mais `localhost` peut résoudre vers ::1 (IPv6) selon /etc/hosts du container,
+      # ce qui produit un "Connection refused" alors que le serveur tourne bien.
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/healthz"]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 30s
+
+networks:
+  # Network external partagé par les services Coolify (Postgres, Redis, licensing, Garage).
+  # Le nom exact du network dépend de la conf Coolify : souvent "coolify" ou le slug du
+  # project. Vérifier via `docker network ls` sur le serveur et adapter `name` ci-dessous
+  # si besoin (ex: name: roadmaps-faciles si ton project Coolify s'appelle comme ça).
+  coolify:
+    external: true
+    name: coolify
