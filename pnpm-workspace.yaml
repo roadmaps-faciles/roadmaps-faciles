@@ -20,6 +20,8 @@ overrides:
   eslint: "^9"
   hono: "^4.11.10"
   "lodash@<4.17.23": "^4.17.23"
+  "@hono/node-server": "^1.19.14"
+  "postcss@<8.5.10": "^8.5.10"
 
 ignoreDepScripts: true
 childConcurrency: 10
