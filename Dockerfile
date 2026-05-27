@@ -96,6 +96,23 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/prisma ./apps/web/prisma
 # datasource.url depuis process.env.DATABASE_URL, sans quoi migrate deploy refuse.
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/prisma.config.ts ./apps/web/prisma.config.ts
 
+# Symlinks vers /opt/prisma-cli pour que le module resolver Node trouve `prisma/config`
+# quand prisma.config.ts fait `import { defineConfig } from "prisma/config"`. PATH suffit
+# pour exécuter le binaire CLI, mais Node lookups passent par les node_modules locaux.
+# On lie aux 2 niveaux possibles (root standalone et apps/web) pour couvrir tous les CWD.
+RUN mkdir -p /app/node_modules/.bin /app/node_modules/@prisma \
+              /app/apps/web/node_modules/.bin /app/apps/web/node_modules/@prisma \
+    && ln -sf /opt/prisma-cli/node_modules/prisma /app/node_modules/prisma \
+    && ln -sf /opt/prisma-cli/node_modules/prisma /app/apps/web/node_modules/prisma \
+    && for d in /opt/prisma-cli/node_modules/@prisma/*; do \
+         name=$(basename "$d"); \
+         [ ! -e "/app/node_modules/@prisma/$name" ] && ln -sf "$d" "/app/node_modules/@prisma/$name" || true; \
+         [ ! -e "/app/apps/web/node_modules/@prisma/$name" ] && ln -sf "$d" "/app/apps/web/node_modules/@prisma/$name" || true; \
+       done \
+    && ln -sf /opt/prisma-cli/node_modules/.bin/prisma /app/node_modules/.bin/prisma \
+    && ln -sf /opt/prisma-cli/node_modules/.bin/prisma /app/apps/web/node_modules/.bin/prisma \
+    && chown -RP nextjs:nodejs /opt/prisma-cli
+
 COPY --chown=nextjs:nodejs scripts/docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
