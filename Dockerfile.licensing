@@ -21,7 +21,20 @@ FROM alpine AS source-decrypt
 RUN apk add --no-cache git git-crypt
 WORKDIR /repo
 COPY . .
-RUN git config --global --add safe.directory /repo
+
+# Coolify fait un git archive (pas un clone) → pas de .git dans le contexte → git-crypt
+# unlock plante. On init un repo git temporaire pour qu'il puisse appliquer les filters.
+# En local on COPY le .git (cf .dockerignore qui le permet), donc on détecte les 2 cas.
+RUN git config --global --add safe.directory /repo \
+    && git config --global user.email build@docker.local \
+    && git config --global user.name "Docker build" \
+    && if [ -d .git ]; then \
+         git reset --hard HEAD ; \
+       else \
+         git init -q \
+         && git add -A \
+         && git commit -q -m "tmp build repo" ; \
+       fi
 
 RUN --mount=type=secret,id=GIT_CRYPT_KEY_B64,target=/tmp/git-crypt.key.b64 \
     if [ ! -s /tmp/git-crypt.key.b64 ]; then \
@@ -29,7 +42,6 @@ RUN --mount=type=secret,id=GIT_CRYPT_KEY_B64,target=/tmp/git-crypt.key.b64 \
       exit 1 ; \
     fi \
     && base64 -d /tmp/git-crypt.key.b64 > /tmp/git-crypt.key \
-    && git reset --hard HEAD \
     && git-crypt unlock /tmp/git-crypt.key \
     && rm -rf .git /tmp/git-crypt.key
 
