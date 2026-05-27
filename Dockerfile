@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.7
+# syntax=docker/dockerfile:1
 #
 # Image multi-usage :
 #   - SaaS prod (roadmaps-faciles.fr) : déployée avec Dockerfile.licensing à côté
