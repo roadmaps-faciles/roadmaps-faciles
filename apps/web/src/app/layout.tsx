@@ -52,19 +52,30 @@ const RootLayout = async ({ children }: LayoutProps<"/">) => {
   let effectiveFlags: FeatureFlagsMap = { ...FEATURE_FLAGS };
   let dbError: Error | null = null;
 
-  try {
-    session = await auth();
-    effectiveFlags = await getEffectiveFlags(session);
-  } catch (error) {
-    if (error instanceof Error && isDatabaseUnavailableError(error)) {
-      logger.error({ err: error }, "RootLayout: database unavailable, rendering 503 fallback");
-      Sentry.captureException(error);
-      const plain = new Error(error.message);
-      plain.name = error.name;
-      plain.stack = error.stack;
-      dbError = plain;
-    } else {
-      throw error;
+  // Skip auth() + DB queries pendant le build Next.js. Sur CI (GHA) ou tout autre env de
+  // build sans accès à la DB, Next prerender les routes (incluant /_not-found, /api/auth/*,
+  // etc.) en appelant le RootLayout. auth() plante alors avec erreur non-DB (ex: P2021
+  // "Table not found" si DB joignable mais pas migrée, ou crashes NextAuth si config
+  // incomplète au build). Ces erreurs ne sont pas catchées par isDatabaseUnavailableError
+  // → rethrow → "Failed to collect page data". Solution : détecter le build phase via
+  // NEXT_PHASE et skip les calls qui dépendent du runtime. Au runtime, NEXT_PHASE vaut
+  // "phase-production-server" et on entre dans le try/catch normal.
+  const isBuildPhase = process.env.NEXT_PHASE === "phase-production-build";
+  if (!isBuildPhase) {
+    try {
+      session = await auth();
+      effectiveFlags = await getEffectiveFlags(session);
+    } catch (error) {
+      if (error instanceof Error && isDatabaseUnavailableError(error)) {
+        logger.error({ err: error }, "RootLayout: database unavailable, rendering 503 fallback");
+        Sentry.captureException(error);
+        const plain = new Error(error.message);
+        plain.name = error.name;
+        plain.stack = error.stack;
+        dbError = plain;
+      } else {
+        throw error;
+      }
     }
   }
 

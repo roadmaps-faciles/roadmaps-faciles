@@ -26,38 +26,18 @@ env:
 
 jobs:
   build:
-    name: Build ${{ matrix.app }}
+    name: Build web
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - app: web
-            dockerfile: Dockerfile
-            image: roadmaps-faciles-web
-            needs_git_crypt: false
-          - app: licensing
-            dockerfile: Dockerfile.licensing
-            image: roadmaps-faciles-licensing
-            needs_git_crypt: true
+    # Note : seul l'image web est buildée ici et push GHCR. L'app licensing reste
+    # build par Coolify avec son stage source-decrypt (BuildKit secret GIT_CRYPT_KEY_B64).
+    # Raison : éviter d'exposer le code BSL compilé via un registry (même privé).
+    env:
+      APP: web
+      DOCKERFILE: Dockerfile
+      IMAGE: roadmaps-faciles-web
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Unlock git-crypt
-        if: matrix.needs_git_crypt
-        env:
-          GIT_CRYPT_KEY: ${{ secrets.GIT_CRYPT_KEY }}
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y git-crypt
-          echo "$GIT_CRYPT_KEY" | base64 -d | git-crypt unlock -
-          # Verify decrypt OK
-          if ! head -c 8 apps/licensing/prisma.config.ts | grep -q '^import'; then
-            echo "ERROR: apps/licensing/prisma.config.ts still encrypted after unlock" >&2
-            exit 1
-          fi
-          echo "OK: git-crypt unlocked, apps/licensing/** in clear"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -73,7 +53,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ matrix.image }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ env.IMAGE }}
           # Tags : sha-court + branch + semver tag
           tags: |
             type=sha,format=short,prefix=
@@ -82,16 +62,16 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
           labels: |
-            org.opencontainers.image.title=${{ matrix.image }}
-            org.opencontainers.image.description=Roadmaps Faciles ${{ matrix.app }} image
+            org.opencontainers.image.title=${{ env.IMAGE }}
+            org.opencontainers.image.description=Roadmaps Faciles ${{ env.APP }} image
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
 
-      - name: Build and push ${{ matrix.app }}
+      - name: Build and push ${{ env.APP }}
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./${{ matrix.dockerfile }}
+          file: ./${{ env.DOCKERFILE }}
           push: ${{ github.event_name != 'workflow_dispatch' || inputs.push }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -101,6 +81,6 @@ jobs:
             NEXT_PUBLIC_BRAND_NAME=Roadmaps Faciles
             NEXT_PUBLIC_TRACKING_PROVIDER=noop
             NEXT_PUBLIC_REPOSITORY_URL=https://github.com/${{ github.repository }}
-          cache-from: type=gha,scope=docker-${{ matrix.app }}
-          cache-to: type=gha,scope=docker-${{ matrix.app }},mode=max
+          cache-from: type=gha,scope=docker-${{ env.APP }}
+          cache-to: type=gha,scope=docker-${{ env.APP }},mode=max
           platforms: linux/amd64

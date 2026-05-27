@@ -11,7 +11,8 @@ node_modules
 **/*.tsbuildinfo
 
 # Git et meta
-.git
+# .git inclus (pas exclu) pour le stage source-decrypt de Dockerfile.licensing :
+# git-crypt unlock nécessite un working tree git valide. Jamais copié dans l'image finale.
 .git-crypt
 .gitattributes
 .gitignore
