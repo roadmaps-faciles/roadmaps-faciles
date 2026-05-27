@@ -4,29 +4,34 @@ ARG NODE_VERSION=24-alpine
 
 # Stage 0 : déchiffrement git-crypt.
 # apps/licensing/** est chiffré git-crypt dans le repo (protection code BSL).
-# La clé git-crypt symétrique (binaire) est passée via BuildKit secret (jamais visible dans
-# les logs ou `docker history`, contrairement à un ARG). Le COPY . . copie les fichiers mais
-# git voit le working tree comme "dirty" (modes différents), d'où le `git reset --hard` avant
-# unlock. Stage transient : la clé n'apparaît jamais dans l'image finale.
+# La clé git-crypt symétrique (binaire ~148 bytes) est passée via BuildKit secret encodée
+# base64 (env vars Coolify = text, donc base64 obligatoire pour binaire). Le secret n'apparaît
+# jamais dans les logs ni `docker history`. Stage transient : .git et clé jetés à la fin,
+# l'image finale (stage runner) ne contient que les artefacts compilés.
 #
-# Côté build :
-#   docker build --secret id=git_crypt_key,src=/path/to/binary-key.file -f Dockerfile.licensing .
 # Côté Coolify :
-#   Configurer un Build Secret nommé "git_crypt_key" pointant vers le fichier binaire.
+#   1. Créer une env var GIT_CRYPT_KEY_B64 = <base64 du fichier binaire `git-crypt export-key`>
+#   2. Activer le toggle "Use Docker Build Secrets" sur cette env var
+#   Coolify rewrite automatiquement le build en --secret id=GIT_CRYPT_KEY_B64,env=GIT_CRYPT_KEY_B64
+#
+# Côté build local (test) :
+#   export GIT_CRYPT_KEY_B64=$(base64 < /path/to/git-crypt-key.bin | tr -d '\n')
+#   docker build --secret id=GIT_CRYPT_KEY_B64,env=GIT_CRYPT_KEY_B64 -f Dockerfile.licensing .
 FROM alpine AS source-decrypt
 RUN apk add --no-cache git git-crypt
 WORKDIR /repo
 COPY . .
 RUN git config --global --add safe.directory /repo
 
-RUN --mount=type=secret,id=git_crypt_key,target=/tmp/git-crypt.key \
-    if [ ! -s /tmp/git-crypt.key ]; then \
-      echo "ERROR: BuildKit secret 'git_crypt_key' required to decrypt apps/licensing/**" >&2 ; \
+RUN --mount=type=secret,id=GIT_CRYPT_KEY_B64,target=/tmp/git-crypt.key.b64 \
+    if [ ! -s /tmp/git-crypt.key.b64 ]; then \
+      echo "ERROR: BuildKit secret 'GIT_CRYPT_KEY_B64' required to decrypt apps/licensing/**" >&2 ; \
       exit 1 ; \
     fi \
+    && base64 -d /tmp/git-crypt.key.b64 > /tmp/git-crypt.key \
     && git reset --hard HEAD \
     && git-crypt unlock /tmp/git-crypt.key \
-    && rm -rf .git
+    && rm -rf .git /tmp/git-crypt.key
 
 FROM node:${NODE_VERSION} AS base
 # corepack enable crée les shims, la version pnpm est résolue depuis package.json#packageManager
