@@ -43,6 +43,13 @@ RUN --mount=type=secret,id=GIT_CRYPT_KEY_B64,target=/tmp/git-crypt.key.b64 \
     fi \
     && base64 -d /tmp/git-crypt.key.b64 > /tmp/git-crypt.key \
     && git-crypt unlock /tmp/git-crypt.key \
+    && git checkout HEAD -- . \
+    && if head -c 8 apps/licensing/prisma.config.ts | grep -q '^import'; then \
+         echo "OK: apps/licensing/prisma.config.ts decrypted (starts with 'import')" ; \
+       else \
+         echo "ERROR: apps/licensing/prisma.config.ts still appears encrypted" >&2 ; \
+         exit 1 ; \
+       fi \
     && rm -rf .git /tmp/git-crypt.key
 
 FROM node:${NODE_VERSION} AS base
