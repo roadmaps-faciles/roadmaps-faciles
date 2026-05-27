@@ -2,21 +2,27 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+
+    --z-sticky: 501;
+    --z-modal-overlay: 1750;
+    --z-modal: 1800;
 }
 
-/* Default/shadcn theme — use shadcn tokens (applied on <html>) */
+/* Default/shadcn theme - use shadcn tokens (applied on <html>) */
 :global([data-ui-theme="Default"]).app {
     background-color: var(--background);
     color: var(--foreground);
+    --header-scroll-offset: 7.5rem;
 }
 
-/* DSFR theme — use DSFR tokens (applied on <html>) */
+/* DSFR theme - use DSFR tokens (applied on <html>) */
 :global([data-ui-theme="Dsfr"]).app {
     background-color: var(--background-default-grey);
     --idle: transparent;
     --hover: var(--background-default-grey-hover);
     --active: var(--background-default-grey-active);
     color: var(--text-default-grey);
+    --header-scroll-offset: 8rem;
 }
 
 .content {

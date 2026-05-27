@@ -6,11 +6,9 @@ import { Badge } from "@roadmaps-faciles/ui/components/badge";
 import { Button } from "@roadmaps-faciles/ui/components/button";
 import { Label } from "@roadmaps-faciles/ui/components/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@roadmaps-faciles/ui/components/table";
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, Copy } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
-import UseAnimations from "react-useanimations";
-import checkmark from "react-useanimations/lib/checkmark";
 
 import { type UserOnTenantWithUser } from "@/lib/repo/IUserOnTenantRepo";
 import { UserRole, UserStatus } from "@/prisma/enums";
@@ -361,17 +359,16 @@ export const MembersList = ({
                       title={member.userId}
                       onClick={() => handleCopyId(member.userId)}
                     >
-                      <UseAnimations
-                        animation={checkmark}
-                        size={16}
-                        reverse={copiedId === member.userId}
-                        strokeColor="currentColor"
-                      />
+                      {copiedId === member.userId ? (
+                        <Check className="size-4 text-primary" />
+                      ) : (
+                        <Copy className="size-4" />
+                      )}
                     </Button>
                   </TableCell>
                   <TableCell>
                     <span className="flex items-center gap-2">
-                      {member.user.name ?? "—"}
+                      {member.user.name ?? "-"}
                       {isSelf(member) && (
                         <Badge variant="outline" className="text-xs">
                           {t("you")}

@@ -191,7 +191,7 @@ export const BillingPanel = ({
         <div key={sub.id} className="space-y-4 rounded-lg border p-6">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">
-              {t("subscriptionDetail")} — {t(sub.interval)}
+              {t("subscriptionDetail")} - {t(sub.interval)}
             </h3>
             <UIBadge variant={sub.cancelAtPeriodEnd ? "outline" : "default"}>
               {sub.cancelAtPeriodEnd ? t("cancellingStatus") : sub.status}
@@ -281,7 +281,7 @@ export const BillingPanel = ({
                   <div className="mt-1 space-y-0.5">
                     {invoice.lineItems.map((line, i) => (
                       <p key={i} className="text-xs text-muted-foreground">
-                        {line.description} — {formatPrice(line.amount, invoice.currency, locale)}
+                        {line.description} - {formatPrice(line.amount, invoice.currency, locale)}
                       </p>
                     ))}
                   </div>

@@ -7,14 +7,7 @@ import { DsfrPage } from "@/gouv/dsfr/layout/DsfrPage";
 import { OAuthButtons } from "./OAuthButtons";
 
 interface TenantLoginDsfrProps {
-  bridgeLink: string;
-  bridgePrompt: string;
-  bridgeSignupLabel?: string;
-  bridgeSignupUrl?: string;
-  bridgeUrl: string;
   children: ReactNode;
-  fromRoot?: boolean;
-  nonMemberBanner?: { description: string; title: string };
   oauthPrompt: string;
   passwordlessLink?: string;
   passwordlessUrl?: string;
@@ -25,14 +18,7 @@ interface TenantLoginDsfrProps {
 }
 
 export const TenantLoginDsfr = ({
-  bridgeUrl,
-  bridgePrompt,
-  bridgeLink,
-  bridgeSignupUrl,
-  bridgeSignupLabel,
   children,
-  fromRoot,
-  nonMemberBanner,
   oauthPrompt,
   passwordlessLink,
   passwordlessUrl,
@@ -50,18 +36,6 @@ export const TenantLoginDsfr = ({
               <GridCol md={9} lg={8}>
                 <h1>{title}</h1>
 
-                {fromRoot && nonMemberBanner && (
-                  <div className="fr-callout fr-callout--blue-ecume fr-mb-4w">
-                    <p className="fr-callout__title">{nonMemberBanner.title}</p>
-                    <p className="fr-callout__text">{nonMemberBanner.description}</p>
-                    {bridgeSignupUrl && (
-                      <a href={bridgeSignupUrl} className="fr-btn fr-mt-2w">
-                        {bridgeSignupLabel}
-                      </a>
-                    )}
-                  </div>
-                )}
-
                 <Box>{children}</Box>
                 {providerNames.length > 0 && (
                   <>
@@ -70,16 +44,13 @@ export const TenantLoginDsfr = ({
                     <OAuthButtons providers={providerNames} />
                   </>
                 )}
-                <hr className="fr-mt-4w fr-pb-2w" />
                 {passwordlessUrl && passwordlessLink && (
-                  <p className="fr-text--sm">
-                    <a href={passwordlessUrl}>{passwordlessLink}</a>
-                  </p>
-                )}
-                {!fromRoot && bridgeUrl && (
-                  <p className="fr-text--sm">
-                    {bridgePrompt} <a href={bridgeUrl}>{bridgeLink}</a>
-                  </p>
+                  <>
+                    <hr className="fr-mt-4w fr-pb-2w" />
+                    <p className="fr-text--sm">
+                      <a href={passwordlessUrl}>{passwordlessLink}</a>
+                    </p>
+                  </>
                 )}
                 {signupUrl && signupLink && (
                   <>

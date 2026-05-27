@@ -5,7 +5,7 @@ import { type PropsWithChildren } from "react";
 
 interface LikeButtonDsfrProps {
   liked: boolean;
-  onClickAction: () => void;
+  onClickAction: (e: React.MouseEvent) => void;
   size?: "default" | "sm";
 }
 

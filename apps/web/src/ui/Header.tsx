@@ -29,7 +29,7 @@ export interface HeaderProps {
 }
 
 /**
- * Unified header — root and tenant variants.
+ * Unified header - root and tenant variants.
  *
  * Root: h-16, max-w-7xl, brandName ReactNode (icon + name + badge).
  * Tenant: h-14, container, serviceName string.
@@ -54,7 +54,7 @@ export const Header = ({
       className={cn(
         "z-50 w-full border-b",
         isRoot
-          ? "sticky top-0 border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+          ? "sticky top-0 border-border/40 bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/60"
           : "bg-background",
         className,
       )}
@@ -100,8 +100,8 @@ export const Header = ({
               <span className="sr-only">Menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" showCloseButton={false} className="flex w-[300px] flex-col gap-0 p-0 sm:w-[340px]">
-            {/* Sheet header — title + theme toggle */}
+          <SheetContent side="left" showCloseButton={false} className="flex w-75 flex-col gap-0 p-0 sm:w-85">
+            {/* Sheet header - title + theme toggle */}
             <SheetHeader className="flex flex-row items-center justify-between border-b px-4 py-3">
               <SheetTitle className="text-base font-semibold">Menu</SheetTitle>
               <ThemeToggle compact />
@@ -111,7 +111,7 @@ export const Header = ({
             <div className="flex flex-1 flex-col overflow-y-auto">
               {/* User menu section (when logged in) */}
               {mobileUserMenu && (
-                <div className="flex flex-col gap-0.5 px-3 py-3" onClick={closeMobile}>
+                <div className="flex flex-col gap-0.5 p-3" onClick={closeMobile}>
                   {mobileUserMenu}
                 </div>
               )}
@@ -121,7 +121,7 @@ export const Header = ({
               {/* Navigation links */}
               <nav
                 className={cn(
-                  "flex flex-col gap-1.5 px-3 py-3",
+                  "flex flex-col gap-1.5 p-3",
                   "[&>a]:flex [&>a]:items-center [&>a]:gap-3 [&>a]:rounded-xl [&>a]:border [&>a]:border-border/50 [&>a]:px-4 [&>a]:py-3 [&>a]:text-[15px] [&>a]:font-medium [&>a]:transition-colors",
                   "[&>a:hover]:bg-accent [&>a[class*='text-foreground']]:border-primary/20 [&>a[class*='text-foreground']]:bg-accent/50",
                 )}

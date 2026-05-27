@@ -11,7 +11,7 @@ interface MatomoClientProps {
 
 /**
  * Initializes Matomo client-side tracking.
- * Renders nothing — only runs the init side-effect.
+ * Renders nothing - only runs the init side-effect.
  */
 export function MatomoClient({ enabled, siteId, url }: MatomoClientProps) {
   const initialized = useRef(false);

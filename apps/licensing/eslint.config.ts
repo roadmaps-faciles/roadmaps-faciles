@@ -8,7 +8,7 @@ export default [
     ignores: ["node_modules/**", "dist/**", "src/generated/**"],
   },
 
-  // Register import plugin (no React needed — server-only app)
+  // Register import plugin (no React needed - server-only app)
   {
     plugins: {
       import: importPlugin,

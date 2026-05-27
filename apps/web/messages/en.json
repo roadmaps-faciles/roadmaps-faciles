@@ -11,7 +11,10 @@
     "tenantAdmin": "Workspace admin",
     "switchWorkspace": "Switch workspace",
     "searchWorkspace": "Search for a workspace...",
-    "noResults": "No results"
+    "noResults": "No results",
+    "hintNavigate": "navigate",
+    "hintOpen": "open",
+    "hintClose": "close"
   },
   "validation": {
     "nameRequired": "Name is required.",
@@ -35,6 +38,7 @@
   },
   "common": {
     "save": "Save",
+    "saving": "Saving…",
     "cancel": "Cancel",
     "delete": "Delete",
     "create": "Create",
@@ -113,6 +117,12 @@
     "bridgeLink": "Sign in via {brand}",
     "bridgeLoggingIn": "Signing in...",
     "bridgeLoggingInTitle": "Sign in",
+    "bridgeBannerDefault": "Have an account on {brand}?",
+    "bridgeBannerDefaultCta": "Sign in via {brand}",
+    "bridgeBannerOutsider": "You're signed in to {brand} but not a member of {tenantName}.",
+    "bridgeBannerOutsiderCta": "Join {tenantName}",
+    "bridgeBannerDismiss": "Dismiss",
+    "bridgeBannerAria": "Sign-in information",
     "signIn": "Sign in",
     "signUp": "Create an account",
     "signUpPrompt": "Don't have an account?",
@@ -215,9 +225,9 @@
   },
   "home": {
     "badge": "Open source platform",
-    "title": "Create roadmaps your",
-    "titleAccent": "users love",
-    "description": "Collect feedback, prioritize by vote, and share your public roadmap. Built for public institutions and product teams.",
+    "title": "From mutual feedback to a shared roadmap,",
+    "titleAccent": "easily",
+    "description": "Users and citizens, all involved. A transparent, ethical and sovereign dialogue tool to build together what matters.",
     "cta": "Get started",
     "ctaDoc": "View documentation",
     "bento": {
@@ -237,7 +247,7 @@
         "badgeDone": "Done"
       },
       "vote": {
-        "title": "Citizen voting",
+        "title": "User voting",
         "description": "Involve your users in the decision-making process directly.",
         "suggestLabel": "Suggest an idea",
         "suggestPlaceholder": "Describe your suggestion...",
@@ -467,7 +477,7 @@
       "seedSuccess": "Data initialized successfully",
       "seedEmpty": "Your space is empty. You can initialize default data to get started quickly.",
       "seedPreview": "What will be created:",
-      "seedBoard": "Board <strong>{name}</strong> — {description}",
+      "seedBoard": "Board <strong>{name}</strong> - {description}",
       "seedStatus": "Status <strong>{name}</strong>",
       "seedButton": "Initialize default data",
       "seeding": "Initializing…",
@@ -539,6 +549,8 @@
       "embeddingDescription": "Allow embedding your boards and roadmap on external sites.",
       "allowEmbedding": "Allow iframe embedding",
       "allowEmbeddingHelper": "Allows embedding boards and roadmap on external sites via iframe.",
+      "allowIndexing": "Allow search engine indexing",
+      "allowIndexingHelper": "Allows search engines to index your public boards and posts.",
       "allowEmbeddingPrivateWarning": "Iframe embedding will not work if the site is private: visitors will not be authenticated in the iframe.",
       "description": "Configure the general settings of your workspace."
     },
@@ -572,7 +584,16 @@
       "title": "Main page (Roadmap)",
       "rootBoard": "Main page board",
       "none": "None",
-      "description": "Choose the main board displayed on the roadmap page."
+      "description": "Choose the main board displayed on the roadmap page.",
+      "postsListTitle": "Posts visible on the roadmap",
+      "postsListDescription": "Set the progress (%) and the estimate (e.g. Q3 2026) displayed on public cards.",
+      "colPost": "Post",
+      "colStatus": "Status",
+      "colProgress": "Progress",
+      "colEta": "Estimate",
+      "etaPlaceholder": "e.g. Q3 2026",
+      "noRoadmapPosts": "No posts are currently visible on the roadmap.",
+      "progressInvalid": "Progress must be an integer between 0 and 100."
     },
     "authentication": {
       "title": "Authentication settings",
@@ -677,7 +698,7 @@
         "descriptionField": "Description",
         "descriptionFieldHint": "Notion property for post description, or page content",
         "pageContent": "Page content (blocks)",
-        "notMapped": "— Not mapped —",
+        "notMapped": "- Not mapped -",
         "dateField": "Creation date",
         "dateFieldHint": "Notion property to sync as the post creation date. If not mapped, the import date will be used.",
         "dateType": "date",
@@ -727,7 +748,7 @@
         "syncFetchingInbound": "Fetching remote items…",
         "syncProgressOutbound": "Exporting to remote service: {current}/{total}",
         "syncProgressInbound": "Importing from remote service: {current}/{total}",
-        "syncStreamingProgress": "Fetching — {count, plural, one {# item retrieved} other {# items retrieved}}…",
+        "syncStreamingProgress": "Fetching - {count, plural, one {# item retrieved} other {# items retrieved}}…",
         "delete": "Delete",
         "lastSyncAt": "Last sync: {date}",
         "neverSynced": "Never synced",
@@ -756,7 +777,7 @@
         "cleanupInboundPosts": "Also delete {count, plural, one {# imported post} other {# imported posts}} from this integration",
         "confirmDelete": "Confirm deletion",
         "syncRemoteInProgress": "A sync is running in the background…",
-        "syncCanLeave": "You can leave this page — the sync continues in the background.",
+        "syncCanLeave": "You can leave this page - the sync continues in the background.",
         "syncCancelMonitoring": "Stop monitoring",
         "syncElapsed": "Elapsed: {time}",
         "syncEta": "Estimated remaining: {time}"
@@ -938,6 +959,39 @@
     "emptyColumn": "Share your feedback and come back later to discover what's new!",
     "empty": "The roadmap is not yet available.",
     "submitFeedback": "Submit an idea",
+    "hero": {
+      "eyebrow": "Public roadmap",
+      "title": "Here is what we are building for {tenantName}.",
+      "subtitle": "Track work in progress, anticipate what's coming, and vote for the ideas that matter most.",
+      "ctaSuggest": "Suggest an idea",
+      "ctaSuggestUnavailable": "No primary board configured",
+      "ctaSubscribe": "Subscribe to updates",
+      "ctaSubscribeTooltip": "Coming soon"
+    },
+    "filterBar": {
+      "searchLabel": "Search",
+      "searchPlaceholder": "Search a feature, an idea…",
+      "categoriesLabel": "Categories",
+      "sortBy": "Sort by",
+      "sortVotes": "Votes",
+      "sortRecent": "Recent",
+      "sortProgress": "Progress",
+      "allCategories": "All categories",
+      "showMoreTags": "+{count} more",
+      "showLess": "Show less"
+    },
+    "column": {
+      "viewAll": "View {count, plural, one {# item} other {# items}}",
+      "showLess": "Show less"
+    },
+    "card": {
+      "shipped": "Shipped · {date}",
+      "eta": "Estimated · {eta}",
+      "etaInline": "{eta}",
+      "commentsCount": "{count, plural, one {# comment} other {# comments}}",
+      "progressLabel": "Progress"
+    },
+    "noResults": "No results match your search.",
     "notConfigured": "The roadmap is not configured.",
     "adminNoStatusHint": "{count, plural, one {# post has a status} other {# posts have a status}} but no status is configured as visible in the roadmap.",
     "adminNoStatusLink": "Configure statuses"
@@ -996,8 +1050,34 @@
     "markdownSupported": "Markdown supported"
   },
   "consent": {
-    "matomoTitle": "Matomo",
-    "matomoDescription": "User behavior analytics tool."
+    "banner": {
+      "title": "About cookies on this site",
+      "description": "Welcome! We use cookies to improve your experience and measure site audience. You can accept, decline, or customize your choice at any time.",
+      "acceptAll": "Accept all",
+      "declineAll": "Decline all",
+      "customize": "Customize",
+      "ariaLabel": "Cookie consent banner"
+    },
+    "management": {
+      "title": "Cookie management panel",
+      "description": "Choose which services you allow. Your preferences are kept for 13 months.",
+      "save": "Confirm my choices",
+      "back": "Back to the banner"
+    },
+    "footer": {
+      "manage": "Cookie settings",
+      "policy": "Privacy policy"
+    },
+    "finalities": {
+      "matomo": {
+        "title": "Matomo",
+        "description": "User behavior analytics tool."
+      },
+      "posthog": {
+        "title": "PostHog",
+        "description": "Product analytics and behavioral tracking tool."
+      }
+    }
   },
   "serverErrors": {
     "invalidData": "Invalid data.",
@@ -1162,6 +1242,7 @@
       "description": "Configure authentication providers for the main portal.",
       "providerEnabled": "Enabled",
       "providerDisabled": "Disabled",
+      "save": "Save",
       "providerNotConfigured": "Not configured (missing environment variables)",
       "github": "GitHub",
       "google": "Google",
@@ -1206,7 +1287,122 @@
       "instanceIdAutoGenerated": "Auto-generated",
       "refreshNow": "Verify now",
       "refreshing": "Verifying...",
-      "copy": "Copy"
+      "copy": "Copy",
+      "tabs": {
+        "status": "This instance status",
+        "management": "Sold licenses"
+      },
+      "verify": {
+        "button": "Test a key",
+        "title": "Test a license key",
+        "description": "Verifies an arbitrary key: offline signature + online status with the licensing server.",
+        "key": "License key",
+        "keyPlaceholder": "rf_live_...",
+        "instanceId": "Instance ID (optional)",
+        "instanceIdPlaceholder": "Identifies the instance performing the check",
+        "submit": "Verify",
+        "submitting": "Verifying...",
+        "result": "Result",
+        "offlineTitle": "Offline check (signature)",
+        "onlineTitle": "Online check (licensing server)",
+        "signatureValid": "Valid signature",
+        "signatureInvalid": "Invalid signature",
+        "payloadFound": "Payload decoded",
+        "payloadInvalid": "Unreadable payload",
+        "status": "Status",
+        "statusActive": "Active",
+        "statusExpired": "Expired",
+        "statusRevoked": "Revoked",
+        "statusInvalid": "Invalid",
+        "statusUnreachable": "Server unreachable",
+        "plan": "Plan",
+        "expiresAt": "Expiry"
+      },
+      "management": {
+        "title": "Sold licenses",
+        "description": "Issue, revoke and renew self-host licenses.",
+        "newLicense": "New license",
+        "filters": {
+          "plan": "Plan",
+          "planAll": "All plans",
+          "status": "Status",
+          "statusAll": "All statuses",
+          "statusActive": "Active",
+          "statusExpired": "Expired",
+          "statusRevoked": "Revoked",
+          "search": "Search by email",
+          "searchPlaceholder": "example@domain.com"
+        },
+        "columns": {
+          "email": "Email",
+          "plan": "Plan",
+          "status": "Status",
+          "expiresAt": "Expires on",
+          "createdAt": "Created on",
+          "actions": "Actions"
+        },
+        "rowStatus": {
+          "active": "Active",
+          "expired": "Expired",
+          "revoked": "Revoked"
+        },
+        "empty": "No license matches the filters.",
+        "loadMore": "Load more",
+        "loading": "Loading...",
+        "create": {
+          "title": "Issue a license",
+          "description": "Generates an Ed25519-signed license. The key is only displayed once after creation.",
+          "email": "Customer email",
+          "plan": "Plan",
+          "planHint": {
+            "GOV_LICENSED": "For public administrations (local authorities, ministries, state operators). Free, manual issuance after qualification.",
+            "LICENSED": "Manual issuance reserved for exceptional cases: partner deal, press, off-Stripe reconciliation, internal tests. The normal LICENSED flow goes through Stripe Checkout."
+          },
+          "expiresAt": "Expiry date",
+          "submit": "Issue license",
+          "submitting": "Issuing..."
+        },
+        "keyReveal": {
+          "title": "License issued",
+          "warning": "This key will only be displayed once. Copy it and send it to the customer before closing this window.",
+          "key": "License key",
+          "copy": "Copy the key",
+          "copied": "Copied",
+          "close": "Close",
+          "issuedFor": "Issued for {email}",
+          "expiresOn": "Expires on {date}"
+        },
+        "detail": {
+          "title": "License details",
+          "id": "ID",
+          "instanceId": "Bound instance ID",
+          "instanceIdNone": "Not activated",
+          "stripeCustomerId": "Stripe customer ID",
+          "stripeSubscriptionId": "Stripe subscription ID",
+          "createdAt": "Created on",
+          "updatedAt": "Updated on",
+          "revokedAt": "Revoked on",
+          "verifications": "Recent verifications",
+          "verificationsNone": "No verification recorded.",
+          "distinctInstances": "Distinct instances",
+          "distinctInstancesWarning": "This license is used by {count} distinct instances.",
+          "actions": "Actions",
+          "revoke": "Revoke",
+          "revokeConfirm": "Confirm revocation",
+          "revokeDescription": "This license will be marked as revoked. Active instances will fail on next verification.",
+          "renew": "Renew",
+          "renewLabel": "New expiry date",
+          "renewSubmit": "Renew",
+          "renewBlockedStripe": "This license is managed by Stripe and renewed automatically via webhook."
+        },
+        "errors": {
+          "unreachable": "Licensing server is unreachable.",
+          "unauthorized": "Missing or invalid licensing admin API key.",
+          "notFound": "License not found.",
+          "alreadyRevoked": "License already revoked.",
+          "managedByStripe": "License managed by Stripe, renewal is automatic."
+        }
+      }
     },
     "featureFlags": {
       "menu": "Feature Flags",
@@ -1248,6 +1444,66 @@
       "send": "Send",
       "sending": "Sending...",
       "sent": "Test email sent to {email}."
+    },
+    "analyticsDebug": {
+      "menu": "Analytics debug",
+      "title": "Analytics debug",
+      "description": "Tracking events captured in memory. Visible only when the memory provider is active.",
+      "filterEvent": "Filter by event name",
+      "filterEventPlaceholder": "post.created…",
+      "filterSource": "Source",
+      "sourceAll": "All",
+      "sourceServer": "Server",
+      "sourceClient": "Client",
+      "autoRefresh": "Auto-refresh (2s)",
+      "refresh": "Refresh",
+      "clear": "Clear",
+      "statTotal": "Total",
+      "statTrack": "Events",
+      "statPage": "Pages",
+      "statIdentify": "Identify",
+      "statGroup": "Group",
+      "colTime": "Time",
+      "colSource": "Source",
+      "colType": "Type",
+      "colEvent": "Event",
+      "colDistinctId": "Distinct ID",
+      "colProperties": "Properties",
+      "showProperties": "{count, plural, one {# property} other {# properties}}",
+      "hideProperties": "Hide",
+      "noProperties": "—",
+      "empty": "No event captured yet.",
+      "emptyFiltered": "No event matches the filters."
+    },
+    "devTools": {
+      "menu": "Dev Tools",
+      "title": "Dev Tools",
+      "description": "Development and testing utilities. Visible only in dev environment.",
+      "stripe": {
+        "title": "Stripe",
+        "useStripeLabel": "Use Stripe Checkout",
+        "useStripeDescription": "Enables the real Stripe flow instead of dev-checkout. Reload the page to apply."
+      },
+      "licensing": {
+        "title": "Licensing",
+        "description": "Manipulate local license state without touching environment variables.",
+        "currentLicenseKey": "Current key",
+        "currentLicenseKeyNone": "None (cloud mode)",
+        "currentLicenseKeyEnv": "From env",
+        "currentLicenseKeyOverride": "Dev override (cookie)",
+        "instanceId": "Instance ID",
+        "issueAndBind": "Issue and bind to this instance",
+        "issueAndBindDescription": "Generates a GOV_LICENSED license valid for 1 year, stores it as a dev override and activates it on this instance.",
+        "clearOverride": "Clear override",
+        "clearOverrideDescription": "Removes the dev-license-key cookie. The env key takes over again.",
+        "forceExpire": "Force expiry",
+        "forceExpireDescription": "Sets the current license expiry date to the past (yesterday). Ignored if Stripe-managed.",
+        "toggleOfflineLabel": "Simulate offline licensing server",
+        "toggleOfflineDescription": "Forces verifyLicenseOnline to return null. Useful to test grace period behavior.",
+        "noLicenseToExpire": "No local key, cannot force expiry.",
+        "issuedSuccess": "License issued and bound.",
+        "expireSuccess": "License forced to expire."
+      }
     }
   },
   "emails": {
@@ -1301,7 +1557,7 @@
     "deleteConfirm": "Are you sure you want to delete this post? This action is irreversible.",
     "anonymous": "Anonymous",
     "description": "Description",
-    "noDescription": "—"
+    "noDescription": "-"
   },
   "adminOrganizations": {
     "title": "Organizations",
@@ -1409,7 +1665,7 @@
     },
     "bundleTitle": "All-in-one packs",
     "bundleSubtitle": "Save by getting everything at once.",
-    "bundleSaving": "Instead of {individual}€/month à la carte — save {individual, number}€",
+    "bundleSaving": "Instead of {individual}€/month à la carte - save {individual, number}€",
     "bundleSavingAmount": "Save {saved}€",
     "bundleNoSso": {
       "name": "Pro Pack",

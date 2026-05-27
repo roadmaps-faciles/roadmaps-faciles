@@ -11,7 +11,10 @@
     "tenantAdmin": "Admin espace",
     "switchWorkspace": "Changer d'espace",
     "searchWorkspace": "Rechercher un espace...",
-    "noResults": "Aucun résultat"
+    "noResults": "Aucun résultat",
+    "hintNavigate": "naviguer",
+    "hintOpen": "ouvrir",
+    "hintClose": "fermer"
   },
   "validation": {
     "nameRequired": "Le nom est requis.",
@@ -35,6 +38,7 @@
   },
   "common": {
     "save": "Sauvegarder",
+    "saving": "Enregistrement…",
     "cancel": "Annuler",
     "delete": "Supprimer",
     "create": "Créer",
@@ -113,6 +117,12 @@
     "bridgeLink": "Se connecter via {brand}",
     "bridgeLoggingIn": "Connexion en cours...",
     "bridgeLoggingInTitle": "Connexion",
+    "bridgeBannerDefault": "Vous avez un compte sur {brand} ?",
+    "bridgeBannerDefaultCta": "Se connecter via {brand}",
+    "bridgeBannerOutsider": "Vous êtes connecté à {brand} mais pas membre de {tenantName}.",
+    "bridgeBannerOutsiderCta": "Rejoindre {tenantName}",
+    "bridgeBannerDismiss": "Ignorer",
+    "bridgeBannerAria": "Information de connexion",
     "signIn": "Se connecter",
     "signUp": "Créer un compte",
     "signUpPrompt": "Pas encore de compte ?",
@@ -215,9 +225,9 @@
   },
   "home": {
     "badge": "Plateforme open source",
-    "title": "Créez des feuilles de route que vos",
-    "titleAccent": "usagers adorent",
-    "description": "Recueillez les retours, priorisez par le vote, et partagez votre roadmap publique. Construit pour les collectivités et les équipes produit.",
+    "title": "Du feedback mutuel à la roadmap partagée,",
+    "titleAccent": "facilement",
+    "description": "Utilisateurs et usagers, tous concernés. Un outil de dialogue transparent, éthique et souverain pour construire ensemble ce qui compte.",
     "cta": "Commencer",
     "ctaDoc": "Voir la documentation",
     "bento": {
@@ -237,8 +247,8 @@
         "badgeDone": "Terminé"
       },
       "vote": {
-        "title": "Vote citoyen",
-        "description": "Impliquez vos usagers dans le processus de décision de manière directe.",
+        "title": "Vote utilisateur",
+        "description": "Impliquez vos utilisateurs dans le processus de décision de manière directe.",
         "suggestLabel": "Suggérer une idée",
         "suggestPlaceholder": "Décrivez votre suggestion...",
         "voteButton": "Votez",
@@ -467,7 +477,7 @@
       "seedSuccess": "Données initialisées avec succès",
       "seedEmpty": "Votre espace est vide. Vous pouvez initialiser des données par défaut pour démarrer rapidement.",
       "seedPreview": "Ce qui sera créé :",
-      "seedBoard": "Tableau <strong>{name}</strong> — {description}",
+      "seedBoard": "Tableau <strong>{name}</strong> - {description}",
       "seedStatus": "Statut <strong>{name}</strong>",
       "seedButton": "Initialiser les données par défaut",
       "seeding": "Initialisation…",
@@ -539,6 +549,8 @@
       "embeddingDescription": "Permettez l'intégration de vos boards et roadmap dans des sites externes.",
       "allowEmbedding": "Autoriser l'intégration iframe",
       "allowEmbeddingHelper": "Permet d'embarquer les boards et la roadmap dans un site externe via iframe.",
+      "allowIndexing": "Autoriser l'indexation par les moteurs de recherche",
+      "allowIndexingHelper": "Permet aux moteurs de recherche de référencer vos boards et posts publics.",
       "allowEmbeddingPrivateWarning": "L'intégration iframe ne fonctionnera pas si le site est privé : les visiteurs ne seront pas authentifiés dans l'iframe.",
       "description": "Configurez les paramètres généraux de votre espace."
     },
@@ -572,7 +584,16 @@
       "title": "Page principale (Roadmap)",
       "rootBoard": "Board de la page principale",
       "none": "Aucun",
-      "description": "Choisissez le board principal affiché sur la page roadmap."
+      "description": "Choisissez le board principal affiché sur la page roadmap.",
+      "postsListTitle": "Posts visibles sur la roadmap",
+      "postsListDescription": "Renseignez la progression (%) et l'estimation (ex: Q3 2026) affichées sur les cartes publiques.",
+      "colPost": "Post",
+      "colStatus": "Statut",
+      "colProgress": "Progression",
+      "colEta": "Estimation",
+      "etaPlaceholder": "Ex: Q3 2026",
+      "noRoadmapPosts": "Aucun post n'est actuellement visible sur la roadmap.",
+      "progressInvalid": "La progression doit être un entier entre 0 et 100."
     },
     "authentication": {
       "title": "Paramètres d'authentification",
@@ -677,7 +698,7 @@
         "descriptionField": "Description",
         "descriptionFieldHint": "Propriété Notion pour la description du post, ou le contenu de la page",
         "pageContent": "Contenu de la page (blocs)",
-        "notMapped": "— Non mappé —",
+        "notMapped": "- Non mappé -",
         "dateField": "Date de création",
         "dateFieldHint": "Propriété Notion à synchroniser comme date de création du post. Si non mappé, la date sera celle de l'import.",
         "dateType": "date",
@@ -727,7 +748,7 @@
         "syncFetchingInbound": "Récupération des éléments distants…",
         "syncProgressOutbound": "Export vers le service distant : {current}/{total}",
         "syncProgressInbound": "Import depuis le service distant : {current}/{total}",
-        "syncStreamingProgress": "Récupération en cours — {count, plural, one {# élément récupéré} other {# éléments récupérés}}…",
+        "syncStreamingProgress": "Récupération en cours - {count, plural, one {# élément récupéré} other {# éléments récupérés}}…",
         "delete": "Supprimer",
         "lastSyncAt": "Dernière synchronisation : {date}",
         "neverSynced": "Jamais synchronisé",
@@ -756,7 +777,7 @@
         "cleanupInboundPosts": "Supprimer aussi les {count, plural, one {# post importé} other {# posts importés}} depuis cette intégration",
         "confirmDelete": "Confirmer la suppression",
         "syncRemoteInProgress": "Une synchronisation est en cours en arrière-plan…",
-        "syncCanLeave": "Vous pouvez quitter cette page — la synchronisation continue en arrière-plan.",
+        "syncCanLeave": "Vous pouvez quitter cette page - la synchronisation continue en arrière-plan.",
         "syncCancelMonitoring": "Arrêter le suivi",
         "syncElapsed": "Temps écoulé : {time}",
         "syncEta": "Temps restant estimé : {time}"
@@ -938,6 +959,39 @@
     "emptyColumn": "Partagez vos retours et revenez plus tard pour découvrir les nouveautés !",
     "empty": "La feuille de route n'est pas encore disponible.",
     "submitFeedback": "Proposer une idée",
+    "hero": {
+      "eyebrow": "Roadmap publique",
+      "title": "Voici ce que nous construisons pour {tenantName}.",
+      "subtitle": "Suivez les chantiers en cours, anticipez ce qui arrive, et votez pour les idées qui comptent le plus.",
+      "ctaSuggest": "Suggérer une idée",
+      "ctaSuggestUnavailable": "Aucun board principal configuré",
+      "ctaSubscribe": "S'abonner aux mises à jour",
+      "ctaSubscribeTooltip": "Bientôt disponible"
+    },
+    "filterBar": {
+      "searchLabel": "Rechercher",
+      "searchPlaceholder": "Rechercher une feature, une idée…",
+      "categoriesLabel": "Catégories",
+      "sortBy": "Trier par",
+      "sortVotes": "Votes",
+      "sortRecent": "Récents",
+      "sortProgress": "Progression",
+      "allCategories": "Toutes les catégories",
+      "showMoreTags": "+{count} autres",
+      "showLess": "Voir moins"
+    },
+    "column": {
+      "viewAll": "Voir les {count, plural, one {# élément} other {# éléments}}",
+      "showLess": "Réduire"
+    },
+    "card": {
+      "shipped": "Livré · {date}",
+      "eta": "Estimé · {eta}",
+      "etaInline": "{eta}",
+      "commentsCount": "{count, plural, one {# commentaire} other {# commentaires}}",
+      "progressLabel": "Progression"
+    },
+    "noResults": "Aucun résultat ne correspond à votre recherche.",
     "notConfigured": "La feuille de route n'est pas configurée.",
     "adminNoStatusHint": "{count, plural, one {# post a un statut} other {# posts ont un statut}} mais aucun statut n'est configuré comme visible dans la feuille de route.",
     "adminNoStatusLink": "Configurer les statuts"
@@ -996,8 +1050,34 @@
     "markdownSupported": "Markdown supporté"
   },
   "consent": {
-    "matomoTitle": "Matomo",
-    "matomoDescription": "Outil d'analyse comportementale des utilisateurs."
+    "banner": {
+      "title": "À propos des cookies sur ce site",
+      "description": "Bienvenue ! Nous utilisons des cookies pour améliorer votre expérience et mesurer l'audience du site. Vous pouvez accepter, refuser ou personnaliser votre choix à tout moment.",
+      "acceptAll": "Tout accepter",
+      "declineAll": "Tout refuser",
+      "customize": "Personnaliser",
+      "ariaLabel": "Bannière de consentement aux cookies"
+    },
+    "management": {
+      "title": "Panneau de gestion des cookies",
+      "description": "Choisissez les services que vous autorisez. Vos préférences sont conservées 13 mois.",
+      "save": "Confirmer mes choix",
+      "back": "Retour à la bannière"
+    },
+    "footer": {
+      "manage": "Gestion des cookies",
+      "policy": "Politique de confidentialité"
+    },
+    "finalities": {
+      "matomo": {
+        "title": "Matomo",
+        "description": "Outil d'analyse comportementale des utilisateurs."
+      },
+      "posthog": {
+        "title": "PostHog",
+        "description": "Outil d'analyse produit et de suivi comportemental."
+      }
+    }
   },
   "serverErrors": {
     "invalidData": "Données invalides.",
@@ -1162,6 +1242,7 @@
       "description": "Configuration des fournisseurs d'authentification sur le portail principal.",
       "providerEnabled": "Activé",
       "providerDisabled": "Désactivé",
+      "save": "Sauvegarder",
       "providerNotConfigured": "Non configuré (variables d'environnement manquantes)",
       "github": "GitHub",
       "google": "Google",
@@ -1206,7 +1287,122 @@
       "instanceIdAutoGenerated": "Généré automatiquement",
       "refreshNow": "Vérifier maintenant",
       "refreshing": "Vérification...",
-      "copy": "Copier"
+      "copy": "Copier",
+      "tabs": {
+        "status": "Statut de cette instance",
+        "management": "Gestion des licences vendues"
+      },
+      "verify": {
+        "button": "Tester une clé",
+        "title": "Tester une clé de licence",
+        "description": "Vérifie une clé arbitraire : signature offline + statut online auprès du serveur licensing.",
+        "key": "Clé de licence",
+        "keyPlaceholder": "rf_live_...",
+        "instanceId": "ID d'instance (optionnel)",
+        "instanceIdPlaceholder": "Identifie l'instance qui ferait la vérification",
+        "submit": "Vérifier",
+        "submitting": "Vérification...",
+        "result": "Résultat",
+        "offlineTitle": "Vérification offline (signature)",
+        "onlineTitle": "Vérification online (serveur licensing)",
+        "signatureValid": "Signature valide",
+        "signatureInvalid": "Signature invalide",
+        "payloadFound": "Payload décodé",
+        "payloadInvalid": "Payload illisible",
+        "status": "Statut",
+        "statusActive": "Active",
+        "statusExpired": "Expirée",
+        "statusRevoked": "Révoquée",
+        "statusInvalid": "Invalide",
+        "statusUnreachable": "Serveur injoignable",
+        "plan": "Plan",
+        "expiresAt": "Expiration"
+      },
+      "management": {
+        "title": "Licences vendues",
+        "description": "Émission, révocation et renouvellement des licences self-host.",
+        "newLicense": "Nouvelle licence",
+        "filters": {
+          "plan": "Plan",
+          "planAll": "Tous les plans",
+          "status": "Statut",
+          "statusAll": "Tous les statuts",
+          "statusActive": "Actives",
+          "statusExpired": "Expirées",
+          "statusRevoked": "Révoquées",
+          "search": "Rechercher par email",
+          "searchPlaceholder": "exemple@domaine.fr"
+        },
+        "columns": {
+          "email": "Email",
+          "plan": "Plan",
+          "status": "Statut",
+          "expiresAt": "Expire le",
+          "createdAt": "Créée le",
+          "actions": "Actions"
+        },
+        "rowStatus": {
+          "active": "Active",
+          "expired": "Expirée",
+          "revoked": "Révoquée"
+        },
+        "empty": "Aucune licence ne correspond aux filtres.",
+        "loadMore": "Charger plus",
+        "loading": "Chargement...",
+        "create": {
+          "title": "Émettre une licence",
+          "description": "Génère une licence signée Ed25519. La clé n'est affichée qu'une seule fois après création.",
+          "email": "Email du client",
+          "plan": "Plan",
+          "planHint": {
+            "GOV_LICENSED": "Pour les administrations publiques (collectivités, ministères, opérateurs de l'État). Gratuit, émission manuelle après qualification.",
+            "LICENSED": "Émission manuelle réservée aux cas exceptionnels : deal partenaire, presse, régularisation hors Stripe, tests internes. Le flow normal LICENSED passe par Stripe Checkout."
+          },
+          "expiresAt": "Date d'expiration",
+          "submit": "Émettre la licence",
+          "submitting": "Émission..."
+        },
+        "keyReveal": {
+          "title": "Licence émise",
+          "warning": "Cette clé ne sera affichée qu'une seule fois. Copie-la et envoie-la au client avant de fermer cette fenêtre.",
+          "key": "Clé de licence",
+          "copy": "Copier la clé",
+          "copied": "Copié",
+          "close": "Fermer",
+          "issuedFor": "Émise pour {email}",
+          "expiresOn": "Expire le {date}"
+        },
+        "detail": {
+          "title": "Détails de la licence",
+          "id": "ID",
+          "instanceId": "ID d'instance lié",
+          "instanceIdNone": "Non activée",
+          "stripeCustomerId": "ID client Stripe",
+          "stripeSubscriptionId": "ID subscription Stripe",
+          "createdAt": "Créée le",
+          "updatedAt": "Mise à jour le",
+          "revokedAt": "Révoquée le",
+          "verifications": "Vérifications récentes",
+          "verificationsNone": "Aucune vérification enregistrée.",
+          "distinctInstances": "Instances distinctes",
+          "distinctInstancesWarning": "Cette licence est utilisée sur {count} instances différentes.",
+          "actions": "Actions",
+          "revoke": "Révoquer",
+          "revokeConfirm": "Confirmer la révocation",
+          "revokeDescription": "Cette licence sera marquée comme révoquée. Les instances actives échoueront à la prochaine vérification.",
+          "renew": "Renouveler",
+          "renewLabel": "Nouvelle date d'expiration",
+          "renewSubmit": "Renouveler",
+          "renewBlockedStripe": "Cette licence est gérée par Stripe et renouvelée automatiquement par webhook."
+        },
+        "errors": {
+          "unreachable": "Le serveur licensing est injoignable.",
+          "unauthorized": "Clé d'API admin licensing manquante ou invalide.",
+          "notFound": "Licence introuvable.",
+          "alreadyRevoked": "Licence déjà révoquée.",
+          "managedByStripe": "Licence gérée par Stripe, renouvellement automatique."
+        }
+      }
     },
     "featureFlags": {
       "menu": "Feature Flags",
@@ -1248,6 +1444,66 @@
       "send": "Envoyer",
       "sending": "Envoi...",
       "sent": "Email de test envoyé à {email}."
+    },
+    "analyticsDebug": {
+      "menu": "Debug analytics",
+      "title": "Debug analytics",
+      "description": "Événements de tracking capturés en mémoire. Visible uniquement avec le provider memory.",
+      "filterEvent": "Filtrer par nom d'événement",
+      "filterEventPlaceholder": "post.created…",
+      "filterSource": "Source",
+      "sourceAll": "Toutes",
+      "sourceServer": "Serveur",
+      "sourceClient": "Client",
+      "autoRefresh": "Auto-refresh (2s)",
+      "refresh": "Actualiser",
+      "clear": "Vider",
+      "statTotal": "Total",
+      "statTrack": "Events",
+      "statPage": "Pages",
+      "statIdentify": "Identify",
+      "statGroup": "Group",
+      "colTime": "Date",
+      "colSource": "Source",
+      "colType": "Type",
+      "colEvent": "Événement",
+      "colDistinctId": "Distinct ID",
+      "colProperties": "Propriétés",
+      "showProperties": "{count, plural, one {# propriété} other {# propriétés}}",
+      "hideProperties": "Masquer",
+      "noProperties": "—",
+      "empty": "Aucun événement capturé pour le moment.",
+      "emptyFiltered": "Aucun événement ne correspond aux filtres."
+    },
+    "devTools": {
+      "menu": "Dev Tools",
+      "title": "Dev Tools",
+      "description": "Outils de développement et de test. Visible uniquement en environnement dev.",
+      "stripe": {
+        "title": "Stripe",
+        "useStripeLabel": "Utiliser Stripe Checkout",
+        "useStripeDescription": "Active le vrai flow Stripe au lieu du dev-checkout. Recharge la page pour appliquer."
+      },
+      "licensing": {
+        "title": "Licensing",
+        "description": "Manipule l'état de la licence locale sans modifier les variables d'environnement.",
+        "currentLicenseKey": "Clé courante",
+        "currentLicenseKeyNone": "Aucune (mode cloud)",
+        "currentLicenseKeyEnv": "Depuis l'env",
+        "currentLicenseKeyOverride": "Override dev (cookie)",
+        "instanceId": "ID d'instance",
+        "issueAndBind": "Émettre et activer sur cette instance",
+        "issueAndBindDescription": "Génère une licence GOV_LICENSED valide 1 an, l'enregistre comme override dev et l'active sur cette instance.",
+        "clearOverride": "Retirer l'override",
+        "clearOverrideDescription": "Supprime le cookie dev-license-key. La clé d'environnement reprend la main.",
+        "forceExpire": "Forcer l'expiration",
+        "forceExpireDescription": "Met la date d'expiration de la licence courante dans le passé (jour précédent). Ignoré si licence Stripe-managed.",
+        "toggleOfflineLabel": "Simuler serveur licensing offline",
+        "toggleOfflineDescription": "Force verifyLicenseOnline à retourner null. Permet de tester le comportement grace period.",
+        "noLicenseToExpire": "Aucune clé locale, impossible de forcer l'expiration.",
+        "issuedSuccess": "Licence émise et active.",
+        "expireSuccess": "Licence forcée à expirer."
+      }
     }
   },
   "emails": {
@@ -1301,7 +1557,7 @@
     "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce post ? Cette action est irréversible.",
     "anonymous": "Anonyme",
     "description": "Description",
-    "noDescription": "—"
+    "noDescription": "-"
   },
   "adminOrganizations": {
     "title": "Organisations",
@@ -1409,7 +1665,7 @@
     },
     "bundleTitle": "Packs tout compris",
     "bundleSubtitle": "Économisez en prenant tout d'un coup.",
-    "bundleSaving": "Au lieu de {individual}€/mois à la carte — économisez {individual, number}€",
+    "bundleSaving": "Au lieu de {individual}€/mois à la carte - économisez {individual, number}€",
     "bundleSavingAmount": "Économisez {saved}€",
     "bundleNoSso": {
       "name": "Pack Pro",

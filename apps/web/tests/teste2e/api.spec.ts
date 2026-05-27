@@ -4,7 +4,7 @@ test.describe("API Routes", () => {
   test("GET /api/domains/check returns status for known domain", async ({ request }) => {
     const response = await request.get("/api/domains/check?domain=e2e.localhost");
 
-    // 200 (found) or 404 (not found as custom domain) — not 500
+    // 200 (found) or 404 (not found as custom domain) - not 500
     expect([200, 404]).toContain(response.status());
   });
 

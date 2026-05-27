@@ -1,3 +1,4 @@
+import { type Meta, type StoryObj } from "@storybook/react-vite";
 import {
   BellIcon,
   CheckIcon,
@@ -17,7 +18,6 @@ import {
   UserIcon,
 } from "lucide-react";
 import { useState } from "react";
-import { type Meta, type StoryObj } from "storybook";
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../accordion";
 import { Alert, AlertDescription, AlertTitle } from "../alert";
@@ -128,7 +128,7 @@ export const Complete: Story = {
       <TooltipProvider>
         <div className="bg-background text-foreground space-y-10 p-8">
           <div>
-            <h1 className="text-2xl font-bold">@roadmaps-faciles/ui — Design System</h1>
+            <h1 className="text-2xl font-bold">@roadmaps-faciles/ui - Design System</h1>
             <p className="text-muted-foreground">31 composants · French Blue · oklch tokens · light + dark</p>
           </div>
 

@@ -1,20 +1,23 @@
 "use client";
-import { type PropsWithChildren, useEffect, useRef, useState } from "react";
+import { type PropsWithChildren, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 export type ClientOnlyPortalProps = PropsWithChildren<{
   selector: string;
 }>;
 
+/**
+ * Portal that only renders client-side, once the target element exists in the DOM.
+ * The post-mount `setContainer` is intrinsic to portals: `document.querySelector`
+ * cannot run during SSR, so a one-shot effect is the only way to look up the node.
+ */
 export function ClientOnlyPortal({ children, selector }: ClientOnlyPortalProps) {
-  const ref = useRef<HTMLElement>(null);
-  const [mounted, setMounted] = useState(false);
+  const [container, setContainer] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
-    ref.current = document.querySelector(selector);
-    setMounted(true);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- DOM query is client-only and runs once per selector
+    setContainer(document.querySelector(selector));
   }, [selector]);
 
-  // eslint-disable-next-line react-hooks/refs
-  return mounted && ref.current ? createPortal(children, ref.current) : null;
+  return container ? createPortal(children, container) : null;
 }

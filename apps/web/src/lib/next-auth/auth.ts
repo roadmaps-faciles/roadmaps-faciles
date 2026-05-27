@@ -212,7 +212,7 @@ const {
 
   if (!url) {
     const { logger } = await import("../logger");
-    logger.error("Invalid request url — protocol or host header missing");
+    logger.error("Invalid request url - protocol or host header missing");
     return { providers: [] };
   }
 
@@ -235,7 +235,7 @@ const {
       espaceMembreProvider.ProviderWrapper(nodemailerProvider),
       Credentials({
         id: "bridge",
-        credentials: { token: { type: "text" } },
+        credentials: { token: { type: "text" }, isSignup: { type: "text" } },
         async authorize(credentials) {
           const token = credentials?.token as string;
           if (!token) return null;
@@ -292,7 +292,7 @@ const {
             return url;
           }
         } catch {
-          // invalid URL — fall through
+          // invalid URL - fall through
         }
 
         return fallback;
@@ -311,19 +311,19 @@ const {
               select: { id: true, otpSecret: true, otpVerifiedAt: true },
             });
             if (otpUser?.otpSecret && otpUser.otpVerifiedAt) {
-              // User has OTP configured — require pre-login proof
+              // User has OTP configured - require pre-login proof
               const { redis } = await import("../db/redis/storage");
               const proof = await redis.getItem<string>(`otp:pre-login:${otpUser.id}`);
               if (!proof) {
-                return false; // Block magic link — no OTP proof
+                return false; // Block magic link - no OTP proof
               }
-              // Don't consume proof here — consumed in JWT callback on signIn
+              // Don't consume proof here - consumed in JWT callback on signIn
             }
           }
         }
 
         if (params.account?.provider === "nodemailer" && params.email?.verificationRequest) {
-          // Phase 1: User entered email — decide if we send the verification email
+          // Phase 1: User entered email - decide if we send the verification email
           if (!params.user.email || !tenantSettings || !tenant) {
             return false;
           }
@@ -332,13 +332,13 @@ const {
             return false;
           }
 
-          // Check for pending invitation — bypasses emailRegistrationPolicy
+          // Check for pending invitation - bypasses emailRegistrationPolicy
           const pendingInvitation = await prisma.invitation.findFirst({
             where: { email: params.user.email, tenantId: tenant.id, acceptedAt: null },
           });
 
           if (!pendingInvitation) {
-            // No invitation — apply emailRegistrationPolicy
+            // No invitation - apply emailRegistrationPolicy
             if (tenantSettings.emailRegistrationPolicy === "NOONE") {
               return false;
             }
@@ -353,7 +353,7 @@ const {
                 return false;
               }
             }
-            // ANYONE — falls through
+            // ANYONE - falls through
           }
 
           if (params.user.email?.endsWith("@beta.gouv.fr") || params.user.email?.endsWith("@ext.beta.gouv.fr")) {
@@ -398,7 +398,7 @@ const {
           }
         }
 
-        // OAuth provider on tenant — verify it's enabled for this tenant
+        // OAuth provider on tenant - verify it's enabled for this tenant
         if (
           (params.account?.type === "oauth" || params.account?.type === "oidc") &&
           tenant &&
@@ -424,7 +424,7 @@ const {
           }
         }
 
-        // OAuth on root domain — check root provider settings
+        // OAuth on root domain - check root provider settings
         if (
           (params.account?.type === "oauth" || params.account?.type === "oidc") &&
           !tenant &&
@@ -438,34 +438,62 @@ const {
           }
         }
 
-        // Bridge provider — only create membership on explicit signup (bridge_signup=1)
         if (params.account?.provider === "bridge" && tenant) {
           const userId = params.user.id;
           if (userId) {
             const existing = await userOnTenantRepo.findMembership(userId, tenant.id);
             if (!existing) {
-              // Check if this is an explicit signup (from bridge with action=signup)
-              // The bridge_signup flag is passed as a query param on the redirect URL,
-              // which is the callbackUrl. We check it here via the URL search params.
-              const callbackUrl = (params as Record<string, unknown>).callbackUrl as string | undefined;
+              const dbUser = await userRepo.findById(userId);
+              const isSuperAdmin = dbUser?.username ? config.admins.includes(dbUser.username) : false;
+              if (isSuperAdmin) {
+                return true;
+              }
+
               const isSignup =
-                callbackUrl && new URL(callbackUrl, "http://localhost").searchParams.get("bridge_signup") === "1";
-              if (isSignup) {
-                await userOnTenantRepo.create({
-                  userId,
-                  tenantId: tenant.id,
-                  role: "INHERITED",
-                  status: "ACTIVE",
-                });
-              } else {
-                // Not a member and not a signup — block sign-in
+                (params as unknown as { credentials?: Record<string, unknown> }).credentials?.isSignup === "1";
+              if (!isSignup) {
                 return false;
               }
+
+              const email = params.user.email;
+              if (!email || !tenantSettings) {
+                return false;
+              }
+              const emailDomain = email.split("@")[1];
+              if (!emailDomain) {
+                return false;
+              }
+
+              const pendingInvitation = await prisma.invitation.findFirst({
+                where: { email, tenantId: tenant.id, acceptedAt: null },
+              });
+
+              if (!pendingInvitation) {
+                if (tenantSettings.emailRegistrationPolicy === "NOONE") {
+                  return false;
+                }
+                if (tenantSettings.emailRegistrationPolicy === "DOMAINS") {
+                  const isAllowedDomain =
+                    tenantSettings.allowedEmailDomains.includes(emailDomain) ||
+                    tenantSettings.allowedEmailDomains.includes("*") ||
+                    tenantSettings.allowedEmailDomains.length === 0;
+                  if (!isAllowedDomain) {
+                    return false;
+                  }
+                }
+              }
+
+              await userOnTenantRepo.create({
+                userId,
+                tenantId: tenant.id,
+                role: "INHERITED",
+                status: "ACTIVE",
+              });
             }
           }
         }
 
-        // Phase 2: Magic link clicked — handle invitation acceptance
+        // Phase 2: Magic link clicked - handle invitation acceptance
         if (params.account?.provider === "nodemailer" && !params.email?.verificationRequest && tenant) {
           const email = params.user.email;
           if (email) {
@@ -581,7 +609,7 @@ const {
             }
           }
 
-          // Check for pre-login OTP proof — if present, mark 2FA as already verified
+          // Check for pre-login OTP proof - if present, mark 2FA as already verified
           let preLoginOtpVerified = false;
           if (twoFactorRequired && dbUser.twoFactorEnabled) {
             const { redis } = await import("../db/redis/storage");

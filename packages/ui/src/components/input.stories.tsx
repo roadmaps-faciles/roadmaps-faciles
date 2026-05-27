@@ -1,5 +1,5 @@
+import { type Meta, type StoryObj } from "@storybook/react-vite";
 import { MailIcon, SearchIcon } from "lucide-react";
-import { type Meta, type StoryObj } from "storybook";
 
 import { Hint } from "./hint";
 import { Input } from "./input";

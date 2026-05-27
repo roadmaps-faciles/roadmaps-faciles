@@ -57,7 +57,7 @@ export const CheckoutSummary = ({ cartInit, orgSlug, autopay }: CheckoutSummaryP
     return iv === "yearly" ? t("perYear") : t("perMonth");
   };
 
-  // Total calculation — group by interval
+  // Total calculation - group by interval
   const monthlyItems = cartItems.filter(c => c.interval === "monthly");
   const yearlyItems = cartItems.filter(c => c.interval === "yearly");
   const monthlyTotal = monthlyItems.reduce((s, c) => {
@@ -86,7 +86,7 @@ export const CheckoutSummary = ({ cartInit, orgSlug, autopay }: CheckoutSummaryP
   const handlePay = () => {
     startTransition(async () => {
       setError(undefined);
-      // Group by interval — create one checkout per interval
+      // Group by interval - create one checkout per interval
       const groups: Record<BillingInterval, string[]> = { monthly: [], yearly: [] };
       for (const item of cartItems) {
         groups[item.interval].push(item.packId);
@@ -96,7 +96,7 @@ export const CheckoutSummary = ({ cartInit, orgSlug, autopay }: CheckoutSummaryP
       const intervals = (["monthly", "yearly"] as const).filter(iv => groups[iv].length > 0);
       if (intervals.length === 0) return;
 
-      // First interval checkout — pass pending second interval in successUrl
+      // First interval checkout - pass pending second interval in successUrl
       const firstInterval = intervals[0];
       const secondInterval = intervals.length > 1 ? intervals[1] : undefined;
 

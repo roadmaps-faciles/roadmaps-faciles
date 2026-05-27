@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: StatusCodes.UNAUTHORIZED });
   }
 
-  // Check feature flag (no session for cron — check global flag only)
+  // Check feature flag (no session for cron - check global flag only)
   const flags = await getFeatureFlags();
   if (!flags.integrations) {
     return NextResponse.json({ error: "Feature disabled" }, { status: StatusCodes.FORBIDDEN });

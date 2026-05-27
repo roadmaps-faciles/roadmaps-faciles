@@ -1,6 +1,6 @@
 import { VALID_STORAGE_KEY_PATTERN } from "@/lib/ee/storage-provider/validation";
 
-describe("uploads route — VALID_STORAGE_KEY_PATTERN", () => {
+describe("uploads route - VALID_STORAGE_KEY_PATTERN", () => {
   describe("valid keys", () => {
     it.each([
       "tenants/1/images/abc.png",

@@ -75,9 +75,9 @@ test.describe("Embed Pages", () => {
       // No DSFR header
       await expect(page.locator("header.fr-header")).not.toBeVisible();
 
-      // Status columns visible
-      await expect(page.getByText("En cours")).toBeVisible();
-      await expect(page.getByText("Terminé")).toBeVisible();
+      // Status columns visible — target the column header heading, not the in-card status badge that now repeats the column name
+      await expect(page.getByRole("heading", { name: "En cours" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Terminé" })).toBeVisible();
 
       // Footer
       await expect(page.locator("footer")).toContainText(/propulsé par/i);

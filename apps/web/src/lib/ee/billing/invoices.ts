@@ -43,6 +43,6 @@ export async function listInvoices(customerId: null | string, limit = 12): Promi
     })),
     number: invoice.number,
     pdfUrl: invoice.invoice_pdf ?? null,
-    status: (invoice.status ?? "draft") as BillingInvoice["status"],
+    status: invoice.status ?? "draft",
   }));
 }

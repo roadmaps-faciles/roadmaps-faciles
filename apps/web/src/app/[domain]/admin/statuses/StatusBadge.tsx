@@ -5,7 +5,7 @@ import { type PostStatusColor } from "@/lib/model/PostStatus";
 /**
  * Approximate DSFR contrast badge colors for Default theme (no DSFR CSS dependency).
  * Keys match `PostStatusColor` values (camelCase enum keys).
- * Uses Tailwind arbitrary values — all values are static and scanned by JIT at build time.
+ * Uses Tailwind arbitrary values - all values are static and scanned by JIT at build time.
  */
 const STATUS_COLOR_CLASSES: Record<PostStatusColor, string> = {
   grey: "text-[#3a3a3a] bg-[#eee]",

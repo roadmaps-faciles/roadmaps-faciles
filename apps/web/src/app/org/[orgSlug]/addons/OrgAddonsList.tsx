@@ -144,7 +144,7 @@ export const OrgAddonsList = ({
     setPendingPack(purchaseId);
     startTransition(async () => {
       if (useStripeCheckout) {
-        const result = await startCheckout({ orgSlug, purchaseId: purchaseId as never, interval: billingInterval });
+        const result = await startCheckout({ orgSlug, purchaseId: purchaseId, interval: billingInterval });
         setPendingPack(null);
         if (result.ok) {
           window.location.href = result.data.url;
@@ -388,9 +388,7 @@ export const OrgAddonsList = ({
                       </Badge>
                     )}
                   </div>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                    {tp(`${pack.id}.description` as never)}
-                  </p>
+                  <p className="mt-1 text-xs/relaxed text-muted-foreground">{tp(`${pack.id}.description` as never)}</p>
                   <p className="mt-1 text-xs font-medium text-primary">{priceLabel}</p>
                   <div className="mt-2 flex flex-wrap gap-1">
                     {pack.addons.map(addon => (

@@ -69,7 +69,7 @@ export const RootAuthenticationForm = ({ providers, initialValues }: RootAuthent
       </div>
 
       <UIButton disabled={isPending} onClick={handleSave}>
-        {isPending ? "..." : t("providerEnabled")}
+        {isPending ? "..." : t("save")}
       </UIButton>
     </div>
   );

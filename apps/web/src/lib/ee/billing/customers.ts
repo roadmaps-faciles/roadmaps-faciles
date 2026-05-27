@@ -7,7 +7,7 @@ import { getStripe } from "./stripe";
 
 /**
  * Create a Stripe Customer for an Organization and persist the ID.
- * Requires Stripe to be configured — callers must guard with `stripe` check first.
+ * Requires Stripe to be configured - callers must guard with `stripe` check first.
  */
 export async function createStripeCustomer(org: Organization): Promise<string> {
   const stripe = getStripe();

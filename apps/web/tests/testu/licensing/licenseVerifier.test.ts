@@ -2,7 +2,7 @@ import { createPrivateKey, generateKeyPairSync, sign } from "node:crypto";
 
 import { type LicensePayload } from "@/lib/ee/licensing/types";
 
-// Generate a fresh test keypair — NOT the production keys
+// Generate a fresh test keypair - NOT the production keys
 const { privateKey: testPrivateKey, publicKey: testPublicKey } = generateKeyPairSync("ed25519");
 const testPublicKeyB64 = testPublicKey.export({ format: "der", type: "spki" }).toString("base64");
 const testPrivateKeyB64 = testPrivateKey.export({ format: "der", type: "pkcs8" }).toString("base64");

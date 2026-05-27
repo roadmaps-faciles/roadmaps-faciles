@@ -19,7 +19,7 @@ const TenantProfilePage = DomainPageHOP()(async () => {
       const member = await espaceMembreClient.member.getByUsername(user.username);
       emEmail = getEmUserEmail(member);
     } catch {
-      // EM API indisponible — on continue sans emEmail
+      // EM API indisponible - on continue sans emEmail
     }
   }
 

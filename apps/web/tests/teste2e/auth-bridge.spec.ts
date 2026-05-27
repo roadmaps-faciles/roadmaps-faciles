@@ -18,7 +18,7 @@ import { E2E_TENANT_URL, expect, test } from "./fixtures";
 // ---------------------------------------------------------------------------
 async function hasRootSession(page: import("@playwright/test").Page): Promise<boolean> {
   await page.goto("/");
-  // Root uses shadcn Header — ShadcnUserHeaderItem renders:
+  // Root uses shadcn Header - ShadcnUserHeaderItem renders:
   //   loading: Skeleton
   //   authenticated: DropdownMenu trigger (button with aria-haspopup="menu")
   //   unauthenticated: "Connexion" link
@@ -33,9 +33,9 @@ async function hasRootSession(page: import("@playwright/test").Page): Promise<bo
 }
 
 // ---------------------------------------------------------------------------
-// Authenticated tests (root-auth project — admin already logged in on root)
+// Authenticated tests (root-auth project - admin already logged in on root)
 // ---------------------------------------------------------------------------
-test.describe("Auth Bridge — authenticated", () => {
+test.describe("Auth Bridge - authenticated", () => {
   test("bridge completes root → tenant session transfer", async ({ page }) => {
     const authed = await hasRootSession(page);
     test.skip(!authed, "Requires root-auth session");
@@ -73,16 +73,16 @@ test.describe("Auth Bridge — authenticated", () => {
 
     await page.goto("/api/auth-bridge?redirect=https://evil.example.com/steal", { waitUntil: "networkidle" });
 
-    // Should NOT be at the evil domain — should be at root home
+    // Should NOT be at the evil domain - should be at root home
     expect(page.url()).not.toContain("evil.example.com");
     expect(page.url()).toMatch(/^http:\/\/localhost:3000\/?$/);
   });
 });
 
 // ---------------------------------------------------------------------------
-// Unauthenticated tests (unauthenticated project — no session)
+// Unauthenticated tests (unauthenticated project - no session)
 // ---------------------------------------------------------------------------
-test.describe("Auth Bridge — unauthenticated", () => {
+test.describe("Auth Bridge - unauthenticated", () => {
   test("unauthenticated user → redirects to root login", async ({ page }) => {
     const authed = await hasRootSession(page);
     test.skip(authed, "Only meaningful without a session");

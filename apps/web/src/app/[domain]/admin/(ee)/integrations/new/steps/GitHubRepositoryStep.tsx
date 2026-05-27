@@ -74,6 +74,7 @@ export const GitHubRepositoryStep = () => {
 
   useEffect(() => {
     if (repositories.length > 0) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- async data fetch on mount, equivalent to SWR/useQuery
     void loadRepos();
   }, [repositories.length, loadRepos]);
 

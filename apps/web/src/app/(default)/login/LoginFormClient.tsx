@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { type FormEvent, useState, useTransition } from "react";
+import { type SubmitEvent, useState, useTransition } from "react";
 
 import { UIAlert, UIButton, UIInput } from "@/ui/bridge";
 
@@ -21,7 +21,7 @@ export const LoginFormClient = ({ loginWithEmail, defaultEmail }: LoginFormClien
   const [error, setError] = useState<string>();
   const [isPending, startTransition] = useTransition();
 
-  const handleIdentifierSubmit = (e: FormEvent) => {
+  const handleIdentifierSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!identifier.trim()) return;
@@ -42,7 +42,7 @@ export const LoginFormClient = ({ loginWithEmail, defaultEmail }: LoginFormClien
     });
   };
 
-  const handleOtpSubmit = (e: FormEvent) => {
+  const handleOtpSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!otpCode.trim()) return;
 

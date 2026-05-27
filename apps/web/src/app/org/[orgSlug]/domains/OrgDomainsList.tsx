@@ -142,7 +142,7 @@ export const OrgDomainsList = ({ domains, orgId }: OrgDomainsListProps) => {
 
               {/* DNS instructions for unverified domains */}
               {!domain.verifiedAt && (
-                <div className="rounded bg-muted p-3 text-sm space-y-2">
+                <div className="rounded-sm bg-muted p-3 text-sm space-y-2">
                   <p className="font-medium">{t("dnsInstructions")}</p>
                   <div className="font-mono text-xs space-y-1">
                     <p>

@@ -5,16 +5,13 @@ import { SearchIcon } from "lucide-react";
 import { type ComponentProps } from "react";
 
 import { cn } from "../lib/cn";
-import { DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./dialog";
 
 function Command({ className, ...props }: ComponentProps<typeof CommandPrimitive>) {
   return (
     <CommandPrimitive
       data-slot="command"
-      className={cn(
-        "bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md",
-        className,
-      )}
+      className={cn("bg-popover text-popover-foreground flex size-full flex-col overflow-hidden rounded-md", className)}
       {...props}
     />
   );
@@ -40,7 +37,7 @@ function CommandList({ className, ...props }: ComponentProps<typeof CommandPrimi
   return (
     <CommandPrimitive.List
       data-slot="command-list"
-      className={cn("max-h-[300px] scroll-py-1 overflow-x-hidden overflow-y-auto", className)}
+      className={cn("max-h-75 scroll-py-1 overflow-x-hidden overflow-y-auto", className)}
       {...props}
     />
   );
@@ -55,7 +52,7 @@ function CommandGroup({ className, ...props }: ComponentProps<typeof CommandPrim
     <CommandPrimitive.Group
       data-slot="command-group"
       className={cn(
-        "text-foreground [&_[cmdk-group-heading]]:text-muted-foreground overflow-hidden p-1 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium",
+        "text-foreground **:[[cmdk-group-heading]]:text-muted-foreground overflow-hidden p-1 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1.5 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium",
         className,
       )}
       {...props}
@@ -100,20 +97,25 @@ function CommandDialog({
   title = "Command Palette",
   description = "Search for a command to run...",
   children,
+  onOpenAutoFocus,
   ...props
-}: { description?: string; title?: string } & ComponentProps<typeof CommandPrimitive.Dialog>) {
+}: {
+  description?: string;
+  onOpenAutoFocus?: (event: Event) => void;
+  title?: string;
+} & ComponentProps<typeof Dialog>) {
   return (
-    <CommandPrimitive.Dialog {...props}>
-      <DialogContent className="overflow-hidden p-0" showCloseButton={false}>
+    <Dialog {...props}>
+      <DialogContent className="overflow-hidden p-0" showCloseButton={false} onOpenAutoFocus={onOpenAutoFocus}>
         <DialogHeader className="sr-only">
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        <Command className="[&_[cmdk-group-heading]]:text-muted-foreground **:data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-input]]:h-12">
+        <Command className="**:[[cmdk-group-heading]]:text-muted-foreground **:data-[slot=command-input-wrapper]:h-12 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-input]]:h-12">
           {children}
         </Command>
       </DialogContent>
-    </CommandPrimitive.Dialog>
+    </Dialog>
   );
 }
 

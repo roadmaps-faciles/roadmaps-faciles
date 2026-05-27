@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   # Staging: triggered when any CI workflow completes on dev
-  # workflow_run fires ONCE per completed workflow — the resolve job checks ALL three passed
+  # workflow_run fires ONCE per completed workflow - the resolve job checks ALL three passed
   workflow_run:
     workflows: [Build, Lint, Tests]
     types: [completed]

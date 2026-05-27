@@ -32,7 +32,7 @@ vi.mock("@/lib/db/prisma", () => ({
   prisma: mockPrisma,
 }));
 
-// Mock pricing — per-addon price IDs
+// Mock pricing - per-addon price IDs
 vi.mock("@/lib/ee/billing/pricing", () => ({
   getPackStripePriceIds: (addon: string) => {
     const prices: Record<string, { monthly: string; yearly: string }> = {

@@ -8,7 +8,7 @@ interface HighlightRect {
 }
 
 /**
- * Roving highlight hook — tracks hovered item position relative to a container.
+ * Roving highlight hook - tracks hovered item position relative to a container.
  * Returns props for a single `motion.div` highlight and handlers for items.
  *
  * The container is resolved via `closest()` on the item's DOM using `containerSelector`.

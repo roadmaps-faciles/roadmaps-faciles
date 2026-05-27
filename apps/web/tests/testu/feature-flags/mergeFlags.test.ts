@@ -1,8 +1,6 @@
 import { type Session } from "next-auth";
 import { vi } from "vitest";
 
-import { type UserRole, type UserStatus } from "@/prisma/enums";
-
 // Mock next/navigation
 vi.mock("next/navigation", () => ({
   forbidden: vi.fn(() => {
@@ -10,7 +8,7 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
-// Mock React.cache — passthrough
+// Mock React.cache - passthrough
 vi.mock("react", () => ({
   cache: (fn: unknown) => fn,
 }));
@@ -39,8 +37,8 @@ function fakeSession(overrides: Partial<Session["user"]> = {}): Session {
       name: "Test",
       isSuperAdmin: false,
       isBetaGouvMember: false,
-      role: "USER" as UserRole,
-      status: "ACTIVE" as UserStatus,
+      role: "USER",
+      status: "ACTIVE",
       twoFactorEnabled: false,
       emailVerified: new Date(),
       id: "user-1",
@@ -64,12 +62,12 @@ function fakeAppSettings(featureFlags: unknown = null) {
   };
 }
 
-describe("Feature Flags — merge with populated registry", () => {
+describe("Feature Flags - merge with populated registry", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe("getFeatureFlags — merge behavior", () => {
+  describe("getFeatureFlags - merge behavior", () => {
     it("returns defaults when DB is null", async () => {
       mockGet.mockResolvedValue(fakeAppSettings(null));
 
@@ -144,7 +142,7 @@ describe("Feature Flags — merge with populated registry", () => {
     });
   });
 
-  describe("getEffectiveFlags — super admin bypass with real flags", () => {
+  describe("getEffectiveFlags - super admin bypass with real flags", () => {
     it("forces all flags to true for super admin", async () => {
       mockGet.mockResolvedValue(fakeAppSettings({ testFeature: false }));
       const session = fakeSession({ isSuperAdmin: true });
@@ -166,7 +164,7 @@ describe("Feature Flags — merge with populated registry", () => {
     });
   });
 
-  describe("assertFeature — with real flags", () => {
+  describe("assertFeature - with real flags", () => {
     it("throws forbidden when flag is OFF for normal user", async () => {
       mockGet.mockResolvedValue(fakeAppSettings({ testFeature: false }));
       const session = fakeSession();

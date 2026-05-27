@@ -1,8 +1,8 @@
-import { type Meta, type StoryObj } from "storybook";
+import { type Meta, type StoryObj } from "@storybook/react-vite";
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./accordion";
 
-const meta = {
+const meta: Meta<typeof Accordion> = {
   title: "Components/Accordion",
   component: Accordion,
   parameters: {
@@ -13,10 +13,10 @@ const meta = {
       },
     },
   },
-} satisfies Meta<typeof Accordion>;
+};
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof Accordion>;
 
 export const Single: Story = {
   render: () => (

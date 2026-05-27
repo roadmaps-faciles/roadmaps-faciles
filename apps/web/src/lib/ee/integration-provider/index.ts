@@ -9,7 +9,7 @@ import { type IntegrationConfig } from "./types";
 
 /**
  * Factory to create an integration provider instance.
- * Unlike DNS/Domain providers, this is NOT a singleton — each tenant integration
+ * Unlike DNS/Domain providers, this is NOT a singleton - each tenant integration
  * gets its own instance with its own credentials.
  */
 export function createIntegrationProvider(

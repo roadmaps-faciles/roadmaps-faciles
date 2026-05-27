@@ -1,5 +1,5 @@
 /**
- * ESLint config pour apps/web — étend la base partagée du monorepo.
+ * ESLint config pour apps/web - étend la base partagée du monorepo.
  *
  * Ordre des configs (le dernier gagne en cas de conflit) :
  * 1. base       → règles partagées (import, prettier, TS, perfectionist)
@@ -7,10 +7,10 @@
  * 3. app rules  → rules spécifiques à l'app Next.js (lodash, import resolution, react-hooks)
  * 4. overrides  → TS parser, Next.js files allowlist, scripts, tests
  *
- * Les plugins import/react viennent de nextConfig (pas de base) — voir root eslint.config.ts.
+ * Les plugins import/react viennent de nextConfig (pas de base) - voir root eslint.config.ts.
  */
 import nextConfig from "eslint-config-next/core-web-vitals";
-// @ts-expect-error — pas de types publiés pour ce plugin
+// @ts-expect-error - pas de types publiés pour ce plugin
 import lodashPlugin from "eslint-plugin-lodash";
 
 import { base } from "../../eslint.config";
@@ -85,7 +85,7 @@ const config = [
     },
   },
 
-  // ─── TypeScript — project:true auto-découvre tsconfig.json, scripts/tsconfig.json, tests/tsconfig.json ─
+  // ─── TypeScript - project:true auto-découvre tsconfig.json, scripts/tsconfig.json, tests/tsconfig.json ─
   {
     files: ["**/*.ts", "**/*.tsx"],
     languageOptions: {
@@ -96,7 +96,7 @@ const config = [
     },
   },
 
-  // ─── Fichiers Next.js / configs — default export autorisé ────────────────
+  // ─── Fichiers Next.js / configs - default export autorisé ────────────────
   {
     files: [
       "src/pages/**/*.ts",
@@ -111,7 +111,6 @@ const config = [
       "vitest.config.ts",
       "vitest.config.db.ts",
       "playwright.config.ts",
-      "next-sitemap.config.js",
       "postcss.config.js",
     ],
     rules: {
@@ -119,7 +118,7 @@ const config = [
     },
   },
 
-  // ─── Scripts — tsconfig séparé ────────────────────────────────────────────
+  // ─── Scripts - tsconfig séparé ────────────────────────────────────────────
   {
     files: ["scripts/**/*.ts"],
     languageOptions: {
@@ -130,7 +129,7 @@ const config = [
     },
   },
 
-  // ─── Tests — tsconfig séparé + globals vitest ──────────────────────────────
+  // ─── Tests - tsconfig séparé + globals vitest ──────────────────────────────
   // Relaxe les règles @typescript-eslint/no-unsafe-* (les mocks et stubs sont loosely typed).
   {
     files: ["tests/**/*.ts", "vitest.setup.ts"],

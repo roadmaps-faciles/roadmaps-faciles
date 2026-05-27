@@ -112,7 +112,7 @@ describe("AuditLogRepoPrisma", () => {
       const user = await createTestUser();
       await createTestAuditLog({ userId: user.id });
 
-      // Delete user — audit log has no FK, so it survives
+      // Delete user - audit log has no FK, so it survives
       await prisma.user.delete({ where: { id: user.id } });
 
       const logs = await repo.findAll({});

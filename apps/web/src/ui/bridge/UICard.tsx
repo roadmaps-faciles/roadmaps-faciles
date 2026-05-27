@@ -23,13 +23,14 @@ export type UICardProps = {
   horizontal?: boolean;
   href?: string;
   linkTarget?: string;
-  /** Shadow mode — true=always, "light"=light only, "dark"=dark only, omit=never */
+  /** Shadow mode - true=always, "light"=light only, "dark"=dark only, omit=never */
   shadow?: "dark" | "light" | true;
-  /** Size — "sm" maps to DSFR `size="small"`, "lg" maps to `size="large"` */
+  /** Size - "sm" maps to DSFR `size="small"`, "lg" maps to `size="large"` */
   size?: "default" | "lg" | "sm";
   subtitle?: React.ReactNode;
   title: React.ReactNode;
   titleAs?: "h2" | "h3" | "h4" | "h5" | "h6";
+  wrapperClassName?: string;
 };
 
 export const UICard = ({
@@ -44,6 +45,7 @@ export const UICard = ({
   size,
   shadow,
   className,
+  wrapperClassName,
 }: UICardProps) => {
   const theme = useUI();
 
@@ -62,6 +64,7 @@ export const UICard = ({
           size={size}
           shadow={shadow}
           className={className}
+          wrapperClassName={wrapperClassName}
         />
       </Suspense>
     );
@@ -81,7 +84,7 @@ export const UICard = ({
     <ShadcnCard className={cn(shadowClass, isSmall && "p-3", className)}>
       <CardHeader className={cn(isSmall && "p-0 pb-1")}>
         {subtitle && <CardDescription>{subtitle}</CardDescription>}
-        <CardTitle className={cn(isSmall && "text-sm font-medium")}>
+        <CardTitle className={cn(isSmall && "text-base font-semibold")}>
           <TitleTag className="m-0">{title}</TitleTag>
         </CardTitle>
       </CardHeader>
@@ -92,10 +95,14 @@ export const UICard = ({
 
   if (href) {
     return (
-      <Link href={href} className="no-underline" {...(linkTarget && { target: linkTarget })}>
+      <Link href={href} className={cn("no-underline", wrapperClassName)} {...(linkTarget && { target: linkTarget })}>
         {cardContent}
       </Link>
     );
+  }
+
+  if (wrapperClassName) {
+    return <div className={wrapperClassName}>{cardContent}</div>;
   }
 
   return cardContent;

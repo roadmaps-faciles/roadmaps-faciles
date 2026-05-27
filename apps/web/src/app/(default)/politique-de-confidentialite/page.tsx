@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 
 const PolitiqueDeConfidentialitePage = () => {
   return (
-    <div className="mx-auto max-w-4xl px-4 py-12 [&_a]:text-primary [&_a]:underline [&_h2]:mb-3 [&_h2]:mt-8 [&_h2]:text-xl [&_h2]:font-semibold [&_h3]:mb-2 [&_h3]:mt-6 [&_h3]:text-lg [&_h3]:font-medium [&_p+p]:mt-3 [&_p]:text-sm [&_p]:leading-relaxed [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:text-sm">
+    <div className="mx-auto max-w-4xl px-4 py-12 [&_a]:text-primary [&_a]:underline [&_h2]:mb-3 [&_h2]:mt-8 [&_h2]:text-xl [&_h2]:font-semibold [&_h3]:mb-2 [&_h3]:mt-6 [&_h3]:text-lg [&_h3]:font-medium [&_p+p]:mt-3 [&_p]:text-sm/relaxed [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:text-sm">
       <h1 className="mb-8 text-3xl font-bold">{title}</h1>
 
       <h2>Responsable du traitement</h2>
@@ -70,13 +70,13 @@ const PolitiqueDeConfidentialitePage = () => {
       <p>Les données personnelles peuvent être transmises aux sous-traitants suivants :</p>
       <ul>
         <li>
-          <strong>Stripe, Inc.</strong> — Traitement des paiements et gestion des abonnements.{" "}
+          <strong>Stripe, Inc.</strong> - Traitement des paiements et gestion des abonnements.{" "}
           <a href="https://stripe.com/fr/privacy" target="_blank" rel="noopener noreferrer">
             Politique de confidentialité Stripe
           </a>
         </li>
         <li>
-          <strong>{config.legal.hostingName}</strong> — Hébergement de l&apos;infrastructure
+          <strong>{config.legal.hostingName}</strong> - Hébergement de l&apos;infrastructure
         </li>
       </ul>
 
@@ -161,7 +161,7 @@ const PolitiqueDeConfidentialitePage = () => {
                     Voir
                   </a>
                 ) : (
-                  "—"
+                  "-"
                 )}
               </td>
             </tr>

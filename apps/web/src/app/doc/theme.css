@@ -1,4 +1,4 @@
-/* Fumadocs Theme — French Blue (shadcn tokens)
+/* Fumadocs Theme - French Blue (shadcn tokens)
  * Maps Fumadocs --color-fd-* to our design tokens.
  * Light/dark switching is handled by ThemeToggle (.dark class on <html>)
  * and tokens scoped under [data-ui-theme="Default"] in packages/ui.
@@ -78,7 +78,7 @@
     opacity: 1;
 }
 
-/* Manual override — placed AFTER theme rules so same-specificity wins by source order */
+/* Manual override - placed AFTER theme rules so same-specificity wins by source order */
 :root[data-img-preview-override="light"] .image-with-theme img[data-theme-img="light"] {
     opacity: 1;
 }

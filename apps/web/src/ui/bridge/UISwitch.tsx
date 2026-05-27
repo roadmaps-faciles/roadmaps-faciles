@@ -11,7 +11,7 @@ export type UISwitchProps = {
   checked: boolean;
   className?: string;
   disabled?: boolean;
-  /** Label displayed next to the switch — required for RGAA (a11y) */
+  /** Label displayed next to the switch - required for RGAA (a11y) */
   label: React.ReactNode;
   onCheckedChangeAction: (checked: boolean) => void;
 };

@@ -1,3 +1,4 @@
+import { type Meta, type StoryObj } from "@storybook/react-vite";
 import {
   Cloud,
   CreditCard,
@@ -15,7 +16,6 @@ import {
   Users,
 } from "lucide-react";
 import { useState } from "react";
-import { type Meta, type StoryObj } from "storybook";
 
 import { Button } from "./button";
 import {

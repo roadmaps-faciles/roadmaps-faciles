@@ -15,7 +15,7 @@ import { type PostSyncData } from "./types";
  */
 export async function notifyPostMutation(postId: number, tenantUrl: string): Promise<void> {
   try {
-    // Skip posts whose origin is inbound (created by a sync) — pushing back would create loops.
+    // Skip posts whose origin is inbound (created by a sync) - pushing back would create loops.
     // Pure outbound posts (created in RF) have no mapping yet on first save → notifications still flow.
     const mappings = await integrationMappingRepo.findMappingsForPost(postId);
     const hasInboundMapping = mappings.some(

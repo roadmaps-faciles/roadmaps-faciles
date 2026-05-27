@@ -30,7 +30,7 @@ const CguPage = () => {
   const publisherName = config.legal.publisherName;
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-12 [&_a]:text-primary [&_a]:underline [&_h2]:mb-3 [&_h2]:mt-8 [&_h2]:text-xl [&_h2]:font-semibold [&_h3]:mb-2 [&_h3]:mt-6 [&_h3]:text-lg [&_h3]:font-medium [&_p+p]:mt-3 [&_p]:text-sm [&_p]:leading-relaxed [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:text-sm">
+    <div className="mx-auto max-w-4xl px-4 py-12 [&_a]:text-primary [&_a]:underline [&_h2]:mb-3 [&_h2]:mt-8 [&_h2]:text-xl [&_h2]:font-semibold [&_h3]:mb-2 [&_h3]:mt-6 [&_h3]:text-lg [&_h3]:font-medium [&_p+p]:mt-3 [&_p]:text-sm/relaxed [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:text-sm">
       <h1 className="mb-8 text-3xl font-bold">{title}</h1>
 
       <h2>1. Objet</h2>
@@ -68,22 +68,22 @@ const CguPage = () => {
       <p>Le Service propose les formules suivantes :</p>
       <ul>
         <li>
-          <strong>Gratuit</strong> — Fonctionnalités de base (roadmap, tableaux, votes, commentaires, intégration
+          <strong>Gratuit</strong> - Fonctionnalités de base (roadmap, tableaux, votes, commentaires, intégration
           iframe, stockage d&apos;images, authentification).
         </li>
         <li>
-          <strong>Add-ons à la carte</strong> — Fonctionnalités avancées activables individuellement ou en packs
+          <strong>Add-ons à la carte</strong> - Fonctionnalités avancées activables individuellement ou en packs
           (domaine personnalisé, multi-tenant, intégrations, API, audit, SSO, analytics). Facturation mensuelle ou
           annuelle.
         </li>
         <li>
-          <strong>Pack Pro</strong> — Tous les add-ons sauf SSO Entreprise, à prix réduit.
+          <strong>Pack Pro</strong> - Tous les add-ons sauf SSO Entreprise, à prix réduit.
         </li>
         <li>
-          <strong>Pack Complet</strong> — Tous les add-ons inclus, y compris SSO Entreprise.
+          <strong>Pack Complet</strong> - Tous les add-ons inclus, y compris SSO Entreprise.
         </li>
         <li>
-          <strong>Administration publique</strong> — Accès complet gratuit pour les entités disposant d&apos;un domaine
+          <strong>Administration publique</strong> - Accès complet gratuit pour les entités disposant d&apos;un domaine
           .gouv.fr vérifié.
         </li>
       </ul>
@@ -98,7 +98,7 @@ const CguPage = () => {
         <a href="https://stripe.com" target="_blank" rel="noopener noreferrer">
           Stripe
         </a>
-        . {brandName} ne stocke aucune donnée bancaire — celles-ci sont traitées exclusivement par Stripe.
+        . {brandName} ne stocke aucune donnée bancaire - celles-ci sont traitées exclusivement par Stripe.
       </p>
       <p>
         Les abonnements sont renouvelés automatiquement à chaque échéance (mensuelle ou annuelle). L&apos;utilisateur

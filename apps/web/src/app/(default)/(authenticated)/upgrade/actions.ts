@@ -7,8 +7,8 @@ import { assertOrgOwner } from "@/utils/auth";
 import { type ServerActionResponse } from "@/utils/next";
 
 /**
- * Legacy upgrade action — updates org name/slug and redirects to the addons page.
- * In the addon-first model, there is no plan upgrade — users buy addons à la carte.
+ * Legacy upgrade action - updates org name/slug and redirects to the addons page.
+ * In the addon-first model, there is no plan upgrade - users buy addons à la carte.
  */
 export const upgradeOrganization = async (data: {
   name: string;

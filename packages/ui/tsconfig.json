@@ -10,7 +10,6 @@
     "sourceMap": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "baseUrl": ".",
     "paths": {
       "@roadmaps-faciles/ui": ["./src/index.ts"],
       "@roadmaps-faciles/ui/*": ["./src/*"]

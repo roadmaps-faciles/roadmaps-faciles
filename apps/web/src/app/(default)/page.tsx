@@ -45,14 +45,14 @@ const Home = async (_: PageProps<"/">) => {
             </Badge>
           </div>
 
-          <h1 className="mx-auto max-w-4xl text-balance text-5xl font-extrabold leading-[1.1] tracking-tight md:text-7xl">
+          <h1 className="mx-auto max-w-5xl text-balance text-4xl font-extrabold leading-[1.1] tracking-tight md:text-6xl">
             {t("title")}{" "}
-            <span className="bg-gradient-to-r from-primary to-muted-foreground bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-primary to-muted-foreground bg-clip-text text-transparent">
               {t("titleAccent")}
             </span>
           </h1>
 
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">{t("description")}</p>
+          <p className="mx-auto mt-6 max-w-2xl text-lg/relaxed text-muted-foreground">{t("description")}</p>
 
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Button asChild size="lg" className="w-full px-8 py-6 text-base sm:w-auto">
@@ -72,7 +72,7 @@ const Home = async (_: PageProps<"/">) => {
         <div className="mx-auto max-w-7xl">
           <h2 className="sr-only">{t("bento.roadmap.title")}</h2>
           <div className="grid auto-rows-min grid-cols-1 gap-6 md:grid-cols-12">
-            {/* Roadmap collaborative — 8col, 2row */}
+            {/* Roadmap collaborative - 8col, 2row */}
             <Card className="border-border/40 p-8 shadow-none md:col-span-8 md:row-span-2">
               <div className="mb-8 flex items-center justify-between">
                 <div>
@@ -115,7 +115,7 @@ const Home = async (_: PageProps<"/">) => {
                       {t("bento.roadmap.colInProgress")}
                     </span>
                   </div>
-                  <Card className="border-primary/20 bg-primary/[0.02] p-4 shadow-none">
+                  <Card className="border-primary/20 bg-primary/2 p-4 shadow-none">
                     <p className="mb-3 text-sm font-medium text-primary">{t("bento.roadmap.itemMobile")}</p>
                     <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
                       <div className="h-full w-2/3 bg-primary" />
@@ -143,7 +143,7 @@ const Home = async (_: PageProps<"/">) => {
               </div>
             </Card>
 
-            {/* Vote citoyen — 4col, 2row */}
+            {/* Vote citoyen - 4col, 2row */}
             <Card className="border-border/40 bg-muted/30 p-8 shadow-none md:col-span-4 md:row-span-2">
               <div className="mb-6 flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary">
                 <Vote className="size-6" />
@@ -185,7 +185,7 @@ const Home = async (_: PageProps<"/">) => {
               </div>
             </Card>
 
-            {/* Key facts — 4col */}
+            {/* Key facts - 4col */}
             <Card className="relative flex flex-col justify-between overflow-hidden border-border/40 p-8 shadow-none md:col-span-4">
               <div>
                 <h3 className="text-base font-semibold">{t("bento.facts.title")}</h3>
@@ -219,7 +219,7 @@ const Home = async (_: PageProps<"/">) => {
               </div>
             </Card>
 
-            {/* Intégrations — 8col */}
+            {/* Intégrations - 8col */}
             <Card className="flex flex-col justify-center border-border/40 p-8 shadow-none md:col-span-8">
               <div className="mb-8 flex items-center gap-2">
                 <Plug className="size-5 text-primary" />
@@ -227,7 +227,7 @@ const Home = async (_: PageProps<"/">) => {
               </div>
               <div className="flex flex-wrap items-center justify-around gap-4">
                 <div className="flex flex-col items-center gap-2">
-                  <div className="flex size-12 items-center justify-center rounded-lg border-2 border-primary/20 bg-primary/[0.02] text-primary">
+                  <div className="flex size-12 items-center justify-center rounded-lg border-2 border-primary/20 bg-primary/2 text-primary">
                     <StickyNote className="size-6" />
                   </div>
                   <span className="text-[10px] font-bold text-primary">{t("bento.integrations.notion")}</span>
@@ -315,7 +315,7 @@ const Home = async (_: PageProps<"/">) => {
               <Button
                 asChild
                 size="lg"
-                className="bg-primary-foreground px-10 py-4 text-lg font-bold !text-primary hover:bg-primary-foreground/90 hover:!text-primary"
+                className="bg-primary-foreground px-10 py-4 text-lg font-bold text-primary! hover:bg-primary-foreground/90 hover:text-primary!"
               >
                 <Link href="/workspaces">{t("ctaSection.cta")}</Link>
               </Button>

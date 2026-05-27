@@ -16,6 +16,8 @@ import { type PublicMappingSummary } from "@/lib/repo/IIntegrationMappingRepo";
 import { type Activity, type Board } from "@/prisma/client";
 import { UserRole } from "@/prisma/enums";
 import { UIBadge, UISeparator } from "@/ui/bridge";
+import { getTheme } from "@/ui/server";
+import { type UiTheme } from "@/ui/types";
 import { getAnonymousId } from "@/utils/anonymousId/getAnonymousId";
 import { assertPublicAccess } from "@/utils/auth";
 import { formatDate } from "@/utils/date";
@@ -32,7 +34,7 @@ export interface PostPageParams {
   postId: number;
 }
 
-export const PostPageHOP = (page: (props: PostPageComponentProps) => ReactElement) =>
+export const PostPageHOP = (page: (props: PostPageComponentProps) => Promise<ReactElement> | ReactElement) =>
   DomainPageHOP<PostPageParams>()(async ({ params, _data: { settings, tenant, dirtyDomainFixer } }) => {
     const { postId } = await params;
     const id = Number(postId);
@@ -103,7 +105,7 @@ export const PostPageHOP = (page: (props: PostPageComponentProps) => ReactElemen
       notFound();
     }
 
-    // Check membership once — used for both approval access and edit permissions
+    // Check membership once - used for both approval access and edit permissions
     const membership = session?.user
       ? await prisma.userOnTenant.findUnique({
           where: { userId_tenantId: { userId: session.user.uuid, tenantId: tenant.id } },
@@ -159,6 +161,8 @@ export const PostPageHOP = (page: (props: PostPageComponentProps) => ReactElemen
       }
     }
 
+    const theme = await getTheme(settings);
+
     return page({
       post,
       user: session?.user,
@@ -178,6 +182,7 @@ export const PostPageHOP = (page: (props: PostPageComponentProps) => ReactElemen
         remoteUrl: m.remoteUrl,
         metadata: m.metadata,
       })),
+      theme,
     });
   });
 
@@ -195,6 +200,7 @@ export interface PostPageComponentProps {
   notionUrl?: null | string;
   post: { activities: Activity[]; board: Board; editedBy?: { name: null | string } | null } & EnrichedPost;
   remoteMappings?: PublicMappingSummary[];
+  theme: UiTheme;
   user?: null | User;
   userId?: string;
 }
@@ -276,7 +282,7 @@ export const PostPageComponent = async (props: PostPageComponentProps) => {
         <>
           <div className="relative my-6">
             <UISeparator />
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap bg-background px-3 text-sm text-muted-foreground">
+            <span className="absolute left-1/2 top-1/2 -translate-1/2 whitespace-nowrap bg-background px-3 text-sm text-muted-foreground">
               {t("activityFeed")}
             </span>
           </div>
@@ -295,7 +301,7 @@ export const PostPageTitle = ({
   allowAnonymousVoting,
   user,
 }: PostPageComponentProps) => (
-  <span className="relative z-[1] flex justify-between items-center gap-[2rem]">
+  <span className="relative z-1 flex justify-between items-center gap-8">
     <MarkdownAsync {...reactMarkdownConfig}>{post.title}</MarkdownAsync>
     {allowVoting && (allowAnonymousVoting || user?.id) && (
       <LikeButton alreadyLiked={alreadyLiked} postId={post.id} tenantId={post.tenantId} userId={user?.id}>

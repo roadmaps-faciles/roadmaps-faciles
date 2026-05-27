@@ -1,4 +1,4 @@
-import { type Meta, type StoryObj } from "storybook";
+import { type Meta, type StoryObj } from "@storybook/react-vite";
 
 import { Label } from "./label";
 import {
@@ -31,7 +31,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   render: () => (
     <Select>
-      <SelectTrigger className="w-[180px]">
+      <SelectTrigger className="w-45">
         <SelectValue placeholder="Select a fruit" />
       </SelectTrigger>
       <SelectContent>
@@ -51,7 +51,7 @@ export const Default: Story = {
 export const WithGroups: Story = {
   render: () => (
     <Select>
-      <SelectTrigger className="w-[200px]">
+      <SelectTrigger className="w-50">
         <SelectValue placeholder="Select a timezone" />
       </SelectTrigger>
       <SelectContent>
@@ -84,7 +84,7 @@ export const SizeSmall: Story = {
   },
   render: () => (
     <Select>
-      <SelectTrigger size="sm" className="w-[180px]">
+      <SelectTrigger size="sm" className="w-45">
         <SelectValue placeholder="Small trigger" />
       </SelectTrigger>
       <SelectContent>
@@ -99,7 +99,7 @@ export const SizeSmall: Story = {
 export const Disabled: Story = {
   render: () => (
     <Select disabled>
-      <SelectTrigger className="w-[180px]">
+      <SelectTrigger className="w-45">
         <SelectValue placeholder="Disabled" />
       </SelectTrigger>
       <SelectContent>
@@ -112,7 +112,7 @@ export const Disabled: Story = {
 export const DisabledItem: Story = {
   render: () => (
     <Select>
-      <SelectTrigger className="w-[180px]">
+      <SelectTrigger className="w-45">
         <SelectValue placeholder="Select option" />
       </SelectTrigger>
       <SelectContent>
@@ -131,7 +131,7 @@ export const WithLabel: Story = {
     <div className="grid w-full max-w-sm gap-1.5">
       <Label htmlFor="framework">Framework</Label>
       <Select>
-        <SelectTrigger id="framework" className="w-[180px]">
+        <SelectTrigger id="framework" className="w-45">
           <SelectValue placeholder="Select" />
         </SelectTrigger>
         <SelectContent>

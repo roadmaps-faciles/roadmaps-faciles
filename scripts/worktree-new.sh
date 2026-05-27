@@ -112,22 +112,45 @@ if git worktree list --porcelain | awk -v b="$BRANCH" \
 fi
 
 # --- Création du worktree ---
-echo "📁 Création du worktree depuis ${BASE_BRANCH}..."
-if git show-ref --verify --quiet "refs/heads/$BRANCH"; then
-  git worktree add "$WORKTREE_DIR" "$BRANCH"
-else
-  git worktree add -b "$BRANCH" "$WORKTREE_DIR" "$BASE_BRANCH"
-fi
+MAIN_GIT_DIR="$REPO_ROOT/.git"
+HAS_GIT_CRYPT=false
+[ -d "$MAIN_GIT_DIR/git-crypt" ] && HAS_GIT_CRYPT=true
 
-cd "$WORKTREE_DIR"
+if [ "$HAS_GIT_CRYPT" = true ]; then
+  echo "📁 Création du worktree depuis ${BASE_BRANCH} (--no-checkout pour git-crypt)..."
+  if git show-ref --verify --quiet "refs/heads/$BRANCH"; then
+    git worktree add --no-checkout "$WORKTREE_DIR" "$BRANCH"
+  else
+    git worktree add --no-checkout -b "$BRANCH" "$WORKTREE_DIR" "$BASE_BRANCH"
+  fi
+
+  cd "$WORKTREE_DIR"
+
+  echo "🔐 Propagation de la clé git-crypt..."
+  WT_GIT_DIR=$(git rev-parse --git-dir)
+  ln -s "$MAIN_GIT_DIR/git-crypt" "$WT_GIT_DIR/git-crypt"
+
+  echo "📥 Checkout des fichiers..."
+  git reset --hard HEAD
+else
+  echo "📁 Création du worktree depuis ${BASE_BRANCH}..."
+  if git show-ref --verify --quiet "refs/heads/$BRANCH"; then
+    git worktree add "$WORKTREE_DIR" "$BRANCH"
+  else
+    git worktree add -b "$BRANCH" "$WORKTREE_DIR" "$BASE_BRANCH"
+  fi
+
+  cd "$WORKTREE_DIR"
+fi
 
 # --- Copie des fichiers de config locale (gitignored) ---
 echo "📋 Copie des fichiers de config locale..."
 LOCAL_CONFIG_FILES=(
   ".claude/settings.local.json"
   "CLAUDE.local.md"
-  ".env.development.local"
-  ".env.production.local"
+  "apps/web/.env.development.local"
+  "apps/web/.env.production.local"
+  "apps/licensing/.env"
 )
 for file in "${LOCAL_CONFIG_FILES[@]}"; do
   if [ -f "$REPO_ROOT/$file" ]; then
@@ -137,6 +160,8 @@ for file in "${LOCAL_CONFIG_FILES[@]}"; do
   fi
 done
 
+ENV_LOCAL="apps/web/.env.development.local"
+
 # --- .env.development.local : surcharge port + DB si demandé ---
 if [ -n "$PORT" ] || [ "$ISOLATED_DB" = true ]; then
   echo -n "⚙️  Configuration de l'environnement ("
@@ -145,28 +170,29 @@ if [ -n "$PORT" ] || [ "$ISOLATED_DB" = true ]; then
   [ "$ISOLATED_DB" = true ] && echo -n "db=${DB_NAME}"
   echo ")..."
 
-  if [ -f .env.development.local ]; then
+  if [ -f "$ENV_LOCAL" ]; then
     if [ "$ISOLATED_DB" = true ]; then
-      sed -i '' "s|^DATABASE_URL=.*|DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/${DB_NAME}\"|" .env.development.local
-      grep -q "^DATABASE_URL=" .env.development.local || echo "DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/${DB_NAME}\"" >> .env.development.local
+      sed -i '' "s|^DATABASE_URL=.*|DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/${DB_NAME}\"|" "$ENV_LOCAL"
+      grep -q "^DATABASE_URL=" "$ENV_LOCAL" || echo "DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/${DB_NAME}\"" >> "$ENV_LOCAL"
     fi
     if [ -n "$PORT" ]; then
-      sed -i '' "s|^PORT=.*|PORT=${PORT}|" .env.development.local
-      sed -i '' "s|^NEXT_PUBLIC_SITE_URL=.*|NEXT_PUBLIC_SITE_URL=http://localhost:${PORT}|" .env.development.local
-      sed -i '' "s|^AUTH_URL=.*|AUTH_URL=http://localhost:${PORT}/api/auth|" .env.development.local
-      grep -q "^PORT=" .env.development.local || echo "PORT=${PORT}" >> .env.development.local
-      grep -q "^NEXT_PUBLIC_SITE_URL=" .env.development.local || echo "NEXT_PUBLIC_SITE_URL=http://localhost:${PORT}" >> .env.development.local
-      grep -q "^AUTH_URL=" .env.development.local || echo "AUTH_URL=http://localhost:${PORT}/api/auth" >> .env.development.local
+      sed -i '' "s|^PORT=.*|PORT=${PORT}|" "$ENV_LOCAL"
+      sed -i '' "s|^NEXT_PUBLIC_SITE_URL=.*|NEXT_PUBLIC_SITE_URL=http://localhost:${PORT}|" "$ENV_LOCAL"
+      sed -i '' "s|^AUTH_URL=.*|AUTH_URL=http://localhost:${PORT}/api/auth|" "$ENV_LOCAL"
+      grep -q "^PORT=" "$ENV_LOCAL" || echo "PORT=${PORT}" >> "$ENV_LOCAL"
+      grep -q "^NEXT_PUBLIC_SITE_URL=" "$ENV_LOCAL" || echo "NEXT_PUBLIC_SITE_URL=http://localhost:${PORT}" >> "$ENV_LOCAL"
+      grep -q "^AUTH_URL=" "$ENV_LOCAL" || echo "AUTH_URL=http://localhost:${PORT}/api/auth" >> "$ENV_LOCAL"
     fi
   else
-    # Pas de fichier source — créer un minimal
+    # Pas de fichier source - créer un minimal
+    mkdir -p "$(dirname "$ENV_LOCAL")"
     {
       echo "# Worktree: $BRANCH"
       [ "$ISOLATED_DB" = true ] && echo "DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/${DB_NAME}\""
       [ -n "$PORT" ] && echo "PORT=${PORT}"
       [ -n "$PORT" ] && echo "NEXT_PUBLIC_SITE_URL=http://localhost:${PORT}"
       [ -n "$PORT" ] && echo "AUTH_URL=http://localhost:${PORT}/api/auth"
-    } > .env.development.local
+    } > "$ENV_LOCAL"
   fi
 fi
 
@@ -185,15 +211,30 @@ echo "📦 Installation des dépendances..."
 pnpm install --frozen-lockfile
 
 # --- Prisma ---
+pushd apps/web > /dev/null
 echo "🔧 Génération du client Prisma..."
 pnpm prisma generate
 
 if [ "$ISOLATED_DB" = true ]; then
   echo "🔧 Prisma migrate deploy..."
-  pnpm prisma migrate deploy 2>/dev/null || echo "   ⚠️  prisma migrate deploy a échoué — lance-le manuellement si le schéma a changé."
+  pnpm prisma:migrate:deploy 2>/dev/null || echo "   ⚠️  prisma migrate deploy a échoué - lance-le manuellement si le schéma a changé."
   echo "🌱 Seed de la base..."
-  pnpm prisma db seed 2>/dev/null || echo "   ⚠️  Seed a échoué — lance 'pnpm prisma db seed' manuellement si nécessaire."
+  pnpm seed 2>/dev/null || echo "   ⚠️  Seed a échoué - lance 'pnpm seed' manuellement si nécessaire."
 fi
+popd > /dev/null
+
+# --- Métadonnées worktree ---
+cat > .rm-worktree-info.json <<EOF
+{
+  "branch": "$BRANCH",
+  "baseBranch": "$BASE_BRANCH",
+  "port": ${PORT:-3000},
+  "isolatedDb": $ISOLATED_DB,
+  "dbName": "${ISOLATED_DB:+$DB_NAME}",
+  "mainRepo": "$REPO_ROOT",
+  "createdAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+}
+EOF
 
 # --- Résumé ---
 echo ""

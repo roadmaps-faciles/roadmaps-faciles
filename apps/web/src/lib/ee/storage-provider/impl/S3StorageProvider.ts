@@ -27,10 +27,18 @@ export class S3StorageProvider implements IStorageProvider {
     return this.client;
   }
 
+  // Le prefix est appliqué côté provider uniquement (transparent pour les callers).
+  // Les keys logiques stockées en DB restent inchangées entre les envs.
+  private prefixedKey(key: string): string {
+    const prefix = this.s3Config.keyPrefix;
+    if (!prefix) return key;
+    return prefix.endsWith("/") ? `${prefix}${key}` : `${prefix}/${key}`;
+  }
+
   public async upload(key: string, buffer: Buffer, contentType: string): Promise<UploadResult> {
     const command = new PutObjectCommand({
       Bucket: this.s3Config.bucket,
-      Key: key,
+      Key: this.prefixedKey(key),
       Body: buffer,
       ContentType: contentType,
       CacheControl: "public, max-age=31536000, immutable",
@@ -46,7 +54,7 @@ export class S3StorageProvider implements IStorageProvider {
   public async delete(key: string): Promise<void> {
     const command = new DeleteObjectCommand({
       Bucket: this.s3Config.bucket,
-      Key: key,
+      Key: this.prefixedKey(key),
     });
 
     await this.getClient().send(command);
@@ -54,12 +62,13 @@ export class S3StorageProvider implements IStorageProvider {
   }
 
   public getPublicUrl(key: string): string {
+    const fullKey = this.prefixedKey(key);
     if (this.s3Config.publicUrl) {
-      return `${this.s3Config.publicUrl.replace(/\/$/, "")}/${key}`;
+      return `${this.s3Config.publicUrl.replace(/\/$/, "")}/${fullKey}`;
     }
     if (!this.s3Config.endpoint) {
       throw new Error("S3StorageProvider: either STORAGE_S3_PUBLIC_URL or STORAGE_S3_ENDPOINT must be configured");
     }
-    return `${this.s3Config.endpoint}/${this.s3Config.bucket}/${key}`;
+    return `${this.s3Config.endpoint}/${this.s3Config.bucket}/${fullKey}`;
   }
 }

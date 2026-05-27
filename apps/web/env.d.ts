@@ -38,6 +38,11 @@ declare namespace NodeJS {
          */
         AUTH_TRUST_HOST?: string;
         /**
+         * Dist: `100-64-0-1.sslip.io:3000`  
+         * {@link [Local Env Dist](.env.development)}
+         */
+        ADDITIONAL_ROOT_DOMAINS?: string;
+        /**
          * Dist: `lilian.sagetlethias,julien.bouquillon`  
          * {@link [Local Env Dist](.env.development)}
          */
@@ -299,11 +304,6 @@ Française`
          */
         NEXT_PUBLIC_APP_VERSION_COMMIT?: string;
         /**
-         * Dist: `http://localhost:3000/api/auth`  
-         * {@link [Local Env Dist](.env.development)}
-         */
-        AUTH_URL?: string;
-        /**
          * Dist: `noop`  
          * {@link [Local Env Dist](.env.development)}
          */
@@ -394,6 +394,11 @@ Française`
          */
         STORAGE_S3_PUBLIC_URL?: string;
         /**
+         * No dist value.  
+         * {@link [Local Env Dist](.env.development)}
+         */
+        STORAGE_S3_KEY_PREFIX?: string;
+        /**
          * Dist: `noop`  
          * {@link [Local Env Dist](.env.development)}
          */
@@ -453,6 +458,21 @@ Française`
          * {@link [Local Env Dist](.env.development)}
          */
         INTEGRATION_CRON_SECRET?: string;
+        /**
+         * No dist value.  
+         * {@link [Local Env Dist](.env.development)}
+         */
+        STRIPE_SECRET_KEY?: string;
+        /**
+         * No dist value.  
+         * {@link [Local Env Dist](.env.development)}
+         */
+        STRIPE_WEBHOOK_SECRET?: string;
+        /**
+         * No dist value.  
+         * {@link [Local Env Dist](.env.development)}
+         */
+        STRIPE_ADDON_PRICES?: string;
         /**
          * No dist value.  
          * {@link [Local Env Dist](.env.development)}
@@ -553,6 +573,7 @@ declare type ProcessEnvCustomKeys =
     | 'NEXT_PUBLIC_REPOSITORY_URL'
     | 'NEXT_PUBLIC_SITE_URL'
     | 'AUTH_TRUST_HOST'
+    | 'ADDITIONAL_ROOT_DOMAINS'
     | 'ADMINS'
     | 'ESPACE_MEMBRE_API_KEY'
     | 'ESPACE_MEMBRE_URL'
@@ -605,7 +626,6 @@ declare type ProcessEnvCustomKeys =
     | 'SEED_MAX_REPLIES_PER_COMMENT'
     | 'NEXT_PUBLIC_APP_VERSION'
     | 'NEXT_PUBLIC_APP_VERSION_COMMIT'
-    | 'AUTH_URL'
     | 'DOMAIN_PROVIDER'
     | 'DOMAIN_SCALINGO_API_TOKEN'
     | 'DOMAIN_SCALINGO_API_URL'
@@ -624,6 +644,7 @@ declare type ProcessEnvCustomKeys =
     | 'STORAGE_S3_ACCESS_KEY_ID'
     | 'STORAGE_S3_SECRET_ACCESS_KEY'
     | 'STORAGE_S3_PUBLIC_URL'
+    | 'STORAGE_S3_KEY_PREFIX'
     | 'DNS_PROVIDER'
     | 'DNS_PROVIDER_TARGET'
     | 'DNS_ZONE_NAME'
@@ -636,6 +657,9 @@ declare type ProcessEnvCustomKeys =
     | 'INTEGRATION_ENCRYPTION_KEY'
     | 'INTEGRATION_CRON_MANAGER'
     | 'INTEGRATION_CRON_SECRET'
+    | 'STRIPE_SECRET_KEY'
+    | 'STRIPE_WEBHOOK_SECRET'
+    | 'STRIPE_ADDON_PRICES'
     | 'NEXT_PUBLIC_SENTRY_DSN'
     | 'SENTRY_DSN'
     | 'SENTRY_AUTH_TOKEN'

@@ -58,15 +58,15 @@ export const GET = async (request: NextRequest) => {
   const session = await auth();
 
   if (!session?.user?.uuid) {
-    // Not logged in — redirect to root login so user can authenticate first
+    // Not logged in - redirect to root login so user can authenticate first
     return NextResponse.redirect(rootUrl("/login"));
   }
 
   // Resolve the target tenant
   const tenant = await resolveTenantFromUrl(parsedUrl, rootHost);
 
-  if (tenant) {
-    // Check if user is already a member of this tenant
+  if (tenant && !session.user.isSuperAdmin) {
+    // Check if user is already a member of this tenant (super admins bypass)
     const membership = await userOnTenantRepo.findMembership(session.user.uuid, tenant.id);
 
     if (!membership && action !== "signup") {

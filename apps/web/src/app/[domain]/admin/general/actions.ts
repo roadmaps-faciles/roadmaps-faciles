@@ -241,7 +241,7 @@ export const purgeTenantData = async (): Promise<ServerActionResponse> => {
     const boardIds = (await boardRepo.findAllForTenant(tenant.id)).map(b => b.id);
 
     await prisma.$transaction([
-      // Pins (no tenantId — delete via boardId)
+      // Pins (no tenantId - delete via boardId)
       prisma.pin.deleteMany({ where: { boardId: { in: boardIds } } }),
       // Entities with tenantId
       prisma.follow.deleteMany({ where: { tenantId: tenant.id } }),

@@ -20,6 +20,12 @@ export const config = {
     maxFakeLikesPerPost: ensureApiEnvVar(process.env.SEED_MAX_FAKE_LIKES_PER_POST, Number, 128),
     maxFakeCommentsPerPost: ensureApiEnvVar(process.env.SEED_MAX_FAKE_COMMENTS_PER_POST, Number, 16),
     maxRepliesPerComment: ensureApiEnvVar(process.env.SEED_MAX_REPLIES_PER_COMMENT, Number, 8),
+    bulk: ensureApiEnvVar(process.env.SEED_BULK, isTruthy, false),
+    bulkOrgs: ensureApiEnvVar(process.env.SEED_BULK_ORGS, Number, 5),
+    bulkTenantsPerOrg: ensureApiEnvVar(process.env.SEED_BULK_TENANTS_PER_ORG, Number, 3),
+    bulkSharedUsers: ensureApiEnvVar(process.env.SEED_BULK_SHARED_USERS, Number, 30),
+    bulkMinPostsPerTenant: ensureApiEnvVar(process.env.SEED_BULK_MIN_POSTS, Number, 30),
+    bulkMaxPostsPerTenant: ensureApiEnvVar(process.env.SEED_BULK_MAX_POSTS, Number, 80),
   },
   maintenance: ensureApiEnvVar(process.env.MAINTENANCE_MODE, isTruthy, false),
   platformDomain: ensureApiEnvVar(process.env.PLATFORM_DOMAIN, ""),
@@ -47,7 +53,10 @@ export const config = {
     siteId: ensureNextEnvVar(process.env.NEXT_PUBLIC_MATOMO_SITE_ID, ""),
   },
   tracking: {
-    provider: ensureNextEnvVar<"matomo" | "noop" | "posthog">(process.env.NEXT_PUBLIC_TRACKING_PROVIDER, "noop"),
+    provider: ensureNextEnvVar<"matomo" | "memory" | "noop" | "posthog">(
+      process.env.NEXT_PUBLIC_TRACKING_PROVIDER,
+      "noop",
+    ),
     posthogKey: ensureNextEnvVar(process.env.NEXT_PUBLIC_POSTHOG_KEY, ""),
     posthogHost: ensureNextEnvVar(process.env.NEXT_PUBLIC_POSTHOG_HOST, "https://eu.i.posthog.com"),
   },
@@ -63,7 +72,10 @@ export const config = {
   ),
   brand: {
     name: ensureNextEnvVar(process.env.NEXT_PUBLIC_BRAND_NAME, "Roadmaps Faciles"),
-    tagline: ensureNextEnvVar(process.env.NEXT_PUBLIC_BRAND_TAGLINE, "Créez vos roadmaps en quelques clics"),
+    tagline: ensureNextEnvVar(
+      process.env.NEXT_PUBLIC_BRAND_TAGLINE,
+      "Du feedback mutuel à la roadmap partagée, facilement",
+    ),
     ministry: ensureNextEnvVar(process.env.NEXT_PUBLIC_BRAND_MINISTRY, "République\nFrançaise"),
     operator: {
       enable: ensureNextEnvVar(process.env.NEXT_PUBLIC_BRAND_OPERATOR_ENABLE, isTruthy, true),
@@ -190,6 +202,7 @@ export const config = {
       accessKeyId: ensureApiEnvVar(process.env.STORAGE_S3_ACCESS_KEY_ID, ""),
       secretAccessKey: ensureApiEnvVar(process.env.STORAGE_S3_SECRET_ACCESS_KEY, ""),
       publicUrl: ensureApiEnvVar(process.env.STORAGE_S3_PUBLIC_URL, ""),
+      keyPrefix: ensureApiEnvVar(process.env.STORAGE_S3_KEY_PREFIX, ""),
     },
   },
   dnsProvider: {
@@ -246,6 +259,7 @@ export const config = {
   },
   licenseKey: ensureApiEnvVar(process.env.LICENSE_KEY, ""),
   licensingServerUrl: ensureApiEnvVar(process.env.LICENSING_SERVER_URL, "https://licensing.roadmaps-faciles.fr"),
+  licensingAdminApiKey: ensureApiEnvVar(process.env.LICENSING_ADMIN_API_KEY, ""),
   instanceId: ensureApiEnvVar(process.env.INSTANCE_ID, ""),
 } as const;
 

@@ -16,7 +16,7 @@ export async function refreshAccessToken(token: JWT): Promise<JWT> {
 
   const tokenUrl = PROVIDER_TOKEN_URLS[provider];
   if (!tokenUrl) {
-    // ProConnect or unknown — no refresh support yet
+    // ProConnect or unknown - no refresh support yet
     return { ...token, error: "UnsupportedProvider" };
   }
 

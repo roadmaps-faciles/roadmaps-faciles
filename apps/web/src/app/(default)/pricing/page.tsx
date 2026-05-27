@@ -44,7 +44,7 @@ const PricingPage = async () => {
         <p className="mt-2 text-base text-muted-foreground sm:mt-4 sm:text-lg">{t("subtitle")}</p>
       </div>
 
-      {/* Base features — free */}
+      {/* Base features - free */}
       <section className="mb-16">
         <div className="mb-6 text-center">
           <h2 className="text-xl font-bold sm:text-2xl">{t("baseTitle")}</h2>
@@ -71,7 +71,7 @@ const PricingPage = async () => {
         </div>
       </section>
 
-      {/* Toggle + Addons + Bundles — wrapped in client context */}
+      {/* Toggle + Addons + Bundles - wrapped in client context */}
       <PricingToggle>
         {/* Addons à la carte */}
         <section className="mb-16">

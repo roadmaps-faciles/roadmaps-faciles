@@ -109,7 +109,7 @@ export const UserEditForm = ({ user }: UserEditFormProps) => {
           </div>
           <div>
             <dt className="inline font-bold">{t("lastSignInLabel")} :</dt>{" "}
-            <dd className="inline">{user.lastSignInAt ? dateFormatter.format(new Date(user.lastSignInAt)) : "—"}</dd>
+            <dd className="inline">{user.lastSignInAt ? dateFormatter.format(new Date(user.lastSignInAt)) : "-"}</dd>
           </div>
           <div>
             <dt className="inline font-bold">{t("signInCountLabel")} :</dt>{" "}

@@ -2,11 +2,12 @@
 
 import { Card as DsfrCard, type CardProps as DsfrCardProps } from "@codegouvfr/react-dsfr/Card";
 import { cx } from "@codegouvfr/react-dsfr/tools/cx";
+import Link from "next/link";
 import { type ReactNode, useSyncExternalStore } from "react";
 
 import { type UICardProps } from "./UICard";
 
-/** Detect dark mode from `.dark` class on `<html>` — works in both themes, no DSFR provider dependency. */
+/** Detect dark mode from `.dark` class on `<html>` - works in both themes, no DSFR provider dependency. */
 function subscribeIsDark(callback: () => void) {
   const observer = new MutationObserver(callback);
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
@@ -48,10 +49,11 @@ export const UICardDsfr = ({
   size,
   shadow,
   className,
+  wrapperClassName,
 }: UICardProps) => {
   const resolvedShadow = useShadow(shadow);
 
-  // DSFR Card renders `desc` in a <p> — block-level children (div, form, h2, hr) cause
+  // DSFR Card renders `desc` in a <p> - block-level children (div, form, h2, hr) cause
   // invalid HTML nesting. When description is complex (not a string), render the card
   // structure manually using DSFR CSS classes with a <div> instead of <p> for the desc.
   const hasComplexDescription = description != null && typeof description !== "string";
@@ -61,15 +63,15 @@ export const UICardDsfr = ({
     const sizeClass = size ? `fr-card--${SIZE_MAP[size]}` : undefined;
     const horizontalClass = horizontal ? "fr-card--horizontal" : undefined;
 
-    return (
+    const complexCard = (
       <div className={cx("fr-card", shadowClass, sizeClass, horizontalClass, className)}>
         <div className="fr-card__body">
           <div className="fr-card__content">
             {href ? (
               <TitleTag className="fr-card__title">
-                <a href={href} {...(linkTarget && { target: linkTarget })}>
+                <Link href={href} {...(linkTarget && { target: linkTarget })}>
                   {title}
-                </a>
+                </Link>
               </TitleTag>
             ) : (
               <TitleTag className="fr-card__title">{title}</TitleTag>
@@ -81,6 +83,12 @@ export const UICardDsfr = ({
         </div>
       </div>
     );
+
+    if (wrapperClassName) {
+      return <div className={wrapperClassName}>{complexCard}</div>;
+    }
+
+    return complexCard;
   }
 
   const commonProps: DsfrCardProps = {
@@ -95,8 +103,11 @@ export const UICardDsfr = ({
     className,
   };
 
-  if (horizontal) {
-    return <DsfrCard {...commonProps} horizontal />;
+  const card = horizontal ? <DsfrCard {...commonProps} horizontal /> : <DsfrCard {...commonProps} />;
+
+  if (wrapperClassName) {
+    return <div className={wrapperClassName}>{card}</div>;
   }
-  return <DsfrCard {...commonProps} />;
+
+  return card;
 };

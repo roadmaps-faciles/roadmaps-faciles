@@ -6,9 +6,9 @@ Merci de votre intérêt pour Roadmaps Faciles ! Ce guide explique comment contr
 
 Ce projet utilise un modèle de **triple licence** (voir [LICENSING.md](./LICENSING.md)) :
 
-- **AGPL v3** — Code principal (tout ce qui n'est pas dans `ee/` ou `gouv/`)
-- **BSL 1.1** — Fonctionnalités entreprise (répertoires `ee/`)
-- **Roadmaps Faciles Gov License** — Fonctionnalités administration publique (répertoires `gouv/`)
+- **AGPL v3** - Code principal (tout ce qui n'est pas dans `ee/` ou `gouv/`)
+- **BSL 1.1** - Fonctionnalités entreprise (répertoires `ee/`)
+- **Roadmaps Faciles Gov License** - Fonctionnalités administration publique (répertoires `gouv/`)
 
 En soumettant une contribution, vous acceptez que votre code soit licencié sous la licence correspondant au répertoire cible. Si votre contribution touche plusieurs répertoires, chaque partie est licenciée sous la licence du répertoire dans lequel elle se trouve.
 
@@ -16,7 +16,7 @@ En soumettant une contribution, vous acceptez que votre code soit licencié sous
 
 - Node.js 24+ (voir `.nvmrc`)
 - pnpm (voir `packageManager` dans `package.json`)
-- PostgreSQL 15+
+- PostgreSQL 17+
 - Docker Compose (recommandé pour les services locaux)
 
 ## Installation
@@ -34,7 +34,7 @@ pnpm dev
 
 ## Workflow de contribution
 
-1. **Ouvrez une issue** avant de commencer — utilisez les [templates d'issues](.github/ISSUE_TEMPLATE/) (Feature Request, Bug Report, ou Tâche technique).
+1. **Ouvrez une issue** avant de commencer - utilisez les [templates d'issues](.github/ISSUE_TEMPLATE/) (Feature Request, Bug Report, ou Tâche technique).
 2. **Créez une branche** depuis `dev` : `feat/ma-feature`, `fix/mon-bug`, `chore/ma-tache`.
 3. **Développez** en suivant les conventions ci-dessous.
 4. **Vérifiez** avant de soumettre :
@@ -50,11 +50,11 @@ pnpm dev
 ### Code
 
 - TypeScript strict, ESLint 9 flat config
-- Imports triés automatiquement (plugin perfectionist) — `pnpm lint --fix` le fait
+- Imports triés automatiquement (plugin perfectionist) - `pnpm lint --fix` le fait
 - Pas de default exports sauf les fichiers spéciaux Next.js (`page`, `layout`, `route`, etc.)
 - Path aliases : `@/*` → `src/*`
 - Validation : Zod v4
-- UI : shadcn/ui (thème Default) ou DSFR (thème Gov) — voir les bridges dans `src/ui/bridge/`
+- UI : shadcn/ui (thème Default) ou DSFR (thème Gov) - voir les bridges dans `src/ui/bridge/`
 
 ### Commits
 

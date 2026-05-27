@@ -74,7 +74,7 @@ export const ModerationPostList = ({ posts, emptyMessage, variant }: ModerationP
                 {post.description ? (
                   <Link
                     className={cn(
-                      "line-clamp-2 text-sm text-primary rounded outline-offset-8",
+                      "line-clamp-2 text-sm text-primary rounded-sm outline-offset-8",
                       "outline-primary hover:outline-1",
                     )}
                     onClick={e => {

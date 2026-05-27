@@ -30,6 +30,8 @@ export const UIButtonDsfr = ({
   children,
   className,
   linkProps,
+  "aria-expanded": ariaExpanded,
+  "aria-pressed": ariaPressed,
   ...props
 }: UIButtonProps) => {
   if (linkProps) {
@@ -44,11 +46,16 @@ export const UIButtonDsfr = ({
       </DsfrButton>
     );
   }
+  const nativeButtonProps =
+    ariaExpanded !== undefined || ariaPressed !== undefined
+      ? { "aria-expanded": ariaExpanded, "aria-pressed": ariaPressed }
+      : undefined;
   return (
     <DsfrButton
       priority={VARIANT_TO_PRIORITY[variant ?? "default"]}
       size={SIZE_TO_DSFR[size ?? "default"]}
       className={className}
+      nativeButtonProps={nativeButtonProps}
       {...props}
     >
       {children}

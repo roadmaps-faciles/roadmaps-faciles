@@ -138,7 +138,7 @@ export async function createMultiPackCheckoutSession(
 
   const customerId = await getOrCreateCustomer(org);
 
-  // Build line items — one per effective pack/bundle
+  // Build line items - one per effective pack/bundle
   const lineItems: Array<{ price: string; quantity: number }> = [];
   for (const id of effectiveIds) {
     const priceIds = getPackStripePriceIds(id);

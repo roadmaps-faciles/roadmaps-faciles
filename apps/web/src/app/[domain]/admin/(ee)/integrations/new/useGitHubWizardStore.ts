@@ -168,7 +168,7 @@ export const useGitHubWizardStore = create<GitHubWizardActions & GitHubWizardSta
         draft.selectedRepoId = repoId;
         const repo = draft.repositories.find(r => r.id === repoId);
         if (repo && !draft.integrationName) {
-          draft.integrationName = `GitHub — ${repo.name}`;
+          draft.integrationName = `GitHub - ${repo.name}`;
         }
       });
     },

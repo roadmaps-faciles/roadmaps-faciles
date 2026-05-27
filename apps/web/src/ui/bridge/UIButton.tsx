@@ -11,6 +11,9 @@ const UIButtonDsfr = lazy(() => import("./UIButtonDsfr").then(m => ({ default: m
 type ShadcnButtonProps = ComponentProps<typeof ShadcnButton>;
 
 export type UIButtonProps = {
+  "aria-expanded"?: boolean;
+  "aria-label"?: string;
+  "aria-pressed"?: boolean;
   children?: React.ReactNode;
   className?: string;
   disabled?: boolean;

@@ -55,6 +55,7 @@ const formSchema = z.object({
   allowAnonymousVoting: z.boolean(),
   requirePostApproval: z.boolean(),
   allowEmbedding: z.boolean(),
+  allowIndexing: z.boolean(),
   uiTheme: z.enum(UI_THEME),
 });
 
@@ -158,6 +159,11 @@ const getSections = (t: ReturnType<typeof useTranslations<"domainAdmin.general">
         label: t("allowEmbedding"),
         helperText: t("allowEmbeddingHelper"),
       },
+      {
+        name: "allowIndexing",
+        label: t("allowIndexing"),
+        helperText: t("allowIndexingHelper"),
+      },
     ],
   },
 ];
@@ -168,7 +174,7 @@ type DomainFormType = {
   subdomain: string;
 };
 
-/** Quick nav section IDs — must match section `id` fields + extra sections */
+/** Quick nav section IDs - must match section `id` fields + extra sections */
 const ALL_SECTION_IDS = ["privacy", "moderation", "header", "visibility", "embedding", "ui-theme", "domain", "danger"];
 
 interface GeneralFormProps {
@@ -230,6 +236,7 @@ export const GeneralForm = ({ tenantSettings, isOwner, hasData }: GeneralFormPro
       allowAnonymousVoting: tenantSettings.allowAnonymousVoting,
       requirePostApproval: tenantSettings.requirePostApproval,
       allowEmbedding: tenantSettings.allowEmbedding,
+      allowIndexing: tenantSettings.allowIndexing,
       uiTheme: tenantSettings.uiTheme,
     },
   });
@@ -263,7 +270,7 @@ export const GeneralForm = ({ tenantSettings, isOwner, hasData }: GeneralFormPro
     [getValues, reset],
   );
 
-  /** Quick nav labels — matches ALL_SECTION_IDS */
+  /** Quick nav labels - matches ALL_SECTION_IDS */
   const quickNavItems = [
     ...SECTIONS.map(s => ({ id: s.id, label: s.title })),
     ...(themeSwitchingEnabled ? [{ id: "ui-theme", label: t("uiTheme.label") }] : []),

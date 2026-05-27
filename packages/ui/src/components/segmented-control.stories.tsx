@@ -1,6 +1,6 @@
+import { type Meta, type StoryObj } from "@storybook/react-vite";
 import { BarChart3, LayoutGrid, List } from "lucide-react";
 import { useState } from "react";
-import { type Meta, type StoryObj } from "storybook";
 
 import { SegmentedControl, SegmentedControlItem } from "./segmented-control";
 

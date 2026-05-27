@@ -23,7 +23,7 @@ function parseCartItems(sp: Record<string, string | undefined>): CartItemInit[] 
       .filter(Boolean)
       .map(entry => {
         const [packId, iv] = entry.split(":");
-        return { packId, interval: (iv === "yearly" ? "yearly" : "monthly") as BillingInterval };
+        return { packId, interval: iv === "yearly" ? "yearly" : "monthly" };
       });
   }
 

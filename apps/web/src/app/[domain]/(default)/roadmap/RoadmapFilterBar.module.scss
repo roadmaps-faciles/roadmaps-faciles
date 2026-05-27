@@ -1,0 +1,11 @@
+.filterBar {
+    top: 0;
+}
+
+.noScrollbar {
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}

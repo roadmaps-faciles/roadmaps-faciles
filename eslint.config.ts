@@ -1,5 +1,15 @@
+import js from "@eslint/js";
+import prettierConfig from "eslint-config-prettier";
+import betterTailwindcss from "eslint-plugin-better-tailwindcss";
+import importPlugin from "eslint-plugin-import";
+import perfectionist from "eslint-plugin-perfectionist";
+import prettierPlugin from "eslint-plugin-prettier";
+import reactPlugin from "eslint-plugin-react";
+// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
+import storybook from "eslint-plugin-storybook";
+import unusedImportsPlugin from "eslint-plugin-unused-imports";
 /**
- * Root ESLint config — monorepo shared rules.
+ * Root ESLint config - monorepo shared rules.
  *
  * Architecture ESLint du monorepo :
  *
@@ -22,18 +32,12 @@
  * Solution : `base` déclare les rules import/react, mais seul le default export (ou
  * nextConfig côté web) enregistre les plugins.
  */
-import js from "@eslint/js";
-import prettierConfig from "eslint-config-prettier";
-import importPlugin from "eslint-plugin-import";
-import perfectionist from "eslint-plugin-perfectionist";
-import prettierPlugin from "eslint-plugin-prettier";
-import reactPlugin from "eslint-plugin-react";
-// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
-import storybook from "eslint-plugin-storybook";
-import unusedImportsPlugin from "eslint-plugin-unused-imports";
+import path from "node:path";
 import tseslint from "typescript-eslint";
 
-/** Options Prettier partagées — utilisées par le plugin ESLint prettier/prettier. */
+const tailwindEntryPoint = path.resolve(import.meta.dirname, "apps/web/src/app/tailwind-entry.css");
+
+/** Options Prettier partagées - utilisées par le plugin ESLint prettier/prettier. */
 export const prettierOptions = {
   tabWidth: 2,
   trailingComma: "all",
@@ -57,7 +61,7 @@ export const prettierOptions = {
  *
  * NE contient PAS les plugins `import` et `react` (voir JSDoc du fichier).
  * Les rules import/* et react/* fonctionnent car ESLint 9 flat config merge
- * les plugins de tout l'array — le consommateur doit les enregistrer.
+ * les plugins de tout l'array - le consommateur doit les enregistrer.
  */
 export const base = [
   // ─── Base JS ────────────────────────────────────────────────────────────────
@@ -221,10 +225,36 @@ export const base = [
       "perfectionist/sort-intersection-types": "warn",
     },
   },
+
+  // ─── Better Tailwind CSS ────────────────────────────────────────────────────
+  // Lint des classes Tailwind dans className, cn(), clsx(), cva(), tv(), twMerge()…
+  // entryPoint pointe vers le CSS d'entrée TW v4 du monorepo (qui @source vers
+  // apps/web/src et packages/ui/src), permettant la résolution des utilities custom.
+  // On limite volontairement aux règles à forte valeur (canonisation + dépréciations
+  // + duplications) sans toucher au sort/wrapping pour ne pas conflicter avec
+  // prettier ou perfectionist ailleurs dans la stack.
+  {
+    files: ["**/*.{js,jsx,ts,tsx}"],
+    plugins: {
+      "better-tailwindcss": betterTailwindcss,
+    },
+    settings: {
+      "better-tailwindcss": {
+        entryPoint: tailwindEntryPoint,
+        rootFontSize: 16,
+      },
+    },
+    rules: {
+      "better-tailwindcss/enforce-canonical-classes": "warn",
+      "better-tailwindcss/no-deprecated-classes": "warn",
+      "better-tailwindcss/no-duplicate-classes": "warn",
+      "better-tailwindcss/no-unnecessary-whitespace": "warn",
+    },
+  },
 ];
 
 /**
- * Default export — utilisé par les workspaces sans eslint.config.ts (héritage naturel).
+ * Default export - utilisé par les workspaces sans eslint.config.ts (héritage naturel).
  * Ex: packages/ui/ n'a pas de config → ESLint remonte et trouve celle-ci.
  */
 export default [
@@ -242,7 +272,7 @@ export default [
     ],
   },
 
-  // Enregistrement des plugins import + react — requis ici car `base` ne les inclut pas
+  // Enregistrement des plugins import + react - requis ici car `base` ne les inclut pas
   // (conflit "Cannot redefine plugin" avec nextConfig qui bundle ses propres instances).
   // Pour apps/web, c'est nextConfig qui les fournit ; ici on les fournit pour packages/*.
   {
@@ -259,7 +289,7 @@ export default [
 
   ...base,
 
-  // TypeScript parser avec project:true — auto-découverte du tsconfig le plus proche.
+  // TypeScript parser avec project:true - auto-découverte du tsconfig le plus proche.
   // Pour packages/ui/src/Button.tsx → trouve packages/ui/tsconfig.json.
   // tsconfigRootDir = monorepo root = limite haute de la recherche.
   {
@@ -283,7 +313,7 @@ export default [
     },
   },
 
-  // .github/scripts/*.js — CJS (module.exports) pour actions/github-script, pas de tsconfig
+  // .github/scripts/*.js - CJS (module.exports) pour actions/github-script, pas de tsconfig
   {
     files: [".github/scripts/**/*.js"],
     ...tseslint.configs.disableTypeChecked,

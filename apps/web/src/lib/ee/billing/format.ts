@@ -1,5 +1,5 @@
 /**
- * Pricing types and formatting utilities — client-safe (no server-only).
+ * Pricing types and formatting utilities - client-safe (no server-only).
  */
 
 export interface PricingInfo {

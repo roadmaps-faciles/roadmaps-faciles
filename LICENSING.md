@@ -6,9 +6,9 @@ Roadmaps Faciles uses a **triple license model**. Different parts of the codebas
 
 | License | Scope | What you can do |
 |---------|-------|-----------------|
-| **AGPL v3** | Core product | Use, modify, distribute freely — copyleft: modifications must be shared under the same license, including for network use (SaaS) |
-| **Roadmaps Faciles Gov License** | DSFR theme & gov-specific code | Use, modify, distribute freely — production restricted to `.gouv.fr` domains and French public services |
-| **BSL 1.1** | Premium add-ons (Enterprise Edition) | Read, modify, use in dev/test freely — production use requires a paid license. Converts to AGPL v3 after 4 years |
+| **AGPL v3** | Core product | Use, modify, distribute freely - copyleft: modifications must be shared under the same license, including for network use (SaaS) |
+| **Roadmaps Faciles Gov License** | DSFR theme & gov-specific code | Use, modify, distribute freely - production restricted to `.gouv.fr` domains and French public services |
+| **BSL 1.1** | Premium add-ons (Enterprise Edition) | Read, modify, use in dev/test freely - production use requires a paid license. Converts to AGPL v3 after 4 years |
 
 ## How to identify which license applies
 
@@ -20,7 +20,7 @@ The license is determined by the **location** of the file in the repository:
 
 Each `ee/` and `gouv/` directory contains a `LICENSE` symlink pointing to the root `LICENSE-EE` or `LICENSE-GOV` file. When in doubt, check the nearest `LICENSE` in the parent directory chain.
 
-## AGPL v3 — Core (open source)
+## AGPL v3 - Core (open source)
 
 **Files:** everything not under `ee/`, `(ee)/`, `gouv/`, `(gouv)/`, `src/gouv/dsfr/`, or `src/gouv/dsfr-bootstrap/`
 **License text:** [LICENSE](./LICENSE)
@@ -40,7 +40,7 @@ The core product is fully open source. You can self-host it, modify it, redistri
 - Email transport (Nodemailer)
 - Redis caching
 
-## Roadmaps Faciles Gov License — DSFR theme (source-available, `.gouv.fr` restricted)
+## Roadmaps Faciles Gov License - DSFR theme (source-available, `.gouv.fr` restricted)
 
 **Files:** `src/gouv/dsfr/`, `src/gouv/dsfr-bootstrap/`, `src/emails/gouv/`, `src/lib/gouv/`, and any `(gouv)/` route groups
 **License text:** see `LICENSE` files in the above directories
@@ -60,7 +60,7 @@ This restriction aligns with the [DSFR usage charter](https://www.systeme-de-des
 
 > **Note:** This license is **not** OSI-approved. It is a source-available license with a usage restriction. The core product (AGPL v3) with the default shadcn theme is the fully open source alternative.
 
-## BSL 1.1 — Enterprise Edition (source-available, commercial)
+## BSL 1.1 - Enterprise Edition (source-available, commercial)
 
 **Files:** all `ee/` and `(ee)/` directories
 **License text:** see `LICENSE` files in the above directories
@@ -107,10 +107,10 @@ Each add-on is independently activable. You only pay for what you use.
 Self-hosting the core product (AGPL v3) is free. If you modify the core and offer it as a network service, you must make your modifications available under AGPL v3. For self-hosted instances:
 
 - **Documentation** is disabled and redirects to the hosted version at [TODO: doc URL]
-- **Observability** is pluggable — bring your own Sentry instance and Pino transports
-- **Storage** supports BYOS (Bring Your Own S3) — configure any S3-compatible endpoint
-- **Prisma Studio** is available (direct DB access) — not available on cloud-managed instances
-- **Telemetry** is opt-in and anonymized — helps us improve the product, can be fully disabled
+- **Observability** is pluggable - bring your own Sentry instance and Pino transports
+- **Storage** supports BYOS (Bring Your Own S3) - configure any S3-compatible endpoint
+- **Prisma Studio** is available (direct DB access) - not available on cloud-managed instances
+- **Telemetry** is opt-in and anonymized - helps us improve the product, can be fully disabled
 
 Enterprise add-ons (BSL 1.1) can be used in development and testing for free. Production use requires a license.
 
@@ -127,13 +127,13 @@ We may ask contributors to sign a CLA (Contributor License Agreement) to ensure 
 ## FAQ
 
 **Q: Can I use the DSFR theme on a non-.gouv.fr domain?**
-A: No. The DSFR theme is restricted to `.gouv.fr` domains and French public services. Use the default shadcn theme instead — it's fully open source and looks great.
+A: No. The DSFR theme is restricted to `.gouv.fr` domains and French public services. Use the default shadcn theme instead - it's fully open source and looks great.
 
 **Q: Can I self-host with enterprise features for free?**
 A: You can use enterprise features in dev/test for free. Production use requires a paid license, whether self-hosted or cloud-managed.
 
 **Q: What happens after the BSL 4-year conversion?**
-A: The specific version's enterprise code becomes AGPL v3 — fully open source, no restrictions. Newer versions may still be under BSL.
+A: The specific version's enterprise code becomes AGPL v3 - fully open source, no restrictions. Newer versions may still be under BSL.
 
 **Q: I'm a public administration but not on .gouv.fr, can I use the DSFR theme?**
 A: If you operate a service for a French public administration (even on a non-.gouv.fr domain), contact us. The license covers services "operated by or for French public administrations."

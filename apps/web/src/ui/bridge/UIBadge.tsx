@@ -13,9 +13,9 @@ type ShadcnBadgeProps = ComponentProps<typeof ShadcnBadge>;
 export type UIBadgeProps = {
   children: React.ReactNode;
   className?: string;
-  /** Size — "sm" maps to DSFR `small` prop */
+  /** Size - "sm" maps to DSFR `small` prop */
   size?: "default" | "sm";
-  /** Post status color — applies DSFR color class or Default inline style */
+  /** Post status color - applies DSFR color class or Default inline style */
   statusColor?: PostStatusColor;
   variant?: ShadcnBadgeProps["variant"];
 };

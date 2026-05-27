@@ -1,4 +1,4 @@
-/** Shared types for sync progress — importable from both server and client code */
+/** Shared types for sync progress - importable from both server and client code */
 export interface SyncProgress {
   current: number;
   phase: "inbound" | "outbound";

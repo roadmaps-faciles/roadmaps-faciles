@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { type FormEvent, useState, useTransition } from "react";
+import { type SubmitEvent, useState, useTransition } from "react";
 
 import { PASSWORD_MIN_LENGTH } from "@/lib/utils/passwordConstants";
 import { UIAlert, UIButton, UIInput } from "@/ui/bridge";
@@ -36,7 +36,7 @@ const ResetPasswordPage = () => {
     );
   }
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!password || !passwordConfirm) return;
 

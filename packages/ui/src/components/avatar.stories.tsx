@@ -1,5 +1,5 @@
+import { type Meta, type StoryObj } from "@storybook/react-vite";
 import { Check } from "lucide-react";
-import { type Meta, type StoryObj } from "storybook";
 
 import { Avatar, AvatarBadge, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarImage } from "./avatar";
 

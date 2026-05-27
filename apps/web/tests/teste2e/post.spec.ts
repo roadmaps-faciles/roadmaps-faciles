@@ -17,7 +17,7 @@ test.describe("Post Lifecycle", () => {
     await page.goto("/board/test-board");
     await page.waitForLoadState("networkidle");
 
-    // Click opens intercepted modal — URL updates without full navigation
+    // Click opens intercepted modal - URL updates without full navigation
     await page.getByRole("link", { name: "Test Post" }).first().click();
     await expect(page).toHaveURL(/\/post\/\d+/);
 
@@ -33,8 +33,12 @@ test.describe("Post Lifecycle", () => {
     await page.getByRole("link", { name: "Test Post" }).first().click();
     await expect(page).toHaveURL(/\/post\/\d+/);
 
-    // Multiple vote buttons may exist (board background + modal), use first
-    const voteButton = page.getByTitle("Vote").first();
+    // The intercept modal (DSFR <dialog id="post-modal"> or shadcn dialog)
+    // covers the board, so the board's like button is not interactable.
+    // Target the like button inside the modal/dialog by role to scope correctly.
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    const voteButton = dialog.getByTitle("Vote");
     await expect(voteButton).toBeVisible();
 
     await voteButton.click();

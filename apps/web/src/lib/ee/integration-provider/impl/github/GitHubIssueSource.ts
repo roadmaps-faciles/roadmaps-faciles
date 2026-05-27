@@ -90,7 +90,7 @@ export class GitHubIssueSource implements IGitHubSource {
         });
       }
     } catch {
-      // Milestones may not be accessible — skip
+      // Milestones may not be accessible - skip
     }
 
     return { id: repoFullName, name: repoFullName, properties };
@@ -282,7 +282,7 @@ export class GitHubIssueSource implements IGitHubSource {
     const issueNumber = parseInt(remoteId, 10);
     const marker = "<!-- roadmaps-faciles:stats -->";
     const link = `${stats.tenantUrl}${stats.postPath}`;
-    const body = `${marker}\n_Roadmaps Faciles_ — 👍 ${stats.likeCount} · 💬 ${stats.commentCount} · [voir le post](${link})`;
+    const body = `${marker}\n_Roadmaps Faciles_ - 👍 ${stats.likeCount} · 💬 ${stats.commentCount} · [voir le post](${link})`;
 
     let commentId: number | undefined;
 
@@ -292,7 +292,7 @@ export class GitHubIssueSource implements IGitHubSource {
         commentId = hints.statsCommentId;
       } catch (error) {
         if ((error as { status?: number }).status !== 404) throw error;
-        // Comment was deleted on GitHub side — fall through to recreate
+        // Comment was deleted on GitHub side - fall through to recreate
       }
     }
 

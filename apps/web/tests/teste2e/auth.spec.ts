@@ -19,7 +19,7 @@ test.describe("Authentication Pages", () => {
   test("2FA page redirects or loads", async ({ page }) => {
     await page.goto("/2fa");
 
-    // Without auth, may redirect to login — verify no 500
+    // Without auth, may redirect to login - verify no 500
     expect(page.url()).toMatch(/\/(2fa|login)/);
   });
 

@@ -8,7 +8,7 @@ import { logger } from "@/lib/logger";
 import { auth } from "@/lib/next-auth/auth";
 
 /**
- * Dev-only checkout route — simulates Stripe checkout when STRIPE_SECRET_KEY is not set.
+ * Dev-only checkout route - simulates Stripe checkout when STRIPE_SECRET_KEY is not set.
  * Activates the requested addons, creates a dev subscription ID, and redirects.
  */
 export async function GET(request: NextRequest) {
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // Auth check — only authenticated users
+  // Auth check - only authenticated users
   const session = await auth();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: StatusCodes.UNAUTHORIZED });

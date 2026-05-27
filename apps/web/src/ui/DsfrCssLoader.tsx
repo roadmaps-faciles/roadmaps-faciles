@@ -11,7 +11,7 @@ import { useEffect } from "react";
  * On mount, removes the `dsfr-pending` class from `<html>` to reveal content
  * (anti-FOUC: see globals.scss for the matching `visibility: hidden` rule).
  *
- * StartDsfrOnHydration is NOT needed here — the layout's DsfrProvider already handles it.
+ * StartDsfrOnHydration is NOT needed here - the layout's DsfrProvider already handles it.
  */
 export const DsfrCssLoader = () => {
   useEffect(() => {

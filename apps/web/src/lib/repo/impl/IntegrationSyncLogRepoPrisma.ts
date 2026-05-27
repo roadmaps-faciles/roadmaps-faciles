@@ -49,9 +49,7 @@ export class IntegrationSyncLogRepoPrisma implements IIntegrationSyncLogRepo {
       // Direction: derived from ALL logs (including phase markers)
       const directions = new Set(runLogs.map(l => l.direction));
       const direction: SyncRunSummary["direction"] =
-        directions.size > 1
-          ? "BIDIRECTIONAL"
-          : ((directions.values().next().value ?? "OUTBOUND") as "INBOUND" | "OUTBOUND");
+        directions.size > 1 ? "BIDIRECTIONAL" : (directions.values().next().value ?? "OUTBOUND");
 
       // Counts: exclude phase markers so they don't inflate visible numbers
       const itemLogs = runLogs.filter(l => l.message !== "phase_marker");

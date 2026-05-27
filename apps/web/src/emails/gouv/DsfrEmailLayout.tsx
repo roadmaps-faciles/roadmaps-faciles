@@ -127,7 +127,7 @@ export const DsfrEmailLayout = ({
                               <img
                                 alt="Marianne"
                                 className="hide-black"
-                                height={48}
+                                height={66}
                                 src={`${baseUrl}/img/email/marianne-light.png`}
                                 style={{ display: "block", border: 0, outline: "none" }}
                                 width={76}
@@ -136,10 +136,20 @@ export const DsfrEmailLayout = ({
                               <img
                                 alt="Marianne"
                                 className="hide-white"
-                                height={48}
+                                height={66}
                                 src={`${baseUrl}/img/email/marianne-dark.png`}
                                 style={{ display: "none", border: 0, outline: "none" }}
                                 width={76}
+                              />
+                            </td>
+                            {/* Operator logo */}
+                            <td style={{ width: "40px", paddingLeft: "12px" }} valign="middle" width={40}>
+                              <img
+                                alt="Roadmaps Faciles"
+                                height={32}
+                                src={`${baseUrl}/img/roadmaps-faciles.png`}
+                                style={{ display: "block", border: 0, outline: "none", borderRadius: "4px" }}
+                                width={32}
                               />
                             </td>
                             {/* Service name */}
@@ -255,7 +265,7 @@ export const DsfrEmailLayout = ({
                               <img
                                 alt="Marianne"
                                 className="hide-black"
-                                height={48}
+                                height={66}
                                 src={`${baseUrl}/img/email/marianne-light.png`}
                                 style={{ display: "block", border: 0, outline: "none" }}
                                 width={76}
@@ -263,10 +273,19 @@ export const DsfrEmailLayout = ({
                               <img
                                 alt="Marianne"
                                 className="hide-white"
-                                height={48}
+                                height={66}
                                 src={`${baseUrl}/img/email/marianne-dark.png`}
                                 style={{ display: "none", border: 0, outline: "none" }}
                                 width={76}
+                              />
+                            </td>
+                            <td style={{ width: "40px", paddingLeft: "12px" }} valign="middle" width={40}>
+                              <img
+                                alt="Roadmaps Faciles"
+                                height={32}
+                                src={`${baseUrl}/img/roadmaps-faciles.png`}
+                                style={{ display: "block", border: 0, outline: "none", borderRadius: "4px" }}
+                                width={32}
                               />
                             </td>
                             <td

@@ -8,13 +8,14 @@ html.dsfr-pending body {
 }
 
 @layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--border);
-  }
+
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--border);
+    }
 }
 
 /* ==============================
@@ -42,43 +43,52 @@ html.dsfr-pending body {
     --border-active-blue-france: var(--ring);
     --background-alt-blue-france: oklch(0.95 0.03 265);
     --text-default-error: var(--destructive);
-    /* Sticky offset — DSFR header sets this via JS, Default header is fixed 4rem */
+    /* Sticky offset - DSFR header sets this via JS, Default header is fixed 4rem */
     --sticky-offset: 4rem;
 }
 
 /* ==============================
    DSFR global resets for shadcn scope
    DSFR injects base styles (link underlines, heading sizes, list resets)
-   that conflict with Tailwind/shadcn — we neutralize them here.
+   that conflict with Tailwind/shadcn - we neutralize them here.
    ============================== */
 [data-ui-theme="Default"] {
-    /* DSFR forces underline on all <a> — reset for shadcn buttons/links */
+
+    /* DSFR forces underline on all <a> - reset for shadcn buttons/links */
     a {
         text-decoration: none;
         background-image: none;
     }
 
-    /* DSFR overrides heading font-sizes — let Tailwind handle them */
-    h1, h2, h3, h4, h5, h6 {
+    /* DSFR overrides heading font-sizes - let Tailwind handle them */
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
         font-size: revert-layer;
         line-height: revert-layer;
     }
 
-    /* DSFR strips list styles — restore for content */
-    ul, ol {
+    /* DSFR strips list styles - restore for content */
+    ul,
+    ol {
         list-style: revert-layer;
         padding: revert-layer;
     }
 
     /* Fallback for DSFR artwork SVGs used in shadcn context */
     svg.dsfr-svg {
-        --color: oklch(0.386 0.146 263); /* French Blue primary */
+        --color: oklch(0.386 0.146 263);
+        /* French Blue primary */
     }
 }
 
 .dark[data-ui-theme="Default"] {
     svg.dsfr-svg {
-        --color: oklch(0.620 0.130 264); /* lighter blue for dark mode */
+        --color: oklch(0.620 0.130 264);
+        /* lighter blue for dark mode */
     }
 }
 
@@ -97,7 +107,7 @@ html.dsfr-pending body {
     background: none;
 }
 
-/* Code styling — scoped per theme */
+/* Code styling - scoped per theme */
 [data-ui-theme="Default"] code {
     background-color: var(--muted);
     color: var(--muted-foreground);
@@ -216,32 +226,32 @@ svg.dsfr-svg-active:active {
 }
 
 // DSFR color name → (dsfr-token, fallback-text, fallback-bg)
-// Fallback values from DSFR light palette — used when DSFR CSS is not loaded (Default theme).
+// Fallback values from DSFR light palette - used when DSFR CSS is not loaded (Default theme).
 $postStatusColor: (
-    grey:                  ("grey",                  #666666, #eeeeee),
-    blueFrance:            ("blue-france",            #000091, #e3e3fd),
-    redMarianne:           ("red-marianne",           #c9191e, #fce1e1),
-    greenTilleulVerveine:  ("green-tilleul-verveine", #b7a73f, #fcf3cf),
-    greenBourgeon:         ("green-bourgeon",         #447049, #c9e6c9),
-    greenEmeraude:         ("green-emeraude",         #00a95f, #c3fad5),
-    greenMenthe:           ("green-menthe",           #009081, #baf9f5),
-    greenArchipel:         ("green-archipel",         #009099, #c7f6fc),
-    blueEcume:             ("blue-ecume",             #465f9d, #e0e5f5),
-    blueCumulus:           ("blue-cumulus",            #417dc4, #d4e5f7),
-    purpleGlycine:         ("purple-glycine",         #a558a0, #f1dff0),
-    pinkMacaron:           ("pink-macaron",           #e18b76, #fddede),
-    pinkTuile:             ("pink-tuile",             #ce614a, #fdd4d4),
-    yellowTournesol:       ("yellow-tournesol",       #c8aa39, #fef0b9),
-    yellowMoutarde:        ("yellow-moutarde",        #c3992a, #fee9ac),
-    orangeTerreBattue:     ("orange-terre-battue",    #e4794a, #fdd5c0),
-    brownCafeCreme:        ("brown-cafe-creme",       #d1b781, #f4e3c7),
-    brownCaramel:          ("brown-caramel",          #c08c36, #f4e0b6),
-    brownOpera:            ("brown-opera",            #bd987a, #f4e0cf),
-    beigeGrisGalet:        ("beige-gris-galet",       #aea397, #e7ded7),
-    info:                  ("info",                   #0078f3, #e0f1ff),
-    success:               ("success",                #18753c, #b8fec9),
-    warning:               ("warning",                #b34000, #ffe8d7),
-    error:                 ("error",                  #ce0500, #ffe0e0),
+    grey: ("grey", #666666, #eeeeee),
+    blueFrance: ("blue-france", #000091, #e3e3fd),
+    redMarianne: ("red-marianne", #c9191e, #fce1e1),
+    greenTilleulVerveine: ("green-tilleul-verveine", #b7a73f, #fcf3cf),
+    greenBourgeon: ("green-bourgeon", #447049, #c9e6c9),
+    greenEmeraude: ("green-emeraude", #00a95f, #c3fad5),
+    greenMenthe: ("green-menthe", #009081, #baf9f5),
+    greenArchipel: ("green-archipel", #009099, #c7f6fc),
+    blueEcume: ("blue-ecume", #465f9d, #e0e5f5),
+    blueCumulus: ("blue-cumulus", #417dc4, #d4e5f7),
+    purpleGlycine: ("purple-glycine", #a558a0, #f1dff0),
+    pinkMacaron: ("pink-macaron", #e18b76, #fddede),
+    pinkTuile: ("pink-tuile", #ce614a, #fdd4d4),
+    yellowTournesol: ("yellow-tournesol", #c8aa39, #fef0b9),
+    yellowMoutarde: ("yellow-moutarde", #c3992a, #fee9ac),
+    orangeTerreBattue: ("orange-terre-battue", #e4794a, #fdd5c0),
+    brownCafeCreme: ("brown-cafe-creme", #d1b781, #f4e3c7),
+    brownCaramel: ("brown-caramel", #c08c36, #f4e0b6),
+    brownOpera: ("brown-opera", #bd987a, #f4e0cf),
+    beigeGrisGalet: ("beige-gris-galet", #aea397, #e7ded7),
+    info: ("info", #0078f3, #e0f1ff),
+    success: ("success", #18753c, #b8fec9),
+    warning: ("warning", #b34000, #ffe8d7),
+    error: ("error", #ce0500, #ffe0e0),
 );
 
 @each $name, $tuple in $postStatusColor {
@@ -443,7 +453,7 @@ $postStatusColor: (
     --muted: var(--background-alt-grey) !important;
 }
 
-/* Consent management button — style as DSFR secondary button when outside footer */
+/* Consent management button - style as DSFR secondary button when outside footer */
 .consent-btn-wrapper {
     display: inline-block;
 

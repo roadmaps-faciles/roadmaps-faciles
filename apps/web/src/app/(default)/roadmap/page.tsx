@@ -93,7 +93,7 @@ const RoadmapPageInner = async () => {
   ]);
 
   return (
-    <div className="mx-auto flex max-w-7xl flex-1 flex-col overflow-x-hidden px-4 py-4">
+    <div className="mx-auto flex max-w-7xl flex-1 flex-col overflow-x-hidden p-4">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-3xl font-bold">{t("title")}</h1>
         <Button asChild>

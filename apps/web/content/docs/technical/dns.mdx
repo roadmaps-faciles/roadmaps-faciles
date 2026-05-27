@@ -30,10 +30,10 @@ feedback.mon-produit.fr.  3600  IN  CNAME  {{rootDomain}}.
 
 ### Points d'attention
 
-- **Pas d'enregistrement A** — Utilisez un CNAME, pas un enregistrement A. Le CNAME suit automatiquement les changements d'IP de la plateforme.
-- **Point final** — Certains fournisseurs DNS ajoutent automatiquement le point final (`.`) au nom de domaine. Vérifiez la syntaxe attendue par votre fournisseur.
-- **TTL** — Un TTL de `3600` (1 heure) est recommandé. Un TTL plus court accélère la propagation mais augmente les requêtes DNS.
-- **Domaine racine** — Un CNAME sur un domaine racine (apex, ex. : `mon-produit.fr`) n'est pas standard. Utilisez un sous-domaine (ex. : `feedback.mon-produit.fr`), ou un alias/ANAME si votre fournisseur le supporte.
+- **Pas d'enregistrement A** - Utilisez un CNAME, pas un enregistrement A. Le CNAME suit automatiquement les changements d'IP de la plateforme.
+- **Point final** - Certains fournisseurs DNS ajoutent automatiquement le point final (`.`) au nom de domaine. Vérifiez la syntaxe attendue par votre fournisseur.
+- **TTL** - Un TTL de `3600` (1 heure) est recommandé. Un TTL plus court accélère la propagation mais augmente les requêtes DNS.
+- **Domaine racine** - Un CNAME sur un domaine racine (apex, ex. : `mon-produit.fr`) n'est pas standard. Utilisez un sous-domaine (ex. : `feedback.mon-produit.fr`), ou un alias/ANAME si votre fournisseur le supporte.
 
 ## Fournisseurs DNS supportés
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { type FormEvent, useState, useTransition } from "react";
+import { type SubmitEvent, useState, useTransition } from "react";
 
 import { PASSWORD_MIN_LENGTH } from "@/lib/utils/passwordConstants";
 import { UIAlert, UIButton, UIInput } from "@/ui/bridge";
@@ -18,7 +18,7 @@ export const PasswordSection = ({ hasPassword }: { hasPassword: boolean }) => {
   const [success, setSuccess] = useState<string>();
   const [isPending, startTransition] = useTransition();
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!newPassword || !confirmPassword) return;
 

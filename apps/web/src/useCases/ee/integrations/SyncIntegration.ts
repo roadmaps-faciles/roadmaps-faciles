@@ -40,12 +40,12 @@ export class SyncIntegration implements UseCase<SyncIntegrationInput, SyncIntegr
     private readonly boardRepo: IBoardRepo,
   ) {}
 
-  /** Best-effort progress callback — swallows errors so a disconnected client won't break sync */
+  /** Best-effort progress callback - swallows errors so a disconnected client won't break sync */
   private async safeProgress(onProgress: SyncIntegrationInput["onProgress"], progress: SyncProgress): Promise<void> {
     try {
       await onProgress?.(progress);
     } catch {
-      // Progress reporting is best-effort — a client disconnect should not abort sync
+      // Progress reporting is best-effort - a client disconnect should not abort sync
     }
   }
 
@@ -242,7 +242,7 @@ export class SyncIntegration implements UseCase<SyncIntegrationInput, SyncIntegr
             });
           if (result && "statsCommentId" in result && result.statsCommentId !== cachedId) {
             await this.integrationMappingRepo.update(existingMapping.id, {
-              metadata: { ...meta, statsCommentId: result.statsCommentId } as Prisma.InputJsonValue,
+              metadata: { ...meta, statsCommentId: result.statsCommentId },
             });
           }
         } else {
@@ -328,7 +328,7 @@ export class SyncIntegration implements UseCase<SyncIntegrationInput, SyncIntegr
               });
             if (result && "statsCommentId" in result && result.statsCommentId !== cachedId) {
               await this.integrationMappingRepo.update(mappingId, {
-                metadata: { ...mappingMeta, statsCommentId: result.statsCommentId } as Prisma.InputJsonValue,
+                metadata: { ...mappingMeta, statsCommentId: result.statsCommentId },
               });
             }
           } else {

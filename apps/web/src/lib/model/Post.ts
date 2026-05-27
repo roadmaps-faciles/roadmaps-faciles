@@ -34,6 +34,8 @@ export const Post = z.object({
   editedById: z.string().nullable(),
   approvalStatus: postApprovalStatusEnum,
   tags: z.string().array(),
+  progress: z.number().int().min(0).max(100).nullish(),
+  eta: z.string().nullish(),
 });
 
 export type Post = z.infer<typeof Post>;

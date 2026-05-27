@@ -118,7 +118,7 @@ describe("DeleteTenant", () => {
     await expect(useCase.execute({ tenantId: 1, userId: "user-1" })).resolves.toBeUndefined();
   });
 
-  it("does not delete org (deferred — tenant is soft-deleted, FK prevents it)", async () => {
+  it("does not delete org (deferred - tenant is soft-deleted, FK prevents it)", async () => {
     const orgId = 42;
     const tenant = {
       ...fakeTenant({ id: 1, organizationId: orgId }),

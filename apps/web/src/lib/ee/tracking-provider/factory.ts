@@ -3,7 +3,7 @@ import { type IFeatureFlagProvider, type ITrackingProvider, type TrackingProvide
 type TrackingProviderInstance = IFeatureFlagProvider & ITrackingProvider;
 
 /**
- * Client-side factory — returns the tracking provider + feature flag provider.
+ * Client-side factory - returns the tracking provider + feature flag provider.
  *
  * Must only be called from client components. For server-side tracking,
  * use `getServerTrackingProvider()` from `./serverFactory` instead.
@@ -19,6 +19,11 @@ export function getTrackingProvider(type: TrackingProviderType): TrackingProvide
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { matomoTrackingProvider } = require("./matomo/provider") as typeof import("./matomo/provider");
       return matomoTrackingProvider;
+    }
+    case "memory": {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { memoryTrackingProvider } = require("./memory/provider") as typeof import("./memory/provider");
+      return memoryTrackingProvider;
     }
     default: {
       // eslint-disable-next-line @typescript-eslint/no-require-imports

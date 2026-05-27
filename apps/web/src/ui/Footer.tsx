@@ -13,6 +13,7 @@ interface FooterLink {
 
 export interface FooterProps {
   badges?: React.ReactNode;
+  bottomExtra?: React.ReactNode;
   bottomLinks?: FooterLink[];
   brandIcon?: React.ReactNode;
   brandName?: string;
@@ -28,7 +29,7 @@ export interface FooterProps {
 }
 
 /**
- * Unified footer — root and tenant variants.
+ * Unified footer - root and tenant variants.
  *
  * Root: max-w-7xl, multi-column links, brand icon, badges, version badge.
  * Tenant: container, compact single-row bottom links.
@@ -42,6 +43,7 @@ export const Footer = ({
   columns,
   badges,
   bottomLinks,
+  bottomExtra,
   copyright,
   license,
   version,
@@ -62,7 +64,7 @@ export const Footer = ({
                 <span className="text-lg font-bold tracking-tight">{brandName}</span>
               </div>
               {contentDescription && (
-                <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">{contentDescription}</p>
+                <p className="max-w-xs text-sm/relaxed text-muted-foreground">{contentDescription}</p>
               )}
               {badges && <div className="mt-8 flex gap-3">{badges}</div>}
               {version && (
@@ -101,6 +103,9 @@ export const Footer = ({
               {copyright && <p>{copyright}</p>}
               {license && <p>{license}</p>}
             </div>
+            {bottomExtra && (
+              <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">{bottomExtra}</div>
+            )}
           </div>
         </div>
       </footer>
@@ -130,6 +135,7 @@ export const Footer = ({
                 {link.text}
               </Link>
             ))}
+            {bottomExtra}
           </div>
           {license && <p>{license}</p>}
         </div>

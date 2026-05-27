@@ -1,4 +1,5 @@
 import "server-only";
+import { cookies } from "next/headers";
 
 import { config } from "@/config";
 import { logger } from "@/lib/logger";
@@ -7,6 +8,29 @@ import { getOrCreateInstanceId } from "./instanceId";
 import { activateLicenseOnline, verifyLicenseOnline } from "./licenseFetcher";
 import { isLicenseExpired, parseLicenseKey } from "./licenseVerifier";
 import { type LicenseStatus } from "./types";
+
+export const DEV_LICENSE_KEY_COOKIE = "dev-license-key";
+export const DEV_LICENSE_OFFLINE_COOKIE = "dev-license-offline";
+
+async function readDevOverrides(): Promise<{ key: null | string; offline: boolean }> {
+  if (config.env !== "dev") return { key: null, offline: false };
+  const cookieStore = await cookies();
+  return {
+    key: cookieStore.get(DEV_LICENSE_KEY_COOKIE)?.value || null,
+    offline: cookieStore.get(DEV_LICENSE_OFFLINE_COOKIE)?.value === "1",
+  };
+}
+
+export async function getEffectiveLicenseKey(): Promise<string> {
+  const { key } = await readDevOverrides();
+  return key ?? config.licenseKey;
+}
+
+export function resetLicenseStatusCache(): void {
+  cachedStatus = null;
+  lastOnlineCheck = null;
+  activationAttempted = false;
+}
 
 const REFRESH_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24h
 const GRACE_PERIOD_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
@@ -22,7 +46,7 @@ function shouldRefreshOnline(): boolean {
 
 function applyGracePeriod(plan: "GOV_LICENSED" | "LICENSED", expiresAt: Date): LicenseStatus {
   if (!lastOnlineCheck) {
-    // Never verified online — trust offline verification
+    // Never verified online - trust offline verification
     return { mode: "licensed", valid: true, plan, expiresAt };
   }
 
@@ -41,12 +65,15 @@ function applyGracePeriod(plan: "GOV_LICENSED" | "LICENSED", expiresAt: Date): L
  * @param forceRefresh - bypass the 24h cooldown and force an online check
  */
 export async function getLicenseStatus(forceRefresh = false): Promise<LicenseStatus> {
-  if (!config.licenseKey) {
+  const { key: devKey, offline: devOffline } = await readDevOverrides();
+  const licenseKey = devKey ?? config.licenseKey;
+
+  if (!licenseKey) {
     return { mode: "community", valid: false };
   }
 
   // Offline verify (signature + expiry)
-  const { payload, valid } = parseLicenseKey(config.licenseKey);
+  const { payload, valid } = parseLicenseKey(licenseKey);
   if (!valid || !payload) {
     return { mode: "community", valid: false };
   }
@@ -63,7 +90,7 @@ export async function getLicenseStatus(forceRefresh = false): Promise<LicenseSta
   // Online refresh
   if (forceRefresh || shouldRefreshOnline()) {
     const instanceId = await getOrCreateInstanceId();
-    const online = await verifyLicenseOnline(config.licenseKey, instanceId);
+    const online = devOffline ? null : await verifyLicenseOnline(licenseKey, instanceId);
     if (online) {
       const wasFirstVerify = !lastOnlineCheck;
       lastOnlineCheck = new Date();
@@ -78,7 +105,7 @@ export async function getLicenseStatus(forceRefresh = false): Promise<LicenseSta
       // Auto-activate on first successful verify (fire-and-forget)
       if (wasFirstVerify && !activationAttempted) {
         activationAttempted = true;
-        void activateLicenseOnline(config.licenseKey, instanceId).then(result => {
+        void activateLicenseOnline(licenseKey, instanceId).then(result => {
           if (result?.alreadyBound) {
             logger.warn("License already bound to a different instance");
           } else if (result?.activated) {
@@ -87,7 +114,7 @@ export async function getLicenseStatus(forceRefresh = false): Promise<LicenseSta
         });
       }
     } else {
-      // Server unreachable — apply grace period
+      // Server unreachable - apply grace period
       cachedStatus = applyGracePeriod(payload.plan, new Date(payload.expiresAt));
     }
   }

@@ -168,7 +168,7 @@ export const EmailTestForm = ({ userEmail }: EmailTestFormProps) => {
           <CardContent>
             <iframe
               srcDoc={previewHtml}
-              className="w-full rounded border"
+              className="w-full rounded-sm border"
               style={{ height: "600px", colorScheme: "auto" }}
               sandbox=""
               title="Email preview"

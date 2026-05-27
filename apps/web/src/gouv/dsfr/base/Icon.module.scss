@@ -3,7 +3,7 @@
     align-items: center;
 }
 
-/* reset dsfr default icon — !important needed because DSFR CSS may load after this module */
+/* reset dsfr default icon - !important needed because DSFR CSS may load after this module */
 .fr-icon::before,
 .fr-icon::after {
     content: unset !important;

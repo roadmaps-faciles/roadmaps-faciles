@@ -42,7 +42,7 @@ export async function tenantSignupAction(data: {
     let userId: string;
 
     if (existingUser) {
-      // User exists (e.g. from root signup) — check if already member of this tenant
+      // User exists (e.g. from root signup) - check if already member of this tenant
       const membership = await userOnTenantRepo.findMembership(existingUser.id, tenant.id);
       if (membership) {
         return { ok: false, error: "ALREADY_MEMBER" };
@@ -72,7 +72,7 @@ export async function tenantSignupAction(data: {
 
       await sendEmail({
         to: data.email,
-        subject: "Vérifiez votre adresse email — Roadmaps Faciles",
+        subject: "Vérifiez votre adresse email - Roadmaps Faciles",
         html,
         text: "Vérifiez votre adresse email : " + verifyUrl,
       });

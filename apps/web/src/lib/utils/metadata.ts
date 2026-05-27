@@ -68,7 +68,7 @@ export const generateTenantMetadata = async (domain: string): Promise<Metadata> 
 
   return {
     title: {
-      template: `%s — ${settings.name}`,
+      template: `%s - ${settings.name}`,
       default: settings.name,
     },
     openGraph: {
@@ -103,7 +103,7 @@ export const generateBoardMetadata = async (domain: string, boardSlug: string): 
 
   if (!settings || !board) return {};
 
-  const description = truncateDescription(board.description) || `${board.name} — ${settings.name}`;
+  const description = truncateDescription(board.description) || `${board.name} - ${settings.name}`;
   const url = buildTenantUrl(settings.subdomain, settings.customDomain, `/board/${board.slug}`);
 
   return {
@@ -111,7 +111,7 @@ export const generateBoardMetadata = async (domain: string, boardSlug: string): 
     description,
     openGraph: {
       type: "website",
-      title: `${board.name} — ${settings.name}`,
+      title: `${board.name} - ${settings.name}`,
       description,
       url,
     },
@@ -144,7 +144,7 @@ export const generatePostMetadata = async (domain: string, postId: string): Prom
 
   if (!settings || !post) return {};
 
-  const description = truncateDescription(post.description) || `${post.title} — ${settings.name}`;
+  const description = truncateDescription(post.description) || `${post.title} - ${settings.name}`;
   const url = buildTenantUrl(settings.subdomain, settings.customDomain, `/post/${id}`);
 
   return {
@@ -152,7 +152,7 @@ export const generatePostMetadata = async (domain: string, postId: string): Prom
     description,
     openGraph: {
       type: "article",
-      title: `${post.title} — ${settings.name}`,
+      title: `${post.title} - ${settings.name}`,
       description,
       url,
       ...(post.createdAt && { publishedTime: post.createdAt.toISOString() }),

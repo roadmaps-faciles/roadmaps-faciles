@@ -53,7 +53,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 
-import { InitialsAvatar } from "@/components/img/InitialsAvatar";
+import { UserAvatar } from "@/components/img/UserAvatar";
 import { useRovingHighlight } from "@/ui/useRovingHighlight";
 import { WorkspaceSwitcher } from "@/ui/WorkspaceSwitcher";
 
@@ -117,6 +117,7 @@ export interface UserMenuData {
   organizations: OrgMenuGroup[];
   user: {
     email: string;
+    image?: null | string;
     name: string;
   };
 }
@@ -128,7 +129,7 @@ interface AdminSidebarProps {
   backHref?: string;
   /** Label for the back link */
   backLabel?: string;
-  /** Dev tools panel — only rendered in dev mode */
+  /** Dev tools panel - only rendered in dev mode */
   devTools?: React.ReactNode;
   /** Extra items shown after a separator below the main nav groups */
   extraItems?: ExtraItem[];
@@ -138,17 +139,17 @@ interface AdminSidebarProps {
     version: string;
   };
   groups: NavGroup[];
-  /** Header icon — ReactNode for full control (e.g. Image, SVG, or Lucide icon) */
+  /** Header icon - ReactNode for full control (e.g. Image, SVG, or Lucide icon) */
   icon: React.ReactNode;
   /** Show background on the icon container (default: true) */
   iconBg?: boolean;
   subtitle?: string;
   title: string;
-  /** User menu data for the sidebar footer — PostHog-style with workspace/org/account sections */
+  /** User menu data for the sidebar footer - PostHog-style with workspace/org/account sections */
   userMenu?: UserMenuData;
 }
 
-// --- Dark mode toggle (inline, no i18n needed — icon-only) ---
+// --- Dark mode toggle (inline, no i18n needed - icon-only) ---
 
 type Theme = "dark" | "light" | "system";
 
@@ -177,7 +178,7 @@ const subscribeTheme = (cb: () => void) => {
 };
 
 const DarkModeToggle = ({ collapsed }: { collapsed?: boolean }) => {
-  const theme = useSyncExternalStore(subscribeTheme, getStoredTheme, () => "system" as Theme);
+  const theme = useSyncExternalStore<Theme>(subscribeTheme, getStoredTheme, () => "system");
 
   useEffect(() => {
     applyTheme(theme);
@@ -274,10 +275,10 @@ const SidebarUserMenu = ({ userMenu }: { userMenu: UserMenuData }) => {
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <InitialsAvatar as="span" name={displayName} className="size-8 shrink-0 rounded-lg text-xs" />
+              <UserAvatar name={displayName} image={userMenu.user.image} className="size-8 rounded-lg text-xs" />
               {!collapsed && (
                 <>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
+                  <div className="grid flex-1 text-left text-sm/tight">
                     <span className="truncate font-semibold">{displayName}</span>
                     <span className="truncate text-xs text-sidebar-foreground/60">{userMenu.user.email}</span>
                   </div>
@@ -294,7 +295,7 @@ const SidebarUserMenu = ({ userMenu }: { userMenu: UserMenuData }) => {
           >
             {/* User info header */}
             <DropdownMenuLabel className="flex items-center gap-3 p-3 font-normal">
-              <InitialsAvatar as="span" name={displayName} className="size-9 shrink-0 rounded-lg text-xs" />
+              <UserAvatar name={displayName} image={userMenu.user.image} className="size-9 rounded-lg text-xs" />
               <div className="flex flex-col gap-0.5 leading-none">
                 <span className="font-semibold">{displayName}</span>
                 <span className="text-xs text-muted-foreground">{userMenu.user.email}</span>
@@ -348,7 +349,7 @@ const SidebarUserMenu = ({ userMenu }: { userMenu: UserMenuData }) => {
                 >
                   <Repeat className="size-4 shrink-0 text-muted-foreground" />
                   <span>{t("switchWorkspace")}</span>
-                  <kbd className="ml-auto rounded border bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                  <kbd className="ml-auto rounded-sm border bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
                     ⌘K
                   </kbd>
                 </DropdownMenuItem>
@@ -394,7 +395,7 @@ const SidebarUserMenu = ({ userMenu }: { userMenu: UserMenuData }) => {
 const sidebarItemStyle = { backgroundColor: "transparent" } as const;
 
 /**
- * Shared admin sidebar — root and tenant admin layouts.
+ * Shared admin sidebar - root and tenant admin layouts.
  *
  * Matches Stitch wireframe: icon + app name header, labeled groups,
  * separated extra items (moderation), status footer.
@@ -492,13 +493,13 @@ export const AdminSidebar = ({
               {icon}
             </div>
             <div className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
-              <span className="truncate text-sm font-bold leading-tight">{title}</span>
+              <span className="truncate text-sm/tight font-bold">{title}</span>
               {subtitle && (
                 <span className="truncate text-[10px] font-medium text-sidebar-foreground/50">{subtitle}</span>
               )}
             </div>
           </div>
-          {/* Collapse trigger — right of title when expanded, below logo when collapsed */}
+          {/* Collapse trigger - right of title when expanded, below logo when collapsed */}
           <SidebarTrigger className="size-7 shrink-0 text-sidebar-foreground/40 hover:text-sidebar-foreground">
             <PanelLeftClose className="size-4 transition-transform group-data-[collapsible=icon]:rotate-180" />
           </SidebarTrigger>
@@ -516,7 +517,7 @@ export const AdminSidebar = ({
 
       {/* Nav groups */}
       <SidebarContent className="relative" onMouseLeave={isMobile ? undefined : clearHighlight}>
-        {/* Roving highlight — disabled on mobile (touch has no hover, Sheet transform offsets positions) */}
+        {/* Roving highlight - disabled on mobile (touch has no hover, Sheet transform offsets positions) */}
         {!isMobile && highlight && (
           <motion.div
             className="pointer-events-none absolute inset-x-2 top-0 z-0 rounded-md bg-sidebar-accent"
@@ -585,7 +586,7 @@ export const AdminSidebar = ({
                   </TooltipTrigger>
                   <TooltipContent side="right">
                     <p className="text-xs">
-                      {footer.status} — {footer.version}
+                      {footer.status} - {footer.version}
                     </p>
                   </TooltipContent>
                 </Tooltip>

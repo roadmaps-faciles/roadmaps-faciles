@@ -34,7 +34,7 @@ export async function forgotPasswordAction(email: string): Promise<ServerActionR
 
     await sendEmail({
       to: email.trim(),
-      subject: "Réinitialiser votre mot de passe — Roadmaps Faciles",
+      subject: "Réinitialiser votre mot de passe - Roadmaps Faciles",
       html,
       text: "Réinitialisez votre mot de passe : " + resetUrl,
     });

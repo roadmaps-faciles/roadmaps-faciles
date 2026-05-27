@@ -20,7 +20,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 
-import { InitialsAvatar } from "@/components/img/InitialsAvatar";
+import { UserAvatar } from "@/components/img/UserAvatar";
 import { type UserMenuData } from "@/ui/AdminSidebar";
 import { useRovingHighlight } from "@/ui/useRovingHighlight";
 import { WorkspaceSwitcher } from "@/ui/WorkspaceSwitcher";
@@ -28,9 +28,9 @@ import { WorkspaceSwitcher } from "@/ui/WorkspaceSwitcher";
 export interface ShadcnUserHeaderItemProps {
   /** "dropdown" = desktop DropdownMenu, "sheet" = inline items for mobile Sheet */
   mode?: "dropdown" | "sheet";
-  /** Pending moderation posts count — shown as badge on the trigger button */
+  /** Pending moderation posts count - shown as badge on the trigger button */
   pendingModerationCount?: number;
-  /** User menu data from server — sections align with sidebar user menu */
+  /** User menu data from server - sections align with sidebar user menu */
   userMenu?: UserMenuData;
 }
 
@@ -42,43 +42,51 @@ const MenuItemContent = ({ children }: { children: React.ReactNode }) => (
   <span className="relative z-10 flex items-center gap-2">{children}</span>
 );
 
-const DropdownMenuSwitcherTrigger = ({ userMenu }: { userMenu: UserMenuData }) => {
+const DropdownMenuSwitcherTrigger = ({
+  clearHighlight,
+  handleItemHover,
+  onOpenAction,
+}: {
+  clearHighlight: () => void;
+  handleItemHover: (event: React.MouseEvent) => void;
+  onOpenAction: () => void;
+}) => {
   const t = useTranslations("sidebar");
-  const [switcherOpen, setSwitcherOpen] = useState(false);
 
   return (
-    <>
-      <DropdownMenuItem
-        className={itemClass}
-        style={itemStyle}
-        onSelect={e => {
-          e.preventDefault();
-          setSwitcherOpen(true);
-        }}
-      >
-        <MenuItemContent>
-          <Repeat className="size-4 shrink-0 text-muted-foreground" />
-          <span>{t("switchWorkspace")}</span>
-          <kbd className="ml-auto rounded border bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">⌘K</kbd>
-        </MenuItemContent>
-      </DropdownMenuItem>
-      <WorkspaceSwitcher userMenu={userMenu} open={switcherOpen} onOpenChangeAction={setSwitcherOpen} />
-    </>
+    <DropdownMenuItem
+      className={itemClass}
+      style={itemStyle}
+      onMouseEnter={handleItemHover}
+      onMouseLeave={clearHighlight}
+      onSelect={e => {
+        e.preventDefault();
+        onOpenAction();
+      }}
+    >
+      <MenuItemContent>
+        <Repeat className="size-4 shrink-0 text-muted-foreground" />
+        <span>{t("switchWorkspace")}</span>
+        <kbd className="ml-auto rounded-sm border bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">⌘K</kbd>
+      </MenuItemContent>
+    </DropdownMenuItem>
   );
 };
 
-const SheetWorkspaceSwitcherTrigger = ({ userMenu, className }: { className: string; userMenu: UserMenuData }) => {
+const SheetWorkspaceSwitcherTrigger = ({ className }: { className: string }) => {
   const t = useTranslations("sidebar");
-  const [switcherOpen, setSwitcherOpen] = useState(false);
 
   return (
-    <>
-      <button type="button" onClick={() => setSwitcherOpen(true)} className={className}>
-        <Repeat className="size-4 shrink-0 text-muted-foreground" />
-        <span className="flex-1">{t("switchWorkspace")}</span>
-      </button>
-      <WorkspaceSwitcher userMenu={userMenu} open={switcherOpen} onOpenChangeAction={setSwitcherOpen} />
-    </>
+    <button
+      type="button"
+      onClick={() => {
+        document.dispatchEvent(new CustomEvent("open-workspace-switcher"));
+      }}
+      className={className}
+    >
+      <Repeat className="size-4 shrink-0 text-muted-foreground" />
+      <span className="flex-1">{t("switchWorkspace")}</span>
+    </button>
   );
 };
 
@@ -92,6 +100,7 @@ export const ShadcnUserHeaderItem = ({
   const tAuth = useTranslations("auth");
   const tr = useTranslations("roles");
   const { clearHighlight, handleItemHover, highlight } = useRovingHighlight('[data-slot="dropdown-menu-content"]');
+  const [switcherOpen, setSwitcherOpen] = useState(false);
 
   switch (session.status) {
     case "authenticated": {
@@ -109,7 +118,7 @@ export const ShadcnUserHeaderItem = ({
           <>
             {/* User card */}
             <div className="flex items-center gap-3 rounded-lg bg-muted/50 p-3">
-              <InitialsAvatar as="span" name={displayName} className="size-10 shrink-0 text-sm" />
+              <UserAvatar name={displayName} image={user.image} className="size-10 text-sm" />
               <div className="flex min-w-0 flex-col leading-tight">
                 <span className="truncate text-sm font-semibold">{displayName}</span>
                 <span className="truncate text-xs text-muted-foreground">{email}</span>
@@ -153,7 +162,7 @@ export const ShadcnUserHeaderItem = ({
             <div className="mt-2">
               {/* Switch workspace */}
               {userMenu && userMenu.organizations.length > 0 && (
-                <SheetWorkspaceSwitcherTrigger userMenu={userMenu} className={sheetItemClass} />
+                <SheetWorkspaceSwitcherTrigger className={sheetItemClass} />
               )}
 
               {/* Root admin */}
@@ -182,139 +191,157 @@ export const ShadcnUserHeaderItem = ({
 
       // --- Dropdown mode: desktop DropdownMenu ---
       return (
-        <DropdownMenu onOpenChange={clearHighlight}>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="gap-2">
-              <InitialsAvatar as="span" name={displayName} className="size-7 shrink-0 rounded-lg text-[10px]" />
-              <span className="hidden sm:inline">{displayName}</span>
-              {pendingModerationCount > 0 && (
-                <Badge variant="destructive" className="ml-1 px-1.5 py-0.5 text-xs">
-                  {pendingModerationCount}
-                </Badge>
+        <>
+          <DropdownMenu onOpenChange={clearHighlight}>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-auto gap-1 px-1.5 py-1" aria-label={displayName}>
+                <span className="relative">
+                  <UserAvatar name={displayName} image={user.image} className="size-8 rounded-lg text-xs" />
+                  {pendingModerationCount > 0 && (
+                    <Badge
+                      variant="destructive"
+                      className="absolute -right-1 -top-1 h-4 min-w-4 justify-center px-1 text-[10px] leading-none"
+                    >
+                      {pendingModerationCount}
+                    </Badge>
+                  )}
+                </span>
+                <ChevronsUpDown className="size-3.5 shrink-0 text-muted-foreground/40" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="relative min-w-72 max-h-[70vh] overflow-y-auto">
+              <DropdownMenuArrow />
+
+              {/* Roving highlight - animated background that follows hovered items */}
+              {highlight && (
+                <motion.div
+                  className="pointer-events-none absolute inset-x-1 top-0 z-0 rounded-sm bg-accent"
+                  initial={false}
+                  animate={{ y: highlight.y, height: highlight.height }}
+                  transition={{ type: "spring", bounce: 0.15, duration: 0.3 }}
+                />
               )}
-              <ChevronsUpDown className="ml-auto size-3.5 shrink-0 text-muted-foreground/40" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="relative min-w-72 max-h-[70vh] overflow-y-auto">
-            <DropdownMenuArrow />
 
-            {/* Roving highlight — animated background that follows hovered items */}
-            {highlight && (
-              <motion.div
-                className="pointer-events-none absolute inset-x-1 top-0 z-0 rounded-sm bg-accent"
-                initial={false}
-                animate={{ y: highlight.y, height: highlight.height }}
-                transition={{ type: "spring", bounce: 0.15, duration: 0.3 }}
-              />
-            )}
+              {/* User info header */}
+              <DropdownMenuLabel className="flex items-center gap-3 p-3 font-normal">
+                <UserAvatar name={displayName} image={user.image} className="size-9 text-xs" />
+                <div className="flex flex-col gap-0.5 leading-none">
+                  <span className="font-semibold">{displayName}</span>
+                  <span className="text-xs text-muted-foreground">{email}</span>
+                  <Badge variant="outline" className="mt-1 w-fit px-1.5 py-0 text-[10px]">
+                    {tr(roleLabelKey as "OWNER")}
+                  </Badge>
+                </div>
+              </DropdownMenuLabel>
 
-            {/* User info header */}
-            <DropdownMenuLabel className="flex items-center gap-3 p-3 font-normal">
-              <InitialsAvatar as="span" name={displayName} className="size-9 shrink-0 text-xs" />
-              <div className="flex flex-col gap-0.5 leading-none">
-                <span className="font-semibold">{displayName}</span>
-                <span className="text-xs text-muted-foreground">{email}</span>
-                <Badge variant="outline" className="mt-1 w-fit px-1.5 py-0 text-[10px]">
-                  {tr(roleLabelKey as "OWNER")}
-                </Badge>
-              </div>
-            </DropdownMenuLabel>
-
-            {/* Current tenant context */}
-            {userMenu?.currentTenant && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <div className="px-3 py-2">
-                    <div className="flex items-center gap-2">
-                      <LayoutDashboard className="size-4 shrink-0 text-muted-foreground" />
-                      <span className="truncate text-sm font-semibold">{userMenu.currentTenant.name}</span>
-                    </div>
-                    <div className="mt-1 flex items-center gap-2 pl-6">
-                      <Building2 className="size-3.5 shrink-0 text-muted-foreground" />
-                      <span className="truncate text-xs text-muted-foreground">{userMenu.currentTenant.org.name}</span>
-                    </div>
-                    {(userMenu.currentTenant.adminHref || userMenu.currentTenant.org.adminHref) && (
-                      <div className="mt-1.5 flex gap-3 pl-6">
-                        {userMenu.currentTenant.adminHref && (
-                          <Link
-                            href={userMenu.currentTenant.adminHref}
-                            className="text-xs text-primary hover:underline"
-                          >
-                            {t("tenantAdmin")}
-                          </Link>
-                        )}
-                        {userMenu.currentTenant.org.adminHref && (
-                          <Link
-                            href={userMenu.currentTenant.org.adminHref}
-                            className="text-xs text-primary hover:underline"
-                          >
-                            {t("orgAdmin")}
-                          </Link>
-                        )}
+              {/* Current tenant context */}
+              {userMenu?.currentTenant && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <div className="px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <LayoutDashboard className="size-4 shrink-0 text-muted-foreground" />
+                        <span className="truncate text-sm font-semibold">{userMenu.currentTenant.name}</span>
                       </div>
-                    )}
-                  </div>
-                </DropdownMenuGroup>
-              </>
-            )}
+                      <div className="mt-1 flex items-center gap-2 pl-6">
+                        <Building2 className="size-3.5 shrink-0 text-muted-foreground" />
+                        <span className="truncate text-xs text-muted-foreground">
+                          {userMenu.currentTenant.org.name}
+                        </span>
+                      </div>
+                      {(userMenu.currentTenant.adminHref || userMenu.currentTenant.org.adminHref) && (
+                        <div className="mt-1.5 flex gap-3 pl-6">
+                          {userMenu.currentTenant.adminHref && (
+                            <Link
+                              href={userMenu.currentTenant.adminHref}
+                              className="text-xs text-primary hover:underline"
+                            >
+                              {t("tenantAdmin")}
+                            </Link>
+                          )}
+                          {userMenu.currentTenant.org.adminHref && (
+                            <Link
+                              href={userMenu.currentTenant.org.adminHref}
+                              className="text-xs text-primary hover:underline"
+                            >
+                              {t("orgAdmin")}
+                            </Link>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </DropdownMenuGroup>
+                </>
+              )}
 
-            {/* Switch workspace + admin */}
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              {userMenu && userMenu.organizations.length > 0 && <DropdownMenuSwitcherTrigger userMenu={userMenu} />}
+              {/* Switch workspace + admin */}
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                {userMenu && userMenu.organizations.length > 0 && (
+                  <DropdownMenuSwitcherTrigger
+                    clearHighlight={clearHighlight}
+                    handleItemHover={handleItemHover}
+                    onOpenAction={() => setSwitcherOpen(true)}
+                  />
+                )}
 
-              {/* Root admin */}
-              {userMenu?.isSuperAdmin && (
+                {/* Root admin */}
+                {userMenu?.isSuperAdmin && (
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/admin"
+                      className={itemClass}
+                      style={itemStyle}
+                      onMouseEnter={handleItemHover}
+                      onMouseLeave={clearHighlight}
+                    >
+                      <MenuItemContent>
+                        <Monitor className="size-4 shrink-0 text-muted-foreground" />
+                        <span>{t("administration")}</span>
+                      </MenuItemContent>
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuGroup>
+
+              {/* Account section */}
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
                 <DropdownMenuItem asChild>
                   <Link
-                    href="/admin"
+                    href="/profile"
                     className={itemClass}
                     style={itemStyle}
                     onMouseEnter={handleItemHover}
                     onMouseLeave={clearHighlight}
                   >
                     <MenuItemContent>
-                      <Monitor className="size-4 shrink-0 text-muted-foreground" />
-                      <span>{t("administration")}</span>
+                      <User className="size-4 shrink-0" />
+                      <span>{t("profile")}</span>
                     </MenuItemContent>
                   </Link>
                 </DropdownMenuItem>
-              )}
-            </DropdownMenuGroup>
-
-            {/* Account section */}
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem asChild>
-                <Link
-                  href="/profile"
+                <DropdownMenuItem
                   className={itemClass}
                   style={itemStyle}
                   onMouseEnter={handleItemHover}
                   onMouseLeave={clearHighlight}
+                  onSelect={() => void signOut({ redirectTo: "/" })}
                 >
                   <MenuItemContent>
-                    <User className="size-4 shrink-0" />
-                    <span>{t("profile")}</span>
+                    <LogOut className="size-4 shrink-0" />
+                    <span>{t("logout")}</span>
                   </MenuItemContent>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className={itemClass}
-                style={itemStyle}
-                onMouseEnter={handleItemHover}
-                onMouseLeave={clearHighlight}
-                onSelect={() => void signOut({ redirectTo: "/" })}
-              >
-                <MenuItemContent>
-                  <LogOut className="size-4 shrink-0" />
-                  <span>{t("logout")}</span>
-                </MenuItemContent>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {userMenu && userMenu.organizations.length > 0 && (
+            <WorkspaceSwitcher userMenu={userMenu} open={switcherOpen} onOpenChangeAction={setSwitcherOpen} />
+          )}
+        </>
       );
     }
     case "loading":

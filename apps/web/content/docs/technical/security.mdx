@@ -11,9 +11,9 @@ Cette page s'adresse aux administrateurs techniques et aux équipes sécurité. 
 
 Chaque espace de travail est un **tenant isolé**. L'isolation est garantie à plusieurs niveaux :
 
-- **Base de données** — Toutes les requêtes incluent un filtre `tenantId`. Les données d'un tenant ne sont jamais accessibles depuis un autre.
-- **Authentification** — Les sessions sont liées à un domaine spécifique (cookie par sous-domaine). Un utilisateur connecté sur un espace n'est pas automatiquement connecté sur un autre.
-- **Autorisation** — Les rôles sont vérifiés par tenant. Un administrateur sur l'espace A n'a aucun privilège sur l'espace B.
+- **Base de données** - Toutes les requêtes incluent un filtre `tenantId`. Les données d'un tenant ne sont jamais accessibles depuis un autre.
+- **Authentification** - Les sessions sont liées à un domaine spécifique (cookie par sous-domaine). Un utilisateur connecté sur un espace n'est pas automatiquement connecté sur un autre.
+- **Autorisation** - Les rôles sont vérifiés par tenant. Un administrateur sur l'espace A n'a aucun privilège sur l'espace B.
 
 ## Authentification
 
@@ -23,7 +23,7 @@ L'authentification par email utilise des **magic links** (liens à usage unique)
 
 - Le lien est envoyé par email à l'adresse saisie.
 - Il est valable pour une seule utilisation.
-- Aucun mot de passe n'est stocké — la boîte email fait office de facteur d'authentification.
+- Aucun mot de passe n'est stocké - la boîte email fait office de facteur d'authentification.
 
 ### Pont SSO (Bridge)
 
@@ -39,7 +39,7 @@ Les fournisseurs OAuth (GitHub, Google) et OIDC (ProConnect) sont disponibles en
 
 - Les fournisseurs ne sont initialisés que si les variables d'environnement correspondantes sont renseignées (`OAUTH_GITHUB_CLIENT_ID`, `OAUTH_GOOGLE_CLIENT_ID`, `OAUTH_PROCONNECT_CLIENT_ID`).
 - Chaque tenant choisit indépendamment les fournisseurs à activer via l'interface d'administration.
-- Les providers activables sont validés côté serveur contre une **whitelist** (`github`, `google`, `proconnect`) — un payload modifié côté client ne peut pas activer un fournisseur non prévu.
+- Les providers activables sont validés côté serveur contre une **whitelist** (`github`, `google`, `proconnect`) - un payload modifié côté client ne peut pas activer un fournisseur non prévu.
 - La connexion OAuth sur le domaine racine est bloquée (OAuth est réservé aux tenants).
 - Lors de la première connexion OAuth, l'utilisateur est automatiquement rattaché au tenant.
 
@@ -47,22 +47,22 @@ Les fournisseurs OAuth (GitHub, Google) et OIDC (ProConnect) sont disponibles en
 
 Trois méthodes de second facteur sont disponibles :
 
-- **Clé d'accès (Passkey)** — Utilise l'API WebAuthn. Les challenges sont stockés dans Redis avec un TTL court. La vérification s'appuie sur `@simplewebauthn/server`.
-- **OTP (TOTP)** — Secret généré côté serveur, affiché une seule fois via QR code. La vérification utilise `otplib` avec une fenêtre de tolérance d'un pas.
-- **Email** — Un code à 6 chiffres est envoyé par email, stocké dans Redis avec un TTL de 5 minutes.
+- **Clé d'accès (Passkey)** - Utilise l'API WebAuthn. Les challenges sont stockés dans Redis avec un TTL court. La vérification s'appuie sur `@simplewebauthn/server`.
+- **OTP (TOTP)** - Secret généré côté serveur, affiché une seule fois via QR code. La vérification utilise `otplib` avec une fenêtre de tolérance d'un pas.
+- **Email** - Un code à 6 chiffres est envoyé par email, stocké dans Redis avec un TTL de 5 minutes.
 
 La vérification 2FA utilise un mécanisme de **preuve server-side** :
 
 1. Le endpoint de vérification (passkey, OTP ou email) valide le code/challenge.
 2. En cas de succès, il stocke une preuve éphémère dans Redis (`2fa:proof:{userId}`, TTL 60 secondes).
-3. Le client appelle `session.update()` — le callback JWT vérifie et consomme la preuve Redis avant de marquer la session comme vérifiée.
+3. Le client appelle `session.update()` - le callback JWT vérifie et consomme la preuve Redis avant de marquer la session comme vérifiée.
 4. Ce mécanisme empêche un client de marquer arbitrairement sa session comme vérifiée sans avoir complété la vérification.
 
 ### 2FA obligatoire (Force 2FA)
 
 Les administrateurs (au niveau tenant ou racine) peuvent imposer la 2FA à tous les utilisateurs :
 
-- **Période de grâce** — Configurable de 0 à 5 jours. Pendant cette période, l'utilisateur peut accéder à l'espace sans 2FA.
+- **Période de grâce** - Configurable de 0 à 5 jours. Pendant cette période, l'utilisateur peut accéder à l'espace sans 2FA.
 - La deadline est enregistrée en base (`twoFactorDeadline`) et évaluée à chaque création de session.
 - Configurer une méthode 2FA annule automatiquement la deadline (l'utilisateur est considéré conforme).
 - Désactiver le force 2FA efface toutes les deadlines en attente.
@@ -81,7 +81,7 @@ Le contrôle d'accès utilise une approche **RBAC** (Role-Based Access Control) 
 
 - Les rôles sont hiérarchiques : Propriétaire > Administrateur > Modérateur > Utilisateur.
 - Les vérifications utilisent une fonction `assertSession()` unifiée qui supporte les modes `min` (hiérarchique) et `only` (strict).
-- Les use cases valident à la fois le rôle **et** l'appartenance au tenant (le rôle ne suffit pas — la ressource doit appartenir au bon tenant).
+- Les use cases valident à la fois le rôle **et** l'appartenance au tenant (le rôle ne suffit pas - la ressource doit appartenir au bon tenant).
 
 ## Clés API
 
@@ -97,12 +97,12 @@ Le journal d'audit fournit une **traçabilité complète** :
 
 - Toutes les actions administratives sont enregistrées.
 - Les logs incluent l'adresse IP, le User-Agent et un identifiant de corrélation.
-- Les entrées du journal n'ont **pas de clé étrangère** vers les entités — elles survivent à la suppression des utilisateurs et des ressources.
+- Les entrées du journal n'ont **pas de clé étrangère** vers les entités - elles survivent à la suppression des utilisateurs et des ressources.
 - L'audit est **fire-and-forget** : il n'impacte pas les performances des opérations.
 
 ## Bonnes pratiques pour les administrateurs
 
-- **Choisissez un secret JWT robuste** — Le `SECURITY_JWT_SECRET` doit être aléatoire et suffisamment long (32+ caractères).
-- **Activez Sentry en production** — Le suivi d'erreurs permet de détecter rapidement les anomalies.
-- **Consultez régulièrement le journal d'audit** — Les actions inhabituelles (changements de rôle, suppressions massives) peuvent indiquer un problème.
-- **Limitez les super-administrateurs** — Seules les personnes qui en ont besoin doivent être listées dans la variable `ADMINS`.
+- **Choisissez un secret JWT robuste** - Le `SECURITY_JWT_SECRET` doit être aléatoire et suffisamment long (32+ caractères).
+- **Activez Sentry en production** - Le suivi d'erreurs permet de détecter rapidement les anomalies.
+- **Consultez régulièrement le journal d'audit** - Les actions inhabituelles (changements de rôle, suppressions massives) peuvent indiquer un problème.
+- **Limitez les super-administrateurs** - Seules les personnes qui en ont besoin doivent être listées dans la variable `ADMINS`.

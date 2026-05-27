@@ -8,7 +8,7 @@ export const SkipLinks = () => {
   return (
     <nav
       aria-label={t("nav")}
-      className="sr-only focus-within:not-sr-only focus-within:fixed focus-within:top-0 focus-within:left-0 focus-within:z-[9999] focus-within:flex focus-within:gap-2 focus-within:bg-background focus-within:p-2 focus-within:shadow-md"
+      className="sr-only focus-within:not-sr-only focus-within:fixed focus-within:top-0 focus-within:left-0 focus-within:z-9999 focus-within:flex focus-within:gap-2 focus-within:bg-background focus-within:p-2 focus-within:shadow-md"
     >
       <a
         href="#content"

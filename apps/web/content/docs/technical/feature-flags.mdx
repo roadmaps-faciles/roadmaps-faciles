@@ -11,8 +11,8 @@ Cette page s'adresse aux développeurs et super admins. Elle décrit le fonction
 
 Les feature flags permettent de **merger et déployer du code en production** sans que les utilisateurs voient les features en cours de développement :
 
-- **Flag OFF** — seuls les super admins voient et utilisent la feature (invisible pour tous les autres)
-- **Flag ON** — la feature est disponible pour tout le monde
+- **Flag OFF** - seuls les super admins voient et utilisent la feature (invisible pour tous les autres)
+- **Flag ON** - la feature est disponible pour tout le monde
 
 Aucune branche longue, aucun env var à changer, aucun redeploy nécessaire pour activer une feature : on flip le flag dans l'admin UI.
 
@@ -41,7 +41,7 @@ Les overrides sont stockés en JSON dans le champ `featureFlags` du singleton `A
 
 ### Résolution
 
-`getFeatureFlags()` utilise `React.cache()` — une seule lecture DB par request, même si appelé dans N composants server.
+`getFeatureFlags()` utilise `React.cache()` - une seule lecture DB par request, même si appelé dans N composants server.
 
 Le `FeatureFlagProvider` dans le root layout reçoit des **flags effectifs** déjà résolus :
 
@@ -125,7 +125,7 @@ const MyComponent = () => {
 };
 ```
 
-Le hook retourne un **boolean simple**. Le bypass super admin est déjà résolu côté provider — aucune logique de rôle ne leak dans les composants.
+Le hook retourne un **boolean simple**. Le bypass super admin est déjà résolu côté provider - aucune logique de rôle ne leak dans les composants.
 
 ### 4. Tester
 

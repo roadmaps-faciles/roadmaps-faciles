@@ -27,7 +27,7 @@ vi.mock("next/navigation", () => ({
   },
 }));
 
-describe("hasEntitlement — self-host (license mode)", () => {
+describe("hasEntitlement - self-host (license mode)", () => {
   let hasEntitlement: typeof import("@/lib/ee/entitlements").hasEntitlement;
 
   beforeAll(async () => {

@@ -5,7 +5,7 @@ test.describe("Internationalization", () => {
     await page.goto("/board/test-board");
     await page.waitForLoadState("networkidle");
 
-    // Board page should show French content — form heading or board elements
+    // Board page should show French content - form heading or board elements
     await expect(page.locator("html")).toHaveAttribute("lang", "fr");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Test Board");
   });

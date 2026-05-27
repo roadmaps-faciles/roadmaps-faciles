@@ -28,7 +28,7 @@ const iconMap = {
   system: Monitor,
 } as const;
 
-// Storage event listener for useSyncExternalStore — filter on "theme" key only
+// Storage event listener for useSyncExternalStore - filter on "theme" key only
 const subscribe = (cb: () => void) => {
   const handler = (e: StorageEvent) => {
     if (e.key === "theme" || e.key === null) cb();
@@ -44,7 +44,7 @@ export interface ThemeToggleProps {
 
 export const ThemeToggle = ({ compact }: ThemeToggleProps = {}) => {
   const t = useTranslations("themeToggle");
-  const theme = useSyncExternalStore(subscribe, getStoredTheme, () => "system" as Theme);
+  const theme = useSyncExternalStore<Theme>(subscribe, getStoredTheme, () => "system");
 
   useEffect(() => {
     if (theme !== "system") return;

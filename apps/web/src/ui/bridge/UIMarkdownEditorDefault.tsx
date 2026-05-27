@@ -21,7 +21,7 @@ declare module "react" {
   }
 }
 
-/** Lucide icon map — matches the order of toolbarItems in markdownToolbar.ts */
+/** Lucide icon map - matches the order of toolbarItems in markdownToolbar.ts */
 const TOOLBAR_ICONS: Record<string, ReactNode> = {
   "fr-icon-bold": <Bold className="size-4" />,
   "fr-icon-italic": <Italic className="size-4" />,

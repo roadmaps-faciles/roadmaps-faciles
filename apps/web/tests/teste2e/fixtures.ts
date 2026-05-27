@@ -2,7 +2,7 @@ import { test as base } from "@playwright/test";
 
 export { expect } from "@playwright/test";
 
-/** Tenant base URL for E2E tests — used as baseURL in tenant Playwright projects */
+/** Tenant base URL for E2E tests - used as baseURL in tenant Playwright projects */
 export const E2E_TENANT_URL = "http://e2e.localhost:3000";
 
 const MAILDEV_API = process.env.MAILDEV_URL || "http://localhost:1080";
@@ -54,7 +54,7 @@ export const test = base.extend<{ maildev: MaildevFixture }>({
       },
 
       async clearInbox(): Promise<void> {
-        // Retry with backoff — Maildev may not be fully ready or may drop connections
+        // Retry with backoff - Maildev may not be fully ready or may drop connections
         for (let attempt = 0; attempt < 3; attempt++) {
           try {
             await fetch(`${MAILDEV_API}/email/all`, { method: "DELETE" });

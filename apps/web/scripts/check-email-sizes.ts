@@ -1,13 +1,13 @@
 /**
  * Check that all email templates stay under the Gmail clipping threshold (102 Ko).
- * Runs via tsx — not vitest (Rolldown can't parse JSX in email templates).
+ * Runs via tsx - not vitest (Rolldown can't parse JSX in email templates).
  *
  * Usage: pnpm check:email-sizes
  */
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports -- script needs React global for email template JSX (runs via tsx, not bundler)
 import React, { createElement } from "react";
 
-// Email templates use JSX classic transform in tsx — needs React on globalThis
+// Email templates use JSX classic transform in tsx - needs React on globalThis
 (globalThis as Record<string, unknown>).React = React;
 
 import { render } from "@react-email/render";
@@ -18,7 +18,7 @@ import { MagicLinkEmail } from "../src/emails/MagicLinkEmail";
 import { ResetPasswordEmail } from "../src/emails/ResetPasswordEmail";
 import { VerifyEmailEmail } from "../src/emails/VerifyEmailEmail";
 
-const MAX_SIZE_BYTES = 80 * 1024; // 80 Ko — safe margin below Gmail's 102 Ko
+const MAX_SIZE_BYTES = 80 * 1024; // 80 Ko - safe margin below Gmail's 102 Ko
 
 const base = {
   baseUrl: "http://localhost:3000",
@@ -27,7 +27,7 @@ const base = {
     body: "This is a body text that simulates a real email content with enough words to be realistic.",
     button: "Click here to continue",
     expiry: "This link expires in 24 hours.",
-    footer: "© 2026 Roadmaps Faciles — All rights reserved.",
+    footer: "© 2026 Roadmaps Faciles - All rights reserved.",
     ignore: "If you didn't request this email, you can safely ignore it.",
   },
 };

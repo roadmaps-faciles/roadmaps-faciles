@@ -22,7 +22,7 @@ function attachPostHogContext(event: Sentry.ErrorEvent): null | Sentry.ErrorEven
   }
 
   try {
-    // posthog-js singleton — may not be initialized yet, safe to call
+    // posthog-js singleton - may not be initialized yet, safe to call
     // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-member-access
     const posthog = require("posthog-js").default as import("posthog-js").PostHog;
     const sessionId = posthog.get_session_id?.();
@@ -35,7 +35,7 @@ function attachPostHogContext(event: Sentry.ErrorEvent): null | Sentry.ErrorEven
       event.tags = { ...event.tags, posthog_distinct_id: distinctId };
     }
   } catch {
-    // PostHog not loaded yet — fine, skip
+    // PostHog not loaded yet - fine, skip
   }
 
   return event;

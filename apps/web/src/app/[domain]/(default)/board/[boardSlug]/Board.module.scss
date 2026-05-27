@@ -18,17 +18,28 @@
     align-items: center;
     justify-content: space-between;
     background-color: var(--background-default-grey);
-    margin-right: -2px;
-    box-shadow: inset 0 -1px 0 0 var(--border-default-grey);
+    width: calc(100% + 10px);
+    margin-left: -5px !important;
+    padding: 0 5px !important;
     top: var(--sticky-offset, 0px);
+}
+
+.header::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 5px;
+    right: 5px;
+    height: 1px;
+    background-color: var(--border-default-grey);
 }
 
 .header::after {
     content: '';
     position: absolute;
     bottom: 0;
-    left: 0;
-    width: 100%;
+    left: 5px;
+    right: 5px;
     box-shadow: 0 0 8px 3px var(--shadow-color);
     z-index: -1;
 }

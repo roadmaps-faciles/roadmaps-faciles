@@ -26,7 +26,7 @@ vi.mock("@/lib/ee/billing/customers", () => ({
   getOrCreateCustomer: vi.fn().mockResolvedValue("cus_test_123"),
 }));
 
-// Mock pricing — per-pack price IDs
+// Mock pricing - per-pack price IDs
 vi.mock("@/lib/ee/billing/pricing", () => ({
   getPackStripePriceIds: (packId: string) => {
     const prices: Record<string, { monthly: string; yearly: string }> = {
@@ -106,12 +106,7 @@ describe("checkout", () => {
       const org = fakeOrganization({ id: 42, slug: "test-org" });
 
       await expect(
-        createPackCheckoutSession(
-          org,
-          "unknownPack" as never,
-          "https://example.com/success",
-          "https://example.com/cancel",
-        ),
+        createPackCheckoutSession(org, "unknownPack", "https://example.com/success", "https://example.com/cancel"),
       ).rejects.toThrow("Unknown purchase ID");
     });
   });

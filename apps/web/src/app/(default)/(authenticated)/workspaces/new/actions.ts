@@ -108,11 +108,11 @@ export const createTenantForUser = async (data: {
           reqCtx,
         );
       } catch (error) {
-        logger.warn({ err: error }, "Seed default data failed during tenant creation — continuing");
+        logger.warn({ err: error }, "Seed default data failed during tenant creation - continuing");
       }
     }
 
-    // Generate bridge token — client will redirect to tenant subdomain with auto-login
+    // Generate bridge token - client will redirect to tenant subdomain with auto-login
     const bridgeToken = createBridgeToken(session.user.uuid);
     const { headers: h } = await import("next/headers");
     const hdrs = await h();

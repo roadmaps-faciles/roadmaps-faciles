@@ -1,0 +1,67 @@
+.filterBar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: var(--background-default-grey);
+    border-bottom: 1px solid var(--border-default-grey);
+}
+
+.searchBar {
+    /* react-dsfr SearchBar renders its own .fr-label inside the bar; hide it because we render our own above for visual alignment with Catégories / Trier par */
+    :global(.fr-label) {
+        display: none;
+    }
+    /* DSFR fr-select gets margin-top:8px natively; our adjacent fr-label has no margin. Match the same 8px gap so search input sits on the same baseline as ul (tags) and select */
+    margin-top: 0.5rem;
+}
+
+.tagsLabel {
+    /* DSFR fr-label has no bottom margin by default; match the spacing the Select label produces underneath */
+    margin-bottom: 0.5rem;
+}
+
+.tagsColumn {
+    /* Wrapper holds the label + the scrollable tags row, plus a right-side gradient that hints at scrollable overflow */
+    position: relative;
+}
+
+.tagsColumn::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 2.5rem;
+    pointer-events: none;
+    background: linear-gradient(to right, transparent, var(--background-default-grey));
+}
+
+.tagsGroup {
+    margin: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    align-items: center;
+    /* Match SearchBar input + Select height (40px). The pressed-tag checkmark (::after) overflows the chip box at top/right; overflow-x:auto implicitly clips overflow-y, so we pad with enough room. */
+    min-height: 2.5rem;
+    padding: 0.375rem 1rem 0.375rem 0;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    li {
+        flex-shrink: 0;
+        margin: 0;
+    }
+
+    /* `:global` keeps DSFR class names un-hashed by CSS Modules */
+    button:global(.fr-tag)[aria-pressed="true"] {
+        /* Default DSFR padding-right (8px) is too tight for the pressed checkmark; pad further so the icon doesn't overlap text */
+        padding-right: 1.5rem;
+    }
+}
+
+.sortSelect {
+    margin-bottom: 0;
+}

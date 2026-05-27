@@ -48,7 +48,7 @@ export async function setPassword(newPassword: string): Promise<ServerActionResp
   });
 
   if (!user) return { ok: false, error: "User not found" };
-  if (user.passwordHash) return { ok: false, error: "Password already set — use change instead" };
+  if (user.passwordHash) return { ok: false, error: "Password already set - use change instead" };
 
   const hash = await hashPassword(newPassword);
   await prisma.user.update({ where: { id: user.id }, data: { passwordHash: hash } });

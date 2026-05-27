@@ -107,7 +107,7 @@ const EmbedBoardPageInner = async ({ params, searchParams }: EmbedBoardPageProps
   const allowAnonymousVoting = hideVotes ? false : tenantSettings.allowAnonymousVoting;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-4">
+    <div className="mx-auto max-w-7xl p-4">
       <TrackPageView event={embedViewed({ boardId: String(board.id), tenantId: String(tenant.id) })} />
       <h2 className="text-lg font-bold mb-2">{board.name}</h2>
       <p className={cn("text-sm text-muted-foreground mb-4")}>{tc("result", { count: filteredCount })}</p>

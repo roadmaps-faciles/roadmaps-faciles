@@ -79,6 +79,8 @@ certificates
 /.claude.local/
 /.claude/**/*.local.json
 /.claude/.worktree-monitor-root
+/.claude/launch.json
+.rm-worktree-info.json
 next-env.d.ts
 CLAUDE.local.md
 
@@ -94,8 +96,9 @@ header-*.png
 .turbo
 
 # AI agent skills (keep only .claude/ and .agents/)
-skills/
-skills-lock.json
+.agents/skills/*
+.claude/skills/*
+!.claude/skills/**/
 .adal/
 .agent/
 .augment/

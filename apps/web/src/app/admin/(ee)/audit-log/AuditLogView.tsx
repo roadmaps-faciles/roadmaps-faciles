@@ -32,12 +32,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@roadmaps-faciles/ui";
-import { Activity, AlertTriangle, Info, Users } from "lucide-react";
+import { Activity, AlertTriangle, Download, Info, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import UseAnimations from "react-useanimations";
-import download from "react-useanimations/lib/download";
 
 import { type AuditLogWithUser } from "@/lib/repo/IAuditLogRepo";
 import { type AuditAction } from "@/prisma/enums";
@@ -234,13 +232,7 @@ export const AuditLogView = ({ actions, items, locale, page, pageSize, stats, to
               {t("resetFilters")}
             </Button>
             <Button variant="ghost" size="sm" disabled={exporting} onClick={() => void handleExport()}>
-              <UseAnimations
-                animation={download}
-                size={16}
-                autoplay={exporting}
-                loop={exporting}
-                strokeColor="currentColor"
-              />
+              <Download className={exporting ? "size-4 animate-pulse" : "size-4"} />
               {exporting ? t("exporting") : t("export")}
             </Button>
           </div>
@@ -283,10 +275,10 @@ export const AuditLogView = ({ actions, items, locale, page, pageSize, stats, to
                         <TooltipContent>{item.userId}</TooltipContent>
                       </Tooltip>
                     ) : (
-                      <span className="text-xs">—</span>
+                      <span className="text-xs">-</span>
                     )}
                   </TableCell>
-                  <TableCell>{item.tenantId ? `#${item.tenantId}` : "—"}</TableCell>
+                  <TableCell>{item.tenantId ? `#${item.tenantId}` : "-"}</TableCell>
                   <TableCell>
                     {item.targetType ? (
                       <span className="text-xs">
@@ -294,7 +286,7 @@ export const AuditLogView = ({ actions, items, locale, page, pageSize, stats, to
                         {item.targetId ? ` #${item.targetId}` : ""}
                       </span>
                     ) : (
-                      "—"
+                      "-"
                     )}
                   </TableCell>
                   <TableCell>
@@ -306,12 +298,12 @@ export const AuditLogView = ({ actions, items, locale, page, pageSize, stats, to
                             <span className="sr-only">{t("details")}</span>
                           </span>
                         </TooltipTrigger>
-                        <TooltipContent className="max-w-[400px]">
+                        <TooltipContent className="max-w-100">
                           <pre className="whitespace-pre-wrap text-xs">{metadata}</pre>
                         </TooltipContent>
                       </Tooltip>
                     ) : (
-                      "—"
+                      "-"
                     )}
                   </TableCell>
                   <TableCell>
@@ -321,7 +313,7 @@ export const AuditLogView = ({ actions, items, locale, page, pageSize, stats, to
                       <Badge variant="destructive">{t("errorLabel")}</Badge>
                     )}
                   </TableCell>
-                  <TableCell className="text-xs">{item.ipAddress ?? "—"}</TableCell>
+                  <TableCell className="text-xs">{item.ipAddress ?? "-"}</TableCell>
                 </TableRow>
               );
             })}

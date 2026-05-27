@@ -6,7 +6,9 @@ import { CreateFakePostsWorkflow } from "@/workflows/CreateFakePostsWorkflow";
 import { CreateFakeUsersWorkflow } from "@/workflows/CreateFakeUsersWorkflow";
 import { CreateWelcomeEntitiesWorkflow } from "@/workflows/CreateWelcomeEntitiesWorkflow";
 
-async function main() {
+import { runBulkSeed } from "./seed-bulk.cts";
+
+async function mainNormal() {
   console.log("🌱 Seed en cours...");
 
   const organization = await prisma.organization.create({
@@ -83,6 +85,15 @@ async function main() {
   console.log("🌱 Posts factices créés.");
 
   console.log(`🌱 Seed terminé. Admin email: ${admin.email} / password: password`);
+}
+
+async function main() {
+  if (config.seed.bulk) {
+    console.log("🌱 Mode BULK activé (SEED_BULK=true)\n");
+    await runBulkSeed();
+  } else {
+    await mainNormal();
+  }
 }
 
 main()

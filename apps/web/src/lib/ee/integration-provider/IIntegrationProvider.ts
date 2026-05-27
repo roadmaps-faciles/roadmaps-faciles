@@ -31,7 +31,7 @@ export interface IIntegrationProvider {
   /** Pull changes from the remote service since a given date */
   syncInbound(since?: Date): Promise<InboundChange[]>;
 
-  /** Pull changes incrementally with pagination — yields changes as they're fetched */
+  /** Pull changes incrementally with pagination - yields changes as they're fetched */
   syncInboundStream?(since?: Date): AsyncGenerator<InboundChange>;
 
   /** Push a post to the remote service (create or update) */

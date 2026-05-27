@@ -88,7 +88,7 @@ function TimelineConnector({
     <div
       data-slot="timeline-connector"
       className={cn(
-        "bg-border w-[3px] flex-1 group-last/timeline-item:hidden",
+        "bg-border w-0.75 flex-1 group-last/timeline-item:hidden",
         variant === "connected" && "-mb-8 group-last/timeline-item:mb-0",
         variant === "spaced" && "mt-2 -mb-6",
         className,
@@ -153,9 +153,9 @@ function TimelineSubItem({ className, children, ...props }: ComponentProps<"div"
     <div data-slot="timeline-sub-item" className={cn("flex", className)} {...props}>
       {/* Threadline column: line flush left, hook width controlled by parent indent */}
       <div data-slot="sub-threadline" className="flex shrink-0 flex-col">
-        {/* Vertical line segment — takes remaining space */}
+        {/* Vertical line segment - takes remaining space */}
         <div data-slot="sub-line" className="border-border flex-1 border-l-2" />
-        {/* Horizontal hook — rounded L-shape, fills threadline width.
+        {/* Horizontal hook - rounded L-shape, fills threadline width.
             Hidden by default, shown on last sub-item via parent selector.
             flex:0.5 on sub-line + this height ≈ vertical center of content. */}
         <div data-slot="sub-hook" className="border-border hidden h-4 w-full rounded-bl-xl border-b-2 border-l-2" />

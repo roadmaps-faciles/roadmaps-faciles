@@ -1,9 +1,7 @@
 import { getTranslations } from "next-intl/server";
-import { headers } from "next/headers";
 import crypto from "node:crypto";
 
 import { PasswordLoginForm } from "@/app/(default)/login/PasswordLoginForm";
-import { config } from "@/config";
 import { prisma } from "@/lib/db/prisma";
 import { tenantDefaultOAuthRepo } from "@/lib/repo";
 import { UICard } from "@/ui/bridge";
@@ -20,7 +18,7 @@ const TenantLoginPage = DomainPageHOP()(async props => {
     .searchParams;
   const invitationToken = searchParams?.invitation;
   if (invitationToken) {
-    // Validate invitation exists (for future use — pre-fill email)
+    // Validate invitation exists (for future use - pre-fill email)
     const tokenDigest = crypto.createHash("sha256").update(invitationToken).digest("hex");
     await prisma.invitation.findFirst({
       where: { tokenDigest, tenantId: props._data.tenant.id, acceptedAt: null },
@@ -30,20 +28,13 @@ const TenantLoginPage = DomainPageHOP()(async props => {
 
   const theme = await getTheme(props._data.settings);
 
-  // Handle bridge token — auto sign-in from root session via client component
+  // Handle bridge token - auto sign-in from root session via client component
   const bridgeToken = searchParams?.bridge_token;
   if (bridgeToken) {
     const bridgeContent = <BridgeAutoLogin token={bridgeToken} />;
     if (theme === "Dsfr") {
       return (
-        <TenantLoginDsfr
-          title={t("bridgeLoggingInTitle")}
-          bridgeUrl=""
-          bridgePrompt=""
-          bridgeLink=""
-          oauthPrompt=""
-          providerNames={[]}
-        >
+        <TenantLoginDsfr title={t("bridgeLoggingInTitle")} oauthPrompt="" providerNames={[]}>
           {bridgeContent}
         </TenantLoginDsfr>
       );
@@ -55,40 +46,14 @@ const TenantLoginPage = DomainPageHOP()(async props => {
     );
   }
 
-  // Build bridge link URL — use request headers for protocol/host to support sslip/custom dev hosts
-  const headersList = await headers();
-  const protocol = headersList.get("x-forwarded-proto") || "http";
-  const host = headersList.get("host") || "localhost";
-  const currentLoginUrl = `${protocol}://${host}/login`;
-  // Root host = strip tenant subdomain from current host (e.g. "default.192.168.1.10.sslip.io:3000" → "192.168.1.10.sslip.io:3000")
-  const rootHost = host.replace(/^[^.]+\./, "");
-  const bridgeUrl = `${protocol}://${rootHost}/api/auth-bridge?redirect=${encodeURIComponent(currentLoginUrl)}`;
-
-  // Fetch enabled OAuth providers for this tenant
   const enabledOAuthProviders = await tenantDefaultOAuthRepo.findByTenantId(props._data.tenant.id);
   const providerNames = enabledOAuthProviders.map(p => p.provider);
   const loginForm = <PasswordLoginForm />;
 
-  // Bridge signup URL (explicit "join this workspace with your root account")
-  const bridgeSignupUrl = `${protocol}://${rootHost}/api/auth-bridge?action=signup&redirect=${encodeURIComponent(currentLoginUrl)}`;
-  const fromRoot = searchParams?.from === "root";
-
   const commonProps = {
     title: t("tenantLogin", { name: props._data.settings.name }),
-    bridgeUrl,
-    bridgePrompt: t("bridgePrompt", { brand: config.brand.name }),
-    bridgeLink: t("bridgeLink", { brand: config.brand.name }),
-    bridgeSignupUrl,
-    bridgeSignupLabel: t("bridgeSignup", { brand: config.brand.name }),
     oauthPrompt: t("oauthPrompt"),
     providerNames,
-    fromRoot,
-    nonMemberBanner: fromRoot
-      ? {
-          title: t("nonMemberBannerTitle", { brand: config.brand.name }),
-          description: t("nonMemberBannerDescription"),
-        }
-      : undefined,
     passwordlessUrl: "/login/passwordless",
     passwordlessLink: t("passwordlessLink"),
     signupUrl: "/signup",
