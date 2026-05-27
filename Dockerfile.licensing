@@ -1,0 +1,78 @@
+# syntax=docker/dockerfile:1.7
+
+ARG NODE_VERSION=24-alpine
+
+FROM node:${NODE_VERSION} AS base
+# corepack enable crée les shims, la version pnpm est résolue depuis package.json#packageManager
+# au premier appel pnpm dans un stage qui a copié package.json (deps + builder).
+RUN apk add --no-cache libc6-compat openssl && corepack enable
+WORKDIR /app
+
+FROM base AS deps
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY apps/licensing/package.json apps/licensing/package.json
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --filter=@roadmaps-faciles/licensing...
+
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps/licensing/node_modules ./apps/licensing/node_modules
+# Workspace manifests requis par pnpm --filter même quand node_modules est déjà installé
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# Copies sélectives : invalide le cache uniquement quand le code pertinent change
+COPY tsconfig.json turbo.json ./
+COPY apps/licensing ./apps/licensing
+
+RUN --mount=type=cache,id=prisma-engines,target=/root/.cache/prisma \
+    pnpm --filter @roadmaps-faciles/licensing build
+
+# `pnpm deploy` produit un dossier autosuffisant sans symlinks (vs node_modules pnpm
+# avec symlinks vers .pnpm/ qui se cassent au COPY entre stages).
+# --legacy : requis depuis pnpm 10+ pour workspaces non-injectés (inject-workspace-packages=false)
+RUN pnpm --filter=@roadmaps-faciles/licensing deploy --legacy --prod /deploy
+# Réintègre le dist/ et le schema Prisma (pnpm deploy ne les inclut pas par défaut)
+RUN cp -r apps/licensing/dist /deploy/dist && cp -r apps/licensing/prisma /deploy/prisma
+
+FROM node:${NODE_VERSION} AS runner
+# Version pinnée sur celle d'apps/licensing/package.json — bumper ici aussi à chaque bump prisma.
+ARG PRISMA_VERSION=7.8.0
+
+RUN apk add --no-cache libc6-compat openssl tini
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PORT=3001
+
+RUN addgroup -g 1001 -S nodejs && adduser -S -u 1001 -G nodejs hono
+
+COPY --from=builder --chown=hono:nodejs /deploy ./
+
+# Prisma CLI bundlé : prisma est en devDependency donc `pnpm deploy --prod` l'écarte.
+# Install isolé dans /opt/prisma-cli pour éviter que npm collisionne avec le node_modules
+# flat produit par pnpm deploy, puis symlinks vers /app/node_modules pour que prisma.config.ts
+# trouve `prisma/config` via le module resolver Node.
+RUN mkdir -p /opt/prisma-cli && cd /opt/prisma-cli \
+    && echo '{"private":true}' > package.json \
+    && npm install --no-audit --no-fund --no-save "prisma@${PRISMA_VERSION}" \
+    && mkdir -p /app/node_modules/.bin /app/node_modules/@prisma \
+    && ln -sf /opt/prisma-cli/node_modules/prisma /app/node_modules/prisma \
+    && for d in /opt/prisma-cli/node_modules/@prisma/*; do \
+         name=$(basename "$d"); \
+         [ ! -e "/app/node_modules/@prisma/$name" ] && ln -sf "$d" "/app/node_modules/@prisma/$name" || true; \
+       done \
+    && ln -sf /opt/prisma-cli/node_modules/.bin/prisma /app/node_modules/.bin/prisma \
+    && chown -RP hono:nodejs /opt/prisma-cli \
+    && rm -rf /root/.npm
+
+COPY --chown=hono:nodejs scripts/docker-entrypoint-licensing.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint-licensing.sh
+
+USER hono
+EXPOSE 3001
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD wget -qO- http://localhost:3001/healthz > /dev/null 2>&1 || exit 1
+
+ENTRYPOINT ["/sbin/tini", "--", "docker-entrypoint-licensing.sh"]
+CMD ["node", "dist/index.js"]

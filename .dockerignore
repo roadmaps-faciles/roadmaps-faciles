@@ -1,0 +1,54 @@
+# Réduit le contexte de build envoyé au daemon Docker (gain de temps + moins de surface).
+
+# Dépendances et builds
+node_modules
+**/node_modules
+.next
+**/.next
+.turbo
+**/.turbo
+**/dist
+**/*.tsbuildinfo
+
+# Git et meta
+.git
+.git-crypt
+.gitattributes
+.gitignore
+.github
+
+# Claude / agents / IDE
+.claude
+.agents
+.vscode
+
+# Tests et artefacts CI
+tests
+**/coverage
+**/playwright-report
+**/test-results
+.screenshot-playwright
+.playwright-mcp
+
+# Docs et meta repo (pas nécessaires au runtime)
+docs
+*.md
+LICENSE*
+
+# Logs
+*.log
+
+# Env files (les vrais secrets passent via Coolify env vars, jamais via image)
+.env
+.env.*
+!.env.example
+
+# Code généré (regénéré au build par prisma generate)
+src/generated
+**/src/generated
+
+# Scalingo legacy (à retirer après cutover Coolify)
+Procfile
+Procfile.licensing
+scalingo.json
+.slugignore
