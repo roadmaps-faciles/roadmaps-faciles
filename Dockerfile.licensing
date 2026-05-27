@@ -2,61 +2,10 @@
 
 ARG NODE_VERSION=24-alpine
 
-# Stage 0 : déchiffrement git-crypt.
-# apps/licensing/** est chiffré git-crypt dans le repo (protection code BSL).
-# La clé git-crypt symétrique (binaire ~148 bytes) est passée via BuildKit secret encodée
-# base64 (env vars Coolify = text, donc base64 obligatoire pour binaire). Le secret n'apparaît
-# jamais dans les logs ni `docker history`. Stage transient : .git et clé jetés à la fin,
-# l'image finale (stage runner) ne contient que les artefacts compilés.
-#
-# Côté Coolify :
-#   1. Créer une env var GIT_CRYPT_KEY_B64 = <base64 du fichier binaire `git-crypt export-key`>
-#   2. Activer le toggle "Use Docker Build Secrets" sur cette env var
-#   Coolify rewrite automatiquement le build en --secret id=GIT_CRYPT_KEY_B64,env=GIT_CRYPT_KEY_B64
-#
-# Côté build local (test) :
-#   export GIT_CRYPT_KEY_B64=$(base64 < /path/to/git-crypt-key.bin | tr -d '\n')
-#   docker build --secret id=GIT_CRYPT_KEY_B64,env=GIT_CRYPT_KEY_B64 -f Dockerfile.licensing .
-FROM alpine AS source-decrypt
-RUN apk add --no-cache git git-crypt
-WORKDIR /repo
-COPY . .
-
-# Coolify fait un git archive (pas un clone) → pas de .git dans le contexte → git-crypt
-# unlock plante. On init un repo git temporaire pour qu'il puisse appliquer les filters.
-# En local on COPY le .git (cf .dockerignore qui le permet), donc on détecte les 2 cas.
-RUN git config --global --add safe.directory /repo \
-    && git config --global user.email build@docker.local \
-    && git config --global user.name "Docker build" \
-    && if [ -d .git ]; then \
-         git reset --hard HEAD ; \
-       else \
-         git init -q \
-         && git add -A \
-         && git commit -q -m "tmp build repo" ; \
-       fi
-
-RUN --mount=type=secret,id=GIT_CRYPT_KEY_B64,target=/tmp/git-crypt.key.b64 \
-    if [ ! -s /tmp/git-crypt.key.b64 ]; then \
-      echo "ERROR: BuildKit secret 'GIT_CRYPT_KEY_B64' required to decrypt apps/licensing/**" >&2 ; \
-      exit 1 ; \
-    fi \
-    && base64 -d /tmp/git-crypt.key.b64 > /tmp/git-crypt.key \
-    && git-crypt unlock /tmp/git-crypt.key \
-    && echo "=== Manual smudge (git checkout ne re-écrit pas les fichiers identiques aux blobs) ===" \
-    && find apps/licensing -type f | while read -r f; do \
-         if head -c 9 "$f" 2>/dev/null | grep -q 'GITCRYPT'; then \
-           git-crypt smudge < "$f" > "$f.dec" && mv "$f.dec" "$f" ; \
-         fi ; \
-       done \
-    && if head -c 8 apps/licensing/prisma.config.ts | grep -q '^import'; then \
-         echo "OK: apps/licensing/prisma.config.ts decrypted (starts with 'import')" ; \
-       else \
-         echo "ERROR: apps/licensing/prisma.config.ts still appears encrypted (first 20 bytes hex below):" >&2 ; \
-         head -c 20 apps/licensing/prisma.config.ts | od -An -tx1 -v >&2 ; \
-         exit 1 ; \
-       fi \
-    && rm -rf .git /tmp/git-crypt.key
+# apps/licensing/** est chiffré git-crypt dans le repo (protection code BSL). Le décryptage
+# est fait par le worker CI AVANT `docker build` (cf .github/workflows/docker-build.yml :
+# step "Unlock git-crypt" qui injecte la clé via secret repo GIT_CRYPT_KEY). Donc le build
+# context Docker arrive avec apps/licensing/** déjà en clair, pas besoin de stage dédié.
 
 FROM node:${NODE_VERSION} AS base
 # corepack enable crée les shims, la version pnpm est résolue depuis package.json#packageManager
@@ -65,8 +14,8 @@ RUN apk add --no-cache libc6-compat openssl && corepack enable
 WORKDIR /app
 
 FROM base AS deps
-COPY --from=source-decrypt /repo/pnpm-lock.yaml /repo/pnpm-workspace.yaml /repo/package.json ./
-COPY --from=source-decrypt /repo/apps/licensing/package.json apps/licensing/package.json
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY apps/licensing/package.json apps/licensing/package.json
 RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile --filter=@roadmaps-faciles/licensing...
 
@@ -74,10 +23,10 @@ FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/licensing/node_modules ./apps/licensing/node_modules
 # Workspace manifests requis par pnpm --filter même quand node_modules est déjà installé
-COPY --from=source-decrypt /repo/package.json /repo/pnpm-lock.yaml /repo/pnpm-workspace.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 # Copies sélectives : invalide le cache uniquement quand le code pertinent change
-COPY --from=source-decrypt /repo/tsconfig.json /repo/turbo.json ./
-COPY --from=source-decrypt /repo/apps/licensing ./apps/licensing
+COPY tsconfig.json turbo.json ./
+COPY apps/licensing ./apps/licensing
 
 RUN --mount=type=cache,id=prisma-engines,target=/root/.cache/prisma \
     pnpm --filter @roadmaps-faciles/licensing build
