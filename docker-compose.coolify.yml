@@ -1,0 +1,23 @@
+# Coolify Docker Compose Build Pack : pull l'image web pré-buildée par GHA depuis GHCR,
+# pas de build côté Coolify (économise RAM/disk, déploiement en ~30s).
+# Le Dockerfile racine reste utilisé par .github/workflows/docker-build.yml pour build+push.
+# Le service licensing reste sur son propre Dockerfile.licensing (build côté Coolify avec
+# BuildKit secret git-crypt).
+#
+# Configuration côté Coolify :
+#   - Build Pack : Docker Compose
+#   - Compose file path : docker-compose.coolify.yml
+#   - Env vars runtime : DATABASE_URL, AUTH_SECRET, etc. (Coolify les injecte au container)
+#   - WEB_IMAGE_TAG (optionnel) : override le tag par défaut (sha-court du dernier push,
+#     ou nom de branche, ou semver vX.Y.Z après release)
+
+services:
+  web:
+    image: ghcr.io/roadmaps-faciles/roadmaps-faciles-web:${WEB_IMAGE_TAG:-chore-coolify-bootstrap}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
