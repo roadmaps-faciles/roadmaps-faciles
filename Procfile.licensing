@@ -1,2 +1,0 @@
-web: node apps/licensing/dist/index.js
-postdeploy: echo "====== PRISMA MIGRATE DEPLOY (licensing) ======" && npm install --prefix /tmp/prisma prisma && cd apps/licensing && NODE_PATH=/tmp/prisma/node_modules /tmp/prisma/node_modules/.bin/prisma migrate deploy && rm -rf /tmp/prisma && echo "====== PRISMA MIGRATE DEPLOY (licensing) FINISH ======"
