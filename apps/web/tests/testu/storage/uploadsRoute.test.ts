@@ -1,33 +1,50 @@
-import { VALID_STORAGE_KEY_PATTERN } from "@/lib/ee/storage-provider/validation";
+import { isValidStorageKey } from "@/lib/ee/storage-provider/validation";
 
-describe("uploads route - VALID_STORAGE_KEY_PATTERN", () => {
+describe("uploads route - isValidStorageKey", () => {
   describe("valid keys", () => {
     it.each([
+      // images/ (markdown embed, no tenant scoping)
+      "images/abc.png",
+      "images/my-image.jpg",
+      "images/550e8400-e29b-41d4-a716-446655440000.webp",
+      "images/file_name.gif",
+      "images/UPPERCASE.PNG",
+      // avatars/{userId}/
+      "avatars/1/abc.png",
+      "avatars/42/550e8400-e29b-41d4-a716-446655440000.webp",
+      // tenants/{tenantId}/{logo|banner}
+      "tenants/1/logo.png",
+      "tenants/42/banner.webp",
+      "tenants/1/logo-dark.png",
+      "tenants/1/banner-mobile.jpg",
+      // legacy tenants/{tenantId}/images/
       "tenants/1/images/abc.png",
-      "tenants/123/images/my-image.jpg",
       "tenants/999/images/550e8400-e29b-41d4-a716-446655440000.webp",
-      "tenants/1/images/file_name.gif",
-      "tenants/42/images/UPPERCASE.PNG",
     ])("accepts %s", key => {
-      expect(VALID_STORAGE_KEY_PATTERN.test(key)).toBe(true);
+      expect(isValidStorageKey(key)).toBe(true);
     });
   });
 
   describe("invalid keys", () => {
     it.each([
       ["path traversal", "../etc/passwd"],
-      ["no tenants prefix", "images/file.png"],
-      ["non-numeric tenant ID", "tenants/abc/images/file.png"],
-      ["missing extension", "tenants/1/images/noext"],
-      ["extra subdirectory", "tenants/1/images/sub/file.png"],
+      ["unknown prefix", "secrets/file.png"],
+      ["images with extra subdir", "images/sub/file.png"],
+      ["images missing extension", "images/noext"],
+      ["images with spaces", "images/my file.png"],
+      ["images multi-dot", "images/my.file.png"],
+      ["images query string", "images/file.png?foo=bar"],
+      ["avatars non-numeric userId", "avatars/abc/file.png"],
+      ["avatars missing file", "avatars/1/"],
+      ["avatars extra subdir", "avatars/1/sub/file.png"],
+      ["tenant asset unknown type", "tenants/1/footer.png"],
+      ["tenant asset non-numeric id", "tenants/abc/logo.png"],
+      ["legacy non-numeric tenant ID", "tenants/abc/images/file.png"],
+      ["legacy extra subdirectory", "tenants/1/images/sub/file.png"],
+      ["legacy double dots in path", "tenants/1/../images/file.png"],
       ["empty key", ""],
-      ["spaces in filename", "tenants/1/images/my file.png"],
-      ["double dots in path", "tenants/1/../images/file.png"],
-      ["missing images segment", "tenants/1/file.png"],
-      ["query string", "tenants/1/images/file.png?foo=bar"],
-      ["multi-dot filename", "tenants/1/images/my.file.png"],
     ])("rejects %s: %s", (_label, key) => {
-      expect(VALID_STORAGE_KEY_PATTERN.test(key)).toBe(false);
+      expect(isValidStorageKey(key)).toBe(false);
     });
   });
 });

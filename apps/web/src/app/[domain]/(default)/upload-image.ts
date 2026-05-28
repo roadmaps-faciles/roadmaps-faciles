@@ -6,6 +6,7 @@ import { randomUUID } from "node:crypto";
 import { config } from "@/config";
 import { assertEntitlement } from "@/lib/ee/entitlements";
 import { getStorageProvider } from "@/lib/ee/storage-provider";
+import { storagePaths } from "@/lib/ee/storage-provider/validation";
 import { logger } from "@/lib/logger";
 import { ADDON_TYPE } from "@/lib/model/Organization";
 import { auth } from "@/lib/next-auth/auth";
@@ -79,11 +80,7 @@ export async function uploadImage(formData: FormData): Promise<ServerActionRespo
   }
 
   const ext = EXTENSION_MAP[file.type] ?? "bin";
-  // Path sans tenant ID : les images embed dans posts/comments markdown n'ont pas
-  // besoin de scoping (UUID v4 globally unique). Évite de fuiter l'ID incrémental
-  // du tenant via l'URL publique. Le tenant context reste dans l'audit log.
-  // NB: les avatars users / logos tenants peuvent garder un scoping dédié si besoin.
-  const key = `images/${randomUUID()}.${ext}`;
+  const key = storagePaths.image(randomUUID(), ext);
 
   try {
     const buffer = Buffer.from(await file.arrayBuffer());

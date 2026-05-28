@@ -2,7 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { NextResponse } from "next/server";
 
 import { getStorageProvider } from "@/lib/ee/storage-provider";
-import { VALID_STORAGE_KEY_PATTERN } from "@/lib/ee/storage-provider/validation";
+import { isValidStorageKey } from "@/lib/ee/storage-provider/validation";
 
 // Sert les uploads depuis le storage en stream (au lieu de redirect vers l'URL S3).
 // Évite :
@@ -16,7 +16,7 @@ export async function GET(_request: Request, props: { params: Promise<{ key: str
   const { key } = await props.params;
   const keyPath = key.join("/");
 
-  if (!VALID_STORAGE_KEY_PATTERN.test(keyPath)) {
+  if (!isValidStorageKey(keyPath)) {
     return NextResponse.json({ error: "Invalid key" }, { status: StatusCodes.BAD_REQUEST });
   }
 
