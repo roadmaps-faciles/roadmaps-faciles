@@ -127,8 +127,7 @@ USER nextjs
 EXPOSE 3000
 
 # Healthcheck : endpoint /api/healthz vérifie DB + Redis (cf src/app/api/healthz/route.ts).
-# 127.0.0.1 explicite : Next écoute sur 0.0.0.0 (IPv4 all), `localhost` peut résoudre vers
-# ::1 (IPv6) selon /etc/hosts container → "Connection refused" faussement.
+# 127.0.0.1 explicite : évite l'ambiguïté IPv4/IPv6 du résolveur `localhost`.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD wget -qO- http://127.0.0.1:3000/api/healthz > /dev/null 2>&1 || exit 1
 
