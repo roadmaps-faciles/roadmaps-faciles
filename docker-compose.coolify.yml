@@ -15,9 +15,15 @@ services:
   web:
     image: ghcr.io/roadmaps-faciles/roadmaps-faciles-web:${WEB_IMAGE_TAG:-chore-coolify-bootstrap}
     restart: unless-stopped
+    # expose explicite : sans ça, Coolify ne génère pas le label
+    # traefik.http.services.*.loadbalancer.server.port → Traefik 504 timeout sur
+    # le upstream parce qu'il ne sait pas sur quel port le service écoute.
+    expose:
+      - "3000"
     networks:
       - default
       - coolify
+      - roadmaps-faciles
     healthcheck:
       # Utiliser 127.0.0.1 explicite (IPv4) car Next écoute sur 0.0.0.0 (IPv4 all)
       # mais `localhost` peut résoudre vers ::1 (IPv6) selon /etc/hosts du container,
@@ -29,10 +35,12 @@ services:
       start_period: 30s
 
 networks:
-  # Network external partagé par les services Coolify (Postgres, Redis, licensing, Garage).
-  # Le nom exact du network dépend de la conf Coolify : souvent "coolify" ou le slug du
-  # project. Vérifier via `docker network ls` sur le serveur et adapter `name` ci-dessous
-  # si besoin (ex: name: roadmaps-faciles si ton project Coolify s'appelle comme ça).
+  # `coolify` : network global Coolify (Postgres, Redis, etc. y sont)
   coolify:
     external: true
     name: coolify
+  # `roadmaps-faciles` : network du project rmf utilisé par Traefik pour reach les services
+  # (cf `caddy_ingress_network=roadmaps-faciles` sur le proxy Coolify).
+  roadmaps-faciles:
+    external: true
+    name: roadmaps-faciles
