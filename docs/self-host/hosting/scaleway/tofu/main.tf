@@ -60,11 +60,6 @@ resource "scaleway_rdb_database" "web" {
   name        = "roadmaps-faciles"
 }
 
-resource "scaleway_rdb_database" "licensing" {
-  instance_id = scaleway_rdb_instance.db.id
-  name        = "licensing"
-}
-
 resource "scaleway_rdb_user" "app" {
   instance_id = scaleway_rdb_instance.db.id
   name        = "roadmaps"
@@ -75,13 +70,6 @@ resource "scaleway_rdb_privilege" "web" {
   instance_id   = scaleway_rdb_instance.db.id
   user_name     = scaleway_rdb_user.app.name
   database_name = scaleway_rdb_database.web.name
-  permission    = "all"
-}
-
-resource "scaleway_rdb_privilege" "licensing" {
-  instance_id   = scaleway_rdb_instance.db.id
-  user_name     = scaleway_rdb_user.app.name
-  database_name = scaleway_rdb_database.licensing.name
   permission    = "all"
 }
 
@@ -133,32 +121,6 @@ resource "scaleway_container" "web" {
   }
 }
 
-resource "scaleway_container" "licensing" {
-  namespace_id = scaleway_container_namespace.app.id
-  name         = "licensing"
-  registry_image = "${scaleway_registry_namespace.registry.endpoint}/licensing:${var.image_tag}"
-  port         = 3100
-  min_scale    = 1
-  max_scale    = 1
-  memory_limit = 512
-  cpu_limit    = 500
-
-  environment_variables = {
-    APP_ENV      = var.environment
-    PORT         = "3100"
-    CORS_ORIGINS = "https://${var.domain}"
-  }
-
-  secret_environment_variables = {
-    DATABASE_URL                  = "postgresql://${scaleway_rdb_user.app.name}:${var.db_password}@${scaleway_rdb_instance.db.endpoint_ip}:${scaleway_rdb_instance.db.endpoint_port}/${scaleway_rdb_database.licensing.name}?sslmode=require"
-    LICENSING_ED25519_PRIVATE_KEY = var.licensing_private_key
-    STRIPE_SECRET_KEY             = var.stripe_secret_key
-    STRIPE_WEBHOOK_SECRET         = var.stripe_webhook_secret
-    STRIPE_LICENSED_PRICE_ID      = var.stripe_licensed_price_id
-    STRIPE_GOV_LICENSED_PRICE_ID  = var.stripe_gov_licensed_price_id
-  }
-}
-
 # --- Caddy (VPS + cloud-init) ---
 # Serverless Containers ne permettent pas de bind le port 443.
 # Caddy tourne sur un petit VPS devant les containers.
@@ -173,11 +135,9 @@ resource "scaleway_instance_server" "caddy" {
 
   user_data = {
     cloud-init = templatefile("${path.module}/cloud-init-caddy.yml", {
-      web_upstream      = trimprefix(scaleway_container.web.domain_name, "https://")
-      licensing_upstream = trimprefix(scaleway_container.licensing.domain_name, "https://")
-      domain            = var.domain
-      licensing_domain  = "licensing.${var.domain}"
-      ask_url           = "https://${trimprefix(scaleway_container.web.domain_name, "https://")}/api/domains/check"
+      web_upstream = trimprefix(scaleway_container.web.domain_name, "https://")
+      domain       = var.domain
+      ask_url      = "https://${trimprefix(scaleway_container.web.domain_name, "https://")}/api/domains/check"
     })
   }
 }
@@ -202,11 +162,3 @@ resource "scaleway_domain_record" "wildcard" {
   ttl      = 300
 }
 
-resource "scaleway_domain_record" "licensing" {
-  count    = var.manage_dns ? 1 : 0
-  dns_zone = var.domain
-  name     = "licensing"
-  type     = "A"
-  data     = scaleway_instance_ip.caddy.address
-  ttl      = 300
-}

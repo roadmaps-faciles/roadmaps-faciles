@@ -10,7 +10,6 @@ Stack self-contained pour héberger Roadmaps Faciles sur un seul host (VPS, mach
 
 Pourquoi Garage et pas MinIO : Garage est plus léger (Rust, single binary, ~50 MB RAM en single-node), maintenu activement et orienté self-host. MinIO reste compatible mais évolue vers un modèle plus enterprise. Pour utiliser MinIO à la place, remplacer le service `garage` par l'image `minio/minio` et ajuster `STORAGE_S3_ENDPOINT` (`http://minio:9000`) et `STORAGE_S3_REGION` (`us-east-1`) côté env web.
 
-> Pour les features EE (BSL, licensing server), voir le scénario [Coolify split en services](../coolify/) qui couvre l'ajout du service licensing. Le compose ici ne le déploie pas.
 
 ## Démarrage
 

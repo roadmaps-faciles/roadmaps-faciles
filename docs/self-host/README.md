@@ -2,7 +2,7 @@
 
 Guides, templates et configs pour héberger votre propre instance de Roadmaps Faciles.
 
-> **Licence** : Roadmaps Faciles est triple-licencé. Le code AGPL v3 est libre d'usage, modification et redistribution. Les features EE (sous `src/lib/ee/` et autres répertoires `ee/`) sont sous BSL 1.1 et nécessitent une licence d'usage commerciale au-delà de certaines limites. Voir [`LICENSING.md`](../../LICENSING.md) à la racine. Ce guide couvre le mode AGPL par défaut, avec mentions explicites quand une étape concerne les features EE.
+> **Licence et serveur de licences** : Roadmaps Faciles est triple-licencé (AGPL v3 / BSL 1.1 / Gov). Les features EE (sous `ee/`) sont activées au runtime via une clé de licence validée contre **notre serveur officiel** (`https://licensing.roadmaps-faciles.fr`, valeur par défaut de `LICENSING_SERVER_URL`). Vous n'avez **jamais à héberger le serveur de licences vous-même** : il appartient au modèle SaaS root. Détails du modèle de licence : [`LICENSING.md`](../../LICENSING.md) à la racine.
 
 ## Choisir son setup
 

@@ -39,11 +39,6 @@ variable "web_container_count" {
   default = 1
 }
 
-variable "licensing_container_size" {
-  type    = string
-  default = "S"
-}
-
 # --- Addon plans ---
 
 variable "web_db_plan" {
@@ -56,12 +51,6 @@ variable "web_redis_plan" {
   type    = string
   default = "redis-starter-256"
   description = "Plan Redis pour l'app web"
-}
-
-variable "licensing_db_plan" {
-  type    = string
-  default = "postgresql-starter-512"
-  description = "Plan PostgreSQL pour le serveur de licences"
 }
 
 # --- SCM ---
@@ -145,38 +134,6 @@ variable "jwt_secret" {
 variable "webhook_secret" {
   type      = string
   sensitive = true
-}
-
-# --- Secrets licensing ---
-
-variable "licensing_private_key" {
-  type      = string
-  sensitive = true
-}
-
-variable "stripe_secret_key" {
-  type      = string
-  sensitive = true
-}
-
-variable "stripe_webhook_secret" {
-  type      = string
-  sensitive = true
-}
-
-variable "stripe_licensed_price_id" {
-  type = string
-}
-
-variable "stripe_gov_licensed_price_id" {
-  type    = string
-  default = ""
-}
-
-variable "licensing_admin_api_key" {
-  type      = string
-  sensitive = true
-  default   = ""
 }
 
 # --- Blocs optionnels (merge dans environment) ---

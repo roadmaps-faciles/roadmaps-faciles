@@ -8,11 +8,6 @@ output "web_url" {
   description = "URL du container web (interne Scaleway)"
 }
 
-output "licensing_url" {
-  value       = scaleway_container.licensing.domain_name
-  description = "URL du container licensing (interne Scaleway)"
-}
-
 output "db_endpoint" {
   value       = "${scaleway_rdb_instance.db.endpoint_ip}:${scaleway_rdb_instance.db.endpoint_port}"
   description = "Endpoint PostgreSQL"

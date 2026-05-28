@@ -36,12 +36,6 @@ write_files:
           header_up Host {upstream_hostport}
         }
       }
-
-      ${licensing_domain} {
-        reverse_proxy ${licensing_upstream} {
-          header_up Host {upstream_hostport}
-        }
-      }
     permissions: "0644"
 
   - path: /etc/caddy/environment

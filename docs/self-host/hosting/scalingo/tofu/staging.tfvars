@@ -8,12 +8,10 @@ domain      = "staging.roadmaps-faciles.fr"
 # Container sizing
 web_container_size  = "M"
 web_container_count = 1
-licensing_container_size = "S"
 
 # Addon plans
-web_db_plan      = "postgresql-starter-512"
-web_redis_plan   = "redis-starter-256"
-licensing_db_plan = "postgresql-starter-512"
+web_db_plan    = "postgresql-starter-512"
+web_redis_plan = "redis-starter-256"
 
 # SCM
 enable_scm_link = true
@@ -32,12 +30,6 @@ smtp_port  = "587"
 smtp_ssl   = "true"
 smtp_login = ""
 # smtp_password = "..."  # via TF_VAR_smtp_password
-
-# Stripe
-stripe_licensed_price_id = "price_xxx"
-# stripe_secret_key       = "..."  # via TF_VAR_stripe_secret_key
-# stripe_webhook_secret   = "..."  # via TF_VAR_stripe_webhook_secret
-# licensing_private_key   = "..."  # via TF_VAR_licensing_private_key
 
 # DNS provider (optionnel)
 # dns_env = {

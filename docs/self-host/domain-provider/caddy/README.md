@@ -11,13 +11,17 @@ Si vous voulez offrir la feature **custom domain par tenant**, vous avez besoin 
 
 Caddy fait les trois via [on-demand TLS](https://caddyserver.com/docs/automatic-https#on-demand-tls). Avant d'émettre un cert, Caddy interroge un endpoint `ask` qui doit retourner 200 si le domaine est autorisé.
 
-```
-Client ──HTTPS──▶ Caddy ──ask──▶ /api/domains/check?domain=example.com
-                    │                        │
-                    │◀──── 200 OK ───────────┘
-                    │
-                    ▼
-              App (Next.js :3000)
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Caddy
+    participant App as App (Next.js :3000)
+    Client->>Caddy: HTTPS request (feedback.client.com)
+    Caddy->>App: GET /api/domains/check?domain=feedback.client.com
+    App-->>Caddy: 200 OK (domaine autorisé)
+    Caddy->>Caddy: provisionne le cert via Let's Encrypt
+    Caddy->>App: reverse proxy de la requête
+    App-->>Client: response
 ```
 
 Si vous n'avez pas besoin de custom domains tenants, vous pouvez utiliser n'importe quel reverse proxy (Traefik, nginx, Caddy avec un Caddyfile statique) sans cette mécanique.

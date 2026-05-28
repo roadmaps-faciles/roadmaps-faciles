@@ -20,6 +20,3 @@ web_cpu_m     = 1000
 
 # Redis (Upstash free tier par exemple)
 # redis_url = "rediss://..."
-
-# Stripe
-# stripe_licensed_price_id = "price_..."

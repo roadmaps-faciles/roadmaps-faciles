@@ -1,174 +1,137 @@
 # Coolify (self-host)
 
-[Coolify](https://coolify.io/) est une plateforme open source style Heroku/Render. Vous installez Coolify sur votre VPS, puis vous y déployez Roadmaps Faciles depuis votre fork du repo.
+Ce guide assume que **vous avez déjà une instance [Coolify](https://coolify.io/) fonctionnelle** (proxy Traefik configuré, certificats Let's Encrypt opérationnels, DNS qui résolvent vers votre serveur). Il couvre uniquement le déploiement de Roadmaps Faciles à l'intérieur de votre Coolify, pas son installation.
 
-> **Brique licensing optionnelle** : si vous n'utilisez pas les features EE (BSL), supprimez l'app `licensing` et sa DB. Le mode AGPL ne nécessite pas de serveur de licences.
+> Pour installer Coolify : [docs officielles](https://coolify.io/docs/installation). Pour la config wildcard cert via DNS challenge, voir la [doc Traefik](https://doc.traefik.io/traefik/https/acme/).
+
+## Architecture cible
+
+```mermaid
+flowchart TD
+    Internet([Internet])
+    Traefik[Traefik<br/>intégré Coolify]
+    Web[web<br/>:3000]
+    Postgres[(PostgreSQL)]
+    Redis[(Redis)]
+    Garage[(Garage / S3)]
+
+    Internet -- HTTPS --> Traefik
+    Traefik -- "*.votre-domaine" --> Web
+    Web --> Postgres
+    Web --> Redis
+    Web --> Garage
+```
+
+Trois services dépendances à créer (ou réutiliser s'ils existent déjà) dans votre Coolify : PostgreSQL, Redis, et un S3-compatible (Garage recommandé pour le self-host, MinIO ou un service externe sont des alternatives).
 
 ## Deux approches
 
-Vous avez le choix entre **split en services** (recommandé pour scale et maintenance) ou **stack unifiée docker-compose** (plus simple pour un démarrage).
+| Approche | Pour qui ? | Format dans Coolify |
+|----------|-----------|---------------------|
+| **Pull image GHCR** | Production : tag image stable, mises à jour explicites | Resource "Docker Image" pointant vers `ghcr.io/roadmaps-faciles/roadmaps-faciles-web:<tag>` |
+| **Docker Compose** | Self-host plus contrôlé : un seul project Coolify avec web + dépendances | Resource "Docker Compose" qui référence le compose unifié de [`../docker-compose/`](../docker-compose/) |
 
-| Approche | Avantages | Inconvénients |
-|----------|-----------|--------------|
-| **Split en services Coolify** | Backups Postgres individuels, scale indépendant par service, redémarrages isolés | Plus de clicks au setup, plus de ressources Coolify à gérer |
-| **Stack unifiée docker-compose** | 1 seul project Coolify, démarrage rapide, idéal pour test/perso | Pas de backup managé par Coolify (à scripter), redémarrage de la stack entière |
+Les deux approches **n'ont pas besoin de fork du repo ni de webhook GitHub**. Vous tirez notre image publiée sur GHCR (ou notre docker-compose), et vous mettez à jour le tag quand vous voulez (manuellement ou via un schedule Coolify).
 
-Pour la stack unifiée, voir [`docs/self-host/hosting/docker-compose/`](../docker-compose/) et lancer le compose directement (avec ou sans Coolify).
+## Approche 1 : pull image GHCR (recommandée)
 
-Ce guide couvre le **split en services**.
+### Créer les services dépendances
 
-## Vue d'ensemble
+Dans votre project Coolify, créer :
 
-```
-                  ┌─────────────────────────────────────────────────┐
-                  │                Coolify (votre VPS)              │
-Internet ──HTTPS──▶  Traefik (intégré Coolify)                       │
-                  │     │                                            │
-                  │     ▼                                            │
-                  │  ┌───────────┐  ┌──────────────┐  ┌───────────┐  │
-                  │  │  web      │  │ licensing    │  │  proxy    │  │
-                  │  │  :3000    │  │ :3001 (opt.) │  │  Caddy    │  │
-                  │  └─────┬─────┘  └──────┬───────┘  │  (opt.)   │  │
-                  │        │               │           └───────────┘  │
-                  │  ┌─────▼───────────────▼────┐                     │
-                  │  │   PostgreSQL :5432       │                     │
-                  │  └──────────────────────────┘                     │
-                  │  ┌──────────────────────────┐                     │
-                  │  │   Redis :6379            │                     │
-                  │  └──────────────────────────┘                     │
-                  │  ┌──────────────────────────┐                     │
-                  │  │   Garage (S3)            │                     │
-                  │  └──────────────────────────┘                     │
-                  └─────────────────────────────────────────────────┘
-```
+#### PostgreSQL
 
-## Prérequis serveur
+Service Postgres Coolify standard. Coolify provisionne le user `postgres` et une DB par défaut. Renommer la DB en `roadmaps-faciles` (ou ajuster `DATABASE_URL` côté web).
 
-- Serveur ≥ 4 GB RAM, 2 vCPU, 40 GB disque (plus si Garage/MinIO colocalisé avec beaucoup d'uploads)
-- Domaine principal pointant vers l'IP du serveur (record A `@`)
-- Wildcard DNS `*.<domain>` pour les sous-domaines tenants
-- Si vous voulez le wildcard cert Let's Encrypt : un DNS provider supporté par Traefik (Cloudflare, OVH, Gandi, Route 53, etc.)
+Activer le backup managé Coolify pour la prod (vers un bucket S3 ou un volume distant).
 
-## 1. Installer Coolify
+#### Redis
 
-```bash
-curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
-```
+Service Redis Coolify standard. Pas de backup nécessaire (cache volatile).
 
-Suivre l'installation. Coolify se lance sur le port 8000 par défaut.
+#### Garage (S3-compatible)
 
-## 2. DNS
+Roadmaps Faciles utilise du S3-compatible storage pour les uploads. Garage est recommandé pour le self-host (single binary Rust, ~50 MB RAM en single-node).
 
-Records minimaux :
-
-```
-@        A    <IP serveur>
-*        A    <IP serveur>
-```
-
-Si vous activez le licensing optionnel :
-
-```
-licensing A   <IP serveur>
-```
-
-## 3. Wildcard cert Let's Encrypt (recommandé)
-
-Sans wildcard, chaque sous-domaine tenant doit faire un challenge HTTP individuel, ce qui rapidement vous fait dépasser les rate limits Let's Encrypt (50 certs/semaine par registered domain).
-
-Dans Coolify : **Settings → Server → Proxy → Custom Traefik Configuration** :
+Créer un service "Docker Compose" Coolify avec :
 
 ```yaml
-certificatesResolvers:
-  letsencrypt-wildcard:
-    acme:
-      email: contact@<your-domain>
-      storage: /data/coolify/proxy/acme.json
-      dnsChallenge:
-        provider: <gandiv5|cloudflare|ovh|...>
-        delayBeforeCheck: 30
+services:
+  garage:
+    image: dxflrs/garage:v2.3.0
+    command: ["/garage", "server", "--single-node", "--default-bucket"]
+    environment:
+      GARAGE_DEFAULT_BUCKET: roadmaps-faciles
+      GARAGE_DEFAULT_ACCESS_KEY: ${GARAGE_DEFAULT_ACCESS_KEY}
+      GARAGE_DEFAULT_SECRET_KEY: ${GARAGE_DEFAULT_SECRET_KEY}
+    volumes:
+      - ./garage.toml:/etc/garage.toml:ro
+      - garage_meta:/var/lib/garage/meta
+      - garage_data:/var/lib/garage/data
+
+volumes:
+  garage_meta:
+  garage_data:
 ```
 
-Variables d'env du proxy Coolify (pour Gandi) :
+Générer les credentials avant le premier boot :
 
-```
-GANDIV5_PERSONAL_ACCESS_TOKEN=<token avec scope Manage DNS records>
-```
-
-Autres providers : voir [traefik dnschallenge providers](https://doc.traefik.io/traefik/https/acme/#providers).
-
-## 4. Services partagés
-
-### PostgreSQL
-
-Créer un service Postgres Coolify. Coolify provisionne le user `postgres` et la DB par défaut. Pour licensing, soit créer une seconde DB sur la même instance via init script, soit un second service Postgres.
-
-```sql
-CREATE DATABASE "roadmaps-faciles";
-CREATE DATABASE "licensing";  -- si features EE
+```bash
+GARAGE_DEFAULT_ACCESS_KEY="GK$(openssl rand -hex 16)"
+GARAGE_DEFAULT_SECRET_KEY="$(openssl rand -hex 32)"
 ```
 
-Backup : activer le backup managé Coolify, vers un bucket S3 ou un volume distant.
+Le fichier `garage.toml` (config minimale single-node + `rpc_secret`) est dans [`../docker-compose/garage.toml`](../docker-compose/garage.toml).
 
-### Redis
+Avec `--single-node --default-bucket`, le bucket et l'access key sont créés automatiquement au premier boot. Pas de `garage layout assign` manuel.
 
-Créer un service Redis. Pas de backup nécessaire (cache volatile).
+> **Alternative MinIO** : image `minio/minio`, env vars `MINIO_ROOT_USER` + `MINIO_ROOT_PASSWORD`, port 9000 (S3) + 9001 (console). Bucket créé après boot via `mc mb`.
 
-### Stockage S3 (Garage recommandé)
+> **Alternative S3 externe** : Scaleway Object Storage, Backblaze B2, AWS S3, etc. Pas de service à créer côté Coolify, juste les credentials à passer en env vars de l'app web.
 
-Roadmaps Faciles utilise S3-compatible storage pour les uploads (avatars, images embed markdown, logos tenants).
+### Créer le service web
 
-Options :
-- **Garage** (recommandé self-host) : single binary Rust, ~50 MB RAM en single-node, image `dxflrs/garage:v2.3.0`
-- **MinIO** : largement adopté, UI console intégrée
-- **Service externe** : Scaleway Object Storage, Backblaze B2, AWS S3, etc.
+Nouvelle resource Coolify type "Docker Image" :
 
-Pour Garage colocalisé sur le serveur Coolify :
-1. Créer un service Docker Compose Coolify avec :
-   - Image : `dxflrs/garage:v2.3.0`
-   - Volumes : `/var/lib/garage/meta` + `/var/lib/garage/data` persistants, et `garage.toml` monté en `/etc/garage.toml`
-   - Command : `["/garage", "server", "--single-node", "--default-bucket"]`
-   - Env vars : `GARAGE_DEFAULT_BUCKET`, `GARAGE_DEFAULT_ACCESS_KEY` (format `GK<hex32>`), `GARAGE_DEFAULT_SECRET_KEY` (`<hex64>`)
-2. Exposer l'API S3 (port 3900) sur `s3.<your-domain>` via Traefik
-3. Le bucket + access key sont créés au premier boot par `--default-bucket`
-
-Voir [`../docker-compose/garage.toml`](../docker-compose/garage.toml) pour un exemple de config single-node prêt à l'emploi, et [`../docker-compose/docker-compose.yml`](../docker-compose/docker-compose.yml) pour le service Garage complet.
-
-Pour MinIO à la place : image `minio/minio`, env vars `MINIO_ROOT_USER` + `MINIO_ROOT_PASSWORD`, port 9000 (S3) + 9001 (console). Bucket créé après boot via `mc mb`.
-
-## 5. App web
-
-Créer une nouvelle application Coolify :
-
-- **Source** : votre fork du repo GitHub (ou directement `roadmaps-faciles/roadmaps-faciles`)
-- **Build Pack** : Dockerfile (`/Dockerfile` à la racine)
+- **Image** : `ghcr.io/roadmaps-faciles/roadmaps-faciles-web:<tag>`
+  - `latest` : image dev (instable)
+  - `main` : dernière build de main
+  - `v1.2.3` : release stable (recommandé pour prod)
+  - `dev` : nightly de dev
 - **Port** : 3000
-- **Domaines** : `<your-domain>` + `*.<your-domain>` avec resolver `letsencrypt-wildcard`
+- **Domaines** : `votre-domaine.com` + `*.votre-domaine.com` avec votre resolver wildcard cert Traefik
 
-> **Limitation Traefik v3 + wildcard SNI** : si vous combinez le wildcard cert avec `Host(*.x.y)`, Traefik génère `HostSNI(*.x.y)` qui est invalide. Solution : configurer une route via fichier dynamique Traefik avec `HostRegexp`. Détails dans [`/docs/self-host/hosting/coolify/wildcard-route.md`](./wildcard-route.md).
+> **Limitation Traefik v3 + wildcard SNI** : si vous combinez le wildcard cert avec `Host(*.x.y)`, Traefik génère `HostSNI(*.x.y)` qui est invalide. Solution : configurer la route wildcard via fichier dynamique Traefik avec `HostRegexp`. Exemple :
+> ```yaml
+> # /data/coolify/proxy/dynamic/rmf-wildcard.yml
+> http:
+>   routers:
+>     rmf-wildcard:
+>       entryPoints: [https]
+>       rule: "HostRegexp(`^.+\\.votre-domaine\\.com$`)"
+>       service: rmf-web
+>       tls:
+>         certResolver: letsencrypt
+>         domains:
+>           - main: votre-domaine.com
+>             sans: ["*.votre-domaine.com"]
+>   services:
+>     rmf-web:
+>       loadBalancer:
+>         servers:
+>           - url: 'http://rmf-web:3000'
+> ```
+> L'UI Coolify casse cette config si on touche aux domaines après ; ne plus toucher au domaine côté UI une fois la route dynamique en place.
 
-### Build args
+### Variables d'environnement (web)
 
-```
-NEXT_PUBLIC_SITE_URL=https://<your-domain>
-NEXT_PUBLIC_APP_ENV=production
-NEXT_PUBLIC_BRAND_NAME=<Votre marque>
-NEXT_PUBLIC_TRACKING_PROVIDER=noop  # ou posthog/matomo
-NEXT_PUBLIC_REPOSITORY_URL=https://github.com/<you>/<repo>
-SOURCE_COMMIT=<sha>                  # injecté par votre CI
-IMAGE_REF=<branch ou tag>            # injecté par votre CI
-INCLUDE_PSQL=0                       # 1 uniquement pour review apps (entrypoint l'utilise)
-```
+Liste exhaustive dans [`apps/web/src/config.ts`](../../../../apps/web/src/config.ts). Variables critiques :
 
-### Variables runtime
-
-Voir [`apps/web/src/config.ts`](../../../../apps/web/src/config.ts) pour la liste exhaustive. Variables critiques :
-
-```
+```bash
 NODE_ENV=production
 AUTH_TRUST_HOST=1
+AUTH_URL=https://votre-domaine.com/api/auth        # URL complète obligatoire
 AUTH_SECRET=<32 bytes random>
-AUTH_URL=https://<your-domain>/api/auth
 SECURITY_JWT_SECRET=<random>
 SECURITY_WEBHOOK_SECRET=<random>
 INTEGRATION_ENCRYPTION_KEY=<random>
@@ -180,10 +143,10 @@ REDIS_URL=redis://<redis-service>:6379
 STORAGE_PROVIDER=s3
 STORAGE_S3_ENDPOINT=http://garage:3900
 STORAGE_S3_REGION=garage
-STORAGE_S3_BUCKET=<your-bucket>
+STORAGE_S3_BUCKET=roadmaps-faciles
 STORAGE_S3_ACCESS_KEY_ID=GK<hex32>
 STORAGE_S3_SECRET_ACCESS_KEY=<hex64>
-STORAGE_S3_PUBLIC_URL=https://<your-domain>/api/uploads  # stream via app
+STORAGE_S3_PUBLIC_URL=https://votre-domaine.com/api/uploads    # stream via app
 STORAGE_MAX_FILE_SIZE_MB=5
 
 # SMTP
@@ -192,12 +155,12 @@ MAILER_SMTP_PORT=587
 MAILER_SMTP_SSL=false                # 587 STARTTLS, true pour 465
 MAILER_SMTP_LOGIN=<user>
 MAILER_SMTP_PASSWORD=<password>
-MAILER_FROM_EMAIL="Roadmaps <noreply@<your-domain>>"
+MAILER_FROM_EMAIL="Roadmaps <noreply@votre-domaine.com>"
 
-# Multi-tenant
-ADDITIONAL_ROOT_DOMAINS=localhost:3000  # ajouter les domaines internes utilisés par Coolify pour healthcheck
+# Multi-tenant : ajouter les hostnames internes utilisés par les healthchecks Coolify
+ADDITIONAL_ROOT_DOMAINS=localhost:3000
 
-# Admins
+# Admins (usernames super-admin, séparés par virgule)
 ADMINS=<your-username>
 ```
 
@@ -207,48 +170,23 @@ L'image Dockerfile inclut un `HEALTHCHECK` sur `GET /api/healthz`. Coolify le d�
 
 > **Gotcha IPv4/IPv6** : le healthcheck du Dockerfile utilise `127.0.0.1` et non `localhost` pour éviter la résolution `::1` qui échoue dans certaines configs container.
 
-## 6. App licensing (optionnel, features EE)
+## Approche 2 : Docker Compose
 
-Si vous restez sur AGPL, **sautez cette étape**.
+Si vous voulez moins de friction de setup ou tout déployer en un seul project Coolify, utiliser le compose unifié de [`../docker-compose/`](../docker-compose/).
 
-- **Source** : votre fork
-- **Build Pack** : Dockerfile (`/Dockerfile.licensing`)
-- **Port** : 3001
-- **Domaine** : `licensing.<your-domain>` ou interne uniquement
-- **Build secret** (BuildKit) : `GIT_CRYPT_KEY_B64` si vous travaillez depuis un repo chiffré avec git-crypt (voir Gotchas)
+Dans Coolify : créer une resource "Docker Compose Empty" et coller le contenu de [`../docker-compose/docker-compose.yml`](../docker-compose/docker-compose.yml). Configurer le `.env` côté Coolify avec les variables documentées dans [`../docker-compose/.env.example`](../docker-compose/.env.example).
 
-### Variables runtime
+Avantages : un seul project, dépendances inclues, healthcheck inter-services automatique. Inconvénient : pas de backup managé Coolify par service (à scripter côté volumes).
 
-Voir [`apps/licensing/`](../../../../apps/licensing/) pour la liste. Critiques :
+## Mises à jour
 
-```
-DATABASE_URL=postgresql://postgres:<pwd>@<postgres-service>:5432/licensing?schema=public
-LICENSING_ED25519_PRIVATE_KEY=<base64 PEM>
-STRIPE_SECRET_KEY=sk_xxx              # si vous facturez via Stripe
-STRIPE_WEBHOOK_SECRET=whsec_xxx
-APP_ENV=production
-CORS_ORIGINS=https://<your-domain>
-```
+Coolify ne tire pas automatiquement les nouveaux tags GHCR. Trois options pour upgrader :
 
-## 7. Trigger de déploiement
+1. **Manuel** : changer le tag dans la resource Coolify (`v1.2.3` → `v1.3.0`) et redéployer
+2. **Schedule** : créer un cron Coolify qui pull `latest` ou `main` à intervalle régulier (1-2 fois par semaine en staging, manuel en prod)
+3. **Webhook externe** : votre CI émet un webhook Coolify de redéploiement après publication d'une nouvelle release
 
-Coolify lit les webhooks GitHub. À configurer par app :
-
-| App | Trigger conseillé |
-|-----|-------------------|
-| web (prod) | Push tag `v*` (release-please) ou push branche `main` |
-| web (staging) | Push branche `dev` |
-| licensing | Push tag `v*` ou manuel |
-
-## Migration depuis un autre hébergeur
-
-1. Provisionner serveur + Coolify
-2. Setup Traefik wildcard cert (cf. plus haut)
-3. Créer les services (Postgres, Redis, S3, app web)
-4. Importer les variables d'env depuis votre setup actuel
-5. Dump l'ancienne DB Postgres + restore vers le service Postgres Coolify (`pg_dump` + `pg_restore`)
-6. Bascule DNS en TTL court (300s) avant cutover, monter à 3600s après stabilisation
-7. Décommissioner l'ancien hébergeur après période de validation
+Pas de fork du repo nécessaire, pas de webhook GitHub à configurer côté Coolify.
 
 ## Points à valider en condition réelle
 
@@ -262,7 +200,7 @@ Coolify lit les webhooks GitHub. À configurer par app :
 Pour permettre à vos tenants d'utiliser leur propre domaine (`feedback.client.com`), il faut un mécanisme on-demand TLS. Traefik ne le supporte pas nativement bien.
 
 Solutions :
-- Déployer Caddy en complément (cf. [`docs/self-host/domain-provider/caddy/`](../../domain-provider/caddy/)) en mode reverse-proxy devant Coolify pour cette feature uniquement
+- Déployer Caddy en complément (cf. [`../../domain-provider/caddy/`](../../domain-provider/caddy/)) en mode reverse-proxy devant Coolify pour cette feature uniquement
 - Utiliser un autre proxy supportant on-demand TLS (Caddy, certaines configs nginx + acme.sh)
 
-Si vous n'avez pas besoin de cette feature, vos tenants utilisent uniquement les sous-domaines `tenant.<your-domain>` couverts par le wildcard cert.
+Si vous n'avez pas besoin de cette feature, vos tenants utilisent uniquement les sous-domaines `tenant.votre-domaine.com` couverts par le wildcard cert.

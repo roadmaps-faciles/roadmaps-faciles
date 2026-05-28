@@ -109,27 +109,3 @@ variable "smtp_password" {
   sensitive = true
   default   = ""
 }
-
-variable "licensing_private_key" {
-  type      = string
-  sensitive = true
-}
-
-variable "stripe_secret_key" {
-  type      = string
-  sensitive = true
-}
-
-variable "stripe_webhook_secret" {
-  type      = string
-  sensitive = true
-}
-
-variable "stripe_licensed_price_id" {
-  type = string
-}
-
-variable "stripe_gov_licensed_price_id" {
-  type    = string
-  default = ""
-}

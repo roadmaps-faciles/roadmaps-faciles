@@ -1,164 +1,66 @@
 # Scénario IaaS : Scaleway (ou équivalent)
 
-Guide d'architecture pour déployer Roadmaps Faciles sur une infra IaaS (Scaleway, OVH Cloud, Hetzner, AWS, etc.). Vous gérez tout : containers, DB, Redis, TLS, stockage.
+Guide d'architecture pour déployer Roadmaps Faciles sur une infra IaaS (Scaleway, OVH Cloud, Hetzner, AWS, etc.). Vous gérez tout : compute, DB, Redis, TLS, stockage.
 
 > **Raccourci** : un setup OpenTofu complet est disponible dans [`tofu/`](./tofu/) ; il provisionne toute l'infra en un `tofu apply`. Voir [la section dédiée](#opentofu) plus bas.
 
-> **Brique licensing optionnelle** : si vous n'utilisez pas les features EE (BSL), supprimez les sections / ressources `licensing` de la config. Le mode AGPL ne nécessite pas de serveur de licences.
-
 ## Vue d'ensemble
 
-```
-                   ┌──────────────────────────────────────────────────────────┐
-                   │                    IaaS (Scaleway)                       │
-                   │                                                          │
-Internet ──HTTPS──▶│  ┌─────────┐    ┌──────────────┐   ┌────────────────┐   │
-                   │  │  Caddy   │───▶│  apps/web    │   │ apps/licensing  │   │
-                   │  │  :443    │    │  Next.js     │   │ Hono :3100      │   │
-                   │  │  TLS     │    │  :3000       │   │                 │   │
-                   │  │  on-demand│   └──────┬───────┘   └───────┬────────┘   │
-                   │  └─────────┘           │                    │            │
-                   │        │      ┌────────▼────────────────────▼─────────┐  │
-                   │        │      │         PostgreSQL :5432              │  │
-                   │        │      │   DB: roadmaps-faciles + licensing    │  │
-                   │        │      └──────────────────────────────────────┘  │
-                   │        │      ┌──────────────────┐                      │
-                   │        │      │   Redis :6379     │                      │
-                   │        │      └──────────────────┘                      │
-                   │        │      ┌──────────────────┐                      │
-                   │        │      │   S3 Object       │                      │
-                   │        │      │   Storage          │                      │
-                   │        │      └──────────────────┘                      │
-                   └──────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    Internet([Internet])
+    Caddy[Caddy<br/>:443 TLS on-demand]
+    Web[apps/web<br/>Next.js :3000]
+    DB[(PostgreSQL :5432<br/>roadmaps-faciles)]
+    Redis[(Redis :6379)]
+    S3[(S3 Object Storage)]
+
+    Internet -- HTTPS --> Caddy
+    Caddy -- reverse_proxy --> Web
+    Web --> DB
+    Web --> Redis
+    Web --> S3
 ```
 
 ## Ce qui est à votre charge
 
-| Brique           | Options Scaleway                        | Alternatives               |
-|------------------|-----------------------------------------|----------------------------|
-| Compute          | Kapsule (K8s), Serverless Containers, VPS (DEV1/GP1) | Docker Compose sur VPS |
-| PostgreSQL       | Managed Database for PostgreSQL         | Auto-hébergé dans un container |
-| Redis            | Non disponible managé                   | Upstash, auto-hébergé, KeyDB |
-| TLS + reverse proxy | :                                    | **Caddy** (on-demand TLS, voir [`../../domain-provider/caddy/`](../../domain-provider/caddy/)) |
-| Domaines custom  | :                                       | Caddy (`DOMAIN_PROVIDER=caddy`) |
-| Stockage S3      | Object Storage (natif, S3-compatible)   | Garage ou MinIO auto-hébergé |
-| DNS              | Scaleway DNS (ou externe)               | OVH, Cloudflare            |
-| Email            | Transactional Email (TEM)               | Brevo, Mailjet, Postmark, Resend |
-| Monitoring       | Cockpit (Grafana/Loki)                  | Sentry + PostHog (SaaS)    |
+| Brique           | Options Scaleway                                       | Alternatives               |
+|------------------|--------------------------------------------------------|----------------------------|
+| Compute          | Kapsule (K8s), Serverless Containers, VPS (DEV1/GP1)   | Docker Compose sur VPS     |
+| PostgreSQL       | Managed Database for PostgreSQL                        | Auto-hébergé dans un container |
+| Redis            | Non disponible managé                                  | Upstash, auto-hébergé, KeyDB |
+| TLS + reverse proxy | :                                                   | [Caddy on-demand](../../domain-provider/caddy/) |
+| Domaines custom  | :                                                      | Caddy (`DOMAIN_PROVIDER=caddy`) |
+| Stockage S3      | Object Storage (natif, S3-compatible)                  | Garage ou MinIO auto-hébergé |
+| DNS              | Scaleway DNS (ou externe)                              | OVH, Cloudflare            |
+| Email            | Transactional Email (TEM)                              | Brevo, Mailjet, Postmark, Resend |
+| Monitoring       | Cockpit (Grafana/Loki)                                 | Sentry + PostHog (SaaS)    |
 
 ## Architecture Docker Compose (VPS)
 
-Le setup le plus simple pour un VPS. Un seul `docker-compose.yml` avec tout :
-
-```yaml
-services:
-  caddy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-    environment:
-      DOMAIN_CADDY_ASK_URL: "http://web:3000/api/domains/check"
-      DOMAIN_CADDY_UPSTREAM: "web:3000"
-
-  web:
-    image: ghcr.io/roadmaps-faciles/roadmaps-faciles-web:latest
-    # ou build local :
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
-    restart: unless-stopped
-    expose:
-      - "3000"
-    environment:
-      DATABASE_URL: "postgresql://postgres:postgres@db:5432/roadmaps-faciles"
-      REDIS_URL: "redis://redis:6379"
-      DOMAIN_PROVIDER: "caddy"
-      DOMAIN_CADDY_ADMIN_URL: "http://caddy:2019"
-      DOMAIN_CADDY_ASK_URL: "http://web:3000/api/domains/check"
-      STORAGE_PROVIDER: "s3"
-      # ... autres vars (voir README principal)
-    depends_on:
-      - db
-      - redis
-
-  # Brique optionnelle : licensing server pour features EE (BSL).
-  # Si vous restez sur AGPL, supprimez ce service.
-  licensing:
-    build:
-      context: apps/licensing
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    expose:
-      - "3100"
-    environment:
-      DATABASE_URL: "postgresql://postgres:postgres@db:5432/licensing"
-      PORT: "3100"
-      # ... autres vars licensing
-    depends_on:
-      - db
-
-  db:
-    image: postgres:17-alpine
-    restart: unless-stopped
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-      - ./docker/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
-      POSTGRES_DB: roadmaps-faciles
-
-  redis:
-    image: redis:7-alpine
-    restart: unless-stopped
-    volumes:
-      - redisdata:/data
-
-volumes:
-  caddy_data:
-  pgdata:
-  redisdata:
-```
-
-Le `Caddyfile` de référence est dans [`../../domain-provider/caddy/Caddyfile`](../../domain-provider/caddy/Caddyfile). Pour le serveur de licences (optionnel), ajouter un bloc :
-
-```
-licensing.votre-domaine.com {
-    reverse_proxy licensing:3100
-}
-```
+Le setup le plus simple pour un VPS unique : voir le template complet et prêt à l'emploi dans [`../docker-compose/`](../docker-compose/), qui inclut web + Postgres + Redis + Garage + Caddy en un seul `docker-compose.yml` avec `.env.example`.
 
 ## Architecture Kapsule (Kubernetes)
 
-Pour du scaling horizontal. Les manifests Caddy sont dans [`../../domain-provider/caddy/k8s/`](../../domain-provider/caddy/k8s/).
+Pour du scaling horizontal.
 
-### Briques
+| Composant       | Type K8s                                  | Replicas      |
+|-----------------|-------------------------------------------|---------------|
+| Caddy           | Deployment + Service LoadBalancer         | 1             |
+| apps/web        | Deployment + Service ClusterIP            | 2-5 (HPA)     |
+| PostgreSQL      | Scaleway Managed DB (externe au cluster)  | :             |
+| Redis           | Deployment + Service ClusterIP (ou Upstash) | 1           |
 
-| Composant | Type K8s | Replicas |
-|-----------|----------|----------|
-| Caddy | Deployment + Service LoadBalancer | 1 |
-| apps/web | Deployment + Service ClusterIP | 2-5 (HPA) |
-| apps/licensing | Deployment + Service ClusterIP | 1 |
-| PostgreSQL | Scaleway Managed DB (externe au cluster) | - |
-| Redis | Deployment + Service ClusterIP (ou Upstash) | 1 |
-
-### Provisioning
+Manifests Caddy : [`../../domain-provider/caddy/k8s/`](../../domain-provider/caddy/k8s/).
 
 ```bash
 # Cluster
 scw k8s cluster create name=roadmaps-faciles version=1.30 \
   pools.0.name=default pools.0.node-type=DEV1-M pools.0.size=2
 
-# DB managée (1 ou 2 bases selon usage licensing)
+# DB managée
 scw rdb instance create name=roadmaps-faciles engine=PostgreSQL-17 node-type=DB-DEV-S
 scw rdb database create instance-id=<id> name=roadmaps-faciles
-scw rdb database create instance-id=<id> name=licensing  # optionnel (features EE)
 
 # Déploiement
 scw k8s kubeconfig install <cluster-id>
@@ -168,7 +70,7 @@ kubectl apply -f <vos-manifests>/
 
 ## Stockage S3 (Scaleway Object Storage)
 
-Natif et S3-compatible. C'est la brique la plus simple a setup.
+Natif et S3-compatible. C'est la brique la plus simple à setup.
 
 ```bash
 # Créer le bucket
@@ -185,19 +87,19 @@ STORAGE_S3_REGION=fr-par
 STORAGE_S3_BUCKET=<your-bucket>
 STORAGE_S3_ACCESS_KEY_ID=SCWxxxxxxxxxxxxxxxxx
 STORAGE_S3_SECRET_ACCESS_KEY=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-STORAGE_S3_PUBLIC_URL=https://<your-bucket>.s3.fr-par.scw.cloud
+STORAGE_S3_PUBLIC_URL=https://<your-domain>/api/uploads
 ```
 
 Structure des clés en bucket : `images/{uuid}.{ext}` (markdown embeds), `avatars/{userId}/{uuid}.{ext}` (avatars users), `tenants/{tenantId}/{logo|banner}.{ext}` (assets tenants).
 
-L'URL publique est automatiquement ajoutée au CSP (`img-src`) via `next.config.ts`.
+Les uploads sont servis via la route `/api/uploads/[...key]` qui stream depuis le bucket. L'URL S3 directe n'est jamais exposée au client, donc `STORAGE_S3_PUBLIC_URL` pointe vers votre instance, pas vers Scaleway.
 
 ## DNS
 
 Deux options :
 
-1. **Scaleway DNS** - si le domaine est chez Scaleway
-2. **DNS externe** (OVH, Cloudflare) - via le `DNS_PROVIDER` de l'app
+1. **Scaleway DNS** : si le domaine est chez Scaleway
+2. **DNS externe** (OVH, Cloudflare) : via le `DNS_PROVIDER` de l'app
 
 Pour les sous-domaines tenants (`tenant.votre-instance.com`), un wildcard CNAME vers le serveur Caddy suffit :
 
@@ -205,7 +107,7 @@ Pour les sous-domaines tenants (`tenant.votre-instance.com`), un wildcard CNAME 
 *.votre-instance.com.  CNAME  caddy.votre-instance.com.
 ```
 
-Caddy gere le TLS on-demand (interroge `/api/domains/check` avant d'emettre un certificat).
+Caddy gère le TLS on-demand (interroge `/api/domains/check` avant d'émettre un certificat).
 
 ## Email
 
@@ -222,37 +124,30 @@ MAILER_SMTP_PASSWORD=<secret-key>
 
 ## OpenTofu
 
-Le repertoire [`tofu/`](./tofu/) contient une configuration OpenTofu complete qui provisionne toute l'infra Scaleway en une commande.
+Le répertoire [`tofu/`](./tofu/) contient une configuration OpenTofu complète qui provisionne toute l'infra Scaleway en une commande.
 
-### Ce qui est provisionne
+### Ce qui est provisionné
 
-| Ressource | Type Scaleway | Description |
-|-----------|---------------|-------------|
-| Object Storage | `scaleway_object_bucket` | Bucket S3 pour les images |
-| PostgreSQL | `scaleway_rdb_instance` + 2 databases | DB managee (roadmaps-faciles + licensing) |
-| Registry | `scaleway_registry_namespace` | Registry Docker prive |
-| Container web | `scaleway_container` | Serverless Container Next.js |
-| Container licensing | `scaleway_container` | Serverless Container Hono |
-| VPS Caddy | `scaleway_instance_server` | DEV1-S avec cloud-init (Caddy + TLS on-demand) |
-| IP publique | `scaleway_instance_ip` | IP fixe pour le DNS |
-| DNS (optionnel) | `scaleway_domain_record` | A + wildcard + licensing |
+| Ressource         | Type Scaleway                              | Description |
+|-------------------|--------------------------------------------|-------------|
+| Object Storage    | `scaleway_object_bucket`                    | Bucket S3 pour les uploads |
+| PostgreSQL        | `scaleway_rdb_instance` + 1 database        | DB managée `roadmaps-faciles` |
+| Registry          | `scaleway_registry_namespace`               | Registry Docker privé (optionnel) |
+| Container web     | `scaleway_container`                        | Serverless Container Next.js |
+| VPS Caddy         | `scaleway_instance_server`                  | DEV1-S avec cloud-init (Caddy + TLS on-demand) |
+| IP publique       | `scaleway_instance_ip`                      | IP fixe pour le DNS |
+| DNS (optionnel)   | `scaleway_domain_record`                    | A root + wildcard |
 
 ### Usage
 
 ```bash
-cd docs/deploy/scaleway/tofu
+cd docs/self-host/hosting/scaleway/tofu
 
-# Init
 tofu init
-
-# Configurer (copier et editer)
 cp staging.tfvars my-env.tfvars
-# Renseigner les secrets via TF_VAR_ ou dans le fichier
+# Renseigner les valeurs non-sensibles, les secrets via TF_VAR_
 
-# Preview
 tofu plan -var-file=my-env.tfvars
-
-# Deployer
 tofu apply -var-file=my-env.tfvars
 ```
 
@@ -267,17 +162,12 @@ export TF_VAR_webhook_secret="..."
 export TF_VAR_scw_access_key="..."
 export TF_VAR_scw_secret_key="..."
 
-# Optionnels (features EE / licensing) :
-# export TF_VAR_licensing_private_key="..."
-# export TF_VAR_stripe_secret_key="..."
-# export TF_VAR_stripe_webhook_secret="..."
-
 tofu apply -var-file=my-env.tfvars
 ```
 
 ### Staging = Prod
 
-Meme config, juste les variables qui changent :
+Même config, juste les variables qui changent :
 
 ```bash
 # Staging
@@ -291,16 +181,20 @@ tofu apply -var-file=prod.tfvars  # db_node_type=DB-GP-XS, web_max_scale=5, etc.
 
 ### Architecture résultante
 
-```
-Internet ──▶ Caddy (DEV1-S, IP fixe)
-                ├── *.votre-instance.com ──▶ Serverless Container web (:3000)
-                └── licensing.votre-instance.com ──▶ Serverless Container licensing (:3100) [optionnel]
-                                                           │
-                     ┌─────────────────────────────────────┘
-                     ▼
-              PostgreSQL Managed (roadmaps-faciles + licensing)
-              Object Storage S3
-              Redis (externe : Upstash ou auto-hébergé)
+```mermaid
+flowchart TD
+    Internet([Internet])
+    Caddy[Caddy<br/>DEV1-S, IP fixe]
+    Web[Serverless Container web<br/>:3000]
+    DB[(PostgreSQL Managed<br/>roadmaps-faciles)]
+    S3[(Object Storage)]
+    Redis[(Redis externe<br/>Upstash ou auto-hébergé)]
+
+    Internet -- HTTPS --> Caddy
+    Caddy -- "*.votre-instance.com" --> Web
+    Web --> DB
+    Web --> S3
+    Web --> Redis
 ```
 
 Redis n'est pas provisionné par OpenTofu car Scaleway n'a pas de Redis managé. Utiliser Upstash (serverless, free tier disponible) ou ajouter un container Redis sur le VPS Caddy.
@@ -315,6 +209,6 @@ Redis n'est pas provisionné par OpenTofu car Scaleway n'a pas de Redis managé.
 | Redis | Addon managé | À provisionner | À provisionner |
 | S3 | Externe obligatoire | Natif (Object Storage) | Provisionné (auto) |
 | Provisioning | Manuel (console/CLI) | Manuel (console/CLI) | `tofu apply` |
-| Reproductibilité | Limitée (scalingo.json) / `tofu apply` | Faible | Totale (IaC) |
+| Reproductibilité | Limitée (scalingo.json) | Faible | Totale (IaC) |
 | Coût fixe minimal | ~30-50 €/mois | ~15-25 €/mois | Idem |
 | Complexité ops | Faible | Élevée | Moyenne |
