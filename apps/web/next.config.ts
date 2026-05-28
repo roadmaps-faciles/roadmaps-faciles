@@ -133,6 +133,11 @@ const config: NextConfig = {
     optimizePackageImports: ["@/lib/repo", "@/gouv/dsfr/client", "@/gouv/dsfr"],
     taint: true,
     turbopackFileSystemCacheForDev: true,
+    serverActions: {
+      // Default Next.js = 1 MB, trop bas pour les uploads images (max app: 5 MB cf
+      // STORAGE_MAX_FILE_SIZE_MB). 8 MB couvre 5 MB de fichier + metadata + overhead.
+      bodySizeLimit: "8mb",
+    },
   },
   reactCompiler: true,
   serverExternalPackages: ["@prisma/client", "argon2", "pino", "pino-pretty"],
