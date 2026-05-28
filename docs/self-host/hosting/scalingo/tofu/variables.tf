@@ -61,6 +61,12 @@ variable "enable_scm_link" {
   description = "Lier le repo GitHub a l'app Scalingo (review apps, etc.)"
 }
 
+variable "scm_auth_integration_uuid" {
+  type        = string
+  default     = ""
+  description = "UUID de l'intégration SCM Scalingo (github, gitlab). Récupérer via 'scalingo integrations'."
+}
+
 # --- S3 (stockage externe) ---
 
 variable "s3_endpoint" {

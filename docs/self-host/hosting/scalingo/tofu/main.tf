@@ -64,13 +64,13 @@ resource "scalingo_app" "web" {
 # --- Addons web ---
 
 resource "scalingo_addon" "web_postgresql" {
-  app_id      = scalingo_app.web.id
+  app         = scalingo_app.web.id
   provider_id = "postgresql"
   plan        = var.web_db_plan
 }
 
 resource "scalingo_addon" "web_redis" {
-  app_id      = scalingo_app.web.id
+  app         = scalingo_app.web.id
   provider_id = "redis"
   plan        = var.web_redis_plan
 }
@@ -78,21 +78,21 @@ resource "scalingo_addon" "web_redis" {
 # --- Domaine custom web ---
 
 resource "scalingo_domain" "web_root" {
-  count  = var.domain != "" ? 1 : 0
-  app_id = scalingo_app.web.id
-  name   = var.domain
+  count       = var.domain != "" ? 1 : 0
+  app         = scalingo_app.web.id
+  common_name = var.domain
 }
 
 resource "scalingo_domain" "web_www" {
-  count  = var.domain != "" ? 1 : 0
-  app_id = scalingo_app.web.id
-  name   = "www.${var.domain}"
+  count       = var.domain != "" ? 1 : 0
+  app         = scalingo_app.web.id
+  common_name = "www.${var.domain}"
 }
 
 # --- Container sizing web ---
 
 resource "scalingo_container_type" "web" {
-  app_id = scalingo_app.web.id
+  app    = scalingo_app.web.id
   name   = "web"
   size   = var.web_container_size
   amount = var.web_container_count
@@ -101,16 +101,17 @@ resource "scalingo_container_type" "web" {
 # --- SCM integration (GitHub → Scalingo) ---
 
 resource "scalingo_scm_repo_link" "web" {
-  count  = var.enable_scm_link ? 1 : 0
-  app_id = scalingo_app.web.id
+  count = var.enable_scm_link ? 1 : 0
+  app   = scalingo_app.web.id
 
-  source             = "https://github.com/roadmaps-faciles/roadmaps-faciles"
-  branch             = var.environment == "prod" ? "main" : "dev"
-  auto_deploy_enabled = false  # Deploy via GitHub Actions, pas auto-deploy
+  source                = "https://github.com/roadmaps-faciles/roadmaps-faciles"
+  branch                = var.environment == "prod" ? "main" : "dev"
+  auth_integration_uuid = var.scm_auth_integration_uuid
+  auto_deploy_enabled   = false # Deploy via GitHub Actions, pas auto-deploy
 
-  review_apps_enabled      = var.environment == "staging"
-  delete_on_close_enabled  = true
-  delete_stale_enabled     = true
-  hours_before_delete_stale = 72
+  deploy_review_apps_enabled = var.environment == "staging"
+  delete_on_close_enabled    = true
+  delete_stale_enabled       = true
+  hours_before_delete_stale  = 72
 }
 
