@@ -1,20 +1,26 @@
 # Coolify Docker Compose Build Pack : pull l'image web pré-buildée par GHA depuis GHCR.
 #
-# Coolify gère TOUT le reste automatiquement à partir de l'UI :
-#   - Network (project Coolify partagé avec Postgres, Redis, etc.)
-#   - Labels Traefik (routers root + wildcard, services, port, certs Let's Encrypt)
-#   - Env vars runtime (injectées au container)
+# Coolify gère :
+#   - Network project + destination (partagé avec Postgres, Redis, etc.)
+#   - Labels Traefik pour le router root domain (cf UI Domains : roadmaps-faciles.fr)
+#   - Env vars runtime
+#
+# Le routing wildcard (*.roadmaps-faciles.fr) NE PEUT PAS être géré par Coolify UI :
+# Coolify pose un Host(`*.x.fr`) avec tls=true, Traefik génère un HostSNI(`*.x.fr`)
+# qui n'accepte PAS les wildcards (limitation Traefik v3). Solution : router wildcard
+# défini dans /data/coolify/proxy/dynamic/rmf-wildcard.yml avec HostRegexp qui marche.
 #
 # Configuration côté Coolify (UI) :
 #   - Build Pack : Docker Compose
 #   - Compose file path : docker-compose.coolify.yml
-#   - Destination : roadmaps-faciles (network partagé pour comm inter-services)
-#   - Domains : https://roadmaps-faciles.fr et https://*.roadmaps-faciles.fr
-#     → Coolify pose 2 routers Traefik (root + wildcard) + cert resolver letsencrypt
+#   - Destination : roadmaps-faciles (network partagé)
+#   - Domains : https://roadmaps-faciles.fr UNIQUEMENT (pas le wildcard, géré hors UI)
 #   - Env vars runtime : voir docs/deploy/coolify/README.md pour la liste complète
-#   - WEB_IMAGE_TAG : tag GHCR à pull (default chore-coolify-bootstrap, à bumper sur release)
 
 services:
+  # Service name `rmf-web` = alias DNS auto posé par Docker Compose sur tous les
+  # networks où Coolify joint le container (project, destination roadmaps-faciles).
+  # Le dynamic Traefik file (cf README) référence simplement http://rmf-web:3000.
   rmf-web:
     image: ghcr.io/roadmaps-faciles/roadmaps-faciles-web:${WEB_IMAGE_TAG:-chore-coolify-bootstrap}
     restart: unless-stopped
