@@ -48,7 +48,7 @@ export const config = {
   // l'image elle-même est immutable et identifiable via appVersionCommit (sha git).
   // process.env (pas NEXT_PUBLIC) parce que server-only, lu au runtime depuis l'ENV du
   // stage runner du Dockerfile (cf ARG IMAGE_REF + ENV IMAGE_REF dans Dockerfile).
-  imageRef: process.env.IMAGE_REF || "unknown",
+  imageRef: ensureApiEnvVar(process.env.IMAGE_REF, "unknown"),
   repositoryUrl: ensureNextEnvVar(
     process.env.NEXT_PUBLIC_REPOSITORY_URL,
     "https://github.com/roadmaps-faciles/roadmaps-faciles",
