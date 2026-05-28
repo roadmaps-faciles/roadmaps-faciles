@@ -130,3 +130,10 @@ header-*.png
 
 # Worktree metadata (local only, created by scripts/worktree-new.sh)
 .rm-worktree-info.json
+
+# OpenTofu / Terraform
+.terraform/
+.terraform.tfstate*
+crash.log
+*.tfvars.local
+
