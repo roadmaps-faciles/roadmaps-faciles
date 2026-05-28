@@ -2,21 +2,6 @@
 
 ARG NODE_VERSION=24-alpine
 
-# Stage 0 : déchiffrement git-crypt.
-# apps/licensing/** est chiffré git-crypt dans le repo (protection code BSL).
-# La clé git-crypt symétrique (binaire ~148 bytes) est passée via BuildKit secret encodée
-# base64 (env vars Coolify = text, donc base64 obligatoire pour binaire). Le secret n'apparaît
-# jamais dans les logs ni `docker history`. Stage transient : .git et clé jetés à la fin,
-# l'image finale (stage runner) ne contient que les artefacts compilés.
-#
-# Côté Coolify :
-#   1. Créer une env var GIT_CRYPT_KEY_B64 = <base64 du fichier binaire `git-crypt export-key`>
-#   2. Activer le toggle "Use Docker Build Secrets" sur cette env var
-#   Coolify rewrite automatiquement le build en --secret id=GIT_CRYPT_KEY_B64,env=GIT_CRYPT_KEY_B64
-#
-# Côté build local (test) :
-#   export GIT_CRYPT_KEY_B64=$(base64 < /path/to/git-crypt-key.bin | tr -d '\n')
-#   docker build --secret id=GIT_CRYPT_KEY_B64,env=GIT_CRYPT_KEY_B64 -f Dockerfile.licensing .
 FROM alpine AS source-decrypt
 RUN apk add --no-cache git git-crypt
 WORKDIR /repo
@@ -29,33 +14,33 @@ RUN git config --global --add safe.directory /repo \
     && git config --global user.email build@docker.local \
     && git config --global user.name "Docker build" \
     && if [ -d .git ]; then \
-         git reset --hard HEAD ; \
-       else \
-         git init -q \
-         && git add -A \
-         && git commit -q -m "tmp build repo" ; \
-       fi
+    git reset --hard HEAD ; \
+    else \
+    git init -q \
+    && git add -A \
+    && git commit -q -m "tmp build repo" ; \
+    fi
 
 RUN --mount=type=secret,id=GIT_CRYPT_KEY_B64,target=/tmp/git-crypt.key.b64 \
     if [ ! -s /tmp/git-crypt.key.b64 ]; then \
-      echo "ERROR: BuildKit secret 'GIT_CRYPT_KEY_B64' required to decrypt apps/licensing/**" >&2 ; \
-      exit 1 ; \
+    echo "ERROR: BuildKit secret 'GIT_CRYPT_KEY_B64' required to decrypt apps/licensing/**" >&2 ; \
+    exit 1 ; \
     fi \
     && base64 -d /tmp/git-crypt.key.b64 > /tmp/git-crypt.key \
     && git-crypt unlock /tmp/git-crypt.key \
     && echo "=== Manual smudge (git checkout ne re-écrit pas les fichiers identiques aux blobs) ===" \
     && find apps/licensing -type f | while read -r f; do \
-         if head -c 9 "$f" 2>/dev/null | grep -q 'GITCRYPT'; then \
-           git-crypt smudge < "$f" > "$f.dec" && mv "$f.dec" "$f" ; \
-         fi ; \
-       done \
+    if head -c 9 "$f" 2>/dev/null | grep -q 'GITCRYPT'; then \
+    git-crypt smudge < "$f" > "$f.dec" && mv "$f.dec" "$f" ; \
+    fi ; \
+    done \
     && if head -c 8 apps/licensing/prisma.config.ts | grep -q '^import'; then \
-         echo "OK: apps/licensing/prisma.config.ts decrypted (starts with 'import')" ; \
-       else \
-         echo "ERROR: apps/licensing/prisma.config.ts still appears encrypted (first 20 bytes hex below):" >&2 ; \
-         head -c 20 apps/licensing/prisma.config.ts | od -An -tx1 -v >&2 ; \
-         exit 1 ; \
-       fi \
+    echo "OK: apps/licensing/prisma.config.ts decrypted (starts with 'import')" ; \
+    else \
+    echo "ERROR: apps/licensing/prisma.config.ts still appears encrypted (first 20 bytes hex below):" >&2 ; \
+    head -c 20 apps/licensing/prisma.config.ts | od -An -tx1 -v >&2 ; \
+    exit 1 ; \
+    fi \
     && rm -rf .git /tmp/git-crypt.key
 
 FROM node:${NODE_VERSION} AS base
@@ -82,11 +67,7 @@ COPY --from=source-decrypt /repo/apps/licensing ./apps/licensing
 RUN --mount=type=cache,id=prisma-engines,target=/root/.cache/prisma \
     pnpm --filter @roadmaps-faciles/licensing build
 
-# `pnpm deploy` produit un dossier autosuffisant sans symlinks (vs node_modules pnpm
-# avec symlinks vers .pnpm/ qui se cassent au COPY entre stages).
-# --legacy : requis depuis pnpm 10+ pour workspaces non-injectés (inject-workspace-packages=false)
 RUN pnpm --filter=@roadmaps-faciles/licensing deploy --legacy --prod /deploy
-# Réintègre le dist/ et le schema Prisma (pnpm deploy ne les inclut pas par défaut)
 RUN cp -r apps/licensing/dist /deploy/dist && cp -r apps/licensing/prisma /deploy/prisma
 
 FROM node:${NODE_VERSION} AS runner
@@ -104,19 +85,15 @@ RUN addgroup -g 1001 -S nodejs && adduser -S -u 1001 -G nodejs hono
 
 COPY --from=builder --chown=hono:nodejs /deploy ./
 
-# Prisma CLI bundlé : prisma est en devDependency donc `pnpm deploy --prod` l'écarte.
-# Install isolé dans /opt/prisma-cli pour éviter que npm collisionne avec le node_modules
-# flat produit par pnpm deploy, puis symlinks vers /app/node_modules pour que prisma.config.ts
-# trouve `prisma/config` via le module resolver Node.
 RUN mkdir -p /opt/prisma-cli && cd /opt/prisma-cli \
     && echo '{"private":true}' > package.json \
     && npm install --no-audit --no-fund --no-save "prisma@${PRISMA_VERSION}" \
     && mkdir -p /app/node_modules/.bin /app/node_modules/@prisma \
     && ln -sf /opt/prisma-cli/node_modules/prisma /app/node_modules/prisma \
     && for d in /opt/prisma-cli/node_modules/@prisma/*; do \
-         name=$(basename "$d"); \
-         [ ! -e "/app/node_modules/@prisma/$name" ] && ln -sf "$d" "/app/node_modules/@prisma/$name" || true; \
-       done \
+    name=$(basename "$d"); \
+    [ ! -e "/app/node_modules/@prisma/$name" ] && ln -sf "$d" "/app/node_modules/@prisma/$name" || true; \
+    done \
     && ln -sf /opt/prisma-cli/node_modules/.bin/prisma /app/node_modules/.bin/prisma \
     && chown -RP hono:nodejs /opt/prisma-cli \
     && rm -rf /root/.npm
@@ -128,7 +105,7 @@ USER hono
 EXPOSE 3001
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD wget -qO- http://127.0.0.1:3001/healthz > /dev/null 2>&1 || exit 1
+    CMD wget -qO- http://127.0.0.1:3001/healthz > /dev/null 2>&1 || exit 1
 
 ENTRYPOINT ["/sbin/tini", "--", "docker-entrypoint-licensing.sh"]
 CMD ["node", "dist/index.js"]
