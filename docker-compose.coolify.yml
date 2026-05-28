@@ -20,6 +20,12 @@ services:
     restart: unless-stopped
     expose:
       - "3000"
+    # Unique label : déclare un service Docker Traefik nommé `rmf-web` (stable, pas
+    # dépendant de l'UUID Coolify) référencé dans le dynamic file Traefik pour le
+    # router wildcard *.roadmaps-faciles.fr. Coolify pose ses propres labels en
+    # parallèle pour le router root domain (Host roadmaps-faciles.fr).
+    labels:
+      - "traefik.http.services.rmf-web.loadbalancer.server.port=3000"
     healthcheck:
       # 127.0.0.1 explicite (IPv4) : Next écoute sur 0.0.0.0 (IPv4 only par défaut),
       # `localhost` peut résoudre vers ::1 (IPv6) selon /etc/hosts → "Connection refused".
