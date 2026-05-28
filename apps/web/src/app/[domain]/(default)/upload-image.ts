@@ -79,7 +79,11 @@ export async function uploadImage(formData: FormData): Promise<ServerActionRespo
   }
 
   const ext = EXTENSION_MAP[file.type] ?? "bin";
-  const key = `tenants/${tenant.id}/images/${randomUUID()}.${ext}`;
+  // Path sans tenant ID : les images embed dans posts/comments markdown n'ont pas
+  // besoin de scoping (UUID v4 globally unique). Évite de fuiter l'ID incrémental
+  // du tenant via l'URL publique. Le tenant context reste dans l'audit log.
+  // NB: les avatars users / logos tenants peuvent garder un scoping dédié si besoin.
+  const key = `images/${randomUUID()}.${ext}`;
 
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
