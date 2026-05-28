@@ -16,19 +16,16 @@
 #   - WEB_IMAGE_TAG : tag GHCR à pull (default chore-coolify-bootstrap, à bumper sur release)
 
 services:
-  web:
+  # Nom du service = alias DNS auto sur tous les networks où le container est joint.
+  # Le dynamic Traefik file route via http://rmf-web:3000 (alias automatique posé par
+  # Docker Compose, pas besoin de section `aliases:` explicite que Coolify override).
+  rmf-web:
     image: ghcr.io/roadmaps-faciles/roadmaps-faciles-web:${WEB_IMAGE_TAG:-chore-coolify-bootstrap}
     restart: unless-stopped
     expose:
       - "3000"
-    # Alias DNS `rmf-web` sur le network roadmaps-faciles (destination Coolify partagée
-    # avec Traefik). Permet au dynamic Traefik file de router via http://rmf-web:3000
-    # (nom stable, pas d'UUID Coolify). Zero label Traefik nécessaire — Coolify pose
-    # les labels du router root domain via son UI Domains.
     networks:
-      roadmaps-faciles:
-        aliases:
-          - rmf-web
+      - roadmaps-faciles
     healthcheck:
       # 127.0.0.1 explicite (IPv4) : Next écoute sur 0.0.0.0 (IPv4 only par défaut),
       # `localhost` peut résoudre vers ::1 (IPv6) selon /etc/hosts → "Connection refused".
