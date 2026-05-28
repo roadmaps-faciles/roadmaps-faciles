@@ -1,48 +1,37 @@
-# Coolify Docker Compose Build Pack : pull l'image web pré-buildée par GHA depuis GHCR,
-# pas de build côté Coolify (économise RAM/disk, déploiement en ~30s).
-# Le Dockerfile racine reste utilisé par .github/workflows/docker-build.yml pour build+push.
-# Le service licensing reste sur son propre Dockerfile.licensing (build côté Coolify avec
-# BuildKit secret git-crypt).
+# Coolify Docker Compose Build Pack : pull l'image web pré-buildée par GHA depuis GHCR.
+# Le routing root domain (roadmaps-faciles.fr) est géré par Coolify via l'UI Domains.
+# Le routing wildcard (*.roadmaps-faciles.fr) est géré par un fichier dynamic Traefik
+# posé sur le serveur : /data/coolify/proxy/dynamic/rmf-wildcard.yml (cf README docs).
 #
 # Configuration côté Coolify :
 #   - Build Pack : Docker Compose
 #   - Compose file path : docker-compose.coolify.yml
-#   - Env vars runtime : DATABASE_URL, AUTH_SECRET, etc. (Coolify les injecte au container)
-#   - WEB_IMAGE_TAG (optionnel) : override le tag par défaut (sha-court du dernier push,
-#     ou nom de branche, ou semver vX.Y.Z après release)
+#   - Domains : https://roadmaps-faciles.fr (le wildcard est géré hors UI)
+#   - Env vars runtime : voir docs/deploy/coolify/README.md pour la liste complète
+#   - WEB_IMAGE_TAG : tag GHCR à pull (default chore-coolify-bootstrap, à bumper sur release)
 
 services:
   web:
     image: ghcr.io/roadmaps-faciles/roadmaps-faciles-web:${WEB_IMAGE_TAG:-chore-coolify-bootstrap}
     restart: unless-stopped
-    # expose explicite : sans ça, Coolify ne génère pas le label
-    # traefik.http.services.*.loadbalancer.server.port → Traefik 504 timeout sur
-    # le upstream parce qu'il ne sait pas sur quel port le service écoute.
+    # Expose pour Coolify pose le label loadbalancer.server.port=3000
     expose:
       - "3000"
     networks:
-      - default
+      # Network global Coolify (Postgres, Redis, services managés y sont)
       - coolify
+      # Network project Coolify (caddy_ingress_network) : utilisé par Traefik pour reach
+      # ce container. Sans, Traefik retourne "no available server".
       - roadmaps-faciles
-    # Labels Traefik custom pour matcher les sous-domaines wildcard *.roadmaps-faciles.fr
-    # (Coolify ne pose pas le wildcard automatiquement sur les apps compose).
-    # Coolify pose déjà un router pour Host(`roadmaps-faciles.fr`), on ajoute un router
-    # additionnel HostRegexp pour matcher tous les sous-domaines (acme.rmf.fr, etc.)
-    # avec un cert wildcard demandé via tls.domains.sans.
+    # Label Traefik minimal : déclare un service Docker stable `rmf-web@docker` qui sera
+    # référencé par le router wildcard du dynamic Traefik file. Coolify pose ses propres
+    # labels pour le router root domain en parallèle.
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.web-wildcard.entrypoints=https"
-      - "traefik.http.routers.web-wildcard.rule=HostRegexp(`^.+\\.roadmaps-faciles\\.fr$`)"
-      - "traefik.http.routers.web-wildcard.service=web-wildcard-svc"
-      - "traefik.http.routers.web-wildcard.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.web-wildcard.tls.domains[0].main=roadmaps-faciles.fr"
-      - "traefik.http.routers.web-wildcard.tls.domains[0].sans=*.roadmaps-faciles.fr"
-      - "traefik.http.routers.web-wildcard.middlewares=gzip"
-      - "traefik.http.services.web-wildcard-svc.loadbalancer.server.port=3000"
+      - "traefik.http.services.rmf-web.loadbalancer.server.port=3000"
     healthcheck:
-      # Utiliser 127.0.0.1 explicite (IPv4) car Next écoute sur 0.0.0.0 (IPv4 all)
-      # mais `localhost` peut résoudre vers ::1 (IPv6) selon /etc/hosts du container,
-      # ce qui produit un "Connection refused" alors que le serveur tourne bien.
+      # 127.0.0.1 explicite (IPv4) : Next écoute sur 0.0.0.0 (IPv4 only par défaut),
+      # `localhost` peut résoudre vers ::1 (IPv6) selon /etc/hosts → "Connection refused".
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/healthz"]
       interval: 30s
       timeout: 5s
@@ -50,12 +39,9 @@ services:
       start_period: 30s
 
 networks:
-  # `coolify` : network global Coolify (Postgres, Redis, etc. y sont)
   coolify:
     external: true
     name: coolify
-  # `roadmaps-faciles` : network du project rmf utilisé par Traefik pour reach les services
-  # (cf `caddy_ingress_network=roadmaps-faciles` sur le proxy Coolify).
   roadmaps-faciles:
     external: true
     name: roadmaps-faciles
