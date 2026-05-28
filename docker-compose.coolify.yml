@@ -24,6 +24,21 @@ services:
       - default
       - coolify
       - roadmaps-faciles
+    # Labels Traefik custom pour matcher les sous-domaines wildcard *.roadmaps-faciles.fr
+    # (Coolify ne pose pas le wildcard automatiquement sur les apps compose).
+    # Coolify pose déjà un router pour Host(`roadmaps-faciles.fr`), on ajoute un router
+    # additionnel HostRegexp pour matcher tous les sous-domaines (acme.rmf.fr, etc.)
+    # avec un cert wildcard demandé via tls.domains.sans.
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web-wildcard.entrypoints=https"
+      - "traefik.http.routers.web-wildcard.rule=HostRegexp(`^.+\\.roadmaps-faciles\\.fr$`)"
+      - "traefik.http.routers.web-wildcard.service=web-wildcard-svc"
+      - "traefik.http.routers.web-wildcard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.web-wildcard.tls.domains[0].main=roadmaps-faciles.fr"
+      - "traefik.http.routers.web-wildcard.tls.domains[0].sans=*.roadmaps-faciles.fr"
+      - "traefik.http.routers.web-wildcard.middlewares=gzip"
+      - "traefik.http.services.web-wildcard-svc.loadbalancer.server.port=3000"
     healthcheck:
       # Utiliser 127.0.0.1 explicite (IPv4) car Next écoute sur 0.0.0.0 (IPv4 all)
       # mais `localhost` peut résoudre vers ::1 (IPv6) selon /etc/hosts du container,
