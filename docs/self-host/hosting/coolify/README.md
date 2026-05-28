@@ -37,14 +37,14 @@ Internet ──HTTPS──▶  Traefik (intégré Coolify)                      
                   │  │   Redis :6379            │                     │
                   │  └──────────────────────────┘                     │
                   │  ┌──────────────────────────┐                     │
-                  │  │   Garage / MinIO (S3)    │                     │
+                  │  │   Garage (S3)            │                     │
                   │  └──────────────────────────┘                     │
                   └─────────────────────────────────────────────────┘
 ```
 
 ## Prérequis serveur
 
-- Serveur ≥ 4 GB RAM, 2 vCPU, 40 GB disque (plus si MinIO/Garage colocalisé avec beaucoup d'uploads)
+- Serveur ≥ 4 GB RAM, 2 vCPU, 40 GB disque (plus si Garage/MinIO colocalisé avec beaucoup d'uploads)
 - Domaine principal pointant vers l'IP du serveur (record A `@`)
 - Wildcard DNS `*.<domain>` pour les sous-domaines tenants
 - Si vous voulez le wildcard cert Let's Encrypt : un DNS provider supporté par Traefik (Cloudflare, OVH, Gandi, Route 53, etc.)
@@ -114,26 +114,27 @@ Backup : activer le backup managé Coolify, vers un bucket S3 ou un volume dista
 
 Créer un service Redis. Pas de backup nécessaire (cache volatile).
 
-### Stockage S3 (MinIO ou Garage)
+### Stockage S3 (Garage recommandé)
 
 Roadmaps Faciles utilise S3-compatible storage pour les uploads (avatars, images embed markdown, logos tenants).
 
 Options :
+- **Garage** (recommandé self-host) : single binary Rust, ~50 MB RAM en single-node, image `dxflrs/garage:v2.3.0`
 - **MinIO** : largement adopté, UI console intégrée
-- **Garage** : alternative légère orientée single-node ou cluster simple
 - **Service externe** : Scaleway Object Storage, Backblaze B2, AWS S3, etc.
 
-Pour MinIO/Garage colocalisé sur le serveur Coolify :
-1. Créer un service Docker Compose Coolify avec l'image MinIO/Garage
-2. Exposer l'API sur `s3.<your-domain>` et la console sur `console.<your-domain>`
-3. Créer le bucket et un service account scope-restreint
+Pour Garage colocalisé sur le serveur Coolify :
+1. Créer un service Docker Compose Coolify avec :
+   - Image : `dxflrs/garage:v2.3.0`
+   - Volumes : `/var/lib/garage/meta` + `/var/lib/garage/data` persistants, et `garage.toml` monté en `/etc/garage.toml`
+   - Command : `["/garage", "server", "--single-node", "--default-bucket"]`
+   - Env vars : `GARAGE_DEFAULT_BUCKET`, `GARAGE_DEFAULT_ACCESS_KEY` (format `GK<hex32>`), `GARAGE_DEFAULT_SECRET_KEY` (`<hex64>`)
+2. Exposer l'API S3 (port 3900) sur `s3.<your-domain>` via Traefik
+3. Le bucket + access key sont créés au premier boot par `--default-bucket`
 
-```bash
-# Avec mc (MinIO client) une fois MinIO up
-mc alias set local http://localhost:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD
-mc mb local/<your-bucket>
-mc anonymous set download local/<your-bucket>
-```
+Voir [`../docker-compose/garage.toml`](../docker-compose/garage.toml) pour un exemple de config single-node prêt à l'emploi, et [`../docker-compose/docker-compose.yml`](../docker-compose/docker-compose.yml) pour le service Garage complet.
+
+Pour MinIO à la place : image `minio/minio`, env vars `MINIO_ROOT_USER` + `MINIO_ROOT_PASSWORD`, port 9000 (S3) + 9001 (console). Bucket créé après boot via `mc mb`.
 
 ## 5. App web
 
@@ -175,14 +176,14 @@ INTEGRATION_ENCRYPTION_KEY=<random>
 DATABASE_URL=postgresql://postgres:<pwd>@<postgres-service>:5432/roadmaps-faciles?schema=public
 REDIS_URL=redis://<redis-service>:6379
 
-# Storage (MinIO/Garage local exemple)
+# Storage (Garage local, exemple)
 STORAGE_PROVIDER=s3
-STORAGE_S3_ENDPOINT=http://minio:9000
-STORAGE_S3_REGION=us-east-1
+STORAGE_S3_ENDPOINT=http://garage:3900
+STORAGE_S3_REGION=garage
 STORAGE_S3_BUCKET=<your-bucket>
-STORAGE_S3_ACCESS_KEY_ID=<service-account-key>
-STORAGE_S3_SECRET_ACCESS_KEY=<service-account-secret>
-STORAGE_S3_PUBLIC_URL=https://s3.<your-domain>/<your-bucket>
+STORAGE_S3_ACCESS_KEY_ID=GK<hex32>
+STORAGE_S3_SECRET_ACCESS_KEY=<hex64>
+STORAGE_S3_PUBLIC_URL=https://<your-domain>/api/uploads  # stream via app
 STORAGE_MAX_FILE_SIZE_MB=5
 
 # SMTP
@@ -253,7 +254,7 @@ Coolify lit les webhooks GitHub. À configurer par app :
 
 - **Cold start container** : Next.js standalone + `prisma migrate deploy` + seed conditionnel → mesurer le temps d'init (acceptable < 30s)
 - **Backups Postgres** : configurer + tester un restore avant de mettre du trafic critique
-- **Stockage S3 uptime** : MinIO/Garage en single-node est un point de défaillance ; prévoir backup du bucket (snapshot cross-region ou rsync vers stockage externe)
+- **Stockage S3 uptime** : Garage/MinIO en single-node est un point de défaillance ; prévoir backup des volumes (snapshot LVM/ZFS ou rclone vers stockage externe)
 - **Wildcard cert renewal** : Let's Encrypt renouvelle 30 jours avant expiration, vérifier les logs Traefik pour confirmer le DNS challenge OK avant l'expiration du premier cert
 
 ## Custom domains tenants

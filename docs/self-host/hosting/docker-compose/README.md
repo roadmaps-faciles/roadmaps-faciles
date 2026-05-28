@@ -5,8 +5,10 @@ Stack self-contained pour héberger Roadmaps Faciles sur un seul host (VPS, mach
 - **web** : l'app Next.js (image GHCR pré-buildée par défaut, build local possible)
 - **db** : PostgreSQL 17
 - **redis** : Redis 7
-- **minio** + **minio-init** : S3-compatible storage + création automatique du bucket
+- **garage** : [Garage](https://garagehq.deuxfleurs.fr/) v2.3.0, stockage S3-compatible single-node ; le bucket et la clé d'accès sont créés automatiquement au premier boot via `--default-bucket`
 - **caddy** : reverse proxy avec TLS Let's Encrypt + on-demand TLS pour custom tenant domains
+
+Pourquoi Garage et pas MinIO : Garage est plus léger (Rust, single binary, ~50 MB RAM en single-node), maintenu activement et orienté self-host. MinIO reste compatible mais évolue vers un modèle plus enterprise. Pour utiliser MinIO à la place, remplacer le service `garage` par l'image `minio/minio` et ajuster `STORAGE_S3_ENDPOINT` (`http://minio:9000`) et `STORAGE_S3_REGION` (`us-east-1`) côté env web.
 
 > Pour les features EE (BSL, licensing server), voir le scénario [Coolify split en services](../coolify/) qui couvre l'ajout du service licensing. Le compose ici ne le déploie pas.
 
@@ -29,9 +31,24 @@ Variables minimales à renseigner :
 - `PUBLIC_DOMAIN` : votre domaine (ex: `feedback.mondomaine.fr`)
 - `ACME_EMAIL` : email pour Let's Encrypt
 - `ADMINS` : usernames super-admin (séparés par virgule)
-- Tous les secrets (`AUTH_SECRET`, `SECURITY_*`, `INTEGRATION_ENCRYPTION_KEY`) : générer avec `openssl rand -base64 32`
-- `POSTGRES_PASSWORD`, `MINIO_ROOT_PASSWORD` : choisir des passwords forts
+- Tous les secrets app (`AUTH_SECRET`, `SECURITY_*`, `INTEGRATION_ENCRYPTION_KEY`) : générer avec `openssl rand -base64 32`
+- `POSTGRES_PASSWORD` : choisir un password fort
 - `MAILER_SMTP_*` : votre provider SMTP
+
+### 2.bis. Setup Garage
+
+Garage exige un secret RPC dans `garage.toml` (utilisé pour authentifier les communications inter-nodes, même en single-node) et des access keys S3 :
+
+```bash
+# Secret RPC dans garage.toml (remplace le placeholder)
+sed -i.bak "s/REPLACE_WITH_OPENSSL_RAND_HEX_32/$(openssl rand -hex 32)/" garage.toml && rm garage.toml.bak
+
+# Access key + secret S3 dans .env
+echo "GARAGE_DEFAULT_ACCESS_KEY=GK$(openssl rand -hex 16)" >> .env
+echo "GARAGE_DEFAULT_SECRET_KEY=$(openssl rand -hex 32)" >> .env
+```
+
+> Garage 2.3+ avec `--single-node --default-bucket` initialise tout au premier boot : layout cluster, bucket avec le nom de `GARAGE_DEFAULT_BUCKET`, access key avec les valeurs ci-dessus. Pas besoin de `garage layout assign` manuel.
 
 ### 3. Lancement
 
@@ -87,16 +104,21 @@ docker compose exec db pg_dump -U postgres roadmaps-faciles | gzip > backup-$(da
 
 Backup régulier : ajouter un cron sur le host ou utiliser [pgbackrest](https://pgbackrest.org/), [pg_back](https://github.com/orgrim/pg_back), ou un service managé.
 
-### MinIO
+### Garage
 
-Backup du volume `s3data` :
+Backup des volumes `garage_meta` (métadonnées) et `garage_data` (objets) :
 
 ```bash
-docker run --rm -v roadmaps-faciles_s3data:/data -v $PWD:/backup alpine \
-  tar czf /backup/minio-backup-$(date +%F).tar.gz -C /data .
+docker run --rm \
+  -v roadmaps-faciles_garage_meta:/meta \
+  -v roadmaps-faciles_garage_data:/data \
+  -v $PWD:/backup alpine \
+  tar czf /backup/garage-backup-$(date +%F).tar.gz -C / meta data
 ```
 
-Ou utiliser `mc mirror` vers un stockage externe (S3, Backblaze B2, etc.).
+Ou utiliser un client S3 (aws-cli, mc, rclone) avec les credentials Garage pour `sync`/`mirror` vers un stockage externe (S3, Backblaze B2, etc.).
+
+> Penser à faire le backup avec Garage **arrêté** ou via un snapshot du filesystem (LVM, ZFS) pour garantir la cohérence des métadonnées.
 
 ## Mise à jour
 
@@ -115,9 +137,10 @@ Les migrations Prisma s'exécutent automatiquement au démarrage du container we
 ## Production checklist
 
 - [ ] `AUTH_SECRET`, `SECURITY_*`, `INTEGRATION_ENCRYPTION_KEY` générés et uniques par instance
-- [ ] `POSTGRES_PASSWORD` et `MINIO_ROOT_PASSWORD` forts
+- [ ] `POSTGRES_PASSWORD` fort
+- [ ] `GARAGE_DEFAULT_SECRET_KEY` + `rpc_secret` dans `garage.toml` générés via `openssl rand -hex 32`
 - [ ] Backups Postgres scriptés (cron + rétention)
-- [ ] Backup MinIO scripté ou stockage S3 externe
+- [ ] Backup Garage (volumes `garage_meta` + `garage_data`) scripté ou stockage S3 externe via rclone/aws-cli
 - [ ] DNS wildcard configuré
 - [ ] Email SMTP de prod (pas un service de dev)
 - [ ] Monitoring : healthcheck externe (UptimeKuma, Better Stack, etc.) sur `/api/healthz`

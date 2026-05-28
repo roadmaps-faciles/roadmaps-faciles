@@ -1,10 +1,10 @@
 name: roadmaps-faciles
 
 # Stack self-contained pour héberger Roadmaps Faciles sur un seul host.
-# Web + Postgres + Redis + MinIO + Caddy (TLS auto Let's Encrypt + on-demand TLS).
+# Web + Postgres + Redis + Garage (S3) + Caddy (TLS auto Let's Encrypt + on-demand TLS).
 #
 # Lecture rapide :
-#   1. cp .env.example .env  (et éditer)
+#   1. cp .env.example .env  (et éditer, voir notes sur les secrets à générer)
 #   2. docker compose up -d
 #   3. attendre ~30s pour le cold start, vérifier https://<your-domain>/api/healthz
 #
@@ -30,11 +30,11 @@ services:
       REDIS_URL: redis://redis:6379
 
       STORAGE_PROVIDER: s3
-      STORAGE_S3_ENDPOINT: http://minio:9000
-      STORAGE_S3_REGION: us-east-1
+      STORAGE_S3_ENDPOINT: http://garage:3900
+      STORAGE_S3_REGION: garage
       STORAGE_S3_BUCKET: ${STORAGE_S3_BUCKET:-roadmaps-faciles}
-      STORAGE_S3_ACCESS_KEY_ID: ${MINIO_ROOT_USER}
-      STORAGE_S3_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
+      STORAGE_S3_ACCESS_KEY_ID: ${GARAGE_DEFAULT_ACCESS_KEY}
+      STORAGE_S3_SECRET_ACCESS_KEY: ${GARAGE_DEFAULT_SECRET_KEY}
       STORAGE_S3_PUBLIC_URL: https://${PUBLIC_DOMAIN}/api/uploads
       STORAGE_MAX_FILE_SIZE_MB: ${STORAGE_MAX_FILE_SIZE_MB:-5}
 
@@ -54,8 +54,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-      minio-init:
-        condition: service_completed_successfully
+      garage:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/healthz"]
       interval: 30s
@@ -84,32 +84,27 @@ services:
     volumes:
       - cache:/data
 
-  minio:
-    image: minio/minio
+  garage:
+    image: dxflrs/garage:v2.3.0
     restart: unless-stopped
-    command: server /data --console-address ":9001"
+    # --single-node : initialise le cluster automatiquement (pas de garage layout assign manuel).
+    # --default-bucket : crée le bucket + access key au premier boot avec les valeurs GARAGE_DEFAULT_*.
+    command: ["/garage", "server", "--single-node", "--default-bucket"]
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      GARAGE_DEFAULT_BUCKET: ${STORAGE_S3_BUCKET:-roadmaps-faciles}
+      GARAGE_DEFAULT_ACCESS_KEY: ${GARAGE_DEFAULT_ACCESS_KEY}
+      GARAGE_DEFAULT_SECRET_KEY: ${GARAGE_DEFAULT_SECRET_KEY}
     volumes:
-      - s3data:/data
+      - ./garage.toml:/etc/garage.toml:ro
+      - garage_meta:/var/lib/garage/meta
+      - garage_data:/var/lib/garage/data
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      # L'admin API expose /health sur le port 3903.
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3903/health"]
       interval: 10s
       timeout: 5s
-      retries: 5
-
-  minio-init:
-    image: minio/mc
-    depends_on:
-      minio:
-        condition: service_healthy
-    entrypoint: >
-      /bin/sh -c "
-      mc alias set local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
-      mc mb --ignore-existing local/${STORAGE_S3_BUCKET:-roadmaps-faciles};
-      mc anonymous set download local/${STORAGE_S3_BUCKET:-roadmaps-faciles};
-      "
+      retries: 10
+      start_period: 20s
 
   caddy:
     image: caddy:2-alpine
@@ -133,6 +128,7 @@ services:
 volumes:
   pgdata:
   cache:
-  s3data:
+  garage_meta:
+  garage_data:
   caddy_data:
   caddy_config:

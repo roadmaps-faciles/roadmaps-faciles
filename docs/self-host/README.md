@@ -43,7 +43,7 @@ Le domain provider gère le côté **reverse proxy + TLS** pour accepter des dom
 | Node.js | 24 | Pour les builds locaux. L'image Docker pré-buildée n'en a pas besoin |
 | PostgreSQL | 17 | Stable, recommandé. 16 fonctionne. |
 | Redis | 6+ | Cache, sessions, 2FA challenges |
-| Stockage S3-compatible | : | MinIO, Garage, Scaleway Object Storage, AWS S3, B2 |
+| Stockage S3-compatible | : | Garage (recommandé self-host), MinIO, Scaleway Object Storage, AWS S3, Backblaze B2 |
 | SMTP | : | Pour magic links + invitations. Resend, Brevo, Mailjet, etc. |
 
 ## Image Docker

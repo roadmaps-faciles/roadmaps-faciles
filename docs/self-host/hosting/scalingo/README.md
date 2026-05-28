@@ -31,7 +31,7 @@ Scalingo gère le compute, la DB et Redis. Le stockage S3 et les services tiers 
      ┌────────────────┐    ┌───────────────────┐    ┌──────────────────┐
      │  S3 externe    │    │  DNS externe       │    │  Services tiers  │
      │  (Scaleway,    │    │  (OVH, Cloudflare) │    │  SMTP, Sentry,   │
-     │   Minio, AWS)  │    │                    │    │  PostHog         │
+     │   Garage, AWS) │    │                    │    │  PostHog         │
      └────────────────┘    └───────────────────┘    └──────────────────┘
 ```
 

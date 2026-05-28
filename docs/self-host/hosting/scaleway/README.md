@@ -41,7 +41,7 @@ Internet ──HTTPS──▶│  ┌─────────┐    ┌──
 | Redis            | Non disponible managé                   | Upstash, auto-hébergé, KeyDB |
 | TLS + reverse proxy | :                                    | **Caddy** (on-demand TLS, voir [`../../domain-provider/caddy/`](../../domain-provider/caddy/)) |
 | Domaines custom  | :                                       | Caddy (`DOMAIN_PROVIDER=caddy`) |
-| Stockage S3      | Object Storage (natif, S3-compatible)   | MinIO ou Garage auto-hébergé |
+| Stockage S3      | Object Storage (natif, S3-compatible)   | Garage ou MinIO auto-hébergé |
 | DNS              | Scaleway DNS (ou externe)               | OVH, Cloudflare            |
 | Email            | Transactional Email (TEM)               | Brevo, Mailjet, Postmark, Resend |
 | Monitoring       | Cockpit (Grafana/Loki)                  | Sentry + PostHog (SaaS)    |
