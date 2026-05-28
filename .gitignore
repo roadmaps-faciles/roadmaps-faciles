@@ -132,7 +132,10 @@ header-*.png
 .rm-worktree-info.json
 
 # OpenTofu / Terraform
+# docs/self-host/**/tofu/ contient des templates, pas de la conf maintenue.
+# On laisse l'utilisateur générer son propre lock à `tofu init`.
 .terraform/
+.terraform.lock.hcl
 .terraform.tfstate*
 crash.log
 *.tfvars.local
