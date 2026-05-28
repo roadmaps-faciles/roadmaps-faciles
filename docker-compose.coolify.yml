@@ -1,31 +1,25 @@
 # Coolify Docker Compose Build Pack : pull l'image web pré-buildée par GHA depuis GHCR.
-# Coolify gère automatiquement :
-#   - Le project network (partagé avec Postgres, Redis, etc.)
-#   - Les labels Traefik pour le router root domain (cf Domains UI : roadmaps-faciles.fr)
-#   - Les env vars runtime
 #
-# Le routing wildcard (*.roadmaps-faciles.fr) est géré hors compose, dans :
-#   /data/coolify/proxy/dynamic/rmf-wildcard.yml (cf README docs/deploy/coolify)
+# Coolify gère TOUT le reste automatiquement à partir de l'UI :
+#   - Network (project Coolify partagé avec Postgres, Redis, etc.)
+#   - Labels Traefik (routers root + wildcard, services, port, certs Let's Encrypt)
+#   - Env vars runtime (injectées au container)
 #
-# Configuration côté Coolify :
+# Configuration côté Coolify (UI) :
 #   - Build Pack : Docker Compose
 #   - Compose file path : docker-compose.coolify.yml
-#   - Destination : roadmaps-faciles (network external utilisé par Traefik)
-#   - Domains : https://roadmaps-faciles.fr (wildcard géré hors UI)
+#   - Destination : roadmaps-faciles (network partagé pour comm inter-services)
+#   - Domains : https://roadmaps-faciles.fr et https://*.roadmaps-faciles.fr
+#     → Coolify pose 2 routers Traefik (root + wildcard) + cert resolver letsencrypt
 #   - Env vars runtime : voir docs/deploy/coolify/README.md pour la liste complète
 #   - WEB_IMAGE_TAG : tag GHCR à pull (default chore-coolify-bootstrap, à bumper sur release)
 
 services:
-  # Nom du service = alias DNS auto sur tous les networks où le container est joint.
-  # Le dynamic Traefik file route via http://rmf-web:3000 (alias automatique posé par
-  # Docker Compose, pas besoin de section `aliases:` explicite que Coolify override).
   rmf-web:
     image: ghcr.io/roadmaps-faciles/roadmaps-faciles-web:${WEB_IMAGE_TAG:-chore-coolify-bootstrap}
     restart: unless-stopped
     expose:
       - "3000"
-    networks:
-      - roadmaps-faciles
     healthcheck:
       # 127.0.0.1 explicite (IPv4) : Next écoute sur 0.0.0.0 (IPv4 only par défaut),
       # `localhost` peut résoudre vers ::1 (IPv6) selon /etc/hosts → "Connection refused".
@@ -34,8 +28,3 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
-
-networks:
-  roadmaps-faciles:
-    external: true
-    name: roadmaps-faciles
