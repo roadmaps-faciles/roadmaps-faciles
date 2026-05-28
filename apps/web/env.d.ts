@@ -304,6 +304,11 @@ Française`
          */
         NEXT_PUBLIC_APP_VERSION_COMMIT?: string;
         /**
+         * No dist value.  
+         * {@link [Local Env Dist](.env.development)}
+         */
+        IMAGE_REF?: string;
+        /**
          * Dist: `noop`  
          * {@link [Local Env Dist](.env.development)}
          */
@@ -626,6 +631,7 @@ declare type ProcessEnvCustomKeys =
     | 'SEED_MAX_REPLIES_PER_COMMENT'
     | 'NEXT_PUBLIC_APP_VERSION'
     | 'NEXT_PUBLIC_APP_VERSION_COMMIT'
+    | 'IMAGE_REF'
     | 'DOMAIN_PROVIDER'
     | 'DOMAIN_SCALINGO_API_TOKEN'
     | 'DOMAIN_SCALINGO_API_URL'
