@@ -81,6 +81,7 @@ jobs:
             NEXT_PUBLIC_BRAND_NAME=Roadmaps Faciles
             NEXT_PUBLIC_TRACKING_PROVIDER=noop
             NEXT_PUBLIC_REPOSITORY_URL=https://github.com/${{ github.repository }}
+            SOURCE_COMMIT=${{ github.sha }}
           cache-from: type=gha,scope=docker-${{ env.APP }}
           cache-to: type=gha,scope=docker-${{ env.APP }},mode=max
           platforms: linux/amd64

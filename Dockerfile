@@ -44,6 +44,12 @@ ARG NEXT_PUBLIC_POSTHOG_KEY
 ARG NEXT_PUBLIC_POSTHOG_HOST
 ARG NEXT_PUBLIC_REPOSITORY_URL
 
+# git commit hash inlined dans NEXT_PUBLIC_APP_VERSION_COMMIT par next.config.ts.
+# Sans, le footer affiche "dev" au lieu du sha. SOURCE_VERSION historique Scalingo,
+# SOURCE_COMMIT pour GHA/Coolify (cf next.config.ts qui accepte les 2).
+ARG SOURCE_COMMIT
+ENV SOURCE_COMMIT=${SOURCE_COMMIT}
+
 # TODO: lazy-init du client pour ne pas dépendre d'env var au build.
 ARG ESPACE_MEMBRE_API_KEY=fakesecret
 ENV ESPACE_MEMBRE_API_KEY=${ESPACE_MEMBRE_API_KEY}
