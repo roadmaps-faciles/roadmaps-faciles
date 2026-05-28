@@ -5,6 +5,7 @@ docs/adr/** filter=git-crypt diff=git-crypt export-ignore
 docs/ddr/** filter=git-crypt diff=git-crypt export-ignore
 docs/plans/** filter=git-crypt diff=git-crypt export-ignore
 docs/deploy/** filter=git-crypt diff=git-crypt export-ignore
+docs/self-host/** !filter !diff
 .env.development filter=git-crypt diff=git-crypt
 TODO.md filter=git-crypt diff=git-crypt
 apps/licensing/** filter=git-crypt diff=git-crypt

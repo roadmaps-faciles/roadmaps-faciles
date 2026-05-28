@@ -1,0 +1,50 @@
+#cloud-config
+
+package_update: true
+package_upgrade: true
+
+packages:
+  - debian-keyring
+  - debian-archive-keyring
+  - apt-transport-https
+  - curl
+
+runcmd:
+  # Install Caddy
+  - curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+  - curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list
+  - apt-get update
+  - apt-get install -y caddy
+  - systemctl enable caddy
+
+write_files:
+  - path: /etc/caddy/Caddyfile
+    content: |
+      {
+        on_demand_tls {
+          ask ${ask_url}
+          interval 5m
+          burst 10
+        }
+      }
+
+      ${domain}, *.${domain} {
+        tls {
+          on_demand
+        }
+        reverse_proxy ${web_upstream} {
+          header_up Host {upstream_hostport}
+        }
+      }
+
+      ${licensing_domain} {
+        reverse_proxy ${licensing_upstream} {
+          header_up Host {upstream_hostport}
+        }
+      }
+    permissions: "0644"
+
+  - path: /etc/caddy/environment
+    content: |
+      # Managed by OpenTofu - do not edit manually
+    permissions: "0600"

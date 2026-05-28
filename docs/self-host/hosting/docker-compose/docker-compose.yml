@@ -1,0 +1,138 @@
+name: roadmaps-faciles
+
+# Stack self-contained pour héberger Roadmaps Faciles sur un seul host.
+# Web + Postgres + Redis + MinIO + Caddy (TLS auto Let's Encrypt + on-demand TLS).
+#
+# Lecture rapide :
+#   1. cp .env.example .env  (et éditer)
+#   2. docker compose up -d
+#   3. attendre ~30s pour le cold start, vérifier https://<your-domain>/api/healthz
+#
+# Pour un setup sans Caddy (vous avez déjà un reverse proxy), commenter le service `caddy`
+# et exposer le port 3000 du service `web` directement.
+
+services:
+  web:
+    image: ghcr.io/roadmaps-faciles/roadmaps-faciles-web:${WEB_IMAGE_TAG:-latest}
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      NODE_ENV: production
+      AUTH_TRUST_HOST: "1"
+      AUTH_URL: ${AUTH_URL:-https://${PUBLIC_DOMAIN}/api/auth}
+      AUTH_SECRET: ${AUTH_SECRET}
+      SECURITY_JWT_SECRET: ${SECURITY_JWT_SECRET}
+      SECURITY_WEBHOOK_SECRET: ${SECURITY_WEBHOOK_SECRET}
+      INTEGRATION_ENCRYPTION_KEY: ${INTEGRATION_ENCRYPTION_KEY}
+
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/roadmaps-faciles?schema=public
+      REDIS_URL: redis://redis:6379
+
+      STORAGE_PROVIDER: s3
+      STORAGE_S3_ENDPOINT: http://minio:9000
+      STORAGE_S3_REGION: us-east-1
+      STORAGE_S3_BUCKET: ${STORAGE_S3_BUCKET:-roadmaps-faciles}
+      STORAGE_S3_ACCESS_KEY_ID: ${MINIO_ROOT_USER}
+      STORAGE_S3_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
+      STORAGE_S3_PUBLIC_URL: https://${PUBLIC_DOMAIN}/api/uploads
+      STORAGE_MAX_FILE_SIZE_MB: ${STORAGE_MAX_FILE_SIZE_MB:-5}
+
+      MAILER_SMTP_HOST: ${MAILER_SMTP_HOST}
+      MAILER_SMTP_PORT: ${MAILER_SMTP_PORT}
+      MAILER_SMTP_SSL: ${MAILER_SMTP_SSL:-false}
+      MAILER_SMTP_LOGIN: ${MAILER_SMTP_LOGIN}
+      MAILER_SMTP_PASSWORD: ${MAILER_SMTP_PASSWORD}
+      MAILER_FROM_EMAIL: ${MAILER_FROM_EMAIL}
+
+      NEXT_PUBLIC_SITE_URL: https://${PUBLIC_DOMAIN}
+      NEXT_PUBLIC_BRAND_NAME: ${BRAND_NAME:-Roadmaps Faciles}
+      ADDITIONAL_ROOT_DOMAINS: ${ADDITIONAL_ROOT_DOMAINS:-}
+      ADMINS: ${ADMINS}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      minio-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: roadmaps-faciles
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - cache:/data
+
+  minio:
+    image: minio/minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - s3data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio-init:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
+      mc mb --ignore-existing local/${STORAGE_S3_BUCKET:-roadmaps-faciles};
+      mc anonymous set download local/${STORAGE_S3_BUCKET:-roadmaps-faciles};
+      "
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      PUBLIC_DOMAIN: ${PUBLIC_DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+      DOMAIN_CADDY_ASK_URL: http://web:3000/api/domains/check
+      DOMAIN_CADDY_UPSTREAM: web:3000
+    depends_on:
+      - web
+
+volumes:
+  pgdata:
+  cache:
+  s3data:
+  caddy_data:
+  caddy_config:

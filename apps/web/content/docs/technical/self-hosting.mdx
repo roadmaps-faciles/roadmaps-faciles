@@ -282,6 +282,10 @@ pnpm prisma db seed
 
 ## Options de déploiement
 
+<Callout type="info" title="Templates et configs prêts à l'emploi">
+Pour chaque scénario ci-dessous, des templates complets (docker-compose, Caddyfile, manifests k8s, configs OpenTofu) sont disponibles dans le repo sous [`docs/self-host/`](https://github.com/roadmaps-faciles/roadmaps-faciles/tree/main/docs/self-host). Voir le [README d'index](https://github.com/roadmaps-faciles/roadmaps-faciles/tree/main/docs/self-host#choisir-son-setup) pour le comparatif des options.
+</Callout>
+
 ### Scalingo
 
 Roadmaps Faciles fournit un fichier `scalingo.json` pour le déploiement one-click :
@@ -345,29 +349,26 @@ Exemple de configuration Caddy (`Caddyfile`) :
 
 ### Coolify
 
-Pour un déploiement orchestré sur instance [Coolify](https://coolify.io) self-hostée (Docker Compose, Traefik, ressources managées Postgres/Redis), la procédure recommandée est décrite dans [Déploiement automatisé](/doc/technical/deployment#coolify-self-host). Architecture supportée : wildcard DNS via Traefik (provider `gandiv5` pour Gandi LiveDNS), MinIO comme stockage S3-compatible, review apps éphémères par PR avec DB dédiée et préfixe S3 par PR (`STORAGE_S3_KEY_PREFIX=pr-<n>/`).
+[Coolify](https://coolify.io) est une plateforme open source style Heroku/Render à installer sur votre VPS. Roadmaps Faciles peut y être déployé soit **split en services** (Postgres, Redis, S3, app web séparés, backups managés par service), soit en **stack docker-compose unifiée** pour un démarrage rapide.
 
-### Docker
+Le template Coolify split-en-services est dans [`docs/self-host/hosting/coolify/`](https://github.com/roadmaps-faciles/roadmaps-faciles/tree/main/docs/self-host/hosting/coolify) avec setup Traefik wildcard cert (DNS providers supportés : Gandi, Cloudflare, OVH, Route 53, etc.), MinIO ou Garage colocalisés, et migration depuis un autre hébergeur.
 
-L'application ne fournit pas de Dockerfile officiel public, mais le standalone output se prête bien à la conteneurisation :
+### Docker Compose (stack unifiée)
 
-```dockerfile
-FROM node:24-alpine
+Pour héberger l'app sur un seul host avec une seule commande, utilisez le stack docker-compose dans [`docs/self-host/hosting/docker-compose/`](https://github.com/roadmaps-faciles/roadmaps-faciles/tree/main/docs/self-host/hosting/docker-compose). Il comprend :
 
-WORKDIR /app
-COPY apps/web/.next/standalone ./
-COPY apps/web/.next/static ./apps/web/.next/static
-COPY apps/web/public ./apps/web/public
+- L'image web (pullée depuis GHCR)
+- PostgreSQL + Redis + MinIO
+- Caddy en reverse proxy avec TLS automatique (Let's Encrypt + on-demand TLS pour les custom tenant domains)
 
-ENV PORT=3000
-EXPOSE 3000
+L'image officielle est sur GHCR :
 
-CMD ["node", "apps/web/server.js"]
+```
+ghcr.io/roadmaps-faciles/roadmaps-faciles-web:latest
+ghcr.io/roadmaps-faciles/roadmaps-faciles-web:v1.2.3   # release pinnée
 ```
 
-<Callout type="info" title="Multi-stage build">
-Pour un build complet depuis les sources, ajoutez une étape de build avec `pnpm install && pnpm build` puis copiez le standalone dans l'image finale.
-</Callout>
+Vous pouvez aussi builder localement avec le `Dockerfile` à la racine du repo (multi-stage build, Next.js standalone + Prisma client bundlé).
 
 ## Vérification
 

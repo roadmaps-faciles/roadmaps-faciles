@@ -1,0 +1,30 @@
+# Wildcard cert via Let's Encrypt + on-demand TLS pour custom domains tenants.
+# Le bloc on_demand_tls n'est utile que si vous voulez la feature custom domains.
+# Si vous restez sur sous-domaines uniquement, supprimez le bloc et les conditions on_demand.
+
+{
+	email {$ACME_EMAIL}
+	on_demand_tls {
+		ask {$DOMAIN_CADDY_ASK_URL}
+		interval 5m
+		burst 10
+	}
+}
+
+# Domaine principal
+{$PUBLIC_DOMAIN} {
+	reverse_proxy {$DOMAIN_CADDY_UPSTREAM}
+}
+
+# Sous-domaines tenants (couverts par le wildcard cert si DNS provider configuré)
+*.{$PUBLIC_DOMAIN} {
+	reverse_proxy {$DOMAIN_CADDY_UPSTREAM}
+}
+
+# Custom tenant domains (on-demand TLS, validé via /api/domains/check)
+https:// {
+	tls {
+		on_demand
+	}
+	reverse_proxy {$DOMAIN_CADDY_UPSTREAM}
+}
