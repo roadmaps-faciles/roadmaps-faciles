@@ -1,6 +1,6 @@
 # Coolify Docker Compose Build Pack : pull l'image web pré-buildée par GHA depuis GHCR.
 # Coolify gère automatiquement :
-#   - Le network (project Coolify partagé avec Postgres, Redis, etc.)
+#   - Le project network (partagé avec Postgres, Redis, etc.)
 #   - Les labels Traefik pour le router root domain (cf Domains UI : roadmaps-faciles.fr)
 #   - Les env vars runtime
 #
@@ -10,6 +10,7 @@
 # Configuration côté Coolify :
 #   - Build Pack : Docker Compose
 #   - Compose file path : docker-compose.coolify.yml
+#   - Destination : roadmaps-faciles (network external utilisé par Traefik)
 #   - Domains : https://roadmaps-faciles.fr (wildcard géré hors UI)
 #   - Env vars runtime : voir docs/deploy/coolify/README.md pour la liste complète
 #   - WEB_IMAGE_TAG : tag GHCR à pull (default chore-coolify-bootstrap, à bumper sur release)
@@ -20,12 +21,12 @@ services:
     restart: unless-stopped
     expose:
       - "3000"
-    # Alias DNS `rmf-web` sur le network Coolify partagé avec Traefik : permet au
-    # dynamic Traefik file de router via http://rmf-web:3000 (nom stable, pas
-    # d'UUID Coolify). Zero label Traefik nécessaire — Coolify pose les labels du
-    # router root domain via son UI Domains.
+    # Alias DNS `rmf-web` sur le network roadmaps-faciles (destination Coolify partagée
+    # avec Traefik). Permet au dynamic Traefik file de router via http://rmf-web:3000
+    # (nom stable, pas d'UUID Coolify). Zero label Traefik nécessaire — Coolify pose
+    # les labels du router root domain via son UI Domains.
     networks:
-      coolify:
+      roadmaps-faciles:
         aliases:
           - rmf-web
     healthcheck:
@@ -38,6 +39,6 @@ services:
       start_period: 30s
 
 networks:
-  coolify:
+  roadmaps-faciles:
     external: true
-    name: coolify
+    name: roadmaps-faciles
