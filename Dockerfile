@@ -76,6 +76,15 @@ ARG INCLUDE_PSQL=0
 # Version pinnée sur celle d'apps/web/package.json — bumper ici aussi à chaque bump prisma.
 ARG PRISMA_VERSION=7.8.0
 
+# Info de build exposée au runtime (process.env côté server) :
+# - SOURCE_COMMIT : sha git du commit déployé (sha-court = .substring(0, 7))
+# - IMAGE_REF : nom de la branche/tag git utilisé pour le build (mouvant : suit les pushs)
+# Affichables côté UI /admin/config.
+ARG SOURCE_COMMIT
+ARG IMAGE_REF
+ENV SOURCE_COMMIT=${SOURCE_COMMIT}
+ENV IMAGE_REF=${IMAGE_REF}
+
 RUN apk add --no-cache libc6-compat openssl tini \
   && if [ "$INCLUDE_PSQL" = "1" ]; then apk add --no-cache postgresql17-client; fi
 
