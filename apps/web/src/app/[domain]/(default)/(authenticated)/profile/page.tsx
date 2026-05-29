@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
+import { config } from "@/config";
 import { espaceMembreClient, getEmUserEmail } from "@/lib/gouv/espaceMembre";
 import { auth } from "@/lib/next-auth/auth";
 import { userRepo } from "@/lib/repo";
@@ -28,6 +29,7 @@ const TenantProfilePage = DomainPageHOP()(async () => {
       <h1 className="mb-6 text-3xl font-bold">{t("title")}</h1>
       <ProfileForm
         variant="tenant"
+        maxAvatarSizeMb={config.storageProvider.maxFileSizeMb}
         user={{
           name: user.name,
           email: user.email,

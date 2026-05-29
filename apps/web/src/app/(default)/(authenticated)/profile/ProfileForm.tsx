@@ -36,11 +36,12 @@ export interface ProfileFormUser {
 }
 
 interface ProfileFormProps {
+  maxAvatarSizeMb: number;
   user: ProfileFormUser;
   variant: "root" | "tenant";
 }
 
-export const ProfileForm = ({ user, variant }: ProfileFormProps) => {
+export const ProfileForm = ({ user, variant, maxAvatarSizeMb }: ProfileFormProps) => {
   const t = useTranslations("profile");
   const tc = useTranslations("common");
   const te = useTranslations("errors");
@@ -126,7 +127,11 @@ export const ProfileForm = ({ user, variant }: ProfileFormProps) => {
         </legend>
 
         {canEditIdentity && (
-          <AvatarUploadSection initialImage={user.image} userName={user.name || user.email} />
+          <AvatarUploadSection
+            initialImage={user.image}
+            maxFileSizeMb={maxAvatarSizeMb}
+            userName={user.name || user.email}
+          />
         )}
 
         {canEditIdentity && (

@@ -11,6 +11,12 @@ export interface UserAvatarProps {
   className?: string;
   image?: null | string;
   name: string;
+  /**
+   * Taille en pixels passée à `next/image` (width/height). Par défaut 40px ;
+   * augmenter quand l'avatar est rendu plus grand (preview profile, etc.) pour
+   * éviter l'upscaling pixelisé.
+   */
+  size?: number;
 }
 
 /**
@@ -27,14 +33,14 @@ const resolveAvatarSrc = (image: string): string => {
   return new URL(image, config.espaceMembre.url).toString();
 };
 
-export const UserAvatar = ({ name, image, className }: UserAvatarProps) => {
+export const UserAvatar = ({ name, image, className, size = 40 }: UserAvatarProps) => {
   if (image) {
     return (
       <Image
         src={resolveAvatarSrc(image)}
         alt={name}
-        width={40}
-        height={40}
+        width={size}
+        height={size}
         className={cn("shrink-0 rounded-full object-cover", className)}
       />
     );
