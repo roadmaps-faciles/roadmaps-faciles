@@ -9,9 +9,9 @@ describe("uploads route - isValidStorageKey", () => {
       "images/550e8400-e29b-41d4-a716-446655440000.webp",
       "images/file_name.gif",
       "images/UPPERCASE.PNG",
-      // avatars/{userId}/
-      "avatars/1/abc.png",
-      "avatars/42/550e8400-e29b-41d4-a716-446655440000.webp",
+      // avatars/{userId}/  (userId = CUID, alphanumérique)
+      "avatars/cmpp9hiej00000s1tclmv1ku/abc.png",
+      "avatars/cmpp9hiej00000s1tclmv1ku/550e8400-e29b-41d4-a716-446655440000.webp",
       // tenants/{tenantId}/{logo|banner}
       "tenants/1/logo.png",
       "tenants/42/banner.webp",
@@ -34,9 +34,9 @@ describe("uploads route - isValidStorageKey", () => {
       ["images with spaces", "images/my file.png"],
       ["images multi-dot", "images/my.file.png"],
       ["images query string", "images/file.png?foo=bar"],
-      ["avatars non-numeric userId", "avatars/abc/file.png"],
-      ["avatars missing file", "avatars/1/"],
-      ["avatars extra subdir", "avatars/1/sub/file.png"],
+      ["avatars missing file", "avatars/cmpp9hiej00000s1tclmv1ku/"],
+      ["avatars extra subdir", "avatars/cmpp9hiej00000s1tclmv1ku/sub/file.png"],
+      ["avatars special char userId", "avatars/cmpp.9hiej/file.png"],
       ["tenant asset unknown type", "tenants/1/footer.png"],
       ["tenant asset non-numeric id", "tenants/abc/logo.png"],
       ["legacy non-numeric tenant ID", "tenants/abc/images/file.png"],

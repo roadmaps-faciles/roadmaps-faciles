@@ -31,6 +31,7 @@ const TenantProfilePage = DomainPageHOP()(async () => {
         user={{
           name: user.name,
           email: user.email,
+          image: user.image,
           notificationsEnabled: user.notificationsEnabled,
           isBetaGouvMember: user.isBetaGouvMember,
           username: user.username,

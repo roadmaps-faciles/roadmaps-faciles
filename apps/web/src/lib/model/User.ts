@@ -23,7 +23,10 @@ export const User = z.object({
   email: z.email(),
   emailVerified: z.coerce.date().nullable(),
   username: z.string().nullable(),
-  image: z.url().nullable(),
+  // Accepte URL absolue (avatars OAuth, EM en absolu) ou chemin relatif
+  // (avatars uploadés via /api/uploads/avatars/<userId>/..., legacy EM en path).
+  // La résolution finale est faite par `UserAvatar.resolveAvatarSrc`.
+  image: z.string().nullable(),
 
   notificationsEnabled: z.boolean(),
   status: userStatusEnum,

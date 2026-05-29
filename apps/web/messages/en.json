@@ -1117,6 +1117,11 @@
   "profile": {
     "title": "My profile",
     "identity": "Identity",
+    "avatar": "Avatar",
+    "avatarUpload": "Choose an image",
+    "avatarChange": "Change image",
+    "avatarRemove": "Remove",
+    "avatarHint": "JPEG, PNG, WebP or GIF, max size per configuration.",
     "fullName": "Full name",
     "emailAddress": "Email address",
     "managedByEm": "Managed by Espace Membre",

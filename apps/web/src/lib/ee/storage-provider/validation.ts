@@ -14,7 +14,8 @@
  */
 const PATTERNS: readonly RegExp[] = [
   /^images\/[\w-]+\.\w+$/,
-  /^avatars\/\d+\/[\w-]+\.\w+$/,
+  // userId est un CUID (alphanumérique), pas un int auto-increment.
+  /^avatars\/[\w-]+\/[\w-]+\.\w+$/,
   /^tenants\/\d+\/(logo|banner)(-[\w-]+)?\.\w+$/,
   /^tenants\/\d+\/images\/[\w-]+\.\w+$/,
 ];

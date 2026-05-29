@@ -10,6 +10,7 @@ import { ClientAnimate } from "@/components/utils/ClientAnimate";
 import { UIAlert, UIButton, UIInput, UISeparator, UISwitch } from "@/ui/bridge";
 
 import { deleteAccount, switchToEmEmail, updateProfile } from "./actions";
+import { AvatarUploadSection } from "./AvatarUploadSection";
 import { DeleteAccountSection } from "./DeleteAccountSection";
 import { EspaceMembreSection } from "./EspaceMembreSection";
 
@@ -27,6 +28,7 @@ interface FormType {
 export interface ProfileFormUser {
   email: string;
   emEmail: null | string;
+  image: null | string;
   isBetaGouvMember: boolean;
   name: null | string;
   notificationsEnabled: boolean;
@@ -122,6 +124,10 @@ export const ProfileForm = ({ user, variant }: ProfileFormProps) => {
         <legend className="mb-4">
           <h3 className="text-lg font-semibold">{t("identity")}</h3>
         </legend>
+
+        {canEditIdentity && (
+          <AvatarUploadSection initialImage={user.image} userName={user.name || user.email} />
+        )}
 
         {canEditIdentity && (
           <UIInput
