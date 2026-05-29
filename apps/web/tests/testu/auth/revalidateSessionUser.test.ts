@@ -12,6 +12,7 @@ function fakeDbUser(overrides = {}) {
   return {
     email: "test@test.com",
     name: "Test User",
+    image: null,
     role: "USER" as UserRole,
     status: "ACTIVE" as UserStatus,
     twoFactorEnabled: false,
@@ -35,6 +36,7 @@ describe("revalidateSessionUser", () => {
       status: "ACTIVE",
       name: "Updated Name",
       email: "new@test.com",
+      image: null,
       twoFactorEnabled: false,
       isBetaGouvMember: false,
       isSuperAdmin: false,
