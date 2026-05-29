@@ -91,10 +91,19 @@ export const GET = async (request: NextRequest) => {
 
   // Member (or signup action) → issue bridge token
   const token = createBridgeToken(session.user.uuid);
-  parsedUrl.searchParams.set("bridge_token", token);
+
+  // Force le path à /login pour que BridgeAutoLogin s'exécute (il est monté
+  // uniquement sur le login page tenant). Préserve la destination d'origine en
+  // `next` pour que l'user atterrisse où il s'attendait après le signin bridge.
+  const originalTarget = parsedUrl.pathname + parsedUrl.search;
+  const bridgeRedirectUrl = new URL("/login", parsedUrl);
+  bridgeRedirectUrl.searchParams.set("bridge_token", token);
   if (action === "signup") {
-    parsedUrl.searchParams.set("bridge_signup", "1");
+    bridgeRedirectUrl.searchParams.set("bridge_signup", "1");
+  }
+  if (originalTarget !== "/" && originalTarget !== "/login") {
+    bridgeRedirectUrl.searchParams.set("next", originalTarget);
   }
 
-  return NextResponse.redirect(parsedUrl);
+  return NextResponse.redirect(bridgeRedirectUrl);
 };
