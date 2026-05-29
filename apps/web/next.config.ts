@@ -55,6 +55,9 @@ const csp = {
   "img-src": [
     "'self'",
     "data:",
+    // `blob:` requis par l'avatar crop (react-easy-crop charge l'objectURL du
+    // fichier sélectionné comme image avant cropping côté canvas).
+    "blob:",
     "espace-membre.incubateur.net",
     ...posthogHostCps,
     "*.notion.so",
