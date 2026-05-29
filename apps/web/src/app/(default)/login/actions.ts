@@ -51,11 +51,16 @@ export async function preLoginVerifyAction(
   return { verified: true };
 }
 
-export async function loginAction(identifier: string, loginWithEmail: boolean): Promise<void> {
+/**
+ * `callbackUrl` doit être une URL relative same-host (ex: `/api/auth-bridge?...`).
+ * NextAuth la valide à nouveau dans le redirect callback ; les URLs externes ou
+ * mal formées fallback sur "/".
+ */
+export async function loginAction(identifier: string, loginWithEmail: boolean, callbackUrl?: string): Promise<void> {
   try {
     await signIn(loginWithEmail ? "nodemailer" : ESPACE_MEMBRE_PROVIDER_ID, {
       email: identifier,
-      redirectTo: "/",
+      redirectTo: callbackUrl && callbackUrl.startsWith("/") ? callbackUrl : "/",
     });
   } catch (error) {
     if (isRedirectError(error as NextError)) rethrow(error);

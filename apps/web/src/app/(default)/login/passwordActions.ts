@@ -6,14 +6,21 @@ import { unstable_rethrow as rethrow } from "next/navigation";
 import { signIn } from "@/lib/next-auth/auth";
 import { isRedirectError, type NextError, type ServerActionResponse } from "@/utils/next";
 
-export async function passwordLoginAction(email: string, password: string): Promise<ServerActionResponse> {
+export async function passwordLoginAction(
+  email: string,
+  password: string,
+  callbackUrl?: string,
+): Promise<ServerActionResponse<{ redirectTo: string }>> {
   try {
     await signIn("password", {
       email,
       password,
       redirect: false,
     });
-    return { ok: true };
+    // callbackUrl doit être une URL relative same-host (ex: `/api/auth-bridge?...`).
+    // Sinon fallback sur "/" pour éviter open redirect.
+    const redirectTo = callbackUrl && callbackUrl.startsWith("/") ? callbackUrl : "/";
+    return { ok: true, data: { redirectTo } };
   } catch (error) {
     if (isRedirectError(error as NextError)) rethrow(error);
     if (error instanceof AuthError) {

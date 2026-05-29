@@ -3,6 +3,7 @@
 import { SiGithub, SiGoogle } from "@icons-pack/react-simple-icons";
 import { signIn } from "next-auth/react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { type ComponentType, type SVGProps } from "react";
 
 import { UIButton } from "@/ui/bridge";
@@ -27,6 +28,10 @@ const PROVIDER_CONFIG: Record<string, ProviderConfig> = {
 
 export const OAuthButtons = ({ providers }: OAuthButtonsProps) => {
   const t = useTranslations("auth");
+  const searchParams = useSearchParams();
+  const callbackUrlRaw = searchParams.get("callbackUrl");
+  // URL relative same-host only ; NextAuth fallback "/" pour les autres.
+  const callbackUrl = callbackUrlRaw?.startsWith("/") && !callbackUrlRaw.startsWith("//") ? callbackUrlRaw : undefined;
 
   if (providers.length === 0) return null;
 
@@ -43,7 +48,7 @@ export const OAuthButtons = ({ providers }: OAuthButtonsProps) => {
             variant="outline"
             size="icon"
             className="size-12"
-            onClick={() => void signIn(provider)}
+            onClick={() => void signIn(provider, callbackUrl ? { callbackUrl } : undefined)}
             aria-label={label}
             title={label}
           >

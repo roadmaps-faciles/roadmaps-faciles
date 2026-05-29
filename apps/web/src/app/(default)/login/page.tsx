@@ -6,10 +6,13 @@ import { config } from "@/config";
 import { getRootOAuthProviders } from "@/lib/utils/rootOAuthProviders";
 import { UISeparator } from "@/ui/bridge";
 
+import { withCallbackUrl } from "./loginHrefs";
 import { PasswordLoginForm } from "./PasswordLoginForm";
 
-const LoginPage = async (_: PageProps<"/login">) => {
+const LoginPage = async (props: PageProps<"/login">) => {
   const t = await getTranslations("auth");
+  const searchParams = await props.searchParams;
+  const callbackUrl = typeof searchParams.callbackUrl === "string" ? searchParams.callbackUrl : undefined;
 
   const rootProviders = await getRootOAuthProviders();
   const enabledProviders = Object.entries(rootProviders)
@@ -38,12 +41,18 @@ const LoginPage = async (_: PageProps<"/login">) => {
         <UISeparator />
         <div className="space-y-2 text-center text-sm text-muted-foreground">
           <p>
-            <Link href="/login/passwordless" className="text-primary underline hover:text-primary/80">
+            <Link
+              href={withCallbackUrl("/login/passwordless", callbackUrl)}
+              className="text-primary underline hover:text-primary/80"
+            >
               {t("passwordlessLink")}
             </Link>
           </p>
           <p>
-            <Link href="/login/espace-membre" className="text-primary underline hover:text-primary/80">
+            <Link
+              href={withCallbackUrl("/login/espace-membre", callbackUrl)}
+              className="text-primary underline hover:text-primary/80"
+            >
               {t("espaceMembreLink")}
             </Link>
           </p>
@@ -52,7 +61,10 @@ const LoginPage = async (_: PageProps<"/login">) => {
         <UISeparator />
         <p className="text-center text-sm text-muted-foreground">
           {t("signUpPrompt")}{" "}
-          <Link href="/signup" className="font-medium text-primary underline hover:text-primary/80">
+          <Link
+            href={withCallbackUrl("/signup", callbackUrl)}
+            className="font-medium text-primary underline hover:text-primary/80"
+          >
             {t("signUp")}
           </Link>
         </p>
