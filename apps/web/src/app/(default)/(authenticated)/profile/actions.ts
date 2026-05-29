@@ -22,6 +22,8 @@ import { assertSession } from "@/utils/auth";
 import { type ServerActionResponse } from "@/utils/next";
 import { getDomainFromHost } from "@/utils/tenant";
 
+import { extractOwnedAvatarKey } from "./avatarKey";
+
 const isUniqueConstraintError = (error: unknown): boolean =>
   error instanceof PrismaClientKnownRequestError && error.code === "P2002";
 
@@ -374,17 +376,6 @@ export const deleteAccount = async (): Promise<ServerActionResponse> => {
 // Pas d'`assertEntitlement` ici (contrairement à upload-image.ts) : l'avatar est
 // un asset account-level (lié au user), pas tenant-level. Côté storage, la quota
 // est portée par l'instance globale, pas par tenant.
-
-/**
- * `image` est stocké en `/api/uploads/<key>` quand le user uploade chez nous,
- * ou en URL absolue externe (avatar EM, OAuth provider). On ne supprime que les
- * uploads internes (préfixés par `/api/uploads/avatars/<userId>/`).
- */
-export const extractOwnedAvatarKey = (imageUrl: null | string | undefined, userId: string): null | string => {
-  if (!imageUrl) return null;
-  const prefix = `/api/uploads/avatars/${userId}/`;
-  return imageUrl.startsWith(prefix) ? imageUrl.replace(/^\/api\/uploads\//, "") : null;
-};
 
 export const uploadAvatar = async (formData: FormData): Promise<ServerActionResponse<{ url: string }>> => {
   const session = await assertSession();

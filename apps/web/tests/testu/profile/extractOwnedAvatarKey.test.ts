@@ -1,19 +1,4 @@
-// `actions.ts` est un module "use server" : son import top-level instancie
-// `EspaceMembreClient` (via @/lib/gouv/espaceMembre, throw sans clef d'API) et
-// charge next-auth (via @/utils/auth) qui crashe dans l'env node de test. On stub
-// ces deux modules pour pouvoir importer la fonction pure à tester.
-vi.mock("@/lib/gouv/espaceMembre", () => ({
-  espaceMembreClient: { member: { getByUsername: vi.fn() } },
-  getEmUserEmail: vi.fn(),
-  createEmLinkToken: vi.fn(),
-  verifyEmLinkToken: vi.fn(),
-}));
-
-vi.mock("@/utils/auth", () => ({
-  assertSession: vi.fn(),
-}));
-
-import { extractOwnedAvatarKey } from "@/app/(default)/(authenticated)/profile/actions";
+import { extractOwnedAvatarKey } from "@/app/(default)/(authenticated)/profile/avatarKey";
 
 const USER_ID = "cmpp9hiej00000s1tclmv1ku";
 
