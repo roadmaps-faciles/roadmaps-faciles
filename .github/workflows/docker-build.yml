@@ -2,7 +2,7 @@ name: Docker build and push
 
 on:
   push:
-    branches: [main, dev]
+    branches: [main, dev, "chore/coolify-bootstrap"] # TODO: virer chore/coolify-bootstrap après merge
     tags: ["v*"]
   workflow_dispatch:
     inputs:
@@ -55,11 +55,12 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ env.IMAGE }}
           # Tags par event :
-          #   push main      → `main`
-          #   push dev       → `dev` + sha-court
-          #   push tag v*    → `v1.2.3` + `1.2.3` + `1.2`
+          #   push main                       → `main`
+          #   push dev                        → `dev` + sha-court
+          #   push chore/coolify-bootstrap    → `chore-coolify-bootstrap` + sha-court (temporaire, à virer après merge)
+          #   push tag v*                     → `v1.2.3` + `1.2.3` + `1.2`
           tags: |
-            type=sha,format=short,prefix=,enable=${{ github.ref == 'refs/heads/dev' }}
+            type=sha,format=short,prefix=,enable=${{ github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/chore/coolify-bootstrap' }}
             type=ref,event=branch
             type=ref,event=tag
             type=semver,pattern={{version}}
