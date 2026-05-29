@@ -28,10 +28,10 @@ cd roadmaps-faciles
 
 **2. Lancer les services avec Docker Compose**
 
-Le fichier `docker-compose.yml` fourni démarre les trois services nécessaires au développement :
+Le fichier `docker-compose.dev.yml` fourni démarre les services nécessaires au développement :
 
 ```bash
-docker compose up -d
+docker compose -f docker-compose.dev.yml up -d
 ```
 
 | Service | Port | Description |
@@ -39,7 +39,7 @@ docker compose up -d
 | **PostgreSQL** | `5432` | Base de données (user: `postgres`, password: `postgres`, dbs: `roadmaps-faciles` + `licensing`) |
 | **Redis** | `6379` | Cache et sessions |
 | **Maildev** | `1025` (SMTP) / `1080` (Web UI) | Serveur SMTP de développement |
-| **MinIO** | `9000` (API) / `9001` (Console) | Stockage S3 local (user: `minioadmin`, password: `minioadmin`) |
+| **Garage** | `3900` (API S3) / `3903` (Admin) | Stockage S3 local (Garage v2.3.0, bucket + clé créés au boot) |
 
 **3. Configurer les variables d'environnement**
 

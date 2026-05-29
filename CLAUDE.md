@@ -37,14 +37,15 @@
 - `pnpm test:db` — DB integration tests (requires `DATABASE_URL_TEST`)
 - `pnpm test:e2e` — E2E tests (Playwright, requires dev server + docker services)
 
-## Local services (docker-compose)
+## Local services (docker-compose dev: `docker-compose.dev.yml` à la racine)
+- Lancer : `docker compose -f docker-compose.dev.yml up -d` (le compose prod Coolify est `docker-compose.prod.yml`, pull-image-only)
 - PostgreSQL 17 → `localhost:5432` (db: roadmaps-faciles, user/pass: postgres/postgres)
   - Second DB `licensing` created via `docker/init-db.sh` (docker-entrypoint-initdb.d — runs on first volume init only; `docker compose down -v` to reset)
 - Redis → `localhost:6379`
 - Maildev SMTP → `localhost:1025` (web UI: localhost:1080)
-- MinIO S3 → `localhost:9000` (API) / `localhost:9001` (console UI, user/pass: minioadmin/minioadmin)
-  - Bucket `roadmaps-faciles` créé automatiquement par `minio-init` (healthcheck-based)
-  - Public URL: `http://localhost:9000/roadmaps-faciles`
+- Garage S3 (v2.3.0) → `localhost:3900` (API S3) / `localhost:3903` (admin API)
+  - Bucket `roadmaps-faciles` + access key créés au premier boot via `--default-bucket` ; clés DEV dans `docker-compose.dev.yml`, à matcher avec `STORAGE_S3_*` dans `.env.development`
+  - Pas de console UI (contrairement à MinIO) ; images servies via `/api/uploads` (stream depuis le storage), pas d'URL S3 directe exposée
 - Environment variables: see `.env.development` for all required vars with documentation
 
 ## Code conventions

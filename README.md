@@ -43,7 +43,7 @@ pnpm install
 
 ### docker-compose (optionnel)
 
-PostgreSQL (DBs: `roadmaps-faciles` + `licensing`), Redis, Maildev et MinIO (stockage S3 local).
+PostgreSQL (DBs: `roadmaps-faciles` + `licensing`), Redis, Maildev et Garage (stockage S3 local).
 
 ```bash
 # Démarrer PostgreSQL et Maildev
@@ -213,12 +213,12 @@ Stockage S3-compatible pour les images uploadées dans les posts (drag & drop, p
 |---|---|---|
 | `STORAGE_PROVIDER` | Provider de stockage (`noop`, `s3`) | `noop` |
 | `STORAGE_MAX_FILE_SIZE_MB` | Taille max d'un fichier uploadé (Mo) | `5` |
-| `STORAGE_S3_ENDPOINT` | Endpoint S3 (ex: `http://localhost:9000` pour MinIO) | - |
+| `STORAGE_S3_ENDPOINT` | Endpoint S3 (ex: `http://localhost:3900` pour Garage en local) | - |
 | `STORAGE_S3_REGION` | Région S3 | `us-east-1` |
 | `STORAGE_S3_BUCKET` | Nom du bucket | - |
 | `STORAGE_S3_ACCESS_KEY_ID` | Access Key ID | - |
 | `STORAGE_S3_SECRET_ACCESS_KEY` | Secret Access Key | - |
-| `STORAGE_S3_PUBLIC_URL` | URL publique du bucket (ex: `http://localhost:9000/roadmaps-faciles`) | - |
+| `STORAGE_S3_PUBLIC_URL` | URL publique servie au client, via l'instance (ex: `http://localhost:3000/api/uploads`) | - |
 
 #### DNS Provider
 
