@@ -73,13 +73,19 @@ export const ProfileForm = ({ user, variant }: ProfileFormProps) => {
 
   const notificationsEnabled = useWatch({ control, name: "notificationsEnabled" });
 
+  // Sur root, les comptes EM (`isBetaGouvMember`) ont leurs identité + email
+  // synchronisés depuis l'API Espace Membre : on n'autorise pas l'édition. Les
+  // autres comptes root (password, magic link Gmail, OAuth) sont éditables comme
+  // sur tenant.
+  const canEditIdentity = variant === "tenant" || !user.isBetaGouvMember;
+
   const onSubmit = async (data: FormType) => {
     setSaveError(null);
     setPending(true);
     setSuccess(false);
 
     const result = await updateProfile(
-      variant === "tenant" ? data : { name: data.name, notificationsEnabled: data.notificationsEnabled },
+      canEditIdentity ? data : { name: data.name, notificationsEnabled: data.notificationsEnabled },
     );
     if (!result.ok) {
       setSaveError(result.error);
@@ -104,7 +110,7 @@ export const ProfileForm = ({ user, variant }: ProfileFormProps) => {
   const showEmEmailHint = variant === "tenant" && user.isBetaGouvMember && user.emEmail != null;
 
   const getEmailHintText = () => {
-    if (variant === "root") return t("managedByEm");
+    if (variant === "root" && user.isBetaGouvMember) return t("managedByEm");
     if (!showEmEmailHint) return undefined;
     if (emailsAreSame) return t("sameAsEmEmail");
     return undefined;
@@ -117,7 +123,7 @@ export const ProfileForm = ({ user, variant }: ProfileFormProps) => {
           <h3 className="text-lg font-semibold">{t("identity")}</h3>
         </legend>
 
-        {variant === "tenant" && (
+        {canEditIdentity && (
           <UIInput
             label={t("fullName")}
             nativeInputProps={{
@@ -130,7 +136,7 @@ export const ProfileForm = ({ user, variant }: ProfileFormProps) => {
           />
         )}
 
-        {variant === "tenant" ? (
+        {canEditIdentity ? (
           <div className="space-y-2">
             <UIInput
               label={t("emailAddress")}
