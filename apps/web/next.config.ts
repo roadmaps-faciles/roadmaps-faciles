@@ -155,6 +155,17 @@ const config: NextConfig = {
         port: "",
         search: "",
       },
+      // Avatars OAuth (GitHub, Google) rendus tels quels par next/image dans UserAvatar.
+      {
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        pathname: "/**",
+      },
       ...(process.env.STORAGE_S3_PUBLIC_URL
         ? [
             {

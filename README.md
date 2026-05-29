@@ -164,7 +164,7 @@ Pages légales personnalisables pour le self-hosting.
 
 #### Domain Provider
 
-Gestion des domaines custom sur la plateforme d'hébergement. Voir `docs/deploy/caddy/README.md` pour le détail des déploiements.
+Gestion des domaines custom sur la plateforme d'hébergement. Voir [`docs/self-host/domain-provider/caddy/README.md`](docs/self-host/domain-provider/caddy/README.md) pour le détail des déploiements.
 
 | Variable | Description | Défaut |
 |---|---|---|
@@ -382,7 +382,7 @@ Roadmaps Faciles est self-hostable sous licence AGPL v3. L'application produit u
 
 Documentation utilisateur : [`/doc/technical/deployment`](https://roadmaps-faciles.fr/doc/technical/deployment) - prérequis, plateformes supportées (Scalingo, Clever Cloud, Coolify, Docker/VPS via Caddy), variables d'environnement, observabilité.
 
-> **À venir** : templates de déploiement self-host packagés (Dockerfiles génériques, docker-compose, manifests k8s, exemples Coolify). Les configurations actuelles dans `docs/deploy/` sont chiffrées car spécifiques à l'instance `roadmaps-faciles.fr`.
+> **Templates de déploiement** : des configs self-host génériques et prêtes à l'emploi sont disponibles dans [`docs/self-host/`](docs/self-host/) - stacks docker-compose unifiée, Coolify, Scalingo, Scaleway (IaaS), reverse proxy Caddy (on-demand TLS), manifests k8s et configs OpenTofu. Voir le [README d'index](docs/self-host/README.md) pour le comparatif des options.
 
 ---
 

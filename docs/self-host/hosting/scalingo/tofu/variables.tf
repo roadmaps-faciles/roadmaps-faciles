@@ -57,8 +57,8 @@ variable "web_redis_plan" {
 
 variable "enable_scm_link" {
   type    = bool
-  default = true
-  description = "Lier le repo GitHub a l'app Scalingo (review apps, etc.)"
+  default = false
+  description = "Lier le repo GitHub a l'app Scalingo (review apps, etc.). Necessite scm_auth_integration_uuid si true."
 }
 
 variable "scm_auth_integration_uuid" {
@@ -124,6 +124,12 @@ variable "smtp_login" {
   default = ""
 }
 
+variable "smtp_from_email" {
+  type        = string
+  default     = ""
+  description = "Adresse From des emails (ex: noreply@votre-instance.fr)"
+}
+
 variable "smtp_password" {
   type      = string
   sensitive = true
@@ -131,6 +137,18 @@ variable "smtp_password" {
 }
 
 # --- Secrets web ---
+
+variable "auth_secret" {
+  type        = string
+  sensitive   = true
+  description = "Secret NextAuth (AUTH_SECRET). Generer via openssl rand -base64 32."
+}
+
+variable "integration_encryption_key" {
+  type        = string
+  sensitive   = true
+  description = "Cle de chiffrement des credentials d'integration (INTEGRATION_ENCRYPTION_KEY). Generer via openssl rand -base64 32."
+}
 
 variable "jwt_secret" {
   type      = string

@@ -11,6 +11,8 @@ import { redis } from "@/lib/db/redis/storage";
 import { signIn } from "@/lib/next-auth/auth";
 import { isRedirectError, type NextError } from "@/utils/next";
 
+import { isSafeRelativeCallbackUrl } from "./loginHrefs";
+
 export async function preLoginCheckAction(identifier: string, isUsername: boolean): Promise<{ requiresOtp: boolean }> {
   if (!identifier) return { requiresOtp: false };
 
@@ -60,7 +62,7 @@ export async function loginAction(identifier: string, loginWithEmail: boolean, c
   try {
     await signIn(loginWithEmail ? "nodemailer" : ESPACE_MEMBRE_PROVIDER_ID, {
       email: identifier,
-      redirectTo: callbackUrl && callbackUrl.startsWith("/") ? callbackUrl : "/",
+      redirectTo: isSafeRelativeCallbackUrl(callbackUrl) ? callbackUrl : "/",
     });
   } catch (error) {
     if (isRedirectError(error as NextError)) rethrow(error);

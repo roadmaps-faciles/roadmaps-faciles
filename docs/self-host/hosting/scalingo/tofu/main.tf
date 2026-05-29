@@ -41,9 +41,12 @@ resource "scalingo_app" "web" {
     MAILER_SMTP_PORT           = var.smtp_port
     MAILER_SMTP_SSL            = var.smtp_ssl
     MAILER_SMTP_LOGIN          = var.smtp_login
+    MAILER_FROM_EMAIL          = var.smtp_from_email
   },
     # Secrets (sensitive - Scalingo les masque dans l'UI)
     {
+      AUTH_SECRET                  = var.auth_secret
+      INTEGRATION_ENCRYPTION_KEY   = var.integration_encryption_key
       SECURITY_JWT_SECRET          = var.jwt_secret
       SECURITY_WEBHOOK_SECRET      = var.webhook_secret
       STORAGE_S3_ACCESS_KEY_ID     = var.s3_access_key

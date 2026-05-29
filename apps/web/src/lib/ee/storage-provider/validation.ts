@@ -24,6 +24,18 @@ export function isValidStorageKey(key: string): boolean {
   return PATTERNS.some(p => p.test(key));
 }
 
+/** Types MIME image acceptés à l'upload (avatar, embed markdown). */
+export const ALLOWED_IMAGE_TYPES = new Set(["image/gif", "image/jpeg", "image/png", "image/webp"]);
+
+const EXTENSION_BY_TYPE: Record<string, string> = {
+  "image/gif": "gif",
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+};
+
+export const imageExtensionForType = (type: string): string => EXTENSION_BY_TYPE[type] ?? "bin";
+
 /**
  * Construit les paths S3 par type d'asset. Utilisé par les server actions d'upload
  * pour garantir un layout cohérent avec la regex de validation.

@@ -10,7 +10,7 @@ import { config } from "@/config";
 import { renderEmLinkConfirmEmail } from "@/emails/renderEmails";
 import { prisma } from "@/lib/db/prisma";
 import { getStorageProvider } from "@/lib/ee/storage-provider";
-import { storagePaths } from "@/lib/ee/storage-provider/validation";
+import { ALLOWED_IMAGE_TYPES, imageExtensionForType, storagePaths } from "@/lib/ee/storage-provider/validation";
 import { createEmLinkToken, espaceMembreClient, getEmUserEmail } from "@/lib/gouv/espaceMembre";
 import { logger } from "@/lib/logger";
 import { sendEmail } from "@/lib/mailer";
@@ -20,6 +20,7 @@ import { UpdateUser } from "@/useCases/users/UpdateUser";
 import { audit, AuditAction, getRequestContext } from "@/utils/audit";
 import { assertSession } from "@/utils/auth";
 import { type ServerActionResponse } from "@/utils/next";
+import { getDomainFromHost } from "@/utils/tenant";
 
 const isUniqueConstraintError = (error: unknown): boolean =>
   error instanceof PrismaClientKnownRequestError && error.code === "P2002";
@@ -35,16 +36,28 @@ export const updateProfile = async (data: UpdateProfileData): Promise<ServerActi
   const t = await getTranslations("serverErrors");
   const reqCtx = await getRequestContext();
 
+  // Sur le root, l'email d'un compte EM est géré par l'Espace Membre : on strippe
+  // le champ côté serveur (un appel forgé pourrait sinon écraser l'email ; l'UI le
+  // bloque déjà). Le changement légitime passe par switchToEmEmail. Sur tenant,
+  // l'édition reste autorisée (cf. ProfileForm).
+  const sanitized: UpdateProfileData = { ...data };
+  if (sanitized.email !== undefined && session.user.isBetaGouvMember) {
+    const domain = await getDomainFromHost();
+    if (domain === config.rootDomain) {
+      delete sanitized.email;
+    }
+  }
+
   try {
     const useCase = new UpdateUser(userRepo);
-    await useCase.execute({ id: session.user.uuid, data });
+    await useCase.execute({ id: session.user.uuid, data: sanitized });
     audit(
       {
         action: AuditAction.PROFILE_UPDATE,
         userId: session.user.uuid,
         targetType: "User",
         targetId: session.user.uuid,
-        metadata: { fields: Object.keys(data) },
+        metadata: { fields: Object.keys(sanitized) },
       },
       reqCtx,
     );
@@ -362,20 +375,12 @@ export const deleteAccount = async (): Promise<ServerActionResponse> => {
 // un asset account-level (lié au user), pas tenant-level. Côté storage, la quota
 // est portée par l'instance globale, pas par tenant.
 
-const ALLOWED_AVATAR_TYPES = new Set(["image/gif", "image/jpeg", "image/png", "image/webp"]);
-const AVATAR_EXTENSION_MAP: Record<string, string> = {
-  "image/gif": "gif",
-  "image/jpeg": "jpg",
-  "image/png": "png",
-  "image/webp": "webp",
-};
-
 /**
  * `image` est stocké en `/api/uploads/<key>` quand le user uploade chez nous,
  * ou en URL absolue externe (avatar EM, OAuth provider). On ne supprime que les
  * uploads internes (préfixés par `/api/uploads/avatars/<userId>/`).
  */
-const extractOwnedAvatarKey = (imageUrl: null | string | undefined, userId: string): null | string => {
+export const extractOwnedAvatarKey = (imageUrl: null | string | undefined, userId: string): null | string => {
   if (!imageUrl) return null;
   const prefix = `/api/uploads/avatars/${userId}/`;
   return imageUrl.startsWith(prefix) ? imageUrl.replace(/^\/api\/uploads\//, "") : null;
@@ -403,7 +408,7 @@ export const uploadAvatar = async (formData: FormData): Promise<ServerActionResp
     return { ok: false, error: t("uploadInvalidFile") };
   }
 
-  if (!ALLOWED_AVATAR_TYPES.has(file.type)) {
+  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
     audit(
       {
         action: AuditAction.IMAGE_UPLOAD,
@@ -434,7 +439,7 @@ export const uploadAvatar = async (formData: FormData): Promise<ServerActionResp
     return { ok: false, error: t("uploadTooLarge", { max: config.storageProvider.maxFileSizeMb }) };
   }
 
-  const ext = AVATAR_EXTENSION_MAP[file.type] ?? "bin";
+  const ext = imageExtensionForType(file.type);
   const key = storagePaths.avatar(userId, randomUUID(), ext);
   const newUrl = `/api/uploads/${key}`;
 

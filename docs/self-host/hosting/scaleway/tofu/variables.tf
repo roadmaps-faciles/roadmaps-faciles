@@ -82,7 +82,37 @@ variable "redis_url" {
   description = "URL Redis (Upstash, auto-heberge, etc.)"
 }
 
+# --- Email (SMTP) ---
+
+variable "smtp_host" {
+  type    = string
+  default = ""
+  description = "Hote SMTP (ex: smtp.tem.scw.cloud, smtp-relay.brevo.com)"
+}
+
+variable "smtp_port" {
+  type    = string
+  default = "587"
+}
+
+variable "smtp_login" {
+  type    = string
+  default = ""
+}
+
+variable "smtp_from_email" {
+  type    = string
+  default = ""
+  description = "Adresse d'expedition (ex: 'Roadmaps <noreply@example.com>')"
+}
+
 # --- Secrets ---
+
+variable "auth_secret" {
+  type      = string
+  sensitive = true
+  description = "Secret NextAuth (openssl rand -base64 32)"
+}
 
 variable "jwt_secret" {
   type      = string
@@ -92,6 +122,12 @@ variable "jwt_secret" {
 variable "webhook_secret" {
   type      = string
   sensitive = true
+}
+
+variable "integration_encryption_key" {
+  type      = string
+  sensitive = true
+  description = "Cle AES-256-GCM pour les credentials integrations (openssl rand -base64 32)"
 }
 
 variable "scw_access_key" {

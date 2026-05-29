@@ -105,16 +105,24 @@ resource "scaleway_container" "web" {
     STORAGE_S3_ENDPOINT           = "https://s3.${var.region}.scw.cloud"
     STORAGE_S3_REGION             = var.region
     STORAGE_S3_BUCKET             = scaleway_object_bucket.storage.name
-    STORAGE_S3_PUBLIC_URL         = "https://${scaleway_object_bucket.storage.name}.s3.${var.region}.scw.cloud"
+    # L'URL S3 directe n'est jamais exposee au client : la route /api/uploads
+    # stream depuis le bucket pour rester en img-src 'self' du CSP.
+    STORAGE_S3_PUBLIC_URL         = "https://${var.domain}/api/uploads"
     NEXT_PUBLIC_SITE_URL          = "https://${var.domain}"
     NEXT_PUBLIC_REPOSITORY_URL    = "https://github.com/roadmaps-faciles/roadmaps-faciles"
     REDIS_URL                     = var.redis_url
+    MAILER_SMTP_HOST              = var.smtp_host
+    MAILER_SMTP_PORT              = var.smtp_port
+    MAILER_SMTP_LOGIN             = var.smtp_login
+    MAILER_FROM_EMAIL             = var.smtp_from_email
   }
 
   secret_environment_variables = {
     DATABASE_URL                  = "postgresql://${scaleway_rdb_user.app.name}:${var.db_password}@${scaleway_rdb_instance.db.endpoint_ip}:${scaleway_rdb_instance.db.endpoint_port}/${scaleway_rdb_database.web.name}?sslmode=require"
+    AUTH_SECRET                   = var.auth_secret
     SECURITY_JWT_SECRET           = var.jwt_secret
     SECURITY_WEBHOOK_SECRET       = var.webhook_secret
+    INTEGRATION_ENCRYPTION_KEY    = var.integration_encryption_key
     STORAGE_S3_ACCESS_KEY_ID      = var.scw_access_key
     STORAGE_S3_SECRET_ACCESS_KEY  = var.scw_secret_key
     MAILER_SMTP_PASSWORD          = var.smtp_password

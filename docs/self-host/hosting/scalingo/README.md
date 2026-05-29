@@ -205,6 +205,26 @@ oauth_env = {
 
 > **Note** : le S3 n'est pas provisionné par cette config (Scalingo n'en fournit pas). Le bucket doit être créé en amont sur Scaleway, AWS, ou autre. Voir [`../scaleway/tofu/`](../scaleway/tofu/) pour une config OpenTofu Scaleway qui inclut le bucket.
 
+### SCM link (review apps)
+
+`enable_scm_link` est à `false` par défaut : un `tofu apply` fonctionne directement sans repo lié. Pour activer le lien GitHub/GitLab (et donc les review apps par PR) :
+
+1. Connecter l'intégration SCM dans l'interface Scalingo (Account → SCM integrations).
+2. Récupérer l'UUID de l'intégration :
+
+```bash
+scalingo integrations
+```
+
+3. Renseigner dans le `.tfvars` :
+
+```hcl
+enable_scm_link           = true
+scm_auth_integration_uuid = "<uuid récupéré ci-dessus>"
+```
+
+Sans cet UUID, laisser `enable_scm_link = false` (le `scm_repo_link` n'est pas créé).
+
 ## Domaines custom : unitaire vs wildcard
 
 Scalingo supporte deux modes pour les domaines custom :

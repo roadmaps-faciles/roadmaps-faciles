@@ -157,13 +157,18 @@ Les secrets ne doivent pas être dans les `.tfvars`. Passer via variables d'envi
 
 ```bash
 export TF_VAR_db_password="..."
-export TF_VAR_jwt_secret="..."
-export TF_VAR_webhook_secret="..."
+export TF_VAR_auth_secret="$(openssl rand -base64 32)"
+export TF_VAR_jwt_secret="$(openssl rand -base64 32)"
+export TF_VAR_webhook_secret="$(openssl rand -base64 32)"
+export TF_VAR_integration_encryption_key="$(openssl rand -base64 32)"
 export TF_VAR_scw_access_key="..."
 export TF_VAR_scw_secret_key="..."
+export TF_VAR_smtp_password="..."
 
 tofu apply -var-file=my-env.tfvars
 ```
+
+`auth_secret`, `jwt_secret`, `webhook_secret` et `integration_encryption_key` sont obligatoires pour que l'app boot (NextAuth, JWT, webhooks, chiffrement des credentials integrations). Les valeurs SMTP non-secrets (`smtp_host`, `smtp_port`, `smtp_login`, `smtp_from_email`) se renseignent dans le `.tfvars`.
 
 ### Staging = Prod
 

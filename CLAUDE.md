@@ -209,17 +209,15 @@ Pages custom : `/mentions-legales`, `/politique-de-confidentialite`, `/accessibi
 - E2E fixtures: `tests/teste2e/fixtures.ts` — Maildev helper (clearInbox, getLatestEmail, extractLink)
 - E2E embed: tests run in `unauthenticated` project with absolute `E2E_TENANT_URL` URLs; seed sets `allowEmbedding: true`
 - E2E consent: DSFR consent banner blocks pointer events — must be pre-accepted via localStorage in storageState (key `"@codegouvfr/react-dsfr finalityConsent "` with trailing space, value `{"isFullConsent":true}`); see `auth.setup.ts`
-- CI: GitHub Actions (`.github/workflows/` — build, lint, test, deploy)
-  - Deploy: `.github/workflows/deploy.yml` — push-based to Scalingo (staging on `dev` after CI, prod on release-please tag, manual dispatch)
-  - CI scripts: `.github/scripts/` — CJS modules with JSDoc `@ts-check`, loaded via `require()` in `actions/github-script` (no TS support)
-  - Review apps: Scalingo native integration (keep enabled, disable auto-deploy only — review apps still work per-PR)
-  - GitHub Environments: `staging` + `production` — secrets scoped per env, setup via `scripts/setup-github-environments.sh`
+- CI: GitHub Actions (`.github/workflows/` : build, lint, test, docker-build)
+  - Build/deploy: `.github/workflows/docker-build.yml` builds the web image and pushes it to GHCR (push `dev`/`main`, tag `v*`, manual dispatch). Coolify pulls the image at runtime; the SaaS cutover from Scalingo to Coolify is done (`deploy.yml` + `.github/scripts/{resolve-deploy,ci-gate-release}.js` removed). The licensing image stays built by Coolify (source-decrypt git-crypt stage, BSL code not pushed to a registry)
+  - Review apps: Coolify preview deployments per PR, with the DB created per PR by `scripts/docker-entrypoint.sh` and `STORAGE_S3_KEY_PREFIX=pr-<n>/` to share the review bucket
+  - GitHub Environments: `staging` + `production` (secrets scoped per env)
   - Path filtering: `dorny/paths-filter` with shared config in `.github/filters.yml` — jobs skip when no relevant files changed
   - Safety net: on `push` to main/dev, all jobs always run regardless of path filters
   - Unit tests on PRs: `vitest --changed <base_sha>` runs only tests whose import graph touches changed files
   - Edit `.github/filters.yml` to add/modify path rules (shared across all workflows)
-- Deployment (Scalingo): `Procfile`, `scalingo.json`, `.slugignore` live at monorepo root — standalone build path is `apps/web/.next/standalone/apps/web/server.js`
-- Deployment (Coolify, en préparation) : config complète dans `docs/deploy/coolify/` (chiffré git-crypt) — Dockerfile multi-stage avec Prisma bundlé + `INCLUDE_PSQL` build arg conditionnel, entrypoint qui run migrate deploy + crée la DB review par PR, wildcard DNS Gandi via Traefik gandiv5 resolver, MinIO self-hosted avec `STORAGE_S3_KEY_PREFIX` pour mutualiser le bucket review entre PRs (prefix `pr-<n>/`)
+- Deployment (Coolify) : la SaaS tourne sur Coolify (cutover Scalingo terminé ; `Procfile`/`scalingo.json`/`.slugignore`/`deploy.yml` retirés). `Dockerfile` multi-stage à la racine (Prisma CLI bundlé + `INCLUDE_PSQL` build arg conditionnel), `scripts/docker-entrypoint.sh` run migrate deploy + crée la DB review par PR, standalone build path `apps/web/.next/standalone/apps/web/server.js`, wildcard DNS Gandi via Traefik gandiv5 resolver, `STORAGE_S3_KEY_PREFIX` pour mutualiser le bucket review entre PRs (prefix `pr-<n>/`). Config SaaS-spécifique chiffrée dans `docs/deploy/coolify/` (git-crypt) ; templates self-host génériques publics dans `docs/self-host/` (docker-compose + Garage, Coolify, Scalingo, Scaleway tofu, Caddy)
 - release-please: configs (`release-please-config.*.json`, `.release-please-manifest.json`) at monorepo root — `packages` key is `"apps/web"`, `exclude-paths` must be repo-root-relative (release-please blocks `../../` path traversal)
 - Vitest alias `@/gouv/dsfr` resolves to `src/gouv/dsfr/server.ts` barrel — deep client imports fail in tests; use relative paths for non-barrel modules
 - `vi.doMock()` + dynamic `await import()` required for testing modules with module-level singleton state (e.g., `getStorageProvider()` factory)

@@ -6,22 +6,13 @@ import { randomUUID } from "node:crypto";
 import { config } from "@/config";
 import { assertEntitlement } from "@/lib/ee/entitlements";
 import { getStorageProvider } from "@/lib/ee/storage-provider";
-import { storagePaths } from "@/lib/ee/storage-provider/validation";
+import { ALLOWED_IMAGE_TYPES, imageExtensionForType, storagePaths } from "@/lib/ee/storage-provider/validation";
 import { logger } from "@/lib/logger";
 import { ADDON_TYPE } from "@/lib/model/Organization";
 import { auth } from "@/lib/next-auth/auth";
 import { audit, AuditAction, getRequestContext } from "@/utils/audit";
 import { type ServerActionResponse } from "@/utils/next";
 import { getDomainFromHost, getTenantFromDomain } from "@/utils/tenant";
-
-const ALLOWED_TYPES = new Set(["image/gif", "image/jpeg", "image/png", "image/webp"]);
-
-const EXTENSION_MAP: Record<string, string> = {
-  "image/gif": "gif",
-  "image/jpeg": "jpg",
-  "image/png": "png",
-  "image/webp": "webp",
-};
 
 export async function uploadImage(formData: FormData): Promise<ServerActionResponse<{ url: string }>> {
   const t = await getTranslations("serverErrors");
@@ -50,7 +41,7 @@ export async function uploadImage(formData: FormData): Promise<ServerActionRespo
     return { ok: false, error: t("uploadInvalidFile") };
   }
 
-  if (!ALLOWED_TYPES.has(file.type)) {
+  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
     audit(
       {
         action: AuditAction.IMAGE_UPLOAD,
@@ -79,7 +70,7 @@ export async function uploadImage(formData: FormData): Promise<ServerActionRespo
     return { ok: false, error: t("uploadTooLarge", { max: config.storageProvider.maxFileSizeMb }) };
   }
 
-  const ext = EXTENSION_MAP[file.type] ?? "bin";
+  const ext = imageExtensionForType(file.type);
   const key = storagePaths.image(randomUUID(), ext);
 
   try {

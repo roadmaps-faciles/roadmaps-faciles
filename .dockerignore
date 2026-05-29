@@ -47,9 +47,3 @@ LICENSE*
 # Code généré (regénéré au build par prisma generate)
 src/generated
 **/src/generated
-
-# Scalingo legacy (à retirer après cutover Coolify)
-Procfile
-Procfile.licensing
-scalingo.json
-.slugignore
