@@ -33,7 +33,6 @@ import {
   userOnTenantRepo,
   userRepo,
 } from "../repo";
-import { getCrossSubdomainCookieDomain } from "./cookieDomain";
 import { refreshAccessToken } from "./refresh";
 import { revalidateSessionUser } from "./revalidateSessionUser";
 
@@ -217,45 +216,10 @@ const {
     return { providers: [] };
   }
 
-  const cookieDomain = getCrossSubdomainCookieDomain(host, [config.rootDomain, ...config.additionalRootDomains]);
-  const useSecure = url.startsWith("https://");
-  const cookiePrefix = useSecure ? "__Secure-" : "";
-  const sharedCookieOptions = {
-    httpOnly: true,
-    sameSite: "lax" as const,
-    path: "/",
-    secure: useSecure,
-    ...(cookieDomain ? { domain: cookieDomain } : {}),
-  };
-
   return {
     secret: config.security.auth.secret,
     redirectProxyUrl: url,
     trustHost: true,
-    // Cookie domain scope cross-subdomain : sans ça, un login sur root.example.com
-    // n'est pas visible sur tenant.example.com. Pour les custom domains, cookieDomain
-    // est undefined (scope par défaut au host exact) et le bridge token fait le
-    // hand-off (cf. /api/auth-bridge + bridgeSignIn).
-    // Note : __Host- prefix non utilisable car interdit l'attribut Domain.
-    ...(cookieDomain
-      ? {
-          cookies: {
-            sessionToken: { name: `${cookiePrefix}authjs.session-token`, options: sharedCookieOptions },
-            callbackUrl: { name: `${cookiePrefix}authjs.callback-url`, options: sharedCookieOptions },
-            csrfToken: { name: `${cookiePrefix}authjs.csrf-token`, options: sharedCookieOptions },
-            pkceCodeVerifier: {
-              name: `${cookiePrefix}authjs.pkce.code_verifier`,
-              options: { ...sharedCookieOptions, maxAge: 60 * 15 },
-            },
-            state: { name: `${cookiePrefix}authjs.state`, options: { ...sharedCookieOptions, maxAge: 60 * 15 } },
-            nonce: { name: `${cookiePrefix}authjs.nonce`, options: sharedCookieOptions },
-            webauthnChallenge: {
-              name: `${cookiePrefix}authjs.challenge`,
-              options: { ...sharedCookieOptions, maxAge: 60 * 15 },
-            },
-          },
-        }
-      : {}),
     pages: {
       signIn: "/login",
       signOut: "/logout",

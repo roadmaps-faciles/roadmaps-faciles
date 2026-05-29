@@ -58,8 +58,21 @@ export const GET = async (request: NextRequest) => {
   const session = await auth();
 
   if (!session?.user?.uuid) {
-    // Not logged in - redirect to root login so user can authenticate first
-    return NextResponse.redirect(rootUrl("/login"));
+    // Pas auth : redirige vers /login en préservant l'URL bridge en callbackUrl
+    // (relative, donc same-host → pas d'open redirect). Après login, NextAuth
+    // redirect → revient sur /api/auth-bridge (cette fois authentifié), qui
+    // termine le flow et redirige vers le tenant. Sans ça, après login on retombe
+    // sur "/" du root et l'user doit naviguer manuellement vers le tenant.
+    //
+    // On reconstruit l'URL bridge à partir des params déjà validés (redirect +
+    // action) au lieu de propager toute la query string, pour éviter qu'un
+    // attaquant injecte des params parasites consommés ailleurs dans la chaîne.
+    const preservedParams = new URLSearchParams({ redirect: redirectUrl });
+    if (action) preservedParams.set("action", action);
+    const bridgeUrl = `/api/auth-bridge?${preservedParams.toString()}`;
+    const loginUrl = rootUrl("/login");
+    loginUrl.searchParams.set("callbackUrl", bridgeUrl);
+    return NextResponse.redirect(loginUrl);
   }
 
   // Resolve the target tenant
