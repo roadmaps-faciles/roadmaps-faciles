@@ -86,7 +86,7 @@ ENV SOURCE_COMMIT=${SOURCE_COMMIT}
 ENV IMAGE_REF=${IMAGE_REF}
 
 RUN apk add --no-cache libc6-compat openssl tini \
-  && if [ "$INCLUDE_PSQL" = "1" ]; then apk add --no-cache postgresql17-client; fi
+  && if [ "$INCLUDE_PSQL" = "1" ]; then apk add --no-cache postgresql-client; fi
 
 RUN mkdir -p /opt/prisma-cli && cd /opt/prisma-cli \
   && echo '{"private":true}' > package.json \

@@ -95,7 +95,7 @@ RUN mkdir -p /opt/prisma-cli && cd /opt/prisma-cli \
     [ ! -e "/app/node_modules/@prisma/$name" ] && ln -sf "$d" "/app/node_modules/@prisma/$name" || true; \
     done \
     && ln -sf /opt/prisma-cli/node_modules/.bin/prisma /app/node_modules/.bin/prisma \
-    && chown -RP hono:nodejs /opt/prisma-cli \
+    && chown -R hono:nodejs /opt/prisma-cli \
     && rm -rf /root/.npm
 
 COPY --chown=hono:nodejs scripts/docker-entrypoint-licensing.sh /usr/local/bin/

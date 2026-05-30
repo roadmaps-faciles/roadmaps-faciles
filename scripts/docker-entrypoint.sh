@@ -28,6 +28,11 @@ if [ -n "${COOLIFY_PR_NUMBER:-}" ] && [ -n "${REVIEW_DB_ADMIN_URL:-}" ] && [ -n 
       ;;
   esac
 
+  if ! command -v psql >/dev/null 2>&1; then
+    echo "ERROR: psql introuvable mais création DB review demandée. Rebuild l'image avec INCLUDE_PSQL=1." >&2
+    exit 1
+  fi
+
   DB_NAME="rf_pr_${COOLIFY_PR_NUMBER}"
   echo "====== ENSURE REVIEW DB $DB_NAME ======"
 
