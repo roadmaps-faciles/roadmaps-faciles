@@ -63,7 +63,8 @@ services:
       - garage_meta:/var/lib/garage/meta
       - garage_data:/var/lib/garage/data
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3903/health"]
+      # Image garage minimale (ni wget ni sh) : on sonde via le binaire garage lui-même.
+      test: ["CMD", "/garage", "status"]
       interval: 5s
       timeout: 5s
       retries: 10
