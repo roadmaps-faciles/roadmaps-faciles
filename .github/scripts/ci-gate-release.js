@@ -27,7 +27,7 @@ const TERMINAL_FAIL = ["failure", "cancelled", "timed_out", "startup_failure"];
 const DEADLINE_MS = 15 * 60 * 1000;
 const POLL_MS = 30 * 1000;
 
-const sleep = (/** @type {number} */ ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const sleep = (/** @type {number} */ ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 /**
  * Résout un tag (lightweight ou annoté) vers le commit sous-jacent.
@@ -60,11 +60,11 @@ module.exports = async ({ github, context, core }) => {
   const commitSha = await resolveTagToCommit(github, owner, repo, tag);
   core.info(`Tag ${tag} -> commit ${commitSha}`);
 
-  const pending = new Set(CI_WORKFLOWS.map((wf) => wf.file));
+  const pending = new Set(CI_WORKFLOWS.map(wf => wf.file));
   const deadline = Date.now() + DEADLINE_MS;
 
   while (pending.size > 0) {
-    for (const wf of CI_WORKFLOWS.filter((w) => pending.has(w.file))) {
+    for (const wf of CI_WORKFLOWS.filter(w => pending.has(w.file))) {
       const { data } = await github.rest.actions.listWorkflowRuns({
         owner,
         repo,

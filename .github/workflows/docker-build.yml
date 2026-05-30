@@ -2,7 +2,7 @@ name: Docker build and push
 
 on:
   push:
-    branches: [main, dev]
+    branches: [dev]
     tags: ["v*"]
   workflow_dispatch:
     inputs:
@@ -26,7 +26,7 @@ env:
 jobs:
   # Gate prod : sur tag v*, ne build l'image que si Build/Lint/Tests sont verts sur le
   # commit du tag (équivalent de l'ancien ci-gate-release.js du deploy Scalingo). Skippé
-  # sur push dev/main et dispatch (staging non gaté, Coolify ne pull qu'en manuel).
+  # sur push dev et dispatch (staging non gaté, Coolify ne pull qu'en manuel).
   gate:
     name: Verify CI for release
     if: startsWith(github.ref, 'refs/tags/v')
@@ -47,21 +47,23 @@ jobs:
             const gate = require('./.github/scripts/ci-gate-release.js');
             await gate({ github, context, core });
 
+  # Build par arch sur un runner natif (pas de QEMU : un next build émulé est trop lent),
+  # push par digest sans tag. Le job merge assemble ensuite le manifest multi-arch.
   build:
-    name: Build web
+    name: Build web (${{ matrix.arch }})
     needs: [gate]
-    # Build si le gate a passé (tag) OU s'il a été skippé (push dev/main, dispatch).
     if: always() && (needs.gate.result == 'success' || needs.gate.result == 'skipped')
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
       packages: write
-    # Note : seul l'image web est buildée ici et push GHCR. L'app licensing reste
-    # build par Coolify avec son stage source-decrypt (BuildKit secret GIT_CRYPT_KEY_B64).
-    # Raison : éviter d'exposer le code BSL compilé via un registry (même privé).
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { platform: linux/amd64, arch: amd64, runner: ubuntu-latest }
+          - { platform: linux/arm64, arch: arm64, runner: ubuntu-24.04-arm }
     env:
-      APP: web
-      DOCKERFILE: Dockerfile
       IMAGE: roadmaps-faciles-web
     steps:
       - name: Checkout repository
@@ -77,34 +79,24 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata
+      - name: Image labels
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ env.IMAGE }}
-          # Tags par event :
-          #   push main                       → `main`
-          #   push dev                        → `dev` + sha-court
-          #   push tag v*                     → `v1.2.3` + `1.2.3` + `1.2`
-          tags: |
-            type=sha,format=short,prefix=,enable=${{ github.ref == 'refs/heads/dev' }}
-            type=ref,event=branch
-            type=ref,event=tag
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
           labels: |
             org.opencontainers.image.title=${{ env.IMAGE }}
-            org.opencontainers.image.description=Roadmaps Faciles ${{ env.APP }} image
+            org.opencontainers.image.description=Roadmaps Faciles web image
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
 
-      - name: Build and push ${{ env.APP }}
+      - name: Build and push by digest
+        id: build
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./${{ env.DOCKERFILE }}
-          push: ${{ github.event_name != 'workflow_dispatch' || inputs.push }}
-          tags: ${{ steps.meta.outputs.tags }}
+          file: ./Dockerfile
+          platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             NEXT_PUBLIC_SITE_URL=https://roadmaps-faciles.fr
@@ -114,6 +106,77 @@ jobs:
             NEXT_PUBLIC_REPOSITORY_URL=https://github.com/${{ github.repository }}
             SOURCE_COMMIT=${{ github.sha }}
             IMAGE_REF=${{ github.ref_name }}
-          cache-from: type=gha,scope=docker-${{ env.APP }}
-          cache-to: type=gha,scope=docker-${{ env.APP }},mode=max
-          platforms: linux/amd64
+          cache-from: type=gha,scope=docker-web-${{ matrix.arch }}
+          cache-to: type=gha,scope=docker-web-${{ matrix.arch }},mode=max
+          outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=${{ github.event_name != 'workflow_dispatch' || inputs.push }}
+
+      - name: Export digest
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.push }}
+        run: |
+          mkdir -p /tmp/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "/tmp/digests/${digest#sha256:}"
+
+      - name: Upload digest
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.push }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ matrix.arch }}
+          path: /tmp/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  # Assemble le manifest multi-arch depuis les digests des deux builds et applique les tags.
+  merge:
+    name: Merge multi-arch manifest
+    needs: [build]
+    if: always() && needs.build.result == 'success' && (github.event_name != 'workflow_dispatch' || inputs.push)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE: roadmaps-faciles-web
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/digests
+          pattern: digests-*
+          merge-multiple: true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ env.IMAGE }}
+          # Tags par event :
+          #   push dev          → `dev`
+          #   push tag v1.2.3   → `v1.2.3` + `1.2.3` + `1.2` (stable) + `latest`
+          # ({{major}}.{{minor}} et latest sont volontairement omis sur les prereleases alpha/beta
+          #  par metadata-action ; `latest` est forcé ci-dessous sur tout tag v*.)
+          tags: |
+            type=ref,event=branch
+            type=ref,event=tag
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+
+      - name: Create and push manifest list
+        working-directory: /tmp/digests
+        run: |
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf '${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ env.IMAGE }}@sha256:%s ' *)
+
+      - name: Inspect image
+        run: docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ env.IMAGE }}:${{ steps.meta.outputs.version }}
