@@ -11,7 +11,9 @@
     "lint": "turbo run lint --filter='!@roadmaps-faciles/licensing'",
     "test": "turbo run test --filter='!@roadmaps-faciles/licensing'",
     "storybook": "turbo storybook",
-    "dcupf": "docker compose -f docker-compose.dev.yml up -d --build --force-recreate --remove-orphans"
+    "dcupf": "docker compose -f docker-compose.dev.yml up -d --build --force-recreate --remove-orphans",
+    "db:setup": "pnpm --filter @roadmaps-faciles/web run prisma:migrate:deploy && pnpm --filter @roadmaps-faciles/web run seed",
+    "dev:fresh": "docker compose -f docker-compose.dev.yml down -v && docker compose -f docker-compose.dev.yml up -d --build --force-recreate --remove-orphans --wait && pnpm db:setup"
   },
   "devDependencies": {
     "@actions/core": "^3.0.1",

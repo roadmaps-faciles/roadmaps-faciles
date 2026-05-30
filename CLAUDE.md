@@ -32,6 +32,9 @@
 - `pnpm prisma db seed` — seed dev database
 - `pnpm prisma:studio` — open Prisma Studio (embedded in admin UI)
 - `pnpm prisma:reset` — reset database and re-seed
+- `pnpm dcupf` — démarre la stack de services dev (`docker-compose.dev.yml`)
+- `pnpm db:setup` — applique les migrations (deploy) + seed, depuis `apps/web` (DB déjà up)
+- `pnpm dev:fresh` — fresh install one-shot : `down -v` + `up --wait` + `db:setup`
 - `pnpm export` — export standalone build
 - `pnpm test` / `pnpm test:coverage` — unit + integration tests (Vitest)
 - `pnpm test:db` — DB integration tests (requires `DATABASE_URL_TEST`)

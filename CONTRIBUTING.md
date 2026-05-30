@@ -25,10 +25,8 @@ En soumettant une contribution, vous acceptez que votre code soit licencié sous
 git clone https://github.com/roadmaps-faciles/roadmaps-faciles.git
 cd roadmaps-faciles
 pnpm install
-docker compose -f docker-compose.dev.yml up -d
 cp apps/web/.env.development apps/web/.env.development.local
-pnpm prisma migrate dev
-pnpm prisma db seed
+pnpm dev:fresh   # services Docker (fresh) + migrations + seed, en une commande
 pnpm dev
 ```
 
