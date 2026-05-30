@@ -1,9 +1,9 @@
-import { DeleteObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, GetObjectCommand, NoSuchKey, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 import { config } from "@/config";
 import { logger } from "@/lib/logger";
 
-import { type IStorageProvider, type UploadResult } from "../IStorageProvider";
+import { type IStorageProvider, type ObjectStream, type UploadResult } from "../IStorageProvider";
 
 export class S3StorageProvider implements IStorageProvider {
   private client: null | S3Client = null;
@@ -70,5 +70,27 @@ export class S3StorageProvider implements IStorageProvider {
       throw new Error("S3StorageProvider: either STORAGE_S3_PUBLIC_URL or STORAGE_S3_ENDPOINT must be configured");
     }
     return `${this.s3Config.endpoint}/${this.s3Config.bucket}/${fullKey}`;
+  }
+
+  public async getObject(key: string): Promise<null | ObjectStream> {
+    try {
+      const command = new GetObjectCommand({
+        Bucket: this.s3Config.bucket,
+        Key: this.prefixedKey(key),
+      });
+      const response = await this.getClient().send(command);
+      if (!response.Body) return null;
+
+      // SDK Node retourne un Readable doté de transformToWebStream() pour passer en
+      // ReadableStream Web (compatible NextResponse).
+      return {
+        body: response.Body.transformToWebStream(),
+        contentType: response.ContentType ?? "application/octet-stream",
+        contentLength: response.ContentLength ?? 0,
+      };
+    } catch (err) {
+      if (err instanceof NoSuchKey) return null;
+      throw err;
+    }
   }
 }

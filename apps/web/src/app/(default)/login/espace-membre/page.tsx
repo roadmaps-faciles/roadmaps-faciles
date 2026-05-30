@@ -5,9 +5,12 @@ import { config } from "@/config";
 import { UISeparator } from "@/ui/bridge";
 
 import { LoginForm } from "../LoginForm";
+import { withCallbackUrl } from "../loginHrefs";
 
-const EspaceMembreLoginPage = async (_: PageProps<"/login/espace-membre">) => {
+const EspaceMembreLoginPage = async (props: PageProps<"/login/espace-membre">) => {
   const t = await getTranslations("auth");
+  const searchParams = await props.searchParams;
+  const callbackUrl = typeof searchParams.callbackUrl === "string" ? searchParams.callbackUrl : undefined;
 
   return (
     <div className="flex min-h-[60vh] items-center justify-center px-4 py-16">
@@ -21,7 +24,7 @@ const EspaceMembreLoginPage = async (_: PageProps<"/login/espace-membre">) => {
 
         <UISeparator />
         <p className="text-center text-sm text-muted-foreground">
-          <Link href="/login" className="text-primary underline hover:text-primary/80">
+          <Link href={withCallbackUrl("/login", callbackUrl)} className="text-primary underline hover:text-primary/80">
             {t("loginWithEmail")}
           </Link>
         </p>

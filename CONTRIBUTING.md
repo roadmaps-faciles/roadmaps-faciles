@@ -16,7 +16,7 @@ En soumettant une contribution, vous acceptez que votre code soit licencié sous
 
 - Node.js 24+ (voir `.nvmrc`)
 - pnpm (voir `packageManager` dans `package.json`)
-- PostgreSQL 17+
+- PostgreSQL 18+
 - Docker Compose (recommandé pour les services locaux)
 
 ## Installation
@@ -25,10 +25,8 @@ En soumettant une contribution, vous acceptez que votre code soit licencié sous
 git clone https://github.com/roadmaps-faciles/roadmaps-faciles.git
 cd roadmaps-faciles
 pnpm install
-docker compose up -d
 cp apps/web/.env.development apps/web/.env.development.local
-pnpm prisma migrate dev
-pnpm prisma db seed
+pnpm dev:fresh   # services Docker (fresh) + migrations + seed, en une commande
 pnpm dev
 ```
 

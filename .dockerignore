@@ -1,0 +1,49 @@
+# Réduit le contexte de build envoyé au daemon Docker (gain de temps + moins de surface).
+
+# Dépendances et builds
+node_modules
+**/node_modules
+.next
+**/.next
+.turbo
+**/.turbo
+**/dist
+**/*.tsbuildinfo
+
+# Git et meta
+# .git inclus (pas exclu) pour le stage source-decrypt de Dockerfile.licensing :
+# git-crypt unlock nécessite un working tree git valide. Jamais copié dans l'image finale.
+.git-crypt
+.gitattributes
+.gitignore
+.github
+
+# Claude / agents / IDE
+.claude
+.agents
+.vscode
+
+# Tests et artefacts CI
+tests
+**/coverage
+**/playwright-report
+**/test-results
+.screenshot-playwright
+.playwright-mcp
+
+# Docs et meta repo (pas nécessaires au runtime)
+docs
+*.md
+LICENSE*
+
+# Logs
+*.log
+
+# Env files (les vrais secrets passent via Coolify env vars, jamais via image)
+.env
+.env.*
+!.env.example
+
+# Code généré (regénéré au build par prisma generate)
+src/generated
+**/src/generated

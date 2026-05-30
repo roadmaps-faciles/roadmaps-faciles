@@ -1,0 +1,78 @@
+name: roadmaps-faciles-dev
+services:
+  maildev:
+    # Image officielle multi-arch (arm64 natif sur Apple Silicon). L'entrypoint est
+    # déjà `bin/maildev`, donc `command` ne contient que les flags.
+    image: maildev/maildev:latest
+    command: ["--hide-extensions", "STARTTLS"]
+    ports:
+      - "1025:1025"
+      - "1080:1080"
+    environment:
+      MAILDEV_WEB_PORT: 1080
+      MAILDEV_SMTP_PORT: 1025
+    restart: always
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    environment:
+      REDIS_PORT: 6379
+      REDIS_DATABASES: 1
+    volumes:
+      - cache:/data
+    restart: always
+
+  db:
+    image: postgres:18
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: roadmaps-faciles
+    ports:
+      - "5432:5432"
+    volumes:
+      # PG 18+ : mount sur le parent /var/lib/postgresql (data dans le sous-dossier versionné PGDATA=/var/lib/postgresql/18/docker), pas /var/lib/postgresql/data.
+      - pgdata:/var/lib/postgresql
+      - ./docker/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  garage:
+    image: dxflrs/garage:v2.3.0
+    # --single-node : auto-init du cluster (pas de layout assign manuel).
+    # --default-bucket : crée le bucket + l'access key au premier boot depuis GARAGE_DEFAULT_*.
+    command: ["/garage", "server", "--single-node", "--default-bucket"]
+    ports:
+      - "3900:3900" # S3 API
+      - "3903:3903" # Admin API
+    environment:
+      # Clés DEV jetables : doivent matcher STORAGE_S3_* dans apps/web/.env.development.
+      # Format Garage : access key = "GK" + 32 hex, secret = 64 hex.
+      GARAGE_DEFAULT_BUCKET: roadmaps-faciles
+      GARAGE_DEFAULT_ACCESS_KEY: GK00112233445566778899aabbccddeeff
+      GARAGE_DEFAULT_SECRET_KEY: 00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff
+    volumes:
+      - ./garage.toml:/etc/garage.toml:ro
+      - garage_meta:/var/lib/garage/meta
+      - garage_data:/var/lib/garage/data
+    healthcheck:
+      # Image garage minimale (ni wget ni sh) : on sonde via le binaire garage lui-même.
+      test: ["CMD", "/garage", "status"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    restart: always
+
+volumes:
+  cache:
+  pgdata:
+  garage_meta:
+  garage_data:

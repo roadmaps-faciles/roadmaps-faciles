@@ -1,6 +1,6 @@
 import { logger } from "@/lib/logger";
 
-import { type IStorageProvider, type UploadResult } from "../IStorageProvider";
+import { type IStorageProvider, type ObjectStream, type UploadResult } from "../IStorageProvider";
 
 export class NoopStorageProvider implements IStorageProvider {
   // eslint-disable-next-line @typescript-eslint/require-await
@@ -16,5 +16,11 @@ export class NoopStorageProvider implements IStorageProvider {
 
   public getPublicUrl(key: string): string {
     return `https://noop.local/${key}`;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/require-await
+  public async getObject(key: string): Promise<null | ObjectStream> {
+    logger.debug({ key }, "NoopStorageProvider getObject (no-op, returns null)");
+    return null;
   }
 }

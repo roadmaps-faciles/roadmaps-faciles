@@ -4,12 +4,15 @@ import { EspaceMembreClientMemberNotFoundError } from "@incubateur-ademe/next-au
 import { getLocale, getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
-import crypto from "node:crypto";
+import crypto, { randomUUID } from "node:crypto";
 
 import { config } from "@/config";
 import { renderEmLinkConfirmEmail } from "@/emails/renderEmails";
 import { prisma } from "@/lib/db/prisma";
+import { getStorageProvider } from "@/lib/ee/storage-provider";
+import { ALLOWED_IMAGE_TYPES, imageExtensionForType, storagePaths } from "@/lib/ee/storage-provider/validation";
 import { createEmLinkToken, espaceMembreClient, getEmUserEmail } from "@/lib/gouv/espaceMembre";
+import { logger } from "@/lib/logger";
 import { sendEmail } from "@/lib/mailer";
 import { userRepo } from "@/lib/repo";
 import { PrismaClientKnownRequestError } from "@/prisma/internal/prismaNamespace";
@@ -17,6 +20,9 @@ import { UpdateUser } from "@/useCases/users/UpdateUser";
 import { audit, AuditAction, getRequestContext } from "@/utils/audit";
 import { assertSession } from "@/utils/auth";
 import { type ServerActionResponse } from "@/utils/next";
+import { getDomainFromHost } from "@/utils/tenant";
+
+import { extractOwnedAvatarKey } from "./avatarKey";
 
 const isUniqueConstraintError = (error: unknown): boolean =>
   error instanceof PrismaClientKnownRequestError && error.code === "P2002";
@@ -32,16 +38,28 @@ export const updateProfile = async (data: UpdateProfileData): Promise<ServerActi
   const t = await getTranslations("serverErrors");
   const reqCtx = await getRequestContext();
 
+  // Sur le root, l'email d'un compte EM est géré par l'Espace Membre : on strippe
+  // le champ côté serveur (un appel forgé pourrait sinon écraser l'email ; l'UI le
+  // bloque déjà). Le changement légitime passe par switchToEmEmail. Sur tenant,
+  // l'édition reste autorisée (cf. ProfileForm).
+  const sanitized: UpdateProfileData = { ...data };
+  if (sanitized.email !== undefined && session.user.isBetaGouvMember) {
+    const domain = await getDomainFromHost();
+    if (domain === config.rootDomain) {
+      delete sanitized.email;
+    }
+  }
+
   try {
     const useCase = new UpdateUser(userRepo);
-    await useCase.execute({ id: session.user.uuid, data });
+    await useCase.execute({ id: session.user.uuid, data: sanitized });
     audit(
       {
         action: AuditAction.PROFILE_UPDATE,
         userId: session.user.uuid,
         targetType: "User",
         targetId: session.user.uuid,
-        metadata: { fields: Object.keys(data) },
+        metadata: { fields: Object.keys(sanitized) },
       },
       reqCtx,
     );
@@ -341,6 +359,176 @@ export const deleteAccount = async (): Promise<ServerActionResponse> => {
     audit(
       {
         action: AuditAction.ACCOUNT_DELETE,
+        success: false,
+        error: (error as Error).message,
+        userId,
+        targetType: "User",
+        targetId: userId,
+      },
+      reqCtx,
+    );
+    return { ok: false, error: (error as Error).message };
+  }
+};
+
+// --- Avatar upload --------------------------------------------------------
+//
+// Pas d'`assertEntitlement` ici (contrairement à upload-image.ts) : l'avatar est
+// un asset account-level (lié au user), pas tenant-level. Côté storage, la quota
+// est portée par l'instance globale, pas par tenant.
+
+export const uploadAvatar = async (formData: FormData): Promise<ServerActionResponse<{ url: string }>> => {
+  const session = await assertSession();
+  const t = await getTranslations("serverErrors");
+  const reqCtx = await getRequestContext();
+  const userId = session.user.uuid;
+
+  const file = formData.get("file");
+  if (!(file instanceof File)) {
+    audit(
+      {
+        action: AuditAction.IMAGE_UPLOAD,
+        success: false,
+        error: "Invalid file",
+        userId,
+        targetType: "User",
+        targetId: userId,
+      },
+      reqCtx,
+    );
+    return { ok: false, error: t("uploadInvalidFile") };
+  }
+
+  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+    audit(
+      {
+        action: AuditAction.IMAGE_UPLOAD,
+        success: false,
+        error: `Invalid type: ${file.type}`,
+        userId,
+        targetType: "User",
+        targetId: userId,
+      },
+      reqCtx,
+    );
+    return { ok: false, error: t("uploadInvalidType") };
+  }
+
+  const maxBytes = config.storageProvider.maxFileSizeMb * 1024 * 1024;
+  if (file.size > maxBytes) {
+    audit(
+      {
+        action: AuditAction.IMAGE_UPLOAD,
+        success: false,
+        error: `Too large: ${file.size} bytes`,
+        userId,
+        targetType: "User",
+        targetId: userId,
+      },
+      reqCtx,
+    );
+    return { ok: false, error: t("uploadTooLarge", { max: config.storageProvider.maxFileSizeMb }) };
+  }
+
+  const ext = imageExtensionForType(file.type);
+  const key = storagePaths.avatar(userId, randomUUID(), ext);
+  const newUrl = `/api/uploads/${key}`;
+
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const storage = getStorageProvider();
+    await storage.upload(key, buffer, file.type);
+
+    const previousUser = await userRepo.findById(userId);
+    const previousKey = extractOwnedAvatarKey(previousUser?.image, userId);
+
+    await new UpdateUser(userRepo).execute({ id: userId, data: { image: newUrl } });
+
+    if (previousKey) {
+      try {
+        await storage.delete(previousKey);
+      } catch (err) {
+        // Suppression best-effort : on log mais on n'échoue pas l'upload.
+        logger.warn({ err, previousKey }, "Failed to delete previous avatar");
+      }
+    }
+
+    audit(
+      {
+        action: AuditAction.IMAGE_UPLOAD,
+        userId,
+        targetType: "User",
+        targetId: userId,
+        metadata: { key, contentType: file.type, size: file.size, kind: "avatar" },
+      },
+      reqCtx,
+    );
+    audit(
+      {
+        action: AuditAction.PROFILE_UPDATE,
+        userId,
+        targetType: "User",
+        targetId: userId,
+        metadata: { fields: ["image"] },
+      },
+      reqCtx,
+    );
+
+    revalidatePath("/profile");
+    return { ok: true, data: { url: newUrl } };
+  } catch (error) {
+    logger.error({ err: error, userId }, "Error uploading avatar");
+    audit(
+      {
+        action: AuditAction.IMAGE_UPLOAD,
+        success: false,
+        error: (error as Error).message,
+        userId,
+        targetType: "User",
+        targetId: userId,
+      },
+      reqCtx,
+    );
+    return { ok: false, error: t("uploadFailed") };
+  }
+};
+
+export const removeAvatar = async (): Promise<ServerActionResponse> => {
+  const session = await assertSession();
+  const reqCtx = await getRequestContext();
+  const userId = session.user.uuid;
+
+  try {
+    const user = await userRepo.findById(userId);
+    const previousKey = extractOwnedAvatarKey(user?.image, userId);
+
+    await new UpdateUser(userRepo).execute({ id: userId, data: { image: null } });
+
+    if (previousKey) {
+      try {
+        await getStorageProvider().delete(previousKey);
+      } catch (err) {
+        logger.warn({ err, previousKey }, "Failed to delete avatar from storage");
+      }
+    }
+
+    audit(
+      {
+        action: AuditAction.PROFILE_UPDATE,
+        userId,
+        targetType: "User",
+        targetId: userId,
+        metadata: { fields: ["image"], operation: "removeAvatar" },
+      },
+      reqCtx,
+    );
+
+    revalidatePath("/profile");
+    return { ok: true };
+  } catch (error) {
+    audit(
+      {
+        action: AuditAction.PROFILE_UPDATE,
         success: false,
         error: (error as Error).message,
         userId,

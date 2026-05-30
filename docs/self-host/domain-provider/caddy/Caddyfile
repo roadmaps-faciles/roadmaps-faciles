@@ -1,0 +1,14 @@
+{
+	on_demand_tls {
+		ask {$DOMAIN_CADDY_ASK_URL:https://app.example.com/api/domains/check}
+		interval 5m
+		burst 10
+	}
+}
+
+https:// {
+	tls {
+		on_demand
+	}
+	reverse_proxy {$DOMAIN_CADDY_UPSTREAM:localhost:3000}
+}

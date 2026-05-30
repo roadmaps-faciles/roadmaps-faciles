@@ -6,6 +6,7 @@ type SessionUser = {
 
 type FreshUserData = {
   email: string;
+  image: null | string;
   isBetaGouvMember: boolean;
   name: null | string;
   role: UserRole;
@@ -16,6 +17,7 @@ type FreshUserData = {
 
 export type RevalidatedUserFields = {
   email: string;
+  image: null | string;
   isBetaGouvMember: boolean;
   isSuperAdmin: boolean;
   name: null | string;
@@ -45,6 +47,7 @@ export async function revalidateSessionUser(
       status: freshUser.status,
       name: freshUser.name,
       email: freshUser.email,
+      image: freshUser.image,
       twoFactorEnabled: freshUser.twoFactorEnabled,
       isBetaGouvMember: freshUser.isBetaGouvMember,
       isSuperAdmin: freshUser.username ? adminUsernames.includes(freshUser.username) : false,

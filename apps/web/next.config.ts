@@ -9,11 +9,13 @@ import packageJson from "./package.json" with { type: "json" };
 
 const { version } = packageJson;
 
-const isDeployment = !!process.env.SOURCE_VERSION;
+// SOURCE_VERSION (Scalingo) / SOURCE_COMMIT (Coolify) : git commit hash injecté au build par le PaaS
+const sourceCommit = process.env.SOURCE_VERSION || process.env.SOURCE_COMMIT;
+const isDeployment = !!sourceCommit;
 
 const env = {
   NEXT_PUBLIC_APP_VERSION: version,
-  NEXT_PUBLIC_APP_VERSION_COMMIT: isDeployment ? process.env.SOURCE_VERSION : "dev",
+  NEXT_PUBLIC_APP_VERSION_COMMIT: isDeployment ? sourceCommit : "dev",
   NEXT_PUBLIC_APP_ENV: process.env.APP_ENV || "dev",
 };
 
@@ -53,6 +55,9 @@ const csp = {
   "img-src": [
     "'self'",
     "data:",
+    // `blob:` requis par l'avatar crop (react-easy-crop charge l'objectURL du
+    // fichier sélectionné comme image avant cropping côté canvas).
+    "blob:",
     "espace-membre.incubateur.net",
     ...posthogHostCps,
     "*.notion.so",
@@ -131,6 +136,11 @@ const config: NextConfig = {
     optimizePackageImports: ["@/lib/repo", "@/gouv/dsfr/client", "@/gouv/dsfr"],
     taint: true,
     turbopackFileSystemCacheForDev: true,
+    serverActions: {
+      // Default Next.js = 1 MB, trop bas pour les uploads images (max app: 5 MB cf
+      // STORAGE_MAX_FILE_SIZE_MB). 8 MB couvre 5 MB de fichier + metadata + overhead.
+      bodySizeLimit: "8mb",
+    },
   },
   reactCompiler: true,
   serverExternalPackages: ["@prisma/client", "argon2", "pino", "pino-pretty"],
@@ -144,6 +154,17 @@ const config: NextConfig = {
         pathname: "/api/public/member/*/image",
         port: "",
         search: "",
+      },
+      // Avatars OAuth (GitHub, Google) rendus tels quels par next/image dans UserAvatar.
+      {
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        pathname: "/**",
       },
       ...(process.env.STORAGE_S3_PUBLIC_URL
         ? [

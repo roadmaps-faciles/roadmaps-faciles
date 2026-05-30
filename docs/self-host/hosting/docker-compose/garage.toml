@@ -1,0 +1,22 @@
+# Garage v2 single-node config
+# Doc: https://garagehq.deuxfleurs.fr/documentation/reference-manual/configuration/
+
+replication_factor = 1
+
+metadata_dir = "/var/lib/garage/meta"
+data_dir = "/var/lib/garage/data"
+
+# IMPORTANT : remplacer cette valeur par un secret unique généré avec :
+#   openssl rand -hex 32
+# Le secret est utilisé pour authentifier les communications RPC entre nodes.
+# Même en single-node Garage en exige un.
+rpc_secret = "REPLACE_WITH_OPENSSL_RAND_HEX_32"
+rpc_bind_addr = "[::]:3901"
+
+[s3_api]
+api_bind_addr = "[::]:3900"
+s3_region = "garage"
+root_domain = ".s3.garage"
+
+[admin]
+api_bind_addr = "[::]:3903"

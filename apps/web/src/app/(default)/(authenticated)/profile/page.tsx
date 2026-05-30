@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { connection } from "next/server";
 
+import { config } from "@/config";
 import { auth } from "@/lib/next-auth/auth";
 import { userRepo } from "@/lib/repo";
 import { UIButton, UISeparator } from "@/ui/bridge";
@@ -20,9 +21,11 @@ const ProfilePage = async () => {
       <div className="max-w-xl">
         <ProfileForm
           variant="root"
+          maxAvatarSizeMb={config.storageProvider.maxFileSizeMb}
           user={{
             name: user.name,
             email: user.email,
+            image: user.image,
             notificationsEnabled: user.notificationsEnabled,
             isBetaGouvMember: user.isBetaGouvMember,
             username: user.username,

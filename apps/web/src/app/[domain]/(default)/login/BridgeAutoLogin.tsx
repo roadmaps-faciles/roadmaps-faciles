@@ -24,10 +24,16 @@ export const BridgeAutoLogin = ({ token }: BridgeAutoLoginProps) => {
       form.set("isSignup", "1");
     }
 
+    // `next` est posé par /api/auth-bridge pour préserver la destination d'origine
+    // (puisqu'on force le path à /login pour faire tourner ce composant). On
+    // accepte uniquement les URLs relatives same-host pour éviter open redirect.
+    const nextRaw = params.get("next");
+    const safeNext = nextRaw && nextRaw.startsWith("/") && !nextRaw.startsWith("//") ? nextRaw : "/";
+
     void bridgeSignIn(form).then(result => {
       if ("ok" in result) {
         // Session cookie was set by signIn - navigate on current domain
-        window.location.href = "/";
+        window.location.href = safeNext;
       } else {
         window.location.href = `/login?error=${result.error}`;
       }

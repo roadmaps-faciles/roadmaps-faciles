@@ -1,0 +1,111 @@
+# syntax=docker/dockerfile:1
+
+ARG NODE_VERSION=24-alpine
+
+FROM alpine AS source-decrypt
+RUN apk add --no-cache git git-crypt
+WORKDIR /repo
+COPY . .
+
+# Coolify fait un git archive (pas un clone) → pas de .git dans le contexte → git-crypt
+# unlock plante. On init un repo git temporaire pour qu'il puisse appliquer les filters.
+# En local on COPY le .git (cf .dockerignore qui le permet), donc on détecte les 2 cas.
+RUN git config --global --add safe.directory /repo \
+    && git config --global user.email build@docker.local \
+    && git config --global user.name "Docker build" \
+    && if [ -d .git ]; then \
+    git reset --hard HEAD ; \
+    else \
+    git init -q \
+    && git add -A \
+    && git commit -q -m "tmp build repo" ; \
+    fi
+
+RUN --mount=type=secret,id=GIT_CRYPT_KEY_B64,target=/tmp/git-crypt.key.b64 \
+    if [ ! -s /tmp/git-crypt.key.b64 ]; then \
+    echo "ERROR: BuildKit secret 'GIT_CRYPT_KEY_B64' required to decrypt apps/licensing/**" >&2 ; \
+    exit 1 ; \
+    fi \
+    && base64 -d /tmp/git-crypt.key.b64 > /tmp/git-crypt.key \
+    && git-crypt unlock /tmp/git-crypt.key \
+    && echo "=== Manual smudge (git checkout ne re-écrit pas les fichiers identiques aux blobs) ===" \
+    && find apps/licensing -type f | while read -r f; do \
+    if head -c 9 "$f" 2>/dev/null | grep -q 'GITCRYPT'; then \
+    git-crypt smudge < "$f" > "$f.dec" && mv "$f.dec" "$f" ; \
+    fi ; \
+    done \
+    && if head -c 8 apps/licensing/prisma.config.ts | grep -q '^import'; then \
+    echo "OK: apps/licensing/prisma.config.ts decrypted (starts with 'import')" ; \
+    else \
+    echo "ERROR: apps/licensing/prisma.config.ts still appears encrypted (first 20 bytes hex below):" >&2 ; \
+    head -c 20 apps/licensing/prisma.config.ts | od -An -tx1 -v >&2 ; \
+    exit 1 ; \
+    fi \
+    && rm -rf .git /tmp/git-crypt.key
+
+FROM node:${NODE_VERSION} AS base
+# corepack enable crée les shims, la version pnpm est résolue depuis package.json#packageManager
+# au premier appel pnpm dans un stage qui a copié package.json (deps + builder).
+RUN apk add --no-cache libc6-compat openssl && corepack enable
+WORKDIR /app
+
+FROM base AS deps
+COPY --from=source-decrypt /repo/pnpm-lock.yaml /repo/pnpm-workspace.yaml /repo/package.json ./
+COPY --from=source-decrypt /repo/apps/licensing/package.json apps/licensing/package.json
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --filter=@roadmaps-faciles/licensing...
+
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps/licensing/node_modules ./apps/licensing/node_modules
+# Workspace manifests requis par pnpm --filter même quand node_modules est déjà installé
+COPY --from=source-decrypt /repo/package.json /repo/pnpm-lock.yaml /repo/pnpm-workspace.yaml ./
+# Copies sélectives : invalide le cache uniquement quand le code pertinent change
+COPY --from=source-decrypt /repo/tsconfig.json /repo/turbo.json ./
+COPY --from=source-decrypt /repo/apps/licensing ./apps/licensing
+
+RUN --mount=type=cache,id=prisma-engines,target=/root/.cache/prisma \
+    pnpm --filter @roadmaps-faciles/licensing build
+
+RUN pnpm --filter=@roadmaps-faciles/licensing deploy --legacy --prod /deploy
+RUN cp -r apps/licensing/dist /deploy/dist && cp -r apps/licensing/prisma /deploy/prisma
+
+FROM node:${NODE_VERSION} AS runner
+# Version pinnée sur celle d'apps/licensing/package.json — bumper ici aussi à chaque bump prisma.
+ARG PRISMA_VERSION=7.8.0
+
+RUN apk add --no-cache libc6-compat openssl tini
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PORT=3001
+
+RUN addgroup -g 1001 -S nodejs && adduser -S -u 1001 -G nodejs hono
+
+COPY --from=builder --chown=hono:nodejs /deploy ./
+
+RUN mkdir -p /opt/prisma-cli && cd /opt/prisma-cli \
+    && echo '{"private":true}' > package.json \
+    && npm install --no-audit --no-fund --no-save "prisma@${PRISMA_VERSION}" \
+    && mkdir -p /app/node_modules/.bin /app/node_modules/@prisma \
+    && ln -sf /opt/prisma-cli/node_modules/prisma /app/node_modules/prisma \
+    && for d in /opt/prisma-cli/node_modules/@prisma/*; do \
+    name=$(basename "$d"); \
+    [ ! -e "/app/node_modules/@prisma/$name" ] && ln -sf "$d" "/app/node_modules/@prisma/$name" || true; \
+    done \
+    && ln -sf /opt/prisma-cli/node_modules/.bin/prisma /app/node_modules/.bin/prisma \
+    && chown -R hono:nodejs /opt/prisma-cli \
+    && rm -rf /root/.npm
+
+COPY --chown=hono:nodejs scripts/docker-entrypoint-licensing.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint-licensing.sh
+
+USER hono
+EXPOSE 3001
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+    CMD wget -qO- http://127.0.0.1:3001/healthz > /dev/null 2>&1 || exit 1
+
+ENTRYPOINT ["/sbin/tini", "--", "docker-entrypoint-licensing.sh"]
+CMD ["node", "dist/index.js"]

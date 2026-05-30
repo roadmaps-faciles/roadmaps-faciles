@@ -10,6 +10,7 @@ import { ClientAnimate } from "@/components/utils/ClientAnimate";
 import { UIAlert, UIButton, UIInput, UISeparator, UISwitch } from "@/ui/bridge";
 
 import { deleteAccount, switchToEmEmail, updateProfile } from "./actions";
+import { AvatarUploadSection } from "./AvatarUploadSection";
 import { DeleteAccountSection } from "./DeleteAccountSection";
 import { EspaceMembreSection } from "./EspaceMembreSection";
 
@@ -27,6 +28,7 @@ interface FormType {
 export interface ProfileFormUser {
   email: string;
   emEmail: null | string;
+  image: null | string;
   isBetaGouvMember: boolean;
   name: null | string;
   notificationsEnabled: boolean;
@@ -34,11 +36,12 @@ export interface ProfileFormUser {
 }
 
 interface ProfileFormProps {
+  maxAvatarSizeMb: number;
   user: ProfileFormUser;
   variant: "root" | "tenant";
 }
 
-export const ProfileForm = ({ user, variant }: ProfileFormProps) => {
+export const ProfileForm = ({ user, variant, maxAvatarSizeMb }: ProfileFormProps) => {
   const t = useTranslations("profile");
   const tc = useTranslations("common");
   const te = useTranslations("errors");
@@ -73,13 +76,19 @@ export const ProfileForm = ({ user, variant }: ProfileFormProps) => {
 
   const notificationsEnabled = useWatch({ control, name: "notificationsEnabled" });
 
+  // Sur root, les comptes EM (`isBetaGouvMember`) ont leurs identité + email
+  // synchronisés depuis l'API Espace Membre : on n'autorise pas l'édition. Les
+  // autres comptes root (password, magic link Gmail, OAuth) sont éditables comme
+  // sur tenant.
+  const canEditIdentity = variant === "tenant" || !user.isBetaGouvMember;
+
   const onSubmit = async (data: FormType) => {
     setSaveError(null);
     setPending(true);
     setSuccess(false);
 
     const result = await updateProfile(
-      variant === "tenant" ? data : { name: data.name, notificationsEnabled: data.notificationsEnabled },
+      canEditIdentity ? data : { name: data.name, notificationsEnabled: data.notificationsEnabled },
     );
     if (!result.ok) {
       setSaveError(result.error);
@@ -104,7 +113,7 @@ export const ProfileForm = ({ user, variant }: ProfileFormProps) => {
   const showEmEmailHint = variant === "tenant" && user.isBetaGouvMember && user.emEmail != null;
 
   const getEmailHintText = () => {
-    if (variant === "root") return t("managedByEm");
+    if (variant === "root" && user.isBetaGouvMember) return t("managedByEm");
     if (!showEmEmailHint) return undefined;
     if (emailsAreSame) return t("sameAsEmEmail");
     return undefined;
@@ -117,7 +126,15 @@ export const ProfileForm = ({ user, variant }: ProfileFormProps) => {
           <h3 className="text-lg font-semibold">{t("identity")}</h3>
         </legend>
 
-        {variant === "tenant" && (
+        {canEditIdentity && (
+          <AvatarUploadSection
+            initialImage={user.image}
+            maxFileSizeMb={maxAvatarSizeMb}
+            userName={user.name || user.email}
+          />
+        )}
+
+        {canEditIdentity && (
           <UIInput
             label={t("fullName")}
             nativeInputProps={{
@@ -130,7 +147,7 @@ export const ProfileForm = ({ user, variant }: ProfileFormProps) => {
           />
         )}
 
-        {variant === "tenant" ? (
+        {canEditIdentity ? (
           <div className="space-y-2">
             <UIInput
               label={t("emailAddress")}

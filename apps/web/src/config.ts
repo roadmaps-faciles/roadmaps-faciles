@@ -44,6 +44,11 @@ export const config = {
   ),
   appVersion: ensureNextEnvVar(process.env.NEXT_PUBLIC_APP_VERSION, "dev"),
   appVersionCommit: ensureNextEnvVar(process.env.NEXT_PUBLIC_APP_VERSION_COMMIT, "unknown"),
+  // Tag GHCR utilisé pour pull l'image. Mouvant (branch name suit les pushs), mais
+  // l'image elle-même est immutable et identifiable via appVersionCommit (sha git).
+  // process.env (pas NEXT_PUBLIC) parce que server-only, lu au runtime depuis l'ENV du
+  // stage runner du Dockerfile (cf ARG IMAGE_REF + ENV IMAGE_REF dans Dockerfile).
+  imageRef: ensureApiEnvVar(process.env.IMAGE_REF, "unknown"),
   repositoryUrl: ensureNextEnvVar(
     process.env.NEXT_PUBLIC_REPOSITORY_URL,
     "https://github.com/roadmaps-faciles/roadmaps-faciles",

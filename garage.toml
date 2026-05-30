@@ -1,0 +1,20 @@
+# Garage v2 single-node, config DEV LOCAL uniquement (montée par docker-compose.dev.yml).
+# rpc_secret ci-dessous est un placeholder DEV jetable : single-node sur localhost,
+# aucun impact sécu. Pour la prod/self-host, générer via `openssl rand -hex 32`
+# (cf. docs/self-host/hosting/docker-compose/garage.toml).
+
+replication_factor = 1
+
+metadata_dir = "/var/lib/garage/meta"
+data_dir = "/var/lib/garage/data"
+
+rpc_secret = "aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899"
+rpc_bind_addr = "[::]:3901"
+
+[s3_api]
+api_bind_addr = "[::]:3900"
+s3_region = "garage"
+root_domain = ".s3.garage"
+
+[admin]
+api_bind_addr = "[::]:3903"

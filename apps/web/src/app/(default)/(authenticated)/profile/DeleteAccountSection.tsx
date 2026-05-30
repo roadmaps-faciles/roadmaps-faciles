@@ -38,7 +38,7 @@ export const DeleteAccountSection = ({ deleteAccount }: DeleteAccountSectionProp
     return (
       <div>
         <UIAlert variant="warning" description={t("deleteWarning")} className="mb-4" />
-        <UIButton variant="ghost" size="sm" onClick={() => setShowConfirm(true)}>
+        <UIButton variant="destructive" size="sm" onClick={() => setShowConfirm(true)}>
           {t("deleteAccount")}
         </UIButton>
       </div>

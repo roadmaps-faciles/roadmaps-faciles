@@ -43,7 +43,7 @@ pnpm install
 
 ### docker-compose (optionnel)
 
-PostgreSQL (DBs: `roadmaps-faciles` + `licensing`), Redis, Maildev et MinIO (stockage S3 local).
+PostgreSQL (DBs: `roadmaps-faciles` + `licensing`), Redis, Maildev et Garage (stockage S3 local).
 
 ```bash
 # Démarrer PostgreSQL et Maildev
@@ -164,7 +164,7 @@ Pages légales personnalisables pour le self-hosting.
 
 #### Domain Provider
 
-Gestion des domaines custom sur la plateforme d'hébergement. Voir `docs/deploy/caddy/README.md` pour le détail des déploiements.
+Gestion des domaines custom sur la plateforme d'hébergement. Voir [`docs/self-host/domain-provider/caddy/README.md`](docs/self-host/domain-provider/caddy/README.md) pour le détail des déploiements.
 
 | Variable | Description | Défaut |
 |---|---|---|
@@ -213,12 +213,12 @@ Stockage S3-compatible pour les images uploadées dans les posts (drag & drop, p
 |---|---|---|
 | `STORAGE_PROVIDER` | Provider de stockage (`noop`, `s3`) | `noop` |
 | `STORAGE_MAX_FILE_SIZE_MB` | Taille max d'un fichier uploadé (Mo) | `5` |
-| `STORAGE_S3_ENDPOINT` | Endpoint S3 (ex: `http://localhost:9000` pour MinIO) | - |
+| `STORAGE_S3_ENDPOINT` | Endpoint S3 (ex: `http://localhost:3900` pour Garage en local) | - |
 | `STORAGE_S3_REGION` | Région S3 | `us-east-1` |
 | `STORAGE_S3_BUCKET` | Nom du bucket | - |
 | `STORAGE_S3_ACCESS_KEY_ID` | Access Key ID | - |
 | `STORAGE_S3_SECRET_ACCESS_KEY` | Secret Access Key | - |
-| `STORAGE_S3_PUBLIC_URL` | URL publique du bucket (ex: `http://localhost:9000/roadmaps-faciles`) | - |
+| `STORAGE_S3_PUBLIC_URL` | URL publique servie au client, via l'instance (ex: `http://localhost:3000/api/uploads`) | - |
 
 #### DNS Provider
 
@@ -382,7 +382,7 @@ Roadmaps Faciles est self-hostable sous licence AGPL v3. L'application produit u
 
 Documentation utilisateur : [`/doc/technical/deployment`](https://roadmaps-faciles.fr/doc/technical/deployment) - prérequis, plateformes supportées (Scalingo, Clever Cloud, Coolify, Docker/VPS via Caddy), variables d'environnement, observabilité.
 
-> **À venir** : templates de déploiement self-host packagés (Dockerfiles génériques, docker-compose, manifests k8s, exemples Coolify). Les configurations actuelles dans `docs/deploy/` sont chiffrées car spécifiques à l'instance `roadmaps-faciles.fr`.
+> **Templates de déploiement** : des configs self-host génériques et prêtes à l'emploi sont disponibles dans [`docs/self-host/`](docs/self-host/) - stacks docker-compose unifiée, Coolify, Scalingo, Scaleway (IaaS), reverse proxy Caddy (on-demand TLS), manifests k8s et configs OpenTofu. Voir le [README d'index](docs/self-host/README.md) pour le comparatif des options.
 
 ---
 

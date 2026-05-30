@@ -5,6 +5,14 @@ import { createBridgeToken } from "@/lib/authBridge";
 import { auth } from "@/lib/next-auth/auth";
 import { tenantRepo, userOnTenantRepo } from "@/lib/repo";
 
+import {
+  buildBridgeCallbackUrl,
+  buildBridgeRedirectUrl,
+  extractSubdomain,
+  isSubdomainOrRootHost,
+  parseRedirectUrl,
+} from "./authBridgeRedirect";
+
 const getRequestBaseUrl = (request: NextRequest) => {
   const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || new URL(config.host).host;
   const proto = request.headers.get("x-forwarded-proto") || new URL(config.host).protocol.replace(":", "");
@@ -15,9 +23,8 @@ const getRequestBaseUrl = (request: NextRequest) => {
  * Resolve the tenant from the redirect URL (subdomain or custom domain).
  */
 async function resolveTenantFromUrl(parsedUrl: URL, rootHost: string) {
-  const isSubdomain = parsedUrl.host !== rootHost && parsedUrl.host.endsWith(`.${rootHost}`);
-  if (isSubdomain) {
-    const subdomain = parsedUrl.host.replace(`.${rootHost}`, "").replace(/:\d+$/, "");
+  const subdomain = extractSubdomain(parsedUrl, rootHost);
+  if (subdomain !== null) {
     return tenantRepo.findBySubdomain(subdomain);
   }
   return tenantRepo.findByCustomDomain(parsedUrl.hostname);
@@ -34,22 +41,15 @@ export const GET = async (request: NextRequest) => {
     return NextResponse.redirect(rootUrl());
   }
 
-  // Validate redirect URL to prevent open redirect
-  let parsedUrl: URL;
-  try {
-    parsedUrl = new URL(redirectUrl);
-  } catch {
-    return NextResponse.redirect(rootUrl());
-  }
-
-  // Only allow http/https protocols
-  if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
+  // Validate redirect URL to prevent open redirect (parse + http/https only)
+  const parsedUrl = parseRedirectUrl(redirectUrl);
+  if (!parsedUrl) {
     return NextResponse.redirect(rootUrl());
   }
 
   // Allow redirect to same host, tenant subdomains, or registered custom domains
   const rootHost = rootUrl().host;
-  const isSubdomainHost = parsedUrl.host === rootHost || parsedUrl.host.endsWith(`.${rootHost}`);
+  const isSubdomainHost = isSubdomainOrRootHost(parsedUrl, rootHost);
   const isCustomDomainHost = !isSubdomainHost && !!(await tenantRepo.findByCustomDomain(parsedUrl.hostname));
   if (!isSubdomainHost && !isCustomDomainHost) {
     return NextResponse.redirect(rootUrl());
@@ -58,8 +58,19 @@ export const GET = async (request: NextRequest) => {
   const session = await auth();
 
   if (!session?.user?.uuid) {
-    // Not logged in - redirect to root login so user can authenticate first
-    return NextResponse.redirect(rootUrl("/login"));
+    // Pas auth : redirige vers /login en préservant l'URL bridge en callbackUrl
+    // (relative, donc same-host → pas d'open redirect). Après login, NextAuth
+    // redirect → revient sur /api/auth-bridge (cette fois authentifié), qui
+    // termine le flow et redirige vers le tenant. Sans ça, après login on retombe
+    // sur "/" du root et l'user doit naviguer manuellement vers le tenant.
+    //
+    // On reconstruit l'URL bridge à partir des params déjà validés (redirect +
+    // action) au lieu de propager toute la query string, pour éviter qu'un
+    // attaquant injecte des params parasites consommés ailleurs dans la chaîne.
+    const bridgeUrl = buildBridgeCallbackUrl(redirectUrl, action);
+    const loginUrl = rootUrl("/login");
+    loginUrl.searchParams.set("callbackUrl", bridgeUrl);
+    return NextResponse.redirect(loginUrl);
   }
 
   // Resolve the target tenant
@@ -78,10 +89,7 @@ export const GET = async (request: NextRequest) => {
 
   // Member (or signup action) → issue bridge token
   const token = createBridgeToken(session.user.uuid);
-  parsedUrl.searchParams.set("bridge_token", token);
-  if (action === "signup") {
-    parsedUrl.searchParams.set("bridge_signup", "1");
-  }
 
-  return NextResponse.redirect(parsedUrl);
+  const bridgeRedirectUrl = buildBridgeRedirectUrl(parsedUrl, token, action);
+  return NextResponse.redirect(bridgeRedirectUrl);
 };

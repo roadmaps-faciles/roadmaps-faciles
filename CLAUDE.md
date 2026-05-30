@@ -32,19 +32,23 @@
 - `pnpm prisma db seed` — seed dev database
 - `pnpm prisma:studio` — open Prisma Studio (embedded in admin UI)
 - `pnpm prisma:reset` — reset database and re-seed
+- `pnpm dcupf` — démarre la stack de services dev (`docker-compose.dev.yml`)
+- `pnpm db:setup` — applique les migrations (deploy) + seed, depuis `apps/web` (DB déjà up)
+- `pnpm dev:fresh` — fresh install one-shot : `down -v` + `up --wait` + `db:setup`
 - `pnpm export` — export standalone build
 - `pnpm test` / `pnpm test:coverage` — unit + integration tests (Vitest)
 - `pnpm test:db` — DB integration tests (requires `DATABASE_URL_TEST`)
 - `pnpm test:e2e` — E2E tests (Playwright, requires dev server + docker services)
 
-## Local services (docker-compose)
-- PostgreSQL 17 → `localhost:5432` (db: roadmaps-faciles, user/pass: postgres/postgres)
+## Local services (docker-compose dev: `docker-compose.dev.yml` à la racine)
+- Lancer : `docker compose -f docker-compose.dev.yml up -d` (le compose prod Coolify est `docker-compose.prod.yml`, pull-image-only)
+- PostgreSQL 18 → `localhost:5432` (db: roadmaps-faciles, user/pass: postgres/postgres)
   - Second DB `licensing` created via `docker/init-db.sh` (docker-entrypoint-initdb.d — runs on first volume init only; `docker compose down -v` to reset)
 - Redis → `localhost:6379`
 - Maildev SMTP → `localhost:1025` (web UI: localhost:1080)
-- MinIO S3 → `localhost:9000` (API) / `localhost:9001` (console UI, user/pass: minioadmin/minioadmin)
-  - Bucket `roadmaps-faciles` créé automatiquement par `minio-init` (healthcheck-based)
-  - Public URL: `http://localhost:9000/roadmaps-faciles`
+- Garage S3 (v2.3.0) → `localhost:3900` (API S3) / `localhost:3903` (admin API)
+  - Bucket `roadmaps-faciles` + access key créés au premier boot via `--default-bucket` ; clés DEV dans `docker-compose.dev.yml`, à matcher avec `STORAGE_S3_*` dans `.env.development`
+  - Pas de console UI (contrairement à MinIO) ; images servies via `/api/uploads` (stream depuis le storage), pas d'URL S3 directe exposée
 - Environment variables: see `.env.development` for all required vars with documentation
 
 ## Code conventions
@@ -209,17 +213,15 @@ Pages custom : `/mentions-legales`, `/politique-de-confidentialite`, `/accessibi
 - E2E fixtures: `tests/teste2e/fixtures.ts` — Maildev helper (clearInbox, getLatestEmail, extractLink)
 - E2E embed: tests run in `unauthenticated` project with absolute `E2E_TENANT_URL` URLs; seed sets `allowEmbedding: true`
 - E2E consent: DSFR consent banner blocks pointer events — must be pre-accepted via localStorage in storageState (key `"@codegouvfr/react-dsfr finalityConsent "` with trailing space, value `{"isFullConsent":true}`); see `auth.setup.ts`
-- CI: GitHub Actions (`.github/workflows/` — build, lint, test, deploy)
-  - Deploy: `.github/workflows/deploy.yml` — push-based to Scalingo (staging on `dev` after CI, prod on release-please tag, manual dispatch)
-  - CI scripts: `.github/scripts/` — CJS modules with JSDoc `@ts-check`, loaded via `require()` in `actions/github-script` (no TS support)
-  - Review apps: Scalingo native integration (keep enabled, disable auto-deploy only — review apps still work per-PR)
-  - GitHub Environments: `staging` + `production` — secrets scoped per env, setup via `scripts/setup-github-environments.sh`
+- CI: GitHub Actions (`.github/workflows/` : build, lint, test, docker-build)
+  - Build/deploy: `.github/workflows/docker-build.yml` builds the web image **multi-arch (amd64 + arm64)** and pushes it to GHCR. Build runs per-arch on native runners (`ubuntu-latest` + `ubuntu-24.04-arm`, no QEMU) pushing by digest, then a `merge` job assembles the multi-arch manifest with tags. Tags: push `dev` → `dev` (mutable, no per-commit sha); tag `v*` → `vX.Y.Z` + semver (`X.Y.Z`, `X.Y` on stable) + `latest`. No `main` image (removed from triggers). Coolify pulls the image at runtime (manual); the SaaS cutover from Scalingo to Coolify is done (`deploy.yml` + `.github/scripts/resolve-deploy.js` removed). On tag `v*` a `gate` job runs `.github/scripts/ci-gate-release.js` (poll Build/Lint/Tests green on the tagged commit before building); skipped on push `dev` and dispatch (staging not gated). The licensing image stays built by Coolify (source-decrypt git-crypt stage, BSL code not pushed to a registry)
+  - Review apps: Coolify preview deployments per PR, with the DB created per PR by `scripts/docker-entrypoint.sh` and `STORAGE_S3_KEY_PREFIX=pr-<n>/` to share the review bucket
+  - GitHub Environments: `staging` + `production` (secrets scoped per env)
   - Path filtering: `dorny/paths-filter` with shared config in `.github/filters.yml` — jobs skip when no relevant files changed
   - Safety net: on `push` to main/dev, all jobs always run regardless of path filters
   - Unit tests on PRs: `vitest --changed <base_sha>` runs only tests whose import graph touches changed files
   - Edit `.github/filters.yml` to add/modify path rules (shared across all workflows)
-- Deployment (Scalingo): `Procfile`, `scalingo.json`, `.slugignore` live at monorepo root — standalone build path is `apps/web/.next/standalone/apps/web/server.js`
-- Deployment (Coolify, en préparation) : config complète dans `docs/deploy/coolify/` (chiffré git-crypt) — Dockerfile multi-stage avec Prisma bundlé + `INCLUDE_PSQL` build arg conditionnel, entrypoint qui run migrate deploy + crée la DB review par PR, wildcard DNS Gandi via Traefik gandiv5 resolver, MinIO self-hosted avec `STORAGE_S3_KEY_PREFIX` pour mutualiser le bucket review entre PRs (prefix `pr-<n>/`)
+- Deployment (Coolify) : la SaaS tourne sur Coolify (cutover Scalingo terminé ; `Procfile`/`scalingo.json`/`.slugignore`/`deploy.yml` retirés). `Dockerfile` multi-stage à la racine (Prisma CLI bundlé + `INCLUDE_PSQL` build arg conditionnel), `scripts/docker-entrypoint.sh` run migrate deploy + crée la DB review par PR, standalone build path `apps/web/.next/standalone/apps/web/server.js`, wildcard DNS Gandi via Traefik gandiv5 resolver, `STORAGE_S3_KEY_PREFIX` pour mutualiser le bucket review entre PRs (prefix `pr-<n>/`). Config SaaS-spécifique chiffrée dans `docs/deploy/coolify/` (git-crypt) ; templates self-host génériques publics dans `docs/self-host/` (docker-compose + Garage, Coolify, Scalingo, Scaleway tofu, Caddy)
 - release-please: configs (`release-please-config.*.json`, `.release-please-manifest.json`) at monorepo root — `packages` key is `"apps/web"`, `exclude-paths` must be repo-root-relative (release-please blocks `../../` path traversal)
 - Vitest alias `@/gouv/dsfr` resolves to `src/gouv/dsfr/server.ts` barrel — deep client imports fail in tests; use relative paths for non-barrel modules
 - `vi.doMock()` + dynamic `await import()` required for testing modules with module-level singleton state (e.g., `getStorageProvider()` factory)

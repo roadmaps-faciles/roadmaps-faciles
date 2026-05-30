@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { type SubmitEvent, useState, useTransition } from "react";
 
 import { UIAlert, UIButton, UIInput } from "@/ui/bridge";
@@ -14,6 +15,8 @@ export interface LoginFormClientProps {
 
 export const LoginFormClient = ({ loginWithEmail, defaultEmail }: LoginFormClientProps) => {
   const t = useTranslations("auth");
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") ?? undefined;
 
   const [step, setStep] = useState<"identifier" | "otp">("identifier");
   const [identifier, setIdentifier] = useState(defaultEmail ?? "");
@@ -34,7 +37,7 @@ export const LoginFormClient = ({ loginWithEmail, defaultEmail }: LoginFormClien
         if (data.requiresOtp) {
           setStep("otp");
         } else {
-          await loginAction(identifier.trim(), !!loginWithEmail);
+          await loginAction(identifier.trim(), !!loginWithEmail, callbackUrl);
         }
       } catch {
         setError(t("twoFactor.error"));
@@ -51,7 +54,7 @@ export const LoginFormClient = ({ loginWithEmail, defaultEmail }: LoginFormClien
       try {
         const data = await preLoginVerifyAction(identifier.trim(), otpCode.trim(), !loginWithEmail);
         if (data.verified) {
-          await loginAction(identifier.trim(), !!loginWithEmail);
+          await loginAction(identifier.trim(), !!loginWithEmail, callbackUrl);
         } else {
           setError(t("twoFactor.invalidCode"));
         }
