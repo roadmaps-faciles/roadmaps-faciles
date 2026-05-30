@@ -39,7 +39,7 @@
 
 ## Local services (docker-compose dev: `docker-compose.dev.yml` à la racine)
 - Lancer : `docker compose -f docker-compose.dev.yml up -d` (le compose prod Coolify est `docker-compose.prod.yml`, pull-image-only)
-- PostgreSQL 17 → `localhost:5432` (db: roadmaps-faciles, user/pass: postgres/postgres)
+- PostgreSQL 18 → `localhost:5432` (db: roadmaps-faciles, user/pass: postgres/postgres)
   - Second DB `licensing` created via `docker/init-db.sh` (docker-entrypoint-initdb.d — runs on first volume init only; `docker compose down -v` to reset)
 - Redis → `localhost:6379`
 - Maildev SMTP → `localhost:1025` (web UI: localhost:1080)

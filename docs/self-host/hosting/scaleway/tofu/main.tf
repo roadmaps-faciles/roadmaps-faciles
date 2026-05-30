@@ -43,7 +43,7 @@ resource "scaleway_object_bucket_policy" "public_read" {
 
 resource "scaleway_rdb_instance" "db" {
   name           = "${var.project_name}-${var.environment}"
-  engine         = "PostgreSQL-17"
+  engine         = "PostgreSQL-18"
   node_type      = var.db_node_type
   is_ha_cluster  = var.environment == "prod"
   volume_type    = "bssd"

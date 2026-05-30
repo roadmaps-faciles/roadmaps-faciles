@@ -3,7 +3,7 @@
 Stack self-contained pour héberger Roadmaps Faciles sur un seul host (VPS, machine bare metal, ou même un laptop pour tester). Comprend :
 
 - **web** : l'app Next.js (image GHCR pré-buildée par défaut, build local possible)
-- **db** : PostgreSQL 17
+- **db** : PostgreSQL 18
 - **redis** : Redis 7
 - **garage** : [Garage](https://garagehq.deuxfleurs.fr/) v2.3.0, stockage S3-compatible single-node ; le bucket et la clé d'accès sont créés automatiquement au premier boot via `--default-bucket`
 - **caddy** : reverse proxy avec TLS Let's Encrypt + on-demand TLS pour custom tenant domains

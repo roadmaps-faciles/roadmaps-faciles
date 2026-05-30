@@ -59,7 +59,7 @@ scw k8s cluster create name=roadmaps-faciles version=1.30 \
   pools.0.name=default pools.0.node-type=DEV1-M pools.0.size=2
 
 # DB managée
-scw rdb instance create name=roadmaps-faciles engine=PostgreSQL-17 node-type=DB-DEV-S
+scw rdb instance create name=roadmaps-faciles engine=PostgreSQL-18 node-type=DB-DEV-S
 scw rdb database create instance-id=<id> name=roadmaps-faciles
 
 # Déploiement
