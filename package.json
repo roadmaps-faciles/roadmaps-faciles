@@ -10,7 +10,8 @@
     "build": "turbo run build --filter='!@roadmaps-faciles/licensing'",
     "lint": "turbo run lint --filter='!@roadmaps-faciles/licensing'",
     "test": "turbo run test --filter='!@roadmaps-faciles/licensing'",
-    "storybook": "turbo storybook"
+    "storybook": "turbo storybook",
+    "dcupf": "docker compose -f docker-compose.dev.yml up -d --build --force-recreate --remove-orphans"
   },
   "devDependencies": {
     "@actions/core": "^3.0.1",

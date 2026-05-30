@@ -1,8 +1,10 @@
 name: roadmaps-faciles-dev
 services:
   maildev:
-    image: djfarrelly/maildev
-    command: bin/maildev --hide-extensions STARTTLS
+    # Image officielle multi-arch (arm64 natif sur Apple Silicon). L'entrypoint est
+    # déjà `bin/maildev`, donc `command` ne contient que les flags.
+    image: maildev/maildev:latest
+    command: ["--hide-extensions", "STARTTLS"]
     ports:
       - "1025:1025"
       - "1080:1080"
