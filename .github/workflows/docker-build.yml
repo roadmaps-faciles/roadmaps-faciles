@@ -14,7 +14,6 @@ on:
 
 permissions:
   contents: read
-  packages: write
 
 concurrency:
   cancel-in-progress: true
@@ -25,9 +24,38 @@ env:
   IMAGE_OWNER: ${{ github.repository_owner }}
 
 jobs:
+  # Gate prod : sur tag v*, ne build l'image que si Build/Lint/Tests sont verts sur le
+  # commit du tag (équivalent de l'ancien ci-gate-release.js du deploy Scalingo). Skippé
+  # sur push dev/main et dispatch (staging non gaté, Coolify ne pull qu'en manuel).
+  gate:
+    name: Verify CI for release
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - name: Checkout gate script
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+          sparse-checkout-cone-mode: false
+      - name: Verify CI workflows passed for tagged commit
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7
+        with:
+          script: |
+            const gate = require('./.github/scripts/ci-gate-release.js');
+            await gate({ github, context, core });
+
   build:
     name: Build web
+    needs: [gate]
+    # Build si le gate a passé (tag) OU s'il a été skippé (push dev/main, dispatch).
+    if: always() && (needs.gate.result == 'success' || needs.gate.result == 'skipped')
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     # Note : seul l'image web est buildée ici et push GHCR. L'app licensing reste
     # build par Coolify avec son stage source-decrypt (BuildKit secret GIT_CRYPT_KEY_B64).
     # Raison : éviter d'exposer le code BSL compilé via un registry (même privé).
