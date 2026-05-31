@@ -178,15 +178,17 @@ type DomainFormType = {
 const ALL_SECTION_IDS = ["privacy", "moderation", "header", "visibility", "embedding", "ui-theme", "domain", "danger"];
 
 interface GeneralFormProps {
+  canUseDsfr: boolean;
   hasData: boolean;
   isOwner: boolean;
   tenantSettings: TenantSettings;
 }
 
-export const GeneralForm = ({ tenantSettings, isOwner, hasData }: GeneralFormProps) => {
+export const GeneralForm = ({ tenantSettings, isOwner, hasData, canUseDsfr }: GeneralFormProps) => {
   const t = useTranslations("domainAdmin.general");
   const te = useTranslations("errors");
   const themeSwitchingEnabled = useFeatureFlag("themeSwitching");
+  const showThemeSection = themeSwitchingEnabled || canUseDsfr;
   const SECTIONS = getSections(t);
 
   const [saveError, setSaveError] = useState<null | string>(null);
@@ -273,7 +275,7 @@ export const GeneralForm = ({ tenantSettings, isOwner, hasData }: GeneralFormPro
   /** Quick nav labels - matches ALL_SECTION_IDS */
   const quickNavItems = [
     ...SECTIONS.map(s => ({ id: s.id, label: s.title })),
-    ...(themeSwitchingEnabled ? [{ id: "ui-theme", label: t("uiTheme.label") }] : []),
+    ...(showThemeSection ? [{ id: "ui-theme", label: t("uiTheme.label") }] : []),
     ...(isOwner
       ? [
           { id: "domain", label: t("domains") },
@@ -332,8 +334,9 @@ export const GeneralForm = ({ tenantSettings, isOwner, hasData }: GeneralFormPro
               </Alert>
             )}
 
-            {themeSwitchingEnabled && (
+            {showThemeSection && (
               <ThemeSection
+                canUseDsfr={canUseDsfr}
                 tenantSettings={tenantSettings}
                 watchedValues={watchedValues}
                 setValue={setValue}
@@ -388,6 +391,7 @@ export const GeneralForm = ({ tenantSettings, isOwner, hasData }: GeneralFormPro
 };
 
 const ThemeSection = ({
+  canUseDsfr,
   tenantSettings,
   watchedValues,
   setValue,
@@ -395,6 +399,7 @@ const ThemeSection = ({
   savedField,
   onChangeAction,
 }: {
+  canUseDsfr: boolean;
   onChangeAction: (fieldName: string) => void;
   savedField: null | string;
   saving: boolean;
@@ -404,6 +409,7 @@ const ThemeSection = ({
 }) => {
   const t = useTranslations("domainAdmin.general");
   const hasGouvDomain = !!tenantSettings.customDomain?.endsWith(".gouv.fr");
+  const dsfrDisabled = !canUseDsfr || !hasGouvDomain;
 
   return (
     <Card id="ui-theme">
@@ -431,12 +437,16 @@ const ThemeSection = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="Default">{t("uiTheme.options.Default")}</SelectItem>
-              <SelectItem value="Dsfr" disabled={!hasGouvDomain}>
+              <SelectItem value="Dsfr" disabled={dsfrDisabled}>
                 {t("uiTheme.options.Dsfr")}
               </SelectItem>
             </SelectContent>
           </Select>
-          {!hasGouvDomain && <p className="text-sm text-muted-foreground mt-1">{t("uiTheme.gouvRequired")}</p>}
+          {!canUseDsfr ? (
+            <p className="text-sm text-muted-foreground mt-1">{t("uiTheme.licenseRequired")}</p>
+          ) : (
+            !hasGouvDomain && <p className="text-sm text-muted-foreground mt-1">{t("uiTheme.gouvRequired")}</p>
+          )}
         </div>
       </CardContent>
     </Card>

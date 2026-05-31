@@ -36,6 +36,18 @@ Le domain provider gère le côté **reverse proxy + TLS** pour accepter des dom
 
 - Cloudflare, OVH, Manual, Noop : voir le [README dédié](dns-provider/)
 
+## Déploiement gouvernemental
+
+Vous êtes un opérateur public (administration, collectivité, opérateur de l'État, incubateur beta.gouv) ? Le guide [**GOUVERNEMENTAL.md**](GOUVERNEMENTAL.md) couvre les briques spécifiques :
+
+- Thème DSFR (les deux verrous : licence Gov + domaine `.gouv.fr`)
+- Licence `GOV_LICENSED`
+- Authentification ProConnect et Espace Membre (beta.gouv)
+- Bootstrap d'instance via `POST /api/setup`
+- Pages légales, branding État, et checklist de conformité (RGAA, RGPD/CNIL, résidence des données)
+
+À lire **en complément** d'un des scénarios d'hébergement ci-dessus, pas à la place.
+
 ## Stack technique requise
 
 | Composant | Version min | Notes |

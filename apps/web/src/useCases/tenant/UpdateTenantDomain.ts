@@ -51,6 +51,11 @@ export class UpdateTenantDomain implements UseCase<UpdateTenantDomainInput, Upda
     }
 
     if (input.customDomain !== undefined) {
+      if (existing.uiTheme === "Dsfr" && !input.customDomain?.endsWith(".gouv.fr")) {
+        throw new Error(
+          "Le thème DSFR requiert un domaine .gouv.fr : repassez en thème par défaut avant de retirer ou changer ce domaine.",
+        );
+      }
       if (input.customDomain) {
         const domainConflict = await prisma.tenantSettings.findFirst({
           where: { customDomain: input.customDomain, id: { not: input.settingsId } },

@@ -36,6 +36,10 @@ export const saveTenantSettings = async (data: unknown): Promise<ServerActionRes
     return { ok: false, error: z.prettifyError(validated.error) };
   }
 
+  if (validated.data.uiTheme === "Dsfr") {
+    await assertEntitlement(tenant.id, ADDON_TYPE.THEME_DSFR);
+  }
+
   try {
     const useCase = new SaveTenantWithSettings(tenantSettingsRepo);
     await useCase.execute(validated.data);

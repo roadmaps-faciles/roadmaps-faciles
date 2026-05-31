@@ -8,9 +8,10 @@ export const config = {
   seed: {
     adminName: ensureApiEnvVar(process.env.SEED_ADMIN_NAME, "Admin"),
     adminEmail: ensureApiEnvVar(process.env.SEED_ADMIN_EMAIL, "admin@example.com"),
-    // adminPassword: ensureApiEnvVar(process.env.SEED_ADMIN_PASSWORD, "password"),
+    adminPassword: ensureApiEnvVar(process.env.SEED_ADMIN_PASSWORD, ""),
     adminImage: ensureApiEnvVar(process.env.SEED_ADMIN_IMAGE, ""),
     adminUsername: ensureApiEnvVar(process.env.SEED_ADMIN_USERNAME, "admin"),
+    minimal: ensureApiEnvVar(process.env.SEED_MINIMAL, isTruthy, false),
     tenantName: ensureApiEnvVar(process.env.SEED_TENANT_NAME, "Le Site par Défaut"),
     tenantSubdomain: ensureApiEnvVar(process.env.SEED_TENANT_SUBDOMAIN, "default"),
     minFakeUsers: ensureApiEnvVar(process.env.SEED_MIN_FAKE_USERS, Number, 8),
@@ -122,8 +123,16 @@ export const config = {
       login: ensureApiEnvVar(process.env.MAILER_SMTP_LOGIN, ""),
       ssl: ensureApiEnvVar(process.env.MAILER_SMTP_SSL, isTruthy, false),
     },
-    // TODO: change
-    from: ensureApiEnvVar(process.env.MAILER_FROM_EMAIL, "Roadmaps Faciles <noreply@roadmaps-faciles.fr>"),
+    get from() {
+      const explicit = ensureApiEnvVar(process.env.MAILER_FROM_EMAIL, "");
+      if (explicit) return explicit;
+      // Pas de from par défaut lié à une marque tierce : casserait SPF/DMARC en self-host.
+      if (this.smtp.login) return this.smtp.login;
+      const host = ensureNextEnvVar(process.env.NEXT_PUBLIC_SITE_URL, "http://localhost:3000")
+        .replace(/^(https?:\/\/)?(www\.)?/, "")
+        .replace(/:\d+$/, "");
+      return `noreply@${host}`;
+    },
   },
   oauth: {
     github: {
@@ -147,6 +156,7 @@ export const config = {
     webhook: {
       secret: ensureApiEnvVar(process.env.SECURITY_WEBHOOK_SECRET, "secret"),
     },
+    setupToken: ensureApiEnvVar(process.env.SETUP_TOKEN, ""),
   },
   espaceMembre: {
     apiKey: ensureApiEnvVar(process.env.ESPACE_MEMBRE_API_KEY, ""),

@@ -543,7 +543,8 @@
           "Default": "Default (shadcn/ui)",
           "Dsfr": "DSFR (French gov design system)"
         },
-        "gouvRequired": "DSFR theme is restricted to spaces with a verified .gouv.fr custom domain."
+        "licenseRequired": "DSFR theme requires a government license (Gov plan).",
+        "gouvRequired": "DSFR theme requires a .gouv.fr custom domain on this space."
       },
       "embeddingTitle": "Embedding",
       "embeddingDescription": "Allow embedding your boards and roadmap on external sites.",

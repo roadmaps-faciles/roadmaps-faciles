@@ -543,7 +543,8 @@
           "Default": "Par défaut (shadcn/ui)",
           "Dsfr": "DSFR (Design Système gouv.fr)"
         },
-        "gouvRequired": "Le thème DSFR est réservé aux espaces disposant d'un domaine personnalisé en .gouv.fr."
+        "licenseRequired": "Le thème DSFR nécessite une licence gouvernementale (plan Gov).",
+        "gouvRequired": "Le thème DSFR requiert un domaine personnalisé en .gouv.fr sur cet espace."
       },
       "embeddingTitle": "Intégration",
       "embeddingDescription": "Permettez l'intégration de vos boards et roadmap dans des sites externes.",

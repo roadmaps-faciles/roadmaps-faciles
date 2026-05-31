@@ -158,7 +158,7 @@ function buildOAuthProviders() {
     );
   }
 
-  if (config.oauth.proconnect.clientId) {
+  if (config.oauth.proconnect.clientId && config.oauth.proconnect.issuer) {
     providers.push({
       id: "proconnect",
       name: "ProConnect",
@@ -167,6 +167,11 @@ function buildOAuthProviders() {
       clientId: config.oauth.proconnect.clientId,
       clientSecret: config.oauth.proconnect.clientSecret,
     });
+  } else if (config.oauth.proconnect.clientId && !config.oauth.proconnect.issuer) {
+    // Sans issuer, l'OIDC discovery throw et casse le login : on skip plutôt que de planter l'auth.
+    console.warn(
+      "[auth] OAUTH_PROCONNECT_CLIENT_ID est défini mais OAUTH_PROCONNECT_ISSUER est vide : provider ProConnect ignoré.",
+    );
   }
 
   return providers;
