@@ -76,7 +76,7 @@ Pièges connus et solutions dans le codebase Roadmaps Faciles.
 
 ## Tooling
 
-- Rolldown (Vitest bundler) cannot parse JSX in `.tsx` files during `--changed` import graph analysis. Files that contain JSX and are imported by tests (directly or transitively) must either be globally mocked in `vitest.setup.ts` or converted to `.ts` using `createElement()`. This is why `renderEmails.ts` uses `createElement()` instead of JSX
+- Vitest 4 (Vite 8) transforme via **oxc**, qui hérite du `jsx: preserve` du tsconfig Next : sans override, l'analyse de graphe `--changed` ne transforme pas le JSX des `.tsx` (templates email) et plante au parse (`Failed to parse source for import analysis ... jsx to preserve`). Le mock runtime de `@/emails/renderEmails` ne couvre PAS cette analyse statique (elle traverse les imports réels). Fix : `oxc: { jsx: { runtime: "automatic" } }` dans `vitest.config.ts` (NB : l'option `esbuild.jsx` est ignorée, Vite 8 utilise oxc). Le `createElement()` dans `renderEmails.ts` + le mock restent en ceinture-bretelles. Se déclenche dès qu'un fichier très importé (ex: `config.ts`, `auth.ts`) menant à `renderEmails` est dans le diff
 - Workflow: always run `pnpm lint --fix` before manually fixing ESLint diagnostics (import sorting, formatting, etc.)
 - ESLint 10: NOT yet compatible with `eslint-plugin-import`, `eslint-plugin-react`, `eslint-plugin-react-hooks`, `eslint-plugin-jsx-a11y` - stay on ESLint 9 until ecosystem catches up
 - Vitest 4 browser provider: API changed from `provider: "playwright"` (string) to `provider: playwright()` (function import from `@vitest/browser-playwright`)
