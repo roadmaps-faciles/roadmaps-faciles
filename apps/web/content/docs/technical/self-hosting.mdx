@@ -123,6 +123,10 @@ La vérification de licence est principalement **offline** (signature Ed25519 em
 
 Sans licence, l'instance fonctionne en mode **Community** avec les fonctionnalités core (AGPL v3).
 
+<Callout type="info" title="Thème DSFR : deux conditions">
+Activer le DSFR sur un espace exige **deux** conditions cumulatives : une licence `GOV_LICENSED` (verrou organisation) **et** un domaine personnalisé en `.gouv.fr` sur l'espace concerné (verrou tenant, exigence de la charte DSFR). Pour un déploiement public, voir le guide [Déploiement gouvernemental](/doc/technical/self-hosting-gouvernemental).
+</Callout>
+
 ### OAuth / SSO (optionnel)
 
 Pour activer la connexion via des fournisseurs OAuth, configurez les variables correspondantes :
@@ -135,8 +139,13 @@ Pour activer la connexion via des fournisseurs OAuth, configurez les variables c
 | `OAUTH_GOOGLE_CLIENT_SECRET` | Client Secret Google |
 | `OAUTH_PROCONNECT_CLIENT_ID` | Client ID ProConnect (OIDC) |
 | `OAUTH_PROCONNECT_CLIENT_SECRET` | Client Secret ProConnect |
+| `OAUTH_PROCONNECT_ISSUER` | URL de l'issuer OIDC ProConnect (endpoint de découverte) |
 
 Seuls les fournisseurs dont les variables sont renseignées seront disponibles. Chaque tenant choisit ensuite lesquels activer via **Administration > Authentification**.
+
+<Callout type="warn" title="ProConnect : issuer requis">
+Le provider ProConnect n'est activé que si `OAUTH_PROCONNECT_CLIENT_ID` **et** `OAUTH_PROCONNECT_ISSUER` sont renseignés. Si l'issuer manque, le provider est ignoré (avec un avertissement dans les logs) pour éviter que la découverte OIDC ne casse la page de connexion. Renseignez les trois variables ProConnect ensemble.
+</Callout>
 
 ### Observabilité (optionnel)
 
@@ -272,13 +281,37 @@ Le seed initialise un administrateur et un premier espace de travail. Il est con
 | `SEED_ADMIN_NAME` | Nom de l'administrateur | `Admin` |
 | `SEED_ADMIN_EMAIL` | Email de l'administrateur | `admin@example.com` |
 | `SEED_ADMIN_USERNAME` | Identifiant de l'administrateur | `admin` |
+| `SEED_ADMIN_PASSWORD` | Mot de passe de l'administrateur (vide = connexion par magic link) | *(vide)* |
 | `SEED_ADMIN_IMAGE` | URL de l'avatar de l'administrateur | *(vide)* |
 | `SEED_TENANT_NAME` | Nom du premier espace | `Le Site par Défaut` |
 | `SEED_TENANT_SUBDOMAIN` | Sous-domaine du premier espace | `default` |
+| `SEED_MINIMAL` | Seed minimal (1 org + 1 tenant + 1 admin, sans données factices) | `false` |
 
 ```bash
 pnpm prisma db seed
 ```
+
+### Bootstrap d'une instance fraîche (image standalone)
+
+L'image Docker officielle est un **bundle Next.js standalone** : ni `tsx` ni `pnpm` n'y sont présents, donc `prisma db seed` **n'y fonctionne pas**. Pour initialiser une instance vierge déployée depuis l'image GHCR, utilisez la route HTTP `POST /api/setup`.
+
+| Variable | Description | Défaut |
+|----------|-------------|--------|
+| `SETUP_TOKEN` | Jeton du endpoint de bootstrap. Vide = route désactivée (`403`) | *(vide)* |
+
+- Posez `SETUP_TOKEN` (valeur secrète forte) pour activer la route.
+- Chaque appel fournit le header `x-setup-token: <SETUP_TOKEN>` (sinon `401`).
+- La route est **idempotente** : `409` si la base contient déjà un tenant.
+- Le corps JSON est optionnel ; tout champ absent retombe sur la variable `SEED_*` correspondante.
+
+```bash
+curl -X POST https://instance.example/api/setup \
+  -H "x-setup-token: $SETUP_TOKEN" \
+  -H "content-type: application/json" \
+  -d '{"adminEmail":"admin@example.com","adminPassword":"un-mot-de-passe-fort"}'
+```
+
+En cas de succès (`201`), la route crée une organisation, un tenant, un administrateur OWNER et les entités de bienvenue, puis renvoie `{ ok, adminEmail, tenantId, loginUrl }`. Sans `adminPassword`, l'admin se connecte par magic link (SMTP requis).
 
 ## Options de déploiement
 
