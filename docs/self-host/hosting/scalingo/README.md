@@ -71,7 +71,10 @@ Gérées par `scalingo.json` à la création :
 | `NEXT_PUBLIC_SITE_URL` | générée |
 | `SECURITY_JWT_SECRET` | auto-générée |
 | `SECURITY_WEBHOOK_SECRET` | auto-générée |
+| `SETUP_TOKEN` | auto-générée (bootstrap `/api/setup`) |
 | `AUTH_TRUST_HOST` | `1` |
+
+> **Bootstrap de l'instance** : après le premier déploiement, le `postdeploy` applique les migrations mais ne seed pas (`tsx` est élagué du slug, donc `prisma db seed` ne tourne pas). Initialisez l'organisation, l'espace et le compte admin via `POST /api/setup` avec le header `x-setup-token: $SETUP_TOKEN`. Voir le guide [self-hosting](https://github.com/roadmaps-faciles/roadmaps-faciles/blob/main/apps/web/content/docs/technical/self-hosting.mdx).
 
 ### À configurer en staging/prod
 

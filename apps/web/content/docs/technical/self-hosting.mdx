@@ -321,11 +321,16 @@ Pour chaque scénario ci-dessous, des templates complets (docker-compose, Caddyf
 
 ### Scalingo
 
-Roadmaps Faciles fournit un fichier `scalingo.json` pour le déploiement one-click :
+Le déploiement se fait via le buildpack Node et le `Procfile` à la racine du dépôt :
 
-- Les addons PostgreSQL et Redis sont provisionnés automatiquement.
-- Les secrets (`SECURITY_JWT_SECRET`, `SECURITY_WEBHOOK_SECRET`) sont générés automatiquement.
-- Le script `first-deploy` exécute `prisma migrate reset --force` pour initialiser la base.
+- `web` lance le build standalone (`node apps/web/.next/standalone/apps/web/server.js`).
+- `postdeploy` applique les migrations Prisma (`prisma migrate deploy`) à chaque déploiement.
+
+Provisionnez les addons PostgreSQL et Redis, puis renseignez les variables d'environnement (au minimum `SECURITY_JWT_SECRET`, `SECURITY_WEBHOOK_SECRET`, `DATABASE_URL=$SCALINGO_POSTGRESQL_URL`, `REDIS_URL=$SCALINGO_REDIS_URL`, `NEXT_PUBLIC_SITE_URL`, `AUTH_TRUST_HOST=1`).
+
+<Callout type="info" title="Bootstrap après le premier déploiement">
+`tsx` (devDependency) est élagué du slug Scalingo après le build, donc `prisma db seed` n'y tourne pas. Initialisez l'instance via la route [`POST /api/setup`](#bootstrap-dune-instance-fraîche-image-standalone) (posez `SETUP_TOKEN`, puis appelez la route).
+</Callout>
 
 Variables spécifiques :
 
