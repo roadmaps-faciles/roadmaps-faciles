@@ -18,7 +18,6 @@ PRISMA="prisma"
 # hardcoded.
 
 # --- Review apps : création DB par PR ---
-DB_FRESH=0
 if [ -n "${COOLIFY_PR_NUMBER:-}" ] && [ -n "${REVIEW_DB_ADMIN_URL:-}" ] && [ -n "${REVIEW_DB_BASE_URL:-}" ]; then
   # Validation stricte : COOLIFY_PR_NUMBER doit être numérique pour éviter l'injection SQL
   case "$COOLIFY_PR_NUMBER" in
@@ -46,8 +45,6 @@ if [ -n "${COOLIFY_PR_NUMBER:-}" ] && [ -n "${REVIEW_DB_ADMIN_URL:-}" ] && [ -n 
         echo "ERROR: failed to create review DB $DB_NAME" >&2
         exit 1
       fi
-    else
-      DB_FRESH=1
     fi
   fi
 
@@ -59,14 +56,6 @@ if [ "${RUN_MIGRATIONS:-1}" = "1" ]; then
   echo "====== PRISMA MIGRATE DEPLOY ======"
   ( cd apps/web && "$PRISMA" migrate deploy )
   echo "====== PRISMA MIGRATE DEPLOY FINISH ======"
-fi
-
-# --- Seed review uniquement sur DB fraîche ---
-if [ -n "${COOLIFY_PR_NUMBER:-}" ] && [ "$DB_FRESH" = "1" ] && [ "${REVIEW_AUTO_SEED:-1}" = "1" ]; then
-  echo "====== SEED REVIEW DB ======"
-  if ! ( cd apps/web && "$PRISMA" db seed ); then
-    echo "WARN: seed failed, review app starts with empty DB" >&2
-  fi
 fi
 
 exec "$@"
