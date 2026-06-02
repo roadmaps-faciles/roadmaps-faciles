@@ -68,7 +68,7 @@ Gérées par `scalingo.json` à la création :
 | `DATABASE_URL` | `$SCALINGO_POSTGRESQL_URL` |
 | `REDIS_URL` | `$SCALINGO_REDIS_URL` |
 | `AUTH_URL` | générée depuis l'URL de l'app |
-| `NEXT_PUBLIC_SITE_URL` | générée |
+| `SITE_URL` | générée |
 | `SECURITY_JWT_SECRET` | auto-générée |
 | `SECURITY_WEBHOOK_SECRET` | auto-générée |
 | `SETUP_TOKEN` | auto-générée (bootstrap `/api/setup`) |
@@ -110,8 +110,8 @@ scalingo env-set MAILER_SMTP_SSL=true
 
 # Monitoring (optionnel)
 scalingo env-set NEXT_PUBLIC_SENTRY_DSN=xxx
-scalingo env-set NEXT_PUBLIC_TRACKING_PROVIDER=posthog
-scalingo env-set NEXT_PUBLIC_POSTHOG_KEY=xxx
+scalingo env-set TRACKING_PROVIDER=posthog
+scalingo env-set POSTHOG_KEY=xxx
 
 # OAuth (optionnel)
 scalingo env-set OAUTH_GITHUB_CLIENT_ID=xxx OAUTH_GITHUB_CLIENT_SECRET=xxx
@@ -122,7 +122,7 @@ scalingo env-set OAUTH_GITHUB_CLIENT_ID=xxx OAUTH_GITHUB_CLIENT_SECRET=xxx
 ```bash
 scalingo domains-add votre-instance.com
 scalingo domains-add www.votre-instance.com
-scalingo env-set PLATFORM_DOMAIN=scalingo.io NEXT_PUBLIC_SITE_URL=https://votre-instance.com
+scalingo env-set PLATFORM_DOMAIN=scalingo.io SITE_URL=https://votre-instance.com
 ```
 
 Scalingo gère le TLS automatiquement via Let's Encrypt. Pas besoin de Caddy.
@@ -196,8 +196,8 @@ observability_env = {
 }
 
 tracking_env = {
-  NEXT_PUBLIC_TRACKING_PROVIDER = "posthog"
-  NEXT_PUBLIC_POSTHOG_KEY       = "phc_xxx"
+  TRACKING_PROVIDER = "posthog"
+  POSTHOG_KEY       = "phc_xxx"
 }
 
 oauth_env = {

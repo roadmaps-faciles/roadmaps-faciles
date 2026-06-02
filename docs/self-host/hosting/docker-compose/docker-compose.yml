@@ -45,8 +45,8 @@ services:
       MAILER_SMTP_PASSWORD: ${MAILER_SMTP_PASSWORD}
       MAILER_FROM_EMAIL: ${MAILER_FROM_EMAIL}
 
-      NEXT_PUBLIC_SITE_URL: https://${PUBLIC_DOMAIN}
-      NEXT_PUBLIC_BRAND_NAME: ${BRAND_NAME:-Roadmaps Faciles}
+      SITE_URL: https://${PUBLIC_DOMAIN}
+      BRAND_NAME: ${BRAND_NAME:-Roadmaps Faciles}
       ADDITIONAL_ROOT_DOMAINS: ${ADDITIONAL_ROOT_DOMAINS:-}
       ADMINS: ${ADMINS}
     depends_on:
@@ -84,6 +84,11 @@ services:
     restart: unless-stopped
     volumes:
       - cache:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   garage:
     image: dxflrs/garage:v2.3.0

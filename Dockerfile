@@ -30,14 +30,12 @@ FROM base AS builder
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # NEXT_PUBLIC_* sont inlinés au build, doivent être passés en --build-arg
-ARG NEXT_PUBLIC_SITE_URL
+# NEXT_PUBLIC_APP_ENV / _APP_VERSION restent inlinés au build (artefacts d'image + Sentry client).
+# Le reste de la config publique (domaine, branding, légal, tracking) est résolu AU RUNTIME via
+# window.__PUBLIC_CONFIG__ (cf src/config.ts + src/app/PublicConfigScript.tsx) : aucun build arg requis,
+# l'image sert n'importe quel domaine / branding sans rebuild.
 ARG NEXT_PUBLIC_APP_ENV
 ARG NEXT_PUBLIC_APP_VERSION
-ARG NEXT_PUBLIC_BRAND_NAME
-ARG NEXT_PUBLIC_TRACKING_PROVIDER
-ARG NEXT_PUBLIC_POSTHOG_KEY
-ARG NEXT_PUBLIC_POSTHOG_HOST
-ARG NEXT_PUBLIC_REPOSITORY_URL
 
 # git commit hash inlined dans NEXT_PUBLIC_APP_VERSION_COMMIT par next.config.ts.
 # Sans, le footer affiche "dev" au lieu du sha. SOURCE_VERSION historique Scalingo,

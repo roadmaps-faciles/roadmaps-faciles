@@ -99,11 +99,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            NEXT_PUBLIC_SITE_URL=https://roadmaps-faciles.fr
             NEXT_PUBLIC_APP_ENV=production
-            NEXT_PUBLIC_BRAND_NAME=Roadmaps Faciles
-            NEXT_PUBLIC_TRACKING_PROVIDER=noop
-            NEXT_PUBLIC_REPOSITORY_URL=https://github.com/${{ github.repository }}
             SOURCE_COMMIT=${{ github.sha }}
             IMAGE_REF=${{ github.ref_name }}
           cache-from: type=gha,scope=docker-web-${{ matrix.arch }}

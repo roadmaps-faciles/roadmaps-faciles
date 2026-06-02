@@ -1,5 +1,59 @@
-import { ensureApiEnvVar, ensureNextEnvVar } from "@/utils/os";
+import { ensureApiEnvVar, ensureEnvVar } from "@/utils/os";
 import { isTruthy } from "@/utils/string";
+
+// Variables publiques exposées au navigateur AU RUNTIME via window.__PUBLIC_CONFIG__
+// (injecté par PublicConfigScript avant l'hydratation, cf src/app/PublicConfigScript.tsx).
+// Lues côté serveur dans process.env au runtime. Permet à l'image prébuildée de servir
+// n'importe quel domaine / branding / mentions légales sans rebuild.
+export const PUBLIC_ENV_KEYS = [
+  "SITE_URL",
+  "REPOSITORY_URL",
+  "MATOMO_URL",
+  "MATOMO_SITE_ID",
+  "TRACKING_PROVIDER",
+  "POSTHOG_KEY",
+  "POSTHOG_HOST",
+  "BRAND_NAME",
+  "BRAND_TAGLINE",
+  "BRAND_MINISTRY",
+  "BRAND_OPERATOR_ENABLE",
+  "BRAND_OPERATOR_LOGO_URL",
+  "BRAND_OPERATOR_LOGO_ALT",
+  "BRAND_OPERATOR_LOGO_ORIENTATION",
+  "LEGAL_PUBLISHER_NAME",
+  "LEGAL_PUBLISHER_ADDRESS",
+  "LEGAL_PUBLICATION_DIRECTOR",
+  "LEGAL_HOSTING_NAME",
+  "LEGAL_HOSTING_ADDRESS",
+  "LEGAL_HOSTING_CONTACT",
+  "LEGAL_HOSTING_PRIVACY_URL",
+  "LEGAL_CONTACT_EMAIL",
+  "LEGAL_RGPD_EMAIL",
+] as const;
+
+type PublicEnvKey = (typeof PUBLIC_ENV_KEYS)[number];
+
+declare global {
+  interface Window {
+    __PUBLIC_CONFIG__?: Partial<Record<PublicEnvKey, string>>;
+  }
+}
+
+// Lecture isomorphique : navigateur → window.__PUBLIC_CONFIG__, serveur → process.env (runtime).
+// L'accès dynamique `process.env[key]` est volontaire : il empêche l'inlining build-time de Next
+// (seul `process.env.NEXT_PUBLIC_X` littéral est inliné), donc la valeur reste runtime côté serveur.
+const isoEnv = (key: PublicEnvKey): string | undefined =>
+  typeof window !== "undefined" ? window.__PUBLIC_CONFIG__?.[key] : process.env[key];
+
+// Snapshot des valeurs publiques pour sérialisation dans window (appelé côté serveur uniquement).
+export const getPublicEnv = (): Partial<Record<PublicEnvKey, string>> => {
+  const out: Partial<Record<PublicEnvKey, string>> = {};
+  for (const key of PUBLIC_ENV_KEYS) {
+    const value = process.env[key];
+    if (value !== undefined) out[key] = value;
+  }
+  return out;
+};
 
 export const config = {
   env: ensureApiEnvVar<"dev" | "prod" | "review" | "staging">(process.env.APP_ENV, "dev"),
@@ -30,7 +84,7 @@ export const config = {
   },
   maintenance: ensureApiEnvVar(process.env.MAINTENANCE_MODE, isTruthy, false),
   platformDomain: ensureApiEnvVar(process.env.PLATFORM_DOMAIN, ""),
-  host: ensureNextEnvVar(process.env.NEXT_PUBLIC_SITE_URL, "http://localhost:3000"),
+  host: ensureEnvVar(isoEnv("SITE_URL"), "http://localhost:3000"),
   get rootDomain() {
     return this.host.replace(/^(https?:\/\/)?(www\.)?/, "");
   },
@@ -43,28 +97,22 @@ export const config = {
         .filter(Boolean),
     [] as string[],
   ),
-  appVersion: ensureNextEnvVar(process.env.NEXT_PUBLIC_APP_VERSION, "dev"),
-  appVersionCommit: ensureNextEnvVar(process.env.NEXT_PUBLIC_APP_VERSION_COMMIT, "unknown"),
+  appVersion: ensureEnvVar(process.env.NEXT_PUBLIC_APP_VERSION, "dev"),
+  appVersionCommit: ensureEnvVar(process.env.NEXT_PUBLIC_APP_VERSION_COMMIT, "unknown"),
   // Tag GHCR utilisé pour pull l'image. Mouvant (branch name suit les pushs), mais
   // l'image elle-même est immutable et identifiable via appVersionCommit (sha git).
   // process.env (pas NEXT_PUBLIC) parce que server-only, lu au runtime depuis l'ENV du
   // stage runner du Dockerfile (cf ARG IMAGE_REF + ENV IMAGE_REF dans Dockerfile).
   imageRef: ensureApiEnvVar(process.env.IMAGE_REF, "unknown"),
-  repositoryUrl: ensureNextEnvVar(
-    process.env.NEXT_PUBLIC_REPOSITORY_URL,
-    "https://github.com/roadmaps-faciles/roadmaps-faciles",
-  ),
+  repositoryUrl: ensureEnvVar(isoEnv("REPOSITORY_URL"), "https://github.com/roadmaps-faciles/roadmaps-faciles"),
   matomo: {
-    url: ensureNextEnvVar(process.env.NEXT_PUBLIC_MATOMO_URL, ""),
-    siteId: ensureNextEnvVar(process.env.NEXT_PUBLIC_MATOMO_SITE_ID, ""),
+    url: ensureEnvVar(isoEnv("MATOMO_URL"), ""),
+    siteId: ensureEnvVar(isoEnv("MATOMO_SITE_ID"), ""),
   },
   tracking: {
-    provider: ensureNextEnvVar<"matomo" | "memory" | "noop" | "posthog">(
-      process.env.NEXT_PUBLIC_TRACKING_PROVIDER,
-      "noop",
-    ),
-    posthogKey: ensureNextEnvVar(process.env.NEXT_PUBLIC_POSTHOG_KEY, ""),
-    posthogHost: ensureNextEnvVar(process.env.NEXT_PUBLIC_POSTHOG_HOST, "https://eu.i.posthog.com"),
+    provider: ensureEnvVar<"matomo" | "memory" | "noop" | "posthog">(isoEnv("TRACKING_PROVIDER"), "noop"),
+    posthogKey: ensureEnvVar(isoEnv("POSTHOG_KEY"), ""),
+    posthogHost: ensureEnvVar(isoEnv("POSTHOG_HOST"), "https://eu.i.posthog.com"),
   },
   admins: ensureApiEnvVar(
     process.env.ADMINS,
@@ -77,43 +125,31 @@ export const config = {
     ["lilian.sagetlethias", "julien.bouqillon"],
   ),
   brand: {
-    name: ensureNextEnvVar(process.env.NEXT_PUBLIC_BRAND_NAME, "Roadmaps Faciles"),
-    tagline: ensureNextEnvVar(
-      process.env.NEXT_PUBLIC_BRAND_TAGLINE,
-      "Du feedback mutuel à la roadmap partagée, facilement",
-    ),
-    ministry: ensureNextEnvVar(process.env.NEXT_PUBLIC_BRAND_MINISTRY, "République\nFrançaise"),
+    name: ensureEnvVar(isoEnv("BRAND_NAME"), "Roadmaps Faciles"),
+    tagline: ensureEnvVar(isoEnv("BRAND_TAGLINE"), "Du feedback mutuel à la roadmap partagée, facilement"),
+    ministry: ensureEnvVar(isoEnv("BRAND_MINISTRY"), "République\nFrançaise"),
     operator: {
-      enable: ensureNextEnvVar(process.env.NEXT_PUBLIC_BRAND_OPERATOR_ENABLE, isTruthy, true),
+      enable: ensureEnvVar(isoEnv("BRAND_OPERATOR_ENABLE"), isTruthy, true),
       logo: {
-        imgUrl: ensureNextEnvVar(process.env.NEXT_PUBLIC_BRAND_OPERATOR_LOGO_URL, "/img/roadmaps-faciles.png"),
-        alt: ensureNextEnvVar(process.env.NEXT_PUBLIC_BRAND_OPERATOR_LOGO_ALT, "Roadmaps Faciles"),
-        orientation: ensureNextEnvVar<"horizontal" | "vertical">(
-          process.env.NEXT_PUBLIC_BRAND_OPERATOR_LOGO_ORIENTATION,
-          "vertical",
-        ),
+        imgUrl: ensureEnvVar(isoEnv("BRAND_OPERATOR_LOGO_URL"), "/img/roadmaps-faciles.png"),
+        alt: ensureEnvVar(isoEnv("BRAND_OPERATOR_LOGO_ALT"), "Roadmaps Faciles"),
+        orientation: ensureEnvVar<"horizontal" | "vertical">(isoEnv("BRAND_OPERATOR_LOGO_ORIENTATION"), "vertical"),
       },
     },
   },
   legal: {
-    publisherName: ensureNextEnvVar(process.env.NEXT_PUBLIC_LEGAL_PUBLISHER_NAME, "Roadmaps Faciles"),
-    publisherAddress: ensureNextEnvVar(process.env.NEXT_PUBLIC_LEGAL_PUBLISHER_ADDRESS, ""),
-    publicationDirector: ensureNextEnvVar(
-      process.env.NEXT_PUBLIC_LEGAL_PUBLICATION_DIRECTOR,
-      "Le responsable légal de Roadmaps Faciles",
-    ),
-    hostingName: ensureNextEnvVar(process.env.NEXT_PUBLIC_LEGAL_HOSTING_NAME, "Scalingo SAS"),
-    hostingAddress: ensureNextEnvVar(
-      process.env.NEXT_PUBLIC_LEGAL_HOSTING_ADDRESS,
-      "15 avenue du Rhin, 67100 Strasbourg, France",
-    ),
-    hostingContact: ensureNextEnvVar(process.env.NEXT_PUBLIC_LEGAL_HOSTING_CONTACT, "support@scalingo.com"),
-    hostingPrivacyUrl: ensureNextEnvVar(
-      process.env.NEXT_PUBLIC_LEGAL_HOSTING_PRIVACY_URL,
+    publisherName: ensureEnvVar(isoEnv("LEGAL_PUBLISHER_NAME"), "Roadmaps Faciles"),
+    publisherAddress: ensureEnvVar(isoEnv("LEGAL_PUBLISHER_ADDRESS"), ""),
+    publicationDirector: ensureEnvVar(isoEnv("LEGAL_PUBLICATION_DIRECTOR"), "Le responsable légal de Roadmaps Faciles"),
+    hostingName: ensureEnvVar(isoEnv("LEGAL_HOSTING_NAME"), "Scalingo SAS"),
+    hostingAddress: ensureEnvVar(isoEnv("LEGAL_HOSTING_ADDRESS"), "15 avenue du Rhin, 67100 Strasbourg, France"),
+    hostingContact: ensureEnvVar(isoEnv("LEGAL_HOSTING_CONTACT"), "support@scalingo.com"),
+    hostingPrivacyUrl: ensureEnvVar(
+      isoEnv("LEGAL_HOSTING_PRIVACY_URL"),
       "https://scalingo.com/fr/contrat-gestion-traitements-donnees-personnelles",
     ),
-    contactEmail: ensureNextEnvVar(process.env.NEXT_PUBLIC_LEGAL_CONTACT_EMAIL, "contact@roadmaps-faciles.fr"),
-    rgpdEmail: ensureNextEnvVar(process.env.NEXT_PUBLIC_LEGAL_RGPD_EMAIL, "rgpd@roadmaps-faciles.fr"),
+    contactEmail: ensureEnvVar(isoEnv("LEGAL_CONTACT_EMAIL"), "contact@roadmaps-faciles.fr"),
+    rgpdEmail: ensureEnvVar(isoEnv("LEGAL_RGPD_EMAIL"), "rgpd@roadmaps-faciles.fr"),
   },
   mailer: {
     host: ensureApiEnvVar(process.env.MAILER_SMTP_HOST, "127.0.0.1"),
@@ -128,7 +164,7 @@ export const config = {
       if (explicit) return explicit;
       // Pas de from par défaut lié à une marque tierce : casserait SPF/DMARC en self-host.
       if (this.smtp.login) return this.smtp.login;
-      const host = ensureNextEnvVar(process.env.NEXT_PUBLIC_SITE_URL, "http://localhost:3000")
+      const host = ensureEnvVar(isoEnv("SITE_URL"), "http://localhost:3000")
         .replace(/^(https?:\/\/)?(www\.)?/, "")
         .replace(/:\d+$/, "");
       return `noreply@${host}`;
@@ -192,7 +228,7 @@ export const config = {
     },
   },
   observability: {
-    sentryDsn: ensureNextEnvVar(process.env.NEXT_PUBLIC_SENTRY_DSN, ""),
+    sentryDsn: ensureEnvVar(process.env.NEXT_PUBLIC_SENTRY_DSN, ""),
     sentryServerDsn: ensureApiEnvVar(process.env.SENTRY_DSN, ""),
     sentryOrg: ensureApiEnvVar(process.env.SENTRY_ORG, ""),
     sentryProject: ensureApiEnvVar(process.env.SENTRY_PROJECT, ""),

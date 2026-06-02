@@ -60,8 +60,8 @@ smtp_from_email = "noreply@example.com"
 
 # Tracking (optionnel)
 # tracking_env = {
-#   NEXT_PUBLIC_TRACKING_PROVIDER = "posthog"
-#   NEXT_PUBLIC_POSTHOG_KEY       = "phc_xxx"
+#   TRACKING_PROVIDER = "posthog"
+#   POSTHOG_KEY       = "phc_xxx"
 # }
 
 # OAuth (optionnel)

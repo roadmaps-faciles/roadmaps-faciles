@@ -80,7 +80,7 @@ L'application est accessible sur `http://localhost:3000`.
 | `MAILER_SMTP_HOST` | Hôte du serveur SMTP | `smtp.example.com` |
 | `MAILER_SMTP_PORT` | Port SMTP | `587` |
 | `MAILER_FROM_EMAIL` | Adresse d'expédition des emails | `Roadmaps <noreply@example.com>` |
-| `NEXT_PUBLIC_SITE_URL` | URL publique de l'instance (avec protocole) | `https://roadmaps.example.com` |
+| `SITE_URL` | URL publique de l'instance (avec protocole) | `https://roadmaps.example.com` |
 | `ADMINS` | Identifiants des super-administrateurs, séparés par virgule | `alice,bob` |
 | `AUTH_TRUST_HOST` | Activer la confiance de l'hôte pour NextAuth | `1` |
 
@@ -93,12 +93,12 @@ Générez des secrets aléatoires robustes pour `SECURITY_JWT_SECRET` et `SECURI
 | Variable | Description | Défaut |
 |----------|-------------|--------|
 | `APP_ENV` | Environnement applicatif (`dev`, `review`, `staging`, `prod`) | `dev` |
-| `PLATFORM_DOMAIN` | Domaine de la plateforme d'hébergement (ex: `scalingo.io`) - redirige les requêtes sur le domaine par défaut de la plateforme vers `NEXT_PUBLIC_SITE_URL` (301). Laisser vide pour désactiver. | *(vide)* |
+| `PLATFORM_DOMAIN` | Domaine de la plateforme d'hébergement (ex: `scalingo.io`) - redirige les requêtes sur le domaine par défaut de la plateforme vers `SITE_URL` (301). Laisser vide pour désactiver. | *(vide)* |
 | `MAINTENANCE_MODE` | Active le mode maintenance | `false` |
 | `LOG_LEVEL` | Niveau de log Pino (`debug`, `info`, `warn`, `error`) | `info` |
 | `SENTRY_DSN` | DSN Sentry pour le suivi d'erreurs (vide = désactivé) | - |
-| `NEXT_PUBLIC_MATOMO_URL` | URL de l'instance Matomo | - |
-| `NEXT_PUBLIC_MATOMO_SITE_ID` | ID du site Matomo | - |
+| `MATOMO_URL` | URL de l'instance Matomo | - |
+| `MATOMO_SITE_ID` | ID du site Matomo | - |
 
 ### Licence (features EE - optionnel)
 
@@ -157,17 +157,17 @@ Le provider ProConnect n'est activé que si `OAUTH_PROCONNECT_CLIENT_ID` **et** 
 
 ### Branding
 
-L'apparence de l'instance est personnalisable via les variables `NEXT_PUBLIC_BRAND_*` :
+L'apparence de l'instance est personnalisable via les variables `BRAND_*` :
 
 | Variable | Description |
 |----------|-------------|
-| `NEXT_PUBLIC_BRAND_NAME` | Nom de l'application |
-| `NEXT_PUBLIC_BRAND_TAGLINE` | Accroche sous le nom |
-| `NEXT_PUBLIC_BRAND_MINISTRY` | Intitulé du ministère (bloc-marque DSFR) |
-| `NEXT_PUBLIC_BRAND_OPERATOR_ENABLE` | Afficher le logo opérateur (`true`/`false`) |
-| `NEXT_PUBLIC_BRAND_OPERATOR_LOGO_URL` | URL du logo opérateur |
-| `NEXT_PUBLIC_BRAND_OPERATOR_LOGO_ALT` | Texte alternatif du logo |
-| `NEXT_PUBLIC_BRAND_OPERATOR_LOGO_ORIENTATION` | Orientation du logo (`vertical`/`horizontal`) |
+| `BRAND_NAME` | Nom de l'application |
+| `BRAND_TAGLINE` | Accroche sous le nom |
+| `BRAND_MINISTRY` | Intitulé du ministère (bloc-marque DSFR) |
+| `BRAND_OPERATOR_ENABLE` | Afficher le logo opérateur (`true`/`false`) |
+| `BRAND_OPERATOR_LOGO_URL` | URL du logo opérateur |
+| `BRAND_OPERATOR_LOGO_ALT` | Texte alternatif du logo |
+| `BRAND_OPERATOR_LOGO_ORIENTATION` | Orientation du logo (`vertical`/`horizontal`) |
 
 ### Mentions légales
 
@@ -175,15 +175,15 @@ Les pages légales (mentions légales, politique de confidentialité) sont perso
 
 | Variable | Description | Défaut |
 |----------|-------------|--------|
-| `NEXT_PUBLIC_LEGAL_PUBLISHER_NAME` | Nom de l'éditeur du site | `Roadmaps Faciles` |
-| `NEXT_PUBLIC_LEGAL_PUBLISHER_ADDRESS` | Adresse de l'éditeur | *(vide)* |
-| `NEXT_PUBLIC_LEGAL_PUBLICATION_DIRECTOR` | Directeur de la publication | `Le responsable légal de Roadmaps Faciles` |
-| `NEXT_PUBLIC_LEGAL_HOSTING_NAME` | Nom de l'hébergeur | `Scalingo SAS` |
-| `NEXT_PUBLIC_LEGAL_HOSTING_ADDRESS` | Adresse de l'hébergeur | `15 avenue du Rhin, 67100 Strasbourg, France` |
-| `NEXT_PUBLIC_LEGAL_HOSTING_CONTACT` | Email de contact de l'hébergeur | `support@scalingo.com` |
-| `NEXT_PUBLIC_LEGAL_HOSTING_PRIVACY_URL` | Lien vers la politique de confidentialité de l'hébergeur | *(Scalingo)* |
-| `NEXT_PUBLIC_LEGAL_CONTACT_EMAIL` | Email de contact général | `contact@roadmaps-faciles.fr` |
-| `NEXT_PUBLIC_LEGAL_RGPD_EMAIL` | Email DPO / exercice des droits RGPD | `rgpd@roadmaps-faciles.fr` |
+| `LEGAL_PUBLISHER_NAME` | Nom de l'éditeur du site | `Roadmaps Faciles` |
+| `LEGAL_PUBLISHER_ADDRESS` | Adresse de l'éditeur | *(vide)* |
+| `LEGAL_PUBLICATION_DIRECTOR` | Directeur de la publication | `Le responsable légal de Roadmaps Faciles` |
+| `LEGAL_HOSTING_NAME` | Nom de l'hébergeur | `Scalingo SAS` |
+| `LEGAL_HOSTING_ADDRESS` | Adresse de l'hébergeur | `15 avenue du Rhin, 67100 Strasbourg, France` |
+| `LEGAL_HOSTING_CONTACT` | Email de contact de l'hébergeur | `support@scalingo.com` |
+| `LEGAL_HOSTING_PRIVACY_URL` | Lien vers la politique de confidentialité de l'hébergeur | *(Scalingo)* |
+| `LEGAL_CONTACT_EMAIL` | Email de contact général | `contact@roadmaps-faciles.fr` |
+| `LEGAL_RGPD_EMAIL` | Email DPO / exercice des droits RGPD | `rgpd@roadmaps-faciles.fr` |
 
 <Callout type="info">
 Ces variables sont utilisées par les pages `/mentions-legales` et `/politique-de-confidentialite`. Si vous self-hostez, adaptez au minimum le nom de l'éditeur, l'hébergeur, et les adresses email de contact.
@@ -326,7 +326,7 @@ Le déploiement se fait via le buildpack Node et le `Procfile` à la racine du d
 - `web` lance le build standalone (`node apps/web/.next/standalone/apps/web/server.js`).
 - `postdeploy` applique les migrations Prisma (`prisma migrate deploy`) à chaque déploiement.
 
-Provisionnez les addons PostgreSQL et Redis, puis renseignez les variables d'environnement (au minimum `SECURITY_JWT_SECRET`, `SECURITY_WEBHOOK_SECRET`, `DATABASE_URL=$SCALINGO_POSTGRESQL_URL`, `REDIS_URL=$SCALINGO_REDIS_URL`, `NEXT_PUBLIC_SITE_URL`, `AUTH_TRUST_HOST=1`).
+Provisionnez les addons PostgreSQL et Redis, puis renseignez les variables d'environnement (au minimum `SECURITY_JWT_SECRET`, `SECURITY_WEBHOOK_SECRET`, `DATABASE_URL=$SCALINGO_POSTGRESQL_URL`, `REDIS_URL=$SCALINGO_REDIS_URL`, `SITE_URL`, `AUTH_TRUST_HOST=1`).
 
 <Callout type="info" title="Bootstrap après le premier déploiement">
 `tsx` (devDependency) est élagué du slug Scalingo après le build, donc `prisma db seed` n'y tourne pas. Initialisez l'instance via la route [`POST /api/setup`](#bootstrap-dune-instance-fraîche-image-standalone) (posez `SETUP_TOKEN`, puis appelez la route).
