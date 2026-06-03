@@ -178,7 +178,7 @@ export const verifyLicenseKeyAction = async (
     signatureValid: parsed.valid,
   };
 
-  const online = await verifyLicenseOnline(key, safeInstanceId);
+  const online = await verifyLicenseOnline(key, safeInstanceId, true);
 
   return {
     data: {

@@ -42,13 +42,21 @@ export async function activateLicenseOnline(key: string, instanceId: string): Pr
 /**
  * Call the licensing server to verify a license key online.
  * Returns null if the server is unreachable (grace period applies).
+ *
+ * `dryRun` : vérification en lecture seule (n'enregistre pas l'instanceId côté serveur,
+ * pas de comptage multi-instance). Utilisé par le test de clé admin pour ne pas polluer
+ * le log de vérifications ni déclencher un faux warning d'usage multi-instance.
  */
-export async function verifyLicenseOnline(key: string, instanceId: string): Promise<null | VerifyResponse> {
+export async function verifyLicenseOnline(
+  key: string,
+  instanceId: string,
+  dryRun = false,
+): Promise<null | VerifyResponse> {
   try {
     const res = await fetch(`${config.licensingServerUrl}/api/v1/license/verify`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key, instanceId }),
+      body: JSON.stringify({ key, instanceId, dryRun }),
       signal: AbortSignal.timeout(5000),
     });
     if (!res.ok) return null;
