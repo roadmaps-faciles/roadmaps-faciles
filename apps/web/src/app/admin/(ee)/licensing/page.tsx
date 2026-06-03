@@ -25,7 +25,7 @@ const AdminLicensingPage = async () => {
       <AdminPageHeader
         title={t("title")}
         description={t("description")}
-        actions={<HeaderActions showRefresh={!isCloud && status.mode === "licensed"} />}
+        actions={<HeaderActions showRefresh={!isCloud && status.mode === "licensed"} showVerify={isCloud} />}
       />
 
       {isCloud ? <LicensingTabsClient statusContent={statusContent} /> : statusContent}
