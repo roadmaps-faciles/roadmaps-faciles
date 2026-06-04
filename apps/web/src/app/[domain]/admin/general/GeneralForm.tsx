@@ -444,9 +444,9 @@ const ThemeSection = ({
           </Select>
           {!canUseDsfr ? (
             <p className="text-sm text-muted-foreground mt-1">{t("uiTheme.licenseRequired")}</p>
-          ) : (
-            !hasGouvDomain && <p className="text-sm text-muted-foreground mt-1">{t("uiTheme.gouvRequired")}</p>
-          )}
+          ) : !hasGouvDomain ? (
+            <p className="text-sm text-muted-foreground mt-1">{t("uiTheme.gouvRequired")}</p>
+          ) : null}
         </div>
       </CardContent>
     </Card>

@@ -64,13 +64,14 @@ Créer `.env.development.local` à partir de `.env.development` et renseigner si
 |---|---|---|
 | `APP_ENV` | Environnement applicatif (`dev`, `prod`, `review`, `staging`) | `dev` |
 | `MAINTENANCE_MODE` | Active le mode maintenance | `false` |
-| `PLATFORM_DOMAIN` | Domaine de la plateforme d'hébergement (ex: `scalingo.io`) - redirige les requêtes vers `NEXT_PUBLIC_SITE_URL` | - |
-| `NEXT_PUBLIC_SITE_URL` | URL publique du site principal | `http://localhost:3000` |
-| `NEXT_PUBLIC_REPOSITORY_URL` | URL du dépôt Git | `https://github.com/roadmaps-faciles/roadmaps-faciles` |
-| `NEXT_PUBLIC_APP_VERSION` | Version affichée (auto en CI) | `dev` |
-| `NEXT_PUBLIC_APP_VERSION_COMMIT` | Commit de la version (auto en CI) | `unknown` |
+| `PLATFORM_DOMAIN` | Domaine de la plateforme d'hébergement (ex: `scalingo.io`) - redirige les requêtes vers `SITE_URL` | - |
+| `SITE_URL` | URL publique du site principal (lue au **runtime**, exposée au navigateur via `window.__PUBLIC_CONFIG__`) | `http://localhost:3000` |
+| `REPOSITORY_URL` | URL du dépôt Git (runtime) | `https://github.com/roadmaps-faciles/roadmaps-faciles` |
+| `NEXT_PUBLIC_APP_VERSION` | Version affichée, inlinée au build (auto en CI) | `dev` |
+| `NEXT_PUBLIC_APP_VERSION_COMMIT` | Commit de la version, inliné au build (auto en CI) | `unknown` |
 | `ADMINS` | Usernames des admins root, séparés par virgule | `lilian.sagetlethias,julien.bouquillon` |
 | `DATABASE_URL` | **Obligatoire.** URL de connexion PostgreSQL | - |
+| `SETUP_TOKEN` | Jeton du bootstrap d'instance `POST /api/setup` (self-host). Vide = endpoint désactivé | - |
 
 #### Auth / Espace Membre
 
@@ -101,13 +102,13 @@ Fournisseurs d'authentification OAuth, activables par tenant. Laisser vide pour 
 
 | Variable | Description | Défaut |
 |---|---|---|
-| `NEXT_PUBLIC_BRAND_NAME` | Nom de la marque | `Roadmaps Faciles` |
-| `NEXT_PUBLIC_BRAND_TAGLINE` | Tagline | `Créez vos roadmaps en quelques clics` |
-| `NEXT_PUBLIC_BRAND_MINISTRY` | Intitulé du ministère (DSFR header) | `République\nFrançaise` |
-| `NEXT_PUBLIC_BRAND_OPERATOR_ENABLE` | Afficher le logo opérateur | `true` |
-| `NEXT_PUBLIC_BRAND_OPERATOR_LOGO_URL` | URL du logo opérateur | `/img/roadmaps-faciles.png` |
-| `NEXT_PUBLIC_BRAND_OPERATOR_LOGO_ALT` | Alt du logo opérateur | `Roadmaps Faciles` |
-| `NEXT_PUBLIC_BRAND_OPERATOR_LOGO_ORIENTATION` | Orientation du logo (`horizontal`, `vertical`) | `vertical` |
+| `BRAND_NAME` | Nom de la marque | `Roadmaps Faciles` |
+| `BRAND_TAGLINE` | Tagline | `Créez vos roadmaps en quelques clics` |
+| `BRAND_MINISTRY` | Intitulé du ministère (DSFR header) | `République\nFrançaise` |
+| `BRAND_OPERATOR_ENABLE` | Afficher le logo opérateur | `true` |
+| `BRAND_OPERATOR_LOGO_URL` | URL du logo opérateur | `/img/roadmaps-faciles.png` |
+| `BRAND_OPERATOR_LOGO_ALT` | Alt du logo opérateur | `Roadmaps Faciles` |
+| `BRAND_OPERATOR_LOGO_ORIENTATION` | Orientation du logo (`horizontal`, `vertical`) | `vertical` |
 
 #### Mentions légales
 
@@ -115,15 +116,15 @@ Pages légales personnalisables pour le self-hosting.
 
 | Variable | Description | Défaut |
 |---|---|---|
-| `NEXT_PUBLIC_LEGAL_PUBLISHER_NAME` | Nom de l'éditeur du site | `Roadmaps Faciles` |
-| `NEXT_PUBLIC_LEGAL_PUBLISHER_ADDRESS` | Adresse de l'éditeur | - |
-| `NEXT_PUBLIC_LEGAL_PUBLICATION_DIRECTOR` | Directeur de la publication | `Le responsable légal de Roadmaps Faciles` |
-| `NEXT_PUBLIC_LEGAL_HOSTING_NAME` | Nom de l'hébergeur | `Scalingo SAS` |
-| `NEXT_PUBLIC_LEGAL_HOSTING_ADDRESS` | Adresse de l'hébergeur | `15 avenue du Rhin, 67100 Strasbourg, France` |
-| `NEXT_PUBLIC_LEGAL_HOSTING_CONTACT` | Email de contact de l'hébergeur | `support@scalingo.com` |
-| `NEXT_PUBLIC_LEGAL_HOSTING_PRIVACY_URL` | Lien vers la politique de confidentialité de l'hébergeur | *(Scalingo)* |
-| `NEXT_PUBLIC_LEGAL_CONTACT_EMAIL` | Email de contact général | `contact@roadmaps-faciles.fr` |
-| `NEXT_PUBLIC_LEGAL_RGPD_EMAIL` | Email DPO / exercice des droits RGPD | `rgpd@roadmaps-faciles.fr` |
+| `LEGAL_PUBLISHER_NAME` | Nom de l'éditeur du site | `Roadmaps Faciles` |
+| `LEGAL_PUBLISHER_ADDRESS` | Adresse de l'éditeur | - |
+| `LEGAL_PUBLICATION_DIRECTOR` | Directeur de la publication | `Le responsable légal de Roadmaps Faciles` |
+| `LEGAL_HOSTING_NAME` | Nom de l'hébergeur | `Scalingo SAS` |
+| `LEGAL_HOSTING_ADDRESS` | Adresse de l'hébergeur | `15 avenue du Rhin, 67100 Strasbourg, France` |
+| `LEGAL_HOSTING_CONTACT` | Email de contact de l'hébergeur | `support@scalingo.com` |
+| `LEGAL_HOSTING_PRIVACY_URL` | Lien vers la politique de confidentialité de l'hébergeur | *(Scalingo)* |
+| `LEGAL_CONTACT_EMAIL` | Email de contact général | `contact@roadmaps-faciles.fr` |
+| `LEGAL_RGPD_EMAIL` | Email DPO / exercice des droits RGPD | `rgpd@roadmaps-faciles.fr` |
 
 #### Mailer
 
@@ -134,7 +135,7 @@ Pages légales personnalisables pour le self-hosting.
 | `MAILER_SMTP_LOGIN` | Login SMTP | - |
 | `MAILER_SMTP_PASSWORD` | Mot de passe SMTP | - |
 | `MAILER_SMTP_SSL` | Activer TLS | `false` |
-| `MAILER_FROM_EMAIL` | Adresse expéditeur | `Roadmaps <noreply@roadmaps-faciles.fr>` |
+| `MAILER_FROM_EMAIL` | Adresse expéditeur | *(calculé : login SMTP, sinon `noreply@<domaine>`)* |
 
 #### Redis
 
@@ -151,16 +152,16 @@ Pages légales personnalisables pour le self-hosting.
 
 | Variable | Description | Défaut |
 |---|---|---|
-| `NEXT_PUBLIC_MATOMO_URL` | URL de l'instance Matomo | - |
-| `NEXT_PUBLIC_MATOMO_SITE_ID` | ID du site Matomo | - |
+| `MATOMO_URL` | URL de l'instance Matomo | - |
+| `MATOMO_SITE_ID` | ID du site Matomo | - |
 
 #### Tracking (analytics)
 
 | Variable | Description | Défaut |
 |---|---|---|
-| `NEXT_PUBLIC_TRACKING_PROVIDER` | Provider de tracking (`noop`, `matomo`, `posthog`) | `noop` |
-| `NEXT_PUBLIC_POSTHOG_KEY` | Clé projet PostHog | - |
-| `NEXT_PUBLIC_POSTHOG_HOST` | Hôte PostHog | `https://eu.i.posthog.com` |
+| `TRACKING_PROVIDER` | Provider de tracking (`noop`, `matomo`, `posthog`) | `noop` |
+| `POSTHOG_KEY` | Clé projet PostHog | - |
+| `POSTHOG_HOST` | Hôte PostHog | `https://eu.i.posthog.com` |
 
 #### Domain Provider
 
