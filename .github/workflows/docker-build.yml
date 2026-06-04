@@ -176,3 +176,15 @@ jobs:
 
       - name: Inspect image
         run: docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ env.IMAGE }}:${{ steps.meta.outputs.version }}
+
+      # Purge les untagged orphelins des builds dev précédents. Dernier step : le
+      # manifest dev courant est déjà poussé, donc ses enfants sont préservés.
+      - name: Cleanup orphan manifests
+        if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+        uses: dataaxiom/ghcr-cleanup-action@f092b48ba3b604b2a83690dc4b2bbb3392e1045f # v1.2.1
+        with:
+          owner: ${{ env.IMAGE_OWNER }}
+          package: ${{ env.IMAGE }}
+          delete-untagged: true
+          delete-partial-images: true
+          token: ${{ secrets.GITHUB_TOKEN }}
