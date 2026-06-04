@@ -1,8 +1,8 @@
 import "server-only";
 import { forbidden } from "next/navigation";
 
-import { config } from "@/config";
 import { prisma } from "@/lib/db/prisma";
+import { isSelfHost } from "@/lib/deployment";
 import { getLicenseStatus } from "@/lib/ee/licensing/licenseService";
 import { ADDON_TYPE, type AddonType, ORG_PLAN } from "@/lib/model/Organization";
 import { orgAddonRepo, organizationRepo } from "@/lib/repo";
@@ -10,8 +10,8 @@ import { orgAddonRepo, organizationRepo } from "@/lib/repo";
 export const FREE_TIER_ADDONS = new Set<AddonType>([ADDON_TYPE.STORAGE_S3]);
 
 export async function hasEntitlement(tenantId: number, addon: AddonType): Promise<boolean> {
-  // Self-host mode: license key → all-or-nothing
-  if (config.licenseKey) {
+  // Self-host: license-based all-or-nothing. No/invalid license = community = free tier only.
+  if (await isSelfHost()) {
     const status = await getLicenseStatus();
     if (!status.valid) return FREE_TIER_ADDONS.has(addon);
     if (addon === ADDON_TYPE.THEME_DSFR) return status.plan === "GOV_LICENSED";
@@ -60,6 +60,12 @@ export async function canCreateTenant(
   tx?: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
 ): Promise<boolean> {
   if (currentTenantCount === 0) return true; // First tenant is always free
+
+  // Self-host: licensed = unlimited tenants, community = first tenant only.
+  // License-based and lock-independent, so it ignores tx (no org/addon rows read).
+  if (await isSelfHost()) {
+    return (await getLicenseStatus()).valid;
+  }
 
   const client = tx ?? prisma;
   const org = await client.organization.findUnique({ where: { id: orgId } });

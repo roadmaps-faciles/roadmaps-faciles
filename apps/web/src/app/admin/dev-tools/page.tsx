@@ -5,6 +5,7 @@ import { connection } from "next/server";
 
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { config } from "@/config";
+import { getDeploymentMode } from "@/lib/deployment";
 import { getOrCreateInstanceId } from "@/lib/ee/licensing/instanceId";
 import { DEV_LICENSE_KEY_COOKIE, DEV_LICENSE_OFFLINE_COOKIE } from "@/lib/ee/licensing/licenseService";
 
@@ -15,10 +16,11 @@ const DevToolsPage = async () => {
   if (config.env !== "dev") notFound();
   await connection();
 
-  const [t, cookieStore, instanceId] = await Promise.all([
+  const [t, cookieStore, instanceId, deploymentMode] = await Promise.all([
     getTranslations("rootAdmin.devTools"),
     cookies(),
     getOrCreateInstanceId(),
+    getDeploymentMode(),
   ]);
 
   const hasOverride = !!cookieStore.get(DEV_LICENSE_KEY_COOKIE)?.value;
@@ -37,6 +39,7 @@ const DevToolsPage = async () => {
           hasEnvKey={hasEnvKey}
           instanceId={instanceId}
           initialOffline={initialOffline}
+          initialDeploymentMode={deploymentMode}
         />
       </div>
     </>

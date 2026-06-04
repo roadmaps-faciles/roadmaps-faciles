@@ -2,11 +2,10 @@ import { ADDON_TYPE } from "@/lib/model/Organization";
 
 vi.mock("server-only", () => ({}));
 
-// Self-host mode: config has a license key
-vi.mock("@/config", () => ({
-  config: {
-    licenseKey: "rf_live_some-key.some-sig",
-  },
+// Self-host mode: deployment flag drives license-based entitlements
+vi.mock("@/lib/deployment", () => ({
+  isCloud: vi.fn().mockResolvedValue(false),
+  isSelfHost: vi.fn().mockResolvedValue(true),
 }));
 
 const mockGetLicenseStatus = vi.fn();

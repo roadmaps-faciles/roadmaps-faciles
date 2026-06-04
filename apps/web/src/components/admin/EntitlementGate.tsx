@@ -6,6 +6,7 @@ import Link from "next/link";
 import { type ReactNode } from "react";
 
 import { config } from "@/config";
+import { isSelfHost } from "@/lib/deployment";
 import { hasEntitlement } from "@/lib/ee/entitlements";
 import { getLicenseStatus } from "@/lib/ee/licensing/licenseService";
 import { type AddonType } from "@/lib/model/Organization";
@@ -24,7 +25,7 @@ export const EntitlementGate = async ({ tenantId, addon, children }: Entitlement
   const t = await getTranslations("entitlementGate");
 
   // Self-host mode: show license-specific CTA
-  if (config.licenseKey) {
+  if (await isSelfHost()) {
     const status = await getLicenseStatus();
 
     if (status.mode === "community" || (status.mode === "licensed" && !status.valid)) {

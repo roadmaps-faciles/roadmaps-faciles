@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 
 import { config } from "@/config";
+import { type DeploymentMode, DEV_DEPLOYMENT_MODE_COOKIE } from "@/lib/deployment";
 import { licensingAdminClient } from "@/lib/ee/licensing/adminClient";
 import { getOrCreateInstanceId } from "@/lib/ee/licensing/instanceId";
 import { activateLicenseOnline } from "@/lib/ee/licensing/licenseFetcher";
@@ -44,6 +45,13 @@ export const issueAndBindDevAction = async (): Promise<ServerActionResponse<{ li
       path: "/",
       sameSite: "lax",
     });
+    // Issuing a license implies self-host testing — flip deployment mode so the licensing UI reflects it.
+    cookieStore.set(DEV_DEPLOYMENT_MODE_COOKIE, "self-host", {
+      httpOnly: true,
+      maxAge: COOKIE_MAX_AGE,
+      path: "/",
+      sameSite: "lax",
+    });
 
     const instanceId = await getOrCreateInstanceId();
     void activateLicenseOnline(result.licenseKey, instanceId);
@@ -62,7 +70,23 @@ export const clearDevLicenseOverrideAction = async (): Promise<ServerActionRespo
   const cookieStore = await cookies();
   cookieStore.delete(DEV_LICENSE_KEY_COOKIE);
   cookieStore.delete(DEV_LICENSE_OFFLINE_COOKIE);
+  cookieStore.delete(DEV_DEPLOYMENT_MODE_COOKIE);
   resetLicenseStatusCache();
+
+  return { ok: true };
+};
+
+export const setDeploymentModeDevAction = async (mode: DeploymentMode): Promise<ServerActionResponse<void>> => {
+  assertDev();
+  await assertAdmin();
+
+  const cookieStore = await cookies();
+  cookieStore.set(DEV_DEPLOYMENT_MODE_COOKIE, mode, {
+    httpOnly: true,
+    maxAge: COOKIE_MAX_AGE,
+    path: "/",
+    sameSite: "lax",
+  });
 
   return { ok: true };
 };

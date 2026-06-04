@@ -4,6 +4,12 @@ import { fakeOrganization } from "../helpers";
 
 vi.mock("server-only", () => ({}));
 
+// Cloud mode: DB-based entitlements
+vi.mock("@/lib/deployment", () => ({
+  isCloud: vi.fn().mockResolvedValue(true),
+  isSelfHost: vi.fn().mockResolvedValue(false),
+}));
+
 const mockFindByTenantId = vi.fn();
 const mockIsActiveForTenant = vi.fn();
 vi.mock("@/lib/repo", () => ({
