@@ -66,15 +66,16 @@ export async function POST(request: Request) {
       { adminEmail: result.adminEmail, tenantId: result.tenantId },
       "Self-host instance bootstrapped via /api/setup",
     );
+    // On ne renvoie pas l'adminEmail (évite d'en faire un oracle sur SEED_ADMIN_EMAIL) :
+    // l'appelant connaît déjà la valeur qu'il a fournie, le loginUrl suffit comme confirmation.
     return NextResponse.json(
-      { adminEmail: result.adminEmail, loginUrl: `${config.host}/login`, ok: true, tenantId: result.tenantId },
+      { loginUrl: `${config.host}/login`, ok: true, tenantId: result.tenantId },
       { status: StatusCodes.CREATED },
     );
   } catch (error) {
+    // Détail loggé côté serveur uniquement : le message d'erreur brut (Prisma, etc.) ne doit
+    // pas fuiter dans la réponse HTTP.
     logger.error({ err: error }, "Bootstrap via /api/setup failed");
-    return NextResponse.json(
-      { error: (error as Error).message, ok: false },
-      { status: StatusCodes.INTERNAL_SERVER_ERROR },
-    );
+    return NextResponse.json({ error: "Bootstrap failed", ok: false }, { status: StatusCodes.INTERNAL_SERVER_ERROR });
   }
 }

@@ -34,43 +34,53 @@ export async function createMinimalInstance(opts: BootstrapOptions = {}): Promis
   const adminUsername = opts.adminUsername ?? config.seed.adminUsername;
   const adminPassword = opts.adminPassword ?? config.seed.adminPassword;
 
-  const organization = await prisma.organization.create({
-    data: { name: tenantName, slug: tenantSubdomain, plan: ORG_PLAN.BASE },
-  });
-
-  const tenant = await prisma.tenant.create({ data: { organizationId: organization.id } });
-
-  await prisma.tenantSettings.create({
-    data: { tenantId: tenant.id, name: tenantName, subdomain: tenantSubdomain, customDomain: null },
-  });
-
   // argon2 directement, pas `hashPassword` : son `import "server-only"` casse sous tsx/node (seed).
+  // Hashé hors transaction (CPU, inutile de tenir la transaction ouverte pendant).
   const passwordHash = adminPassword ? await argon2.hash(adminPassword) : null;
 
-  const admin = await prisma.user.create({
-    data: {
-      name: adminName,
-      email: adminEmail,
-      emailVerified: new Date(),
-      role: UserRole.ADMIN,
-      status: UserStatus.ACTIVE,
-      username: adminUsername,
-      image: config.seed.adminImage || null,
-      ...(passwordHash && { passwordHash }),
-    },
+  // Transaction atomique sur les entités cœur : sans ça, un échec après la création du tenant
+  // laisse un état partiel que la garde d'idempotence (tenant.count() > 0) rend irrécupérable
+  // (retours /api/setup en alreadyInitialized sur une instance cassée).
+  const tenantId = await prisma.$transaction(async tx => {
+    const organization = await tx.organization.create({
+      data: { name: tenantName, slug: tenantSubdomain, plan: ORG_PLAN.BASE },
+    });
+
+    const tenant = await tx.tenant.create({ data: { organizationId: organization.id } });
+
+    await tx.tenantSettings.create({
+      data: { tenantId: tenant.id, name: tenantName, subdomain: tenantSubdomain, customDomain: null },
+    });
+
+    const admin = await tx.user.create({
+      data: {
+        name: adminName,
+        email: adminEmail,
+        emailVerified: new Date(),
+        role: UserRole.ADMIN,
+        status: UserStatus.ACTIVE,
+        username: adminUsername,
+        image: config.seed.adminImage || null,
+        ...(passwordHash && { passwordHash }),
+      },
+    });
+
+    await tx.userOnTenant.create({
+      data: { userId: admin.id, tenantId: tenant.id, role: UserRole.OWNER, status: UserStatus.ACTIVE },
+    });
+
+    await tx.orgMember.create({
+      data: { organizationId: organization.id, userId: admin.id, role: ORG_ROLE.OWNER },
+    });
+
+    await tx.appSettings.upsert({ where: { id: 0 }, create: { id: 0 }, update: {} });
+
+    return tenant.id;
   });
 
-  await prisma.userOnTenant.create({
-    data: { userId: admin.id, tenantId: tenant.id, role: UserRole.OWNER, status: UserStatus.ACTIVE },
-  });
+  // Entités de bienvenue hors transaction (le workflow émet des audits / utilise le client global) :
+  // un échec ici laisse l'instance utilisable, ré-amorçable via l'action admin de seed.
+  await new CreateWelcomeEntitiesWorkflow(tenantId).run();
 
-  await prisma.orgMember.create({
-    data: { organizationId: organization.id, userId: admin.id, role: ORG_ROLE.OWNER },
-  });
-
-  await prisma.appSettings.upsert({ where: { id: 0 }, create: { id: 0 }, update: {} });
-
-  await new CreateWelcomeEntitiesWorkflow(tenant.id).run();
-
-  return { adminEmail, alreadyInitialized: false, tenantId: tenant.id };
+  return { adminEmail, alreadyInitialized: false, tenantId };
 }
