@@ -80,11 +80,11 @@ Les secrets de la plateforme (token API, credentials S3, etc.) gagnent à être 
 | `SECURITY_WEBHOOK_SECRET` | Secret pour la signature des webhooks | Oui |
 | `MAILER_SMTP_HOST` | Hôte du serveur SMTP | Oui |
 | `MAILER_FROM_EMAIL` | Adresse d'expédition des emails | Oui |
-| `NEXT_PUBLIC_SITE_URL` | URL publique de l'instance | Oui |
+| `SITE_URL` | URL publique de l'instance | Oui |
 | `ADMINS` | Identifiants des super-administrateurs (séparés par virgule) | Oui |
 | `DOMAIN_PROVIDER` | Fournisseur de domaine (`noop`, `scalingo`, `caddy`...) | Non |
 | `DNS_PROVIDER` | Fournisseur DNS (`noop`, `manual`, `ovh`, `cloudflare`) | Non |
-| `PLATFORM_DOMAIN` | Domaine de la plateforme d'hébergement (ex: `scalingo.io`) - redirige vers `NEXT_PUBLIC_SITE_URL` | Non |
+| `PLATFORM_DOMAIN` | Domaine de la plateforme d'hébergement (ex: `scalingo.io`) - redirige vers `SITE_URL` | Non |
 | `SENTRY_DSN` | DSN Sentry pour le suivi d'erreurs (vide = désactivé) | Non |
 
 La liste complète des variables est documentée dans le fichier `.env.development` du projet.

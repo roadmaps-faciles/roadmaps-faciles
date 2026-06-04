@@ -102,4 +102,41 @@ describe("UpdateTenantDomain", () => {
       "Ce domaine personnalisé est déjà utilisé par un autre tenant.",
     );
   });
+
+  it("blocks removing the custom domain while the DSFR theme is active", async () => {
+    mockSettingsRepo.findById.mockResolvedValue(
+      fakeTenantSettings({ id: 1, uiTheme: "Dsfr", customDomain: "feedback.gouv.fr" }),
+    );
+
+    await expect(useCase.execute({ settingsId: 1, customDomain: null })).rejects.toThrow(
+      "Le thème DSFR requiert un domaine .gouv.fr",
+    );
+    expect(mockSettingsRepo.update).not.toHaveBeenCalled();
+  });
+
+  it("blocks switching to a non-.gouv.fr domain while the DSFR theme is active", async () => {
+    mockSettingsRepo.findById.mockResolvedValue(
+      fakeTenantSettings({ id: 1, uiTheme: "Dsfr", customDomain: "feedback.gouv.fr" }),
+    );
+
+    await expect(useCase.execute({ settingsId: 1, customDomain: "feedback.example.com" })).rejects.toThrow(
+      "Le thème DSFR requiert un domaine .gouv.fr",
+    );
+    expect(mockSettingsRepo.update).not.toHaveBeenCalled();
+  });
+
+  it("allows switching between .gouv.fr domains while the DSFR theme is active", async () => {
+    mockSettingsRepo.findById.mockResolvedValue(
+      fakeTenantSettings({ id: 1, uiTheme: "Dsfr", customDomain: "old.gouv.fr" }),
+    );
+    mockFindFirst.mockResolvedValue(null);
+    mockSettingsRepo.update.mockResolvedValue(fakeTenantSettings({ customDomain: "new.gouv.fr" }));
+    mockRemoveDomain.mockResolvedValue(undefined);
+    mockAddDomain.mockResolvedValue(undefined);
+
+    await useCase.execute({ settingsId: 1, customDomain: "new.gouv.fr" });
+
+    expect(mockSettingsRepo.update).toHaveBeenCalledWith(1, { customDomain: "new.gouv.fr" });
+    expect(mockAddDomain).toHaveBeenCalledWith("new.gouv.fr", "custom");
+  });
 });

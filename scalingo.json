@@ -1,0 +1,70 @@
+{
+  "$schema": "https://gist.githubusercontent.com/revolunet/3fe424cd20b9f51b31bcbb0f530619a8/raw/1cce48b775f6b7f91b4b730d4184f0fab427350e/scalingo.schema.json",
+  "name": "roadmaps-faciles",
+  "description": "Roadmaps et product feedbacks, facilement.",
+  "logo": "https://raw.githubusercontent.com/roadmaps-faciles/roadmaps-faciles/refs/heads/main/public/img/roadmaps-faciles.png",
+  "repository": "https://github.com/roadmaps-faciles/roadmaps-faciles",
+  "website": "https://roadmaps-faciles.fr",
+  "formation": {
+    "web": {
+      "amount": 1,
+      "size": "S"
+    }
+  },
+  "addons": [
+    {
+      "plan": "redis:redis-sandbox"
+    },
+    {
+      "plan": "postgresql:postgresql-sandbox"
+    }
+  ],
+  "env": {
+    "APP_ENV": {
+      "value": "prod"
+    },
+    "MAINTENANCE_MODE": {
+      "value": "false"
+    },
+    "DATABASE_URL": {
+      "value": "$SCALINGO_POSTGRESQL_URL"
+    },
+    "REDIS_URL": {
+      "value": "$SCALINGO_REDIS_URL"
+    },
+    "SECURITY_JWT_SECRET": {
+      "generator": "secret"
+    },
+    "SECURITY_WEBHOOK_SECRET": {
+      "generator": "secret"
+    },
+    "SETUP_TOKEN": {
+      "generator": "secret"
+    },
+    "AUTH_URL": {
+      "generator": "url",
+      "template": "%URL%/api/auth"
+    },
+    "AUTH_TRUST_HOST": {
+      "value": "1"
+    },
+    "NEXT_PUBLIC_SITE_URL": {
+      "generator": "url"
+    },
+    "NEXT_PUBLIC_REPOSITORY_URL": {
+      "value": "https://github.com/roadmaps-faciles/roadmaps-faciles"
+    },
+    "NEXT_PUBLIC_BRAND_NAME": {
+      "generator": "template",
+      "template": "%APP%"
+    },
+    "DOMAIN_SCALINGO_APP_ID": {
+      "generator": "template",
+      "template": "%APP%"
+    },
+    "DNS_PROVIDER_TARGET": {
+      "generator": "url",
+      "template": "%URL%"
+    }
+  }
+}

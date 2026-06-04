@@ -2,6 +2,8 @@
 
 import { createContext, type ReactNode, use, useCallback, useMemo, useState, useSyncExternalStore } from "react";
 
+import { config } from "@/config";
+
 import {
   buildActiveFinalities,
   clearStoredConsent,
@@ -11,7 +13,7 @@ import {
 } from "./store";
 import { type ConsentApi, type Finality, type FinalityConsent } from "./types";
 
-const ACTIVE_FINALITIES = buildActiveFinalities(process.env.NEXT_PUBLIC_TRACKING_PROVIDER ?? "noop");
+const ACTIVE_FINALITIES = buildActiveFinalities(config.tracking.provider);
 
 const ConsentContext = createContext<ConsentApi | null>(null);
 

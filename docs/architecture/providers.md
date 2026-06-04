@@ -42,7 +42,7 @@ Config dans `config.storageProvider` : `STORAGE_PROVIDER`, `STORAGE_S3_*`.
 
 ### Key prefix multi-env
 
-`STORAGE_S3_KEY_PREFIX` (défaut vide) est prepended de manière transparente à upload / delete / URL côté provider. Les keys logiques en DB restent inchangées entre envs. Utilisé pour les review apps Coolify (prefix `pr-<n>/`) qui mutualisent un seul bucket S3.
+`STORAGE_S3_KEY_PREFIX` (défaut vide) est prepended de manière transparente à upload / delete / URL côté provider. Les keys logiques en DB restent inchangées entre envs. Utile pour mutualiser un seul bucket S3 entre plusieurs environnements (préfixe par env).
 
 ### CSP
 

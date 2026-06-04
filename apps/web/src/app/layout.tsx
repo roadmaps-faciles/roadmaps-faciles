@@ -25,6 +25,7 @@ import { UIConsentBanner } from "@/ui/bridge";
 import { SkipLinks } from "@/ui/SkipLinks";
 import { isDatabaseUnavailableError } from "@/utils/dbError";
 
+import { PublicConfigScript } from "./PublicConfigScript";
 import styles from "./root.module.scss";
 import { sharedMetadata } from "./shared-metadata";
 import { ThemeScript } from "./ThemeScript";
@@ -82,6 +83,7 @@ const RootLayout = async ({ children }: LayoutProps<"/">) => {
   return (
     <html lang={lang} suppressHydrationWarning data-ui-theme="Default" className={styles.app}>
       <head>
+        <PublicConfigScript />
         <ThemeScript />
       </head>
       <body suppressHydrationWarning>

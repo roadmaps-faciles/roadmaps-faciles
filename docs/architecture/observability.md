@@ -32,9 +32,9 @@ Provider abstraction dans `src/lib/ee/tracking-provider/`, factory `getTrackingP
 - `posthog` : full tracking + feature flags.
 
 Config via env :
-- `NEXT_PUBLIC_TRACKING_PROVIDER` (`noop` / `matomo` / `posthog`)
-- `NEXT_PUBLIC_POSTHOG_KEY`
-- `NEXT_PUBLIC_POSTHOG_HOST` (défaut `https://eu.i.posthog.com`)
+- `TRACKING_PROVIDER` (`noop` / `matomo` / `posthog`)
+- `POSTHOG_KEY`
+- `POSTHOG_HOST` (défaut `https://eu.i.posthog.com`)
 
 PostHog : host EU, pas de session replay (`disable_session_recording: true`), feature flags prêts (`useFeatureFlags()`). PostHog a deux projets séparés preprod + prod ; Sentry a un seul projet avec distinction par tag `environment`.
 

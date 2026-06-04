@@ -5,11 +5,6 @@
 #   - Self-host (ADEME, AGPL) : déployée seule, sans licensing server
 #     (apps/licensing est BSL 1.1 et chiffré git-crypt, indispo aux self-hosters).
 #     Mode "gracieux sans clé" géré au runtime via getEffectiveLicenseKey().
-#
-# Build args :
-#   INCLUDE_PSQL=1      Inclut postgresql-client dans l'image runner (review apps uniquement,
-#                       pour permettre la création de DB par PR depuis l'entrypoint).
-#                       Laisser à 0 en prod/staging pour économiser ~30 MB.
 
 ARG NODE_VERSION=24-alpine
 
@@ -35,14 +30,12 @@ FROM base AS builder
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # NEXT_PUBLIC_* sont inlinés au build, doivent être passés en --build-arg
-ARG NEXT_PUBLIC_SITE_URL
+# NEXT_PUBLIC_APP_ENV / _APP_VERSION restent inlinés au build (artefacts d'image + Sentry client).
+# Le reste de la config publique (domaine, branding, légal, tracking) est résolu AU RUNTIME via
+# window.__PUBLIC_CONFIG__ (cf src/config.ts + src/app/PublicConfigScript.tsx) : aucun build arg requis,
+# l'image sert n'importe quel domaine / branding sans rebuild.
 ARG NEXT_PUBLIC_APP_ENV
 ARG NEXT_PUBLIC_APP_VERSION
-ARG NEXT_PUBLIC_BRAND_NAME
-ARG NEXT_PUBLIC_TRACKING_PROVIDER
-ARG NEXT_PUBLIC_POSTHOG_KEY
-ARG NEXT_PUBLIC_POSTHOG_HOST
-ARG NEXT_PUBLIC_REPOSITORY_URL
 
 # git commit hash inlined dans NEXT_PUBLIC_APP_VERSION_COMMIT par next.config.ts.
 # Sans, le footer affiche "dev" au lieu du sha. SOURCE_VERSION historique Scalingo,
@@ -72,7 +65,6 @@ RUN --mount=type=cache,id=prisma-engines,target=/root/.cache/prisma \
 
 # --- runner : standalone bundle + Prisma CLI bundlé ---
 FROM node:${NODE_VERSION} AS runner
-ARG INCLUDE_PSQL=0
 # Version pinnée sur celle d'apps/web/package.json — bumper ici aussi à chaque bump prisma.
 ARG PRISMA_VERSION=7.8.0
 
@@ -85,8 +77,7 @@ ARG IMAGE_REF
 ENV SOURCE_COMMIT=${SOURCE_COMMIT}
 ENV IMAGE_REF=${IMAGE_REF}
 
-RUN apk add --no-cache libc6-compat openssl tini \
-  && if [ "$INCLUDE_PSQL" = "1" ]; then apk add --no-cache postgresql-client; fi
+RUN apk add --no-cache libc6-compat openssl tini
 
 RUN mkdir -p /opt/prisma-cli && cd /opt/prisma-cli \
   && echo '{"private":true}' > package.json \

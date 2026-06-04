@@ -2,6 +2,10 @@ import path from "node:path";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
+  // Le tsconfig Next utilise `jsx: preserve` ; sans override, l'analyse de graphe `--changed`
+  // ne transforme pas le JSX des templates email (.tsx) et plante au parse. Vite 8 transforme
+  // via oxc, on force donc la transformation JSX côté oxc.
+  oxc: { jsx: { runtime: "automatic" } },
   resolve: {
     alias: {
       "@/config": path.resolve(__dirname, "src/config.ts"),

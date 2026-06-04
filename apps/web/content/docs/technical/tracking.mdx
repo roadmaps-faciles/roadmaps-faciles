@@ -5,7 +5,7 @@ description: Architecture du tracking, plan d'événements AARRI et configuratio
 
 ## Architecture
 
-Le tracking repose sur une **abstraction multi-provider** dans `src/lib/tracking-provider/`. Trois fournisseurs sont supportés, sélectionnés via la variable d'environnement `NEXT_PUBLIC_TRACKING_PROVIDER` :
+Le tracking repose sur une **abstraction multi-provider** dans `src/lib/tracking-provider/`. Trois fournisseurs sont supportés, sélectionnés via la variable d'environnement `TRACKING_PROVIDER` :
 
 | Fournisseur | Niveau   | Client | Serveur | Feature flags |
 |-------------|----------|--------|---------|---------------|
@@ -14,7 +14,7 @@ Le tracking repose sur une **abstraction multi-provider** dans `src/lib/tracking
 | `posthog`   | full     | Events, identify, group | Events, identify, group | Oui |
 
 <Callout type="info" title="Noop par défaut">
-En développement local, le provider par défaut est `noop` - aucun événement n'est envoyé. Pour tester le tracking, configurez `NEXT_PUBLIC_TRACKING_PROVIDER=posthog` avec une clé PostHog valide.
+En développement local, le provider par défaut est `noop` - aucun événement n'est envoyé. Pour tester le tracking, configurez `TRACKING_PROVIDER=posthog` avec une clé PostHog valide.
 </Callout>
 
 ### Interfaces
@@ -117,11 +117,11 @@ Valeur créée pour le service public.
 
 | Variable | Description | Exemple |
 |----------|-------------|---------|
-| `NEXT_PUBLIC_TRACKING_PROVIDER` | Provider actif | `noop`, `matomo`, `posthog` |
-| `NEXT_PUBLIC_POSTHOG_KEY` | Clé projet PostHog | `phc_...` |
-| `NEXT_PUBLIC_POSTHOG_HOST` | Host PostHog (EU) | `https://eu.i.posthog.com` |
-| `NEXT_PUBLIC_MATOMO_URL` | URL serveur Matomo | `https://stats.example.fr` |
-| `NEXT_PUBLIC_MATOMO_SITE_ID` | ID site Matomo | `42` |
+| `TRACKING_PROVIDER` | Provider actif | `noop`, `matomo`, `posthog` |
+| `POSTHOG_KEY` | Clé projet PostHog | `phc_...` |
+| `POSTHOG_HOST` | Host PostHog (EU) | `https://eu.i.posthog.com` |
+| `MATOMO_URL` | URL serveur Matomo | `https://stats.example.fr` |
+| `MATOMO_SITE_ID` | ID site Matomo | `42` |
 
 ### PostHog - bonnes pratiques
 

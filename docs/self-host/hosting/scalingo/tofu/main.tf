@@ -20,8 +20,8 @@ resource "scalingo_app" "web" {
     APP_ENV                    = var.environment
     AUTH_TRUST_HOST            = "1"
     AUTH_URL                   = "https://${var.domain}/api/auth"
-    NEXT_PUBLIC_SITE_URL       = "https://${var.domain}"
-    NEXT_PUBLIC_REPOSITORY_URL = "https://github.com/roadmaps-faciles/roadmaps-faciles"
+    SITE_URL       = "https://${var.domain}"
+    REPOSITORY_URL = "https://github.com/roadmaps-faciles/roadmaps-faciles"
     NEXT_PUBLIC_APP_ENV        = var.environment
     PLATFORM_DOMAIN            = "scalingo.io"
 

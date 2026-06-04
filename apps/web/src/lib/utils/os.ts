@@ -2,13 +2,7 @@ import { defined } from "./types";
 
 export const sleep = (milliseconds: number) => new Promise<void>(resolve => setTimeout(resolve, milliseconds));
 
-export const ensureEnvVar = <T extends keyof NodeJS.ProcessEnv>(key: T, defaultValue?: string): string => {
-  const out = process.env[key];
-  if (typeof out === "undefined" && typeof defaultValue === "undefined") throw new Error(`${key} env var not found.`);
-  return out ?? String(defaultValue);
-};
-
-type DefaultEnsureNextEnvVar = <T extends primitive | primitive[]>(
+type DefaultEnsureEnvVar = <T extends primitive | primitive[]>(
   envVar: string | undefined,
   transformerOrDefaultValue?: ((envVar: string) => T) | T,
   defaultValue?: T,
@@ -19,7 +13,7 @@ type DefaultEnsureNextEnvVar = <T extends primitive | primitive[]>(
  */
 type RemoveUselessLiterals<T> = T extends "" ? string : T extends boolean ? boolean : T extends number ? number : T;
 
-type EnsureNextEnvVar = {
+type EnsureEnvVar = {
   (envVar: string | undefined): asserts envVar is string;
   <T>(envVar: string | undefined, defaultValue: T): RemoveUselessLiterals<T>;
   <T>(envVar: string | undefined, transformer: (envVar: string) => T): RemoveUselessLiterals<T>;
@@ -27,7 +21,7 @@ type EnsureNextEnvVar = {
 };
 type primitive = boolean | number | string;
 
-const ensureNextEnvVar_: DefaultEnsureNextEnvVar = (envVar, transformerOrDefaultValue, defaultValue) => {
+const ensureEnvVar_: DefaultEnsureEnvVar = (envVar, transformerOrDefaultValue, defaultValue) => {
   const defaultValueToTest = typeof transformerOrDefaultValue !== "function" ? transformerOrDefaultValue : defaultValue;
   if (typeof envVar === "undefined" && typeof defaultValueToTest === "undefined") {
     throw new Error(`Some env var are not found.`, { cause: { envVar, transformerOrDefaultValue, defaultValue } });
@@ -41,17 +35,17 @@ const ensureNextEnvVar_: DefaultEnsureNextEnvVar = (envVar, transformerOrDefault
 
   return envVar ?? transformerOrDefaultValue!;
 };
-// Cast required to expose the overloaded `EnsureNextEnvVar` signature to downstream consumers
+// Cast required to expose the overloaded `EnsureEnvVar` signature to downstream consumers
 // (config.ts narrows transformer return types). typescript-eslint flags this as a false positive.
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-export const ensureNextEnvVar = ensureNextEnvVar_ as EnsureNextEnvVar;
+export const ensureEnvVar = ensureEnvVar_ as EnsureEnvVar;
 
-const ensureApiEnvVar_: DefaultEnsureNextEnvVar = (key, transformerOrDefaultValue, defaultValue) => {
+const ensureApiEnvVar_: DefaultEnsureEnvVar = (key, transformerOrDefaultValue, defaultValue) => {
   if (typeof window === "undefined") {
-    return ensureNextEnvVar_(key, transformerOrDefaultValue, defaultValue);
+    return ensureEnvVar_(key, transformerOrDefaultValue, defaultValue);
   }
   const defaultValueToTest = typeof transformerOrDefaultValue !== "function" ? transformerOrDefaultValue : defaultValue;
   return defined(defaultValueToTest);
 };
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-export const ensureApiEnvVar = ensureApiEnvVar_ as EnsureNextEnvVar;
+export const ensureApiEnvVar = ensureApiEnvVar_ as EnsureEnvVar;

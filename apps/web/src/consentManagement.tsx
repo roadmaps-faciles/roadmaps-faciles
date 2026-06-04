@@ -3,7 +3,9 @@
 import { createConsentManagement } from "@codegouvfr/react-dsfr/consentManagement";
 import { type ReactNode } from "react";
 
-const trackingProvider = process.env.NEXT_PUBLIC_TRACKING_PROVIDER || "noop";
+import { config } from "@/config";
+
+const trackingProvider = config.tracking.provider;
 
 type FinalityEntry = { description: ReactNode; title: ReactNode };
 

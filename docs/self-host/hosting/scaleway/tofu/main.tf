@@ -108,8 +108,8 @@ resource "scaleway_container" "web" {
     # L'URL S3 directe n'est jamais exposee au client : la route /api/uploads
     # stream depuis le bucket pour rester en img-src 'self' du CSP.
     STORAGE_S3_PUBLIC_URL         = "https://${var.domain}/api/uploads"
-    NEXT_PUBLIC_SITE_URL          = "https://${var.domain}"
-    NEXT_PUBLIC_REPOSITORY_URL    = "https://github.com/roadmaps-faciles/roadmaps-faciles"
+    SITE_URL          = "https://${var.domain}"
+    REPOSITORY_URL    = "https://github.com/roadmaps-faciles/roadmaps-faciles"
     REDIS_URL                     = var.redis_url
     MAILER_SMTP_HOST              = var.smtp_host
     MAILER_SMTP_PORT              = var.smtp_port

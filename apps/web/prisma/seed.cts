@@ -1,4 +1,5 @@
 import { config } from "@/config";
+import { createMinimalInstance } from "@/lib/bootstrap";
 import { prisma } from "@/lib/db/prisma";
 import { setSeedTenant } from "@/lib/seedContext";
 import { $Enums } from "@/prisma/client";
@@ -87,8 +88,24 @@ async function mainNormal() {
   console.log(`🌱 Seed terminé. Admin email: ${admin.email} / password: password`);
 }
 
+async function mainMinimal() {
+  console.log("🌱 Seed minimal (self-host) en cours...");
+  const result = await createMinimalInstance();
+  if (result.alreadyInitialized) {
+    console.log("🌱 Base déjà initialisée (au moins un tenant existe), seed minimal ignoré.");
+    return;
+  }
+  console.log(
+    `🌱 Seed minimal terminé. Admin: ${result.adminEmail}${
+      config.seed.adminPassword ? " (mot de passe via SEED_ADMIN_PASSWORD)" : " (connexion via magic link)"
+    }`,
+  );
+}
+
 async function main() {
-  if (config.seed.bulk) {
+  if (config.seed.minimal) {
+    await mainMinimal();
+  } else if (config.seed.bulk) {
     console.log("🌱 Mode BULK activé (SEED_BULK=true)\n");
     await runBulkSeed();
   } else {

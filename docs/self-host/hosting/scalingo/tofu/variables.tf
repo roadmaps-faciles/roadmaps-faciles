@@ -177,7 +177,7 @@ variable "observability_env" {
 variable "tracking_env" {
   type        = map(string)
   default     = {}
-  description = "Variables tracking (NEXT_PUBLIC_TRACKING_PROVIDER, POSTHOG_*, etc.)"
+  description = "Variables tracking (TRACKING_PROVIDER, POSTHOG_*, etc.)"
 }
 
 variable "oauth_env" {
