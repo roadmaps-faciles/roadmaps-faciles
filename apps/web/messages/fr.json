@@ -365,7 +365,8 @@
     "buyLicense": "Acheter une licence",
     "expiredTitle": "Licence expirée",
     "expiredDescription": "Votre licence a expiré. Renouvelez-la pour continuer à utiliser les fonctionnalités entreprise.",
-    "renewLicense": "Renouveler la licence"
+    "renewLicense": "Renouveler la licence",
+    "contactOrgAdmin": "Cette fonctionnalité nécessite l'activation d'un add-on. Contactez l'administrateur de votre organisation pour en faire la demande."
   },
   "upgrade": {
     "title": "Passer au plan Organisation",
@@ -1292,6 +1293,9 @@
       "statusGracePeriod": "Période de grâce",
       "gracePeriodEnd": "Fin de la période de grâce",
       "noLicenseKey": "Aucune clé de licence configurée.",
+      "statusNotConfigured": "Non configuré",
+      "statusInvalidKey": "Clé invalide",
+      "invalidLicenseKey": "La clé de licence configurée est invalide ou corrompue. Vérifiez la variable d'environnement LICENSE_KEY.",
       "instanceId": "ID d'instance",
       "instanceIdSource": "Source de l'ID",
       "instanceIdFromEnv": "Variable d'environnement (INSTANCE_ID)",
@@ -1454,7 +1458,19 @@
       "previewTitle": "Aperçu de l'email",
       "send": "Envoyer",
       "sending": "Envoi...",
-      "sent": "Email de test envoyé à {email}."
+      "sent": "Email de test envoyé à {email}.",
+      "smtpConfigTitle": "Configuration SMTP",
+      "smtpConfigDescription": "Configuration email effective de cette instance (lecture seule). Réglez ces valeurs via les variables d'environnement.",
+      "smtpHost": "Serveur",
+      "smtpPort": "Port",
+      "smtpSsl": "SSL/TLS",
+      "smtpLogin": "Identifiant",
+      "smtpPassword": "Mot de passe",
+      "smtpFrom": "Expéditeur",
+      "enabled": "Activé",
+      "disabled": "Désactivé",
+      "passwordSet": "Défini",
+      "passwordUnset": "Non défini"
     },
     "analyticsDebug": {
       "menu": "Debug analytics",
@@ -1751,7 +1767,10 @@
       "planFree": "Gratuit",
       "planOrganization": "Organisation",
       "planGrantedFree": "Gratuit accordé",
-      "planGov": "Administration publique"
+      "planGov": "Administration publique",
+      "planCommunity": "Communautaire",
+      "planLicensed": "Sous licence",
+      "planGovLicensed": "Sous licence (Administration publique)"
     },
     "tenants": {
       "title": "Tenants",

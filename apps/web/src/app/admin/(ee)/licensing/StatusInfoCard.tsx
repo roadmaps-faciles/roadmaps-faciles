@@ -25,7 +25,12 @@ export const StatusInfoCard = async ({ status, isCloud }: { isCloud: boolean; st
 
   const statusBadge = (() => {
     if (isCloud) return <Badge variant="secondary">{t("modeCloud")}</Badge>;
-    if (status.mode === "community") return <Badge variant="secondary">{t("modeCommunity")}</Badge>;
+    if (status.mode === "community")
+      return status.reason === "invalid" ? (
+        <Badge variant="destructive">{t("statusInvalidKey")}</Badge>
+      ) : (
+        <Badge variant="outline">{t("statusNotConfigured")}</Badge>
+      );
     if (!status.valid) return <Badge variant="destructive">{t("statusExpired")}</Badge>;
     if (status.gracePeriodEnd) return <Badge variant="outline">{t("statusGracePeriod")}</Badge>;
     if (status.mode === "licensed") return <Badge className="bg-green-600 text-white">{t("statusActive")}</Badge>;
@@ -94,7 +99,9 @@ export const StatusInfoCard = async ({ status, isCloud }: { isCloud: boolean; st
       )}
 
       {!isCloud && status.mode === "community" && (
-        <p className="mt-4 text-sm text-muted-foreground">{t("noLicenseKey")}</p>
+        <p className="mt-4 text-sm text-muted-foreground">
+          {status.reason === "invalid" ? t("invalidLicenseKey") : t("noLicenseKey")}
+        </p>
       )}
     </div>
   );

@@ -51,7 +51,7 @@ export const AdminSideMenu = ({ userMenu, isDev, showAnalyticsDebug }: AdminSide
     {
       label: t("groups.developers"),
       items: [
-        { label: t("prismaStudio"), href: "/admin/prisma", icon: Database },
+        ...(isDev ? [{ label: t("prismaStudio"), href: "/admin/prisma", icon: Database }] : []),
         { label: t("auditLog.title"), href: "/admin/audit-log", icon: ScrollText },
       ],
     },

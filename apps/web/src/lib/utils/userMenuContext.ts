@@ -4,6 +4,7 @@ import { type Session } from "next-auth";
 import { config } from "@/config";
 import { prisma } from "@/lib/db/prisma";
 import { orgMemberRepo, organizationRepo, tenantRepo, userOnTenantRepo } from "@/lib/repo";
+import { UserRole } from "@/prisma/enums";
 import {
   type CurrentTenantContext,
   type OrgMenuGroup,
@@ -35,6 +36,10 @@ export async function getUserMenuContext({ session, currentTenantId }: UserMenuC
   const userId = session.user.uuid;
   const hostUrl = new URL(config.host).host;
   const isSuperAdmin = session.user.isSuperAdmin ?? false;
+  // /admin (root admin) is gated by assertAdmin = global role >= ADMIN OR super admin.
+  // The link must mirror that, not isSuperAdmin alone (self-host bootstrap admin is
+  // role ADMIN but not in the ADMINS allowlist that drives isSuperAdmin).
+  const isGlobalAdmin = isSuperAdmin || session.user.role === UserRole.ADMIN || session.user.role === UserRole.OWNER;
 
   const [orgMemberships, tenantMemberships] = await Promise.all([
     orgMemberRepo.findByUserIdWithOrgsAndTenants(userId),
@@ -156,5 +161,6 @@ export async function getUserMenuContext({ session, currentTenantId }: UserMenuC
     currentTenantId,
     currentTenant,
     isSuperAdmin: session.user.isSuperAdmin ?? false,
+    isGlobalAdmin,
   };
 }

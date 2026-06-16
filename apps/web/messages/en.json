@@ -365,7 +365,8 @@
     "buyLicense": "Buy a license",
     "expiredTitle": "License expired",
     "expiredDescription": "Your license has expired. Renew it to continue using enterprise features.",
-    "renewLicense": "Renew license"
+    "renewLicense": "Renew license",
+    "contactOrgAdmin": "This feature requires an add-on to be enabled. Contact your organization's administrator to request it."
   },
   "upgrade": {
     "title": "Upgrade to Organization plan",
@@ -1292,6 +1293,9 @@
       "statusGracePeriod": "Grace period",
       "gracePeriodEnd": "Grace period end",
       "noLicenseKey": "No license key configured.",
+      "statusNotConfigured": "Not configured",
+      "statusInvalidKey": "Invalid key",
+      "invalidLicenseKey": "The configured license key is invalid or corrupted. Check the LICENSE_KEY environment variable.",
       "instanceId": "Instance ID",
       "instanceIdSource": "ID source",
       "instanceIdFromEnv": "Environment variable (INSTANCE_ID)",
@@ -1454,7 +1458,19 @@
       "previewTitle": "Email preview",
       "send": "Send",
       "sending": "Sending...",
-      "sent": "Test email sent to {email}."
+      "sent": "Test email sent to {email}.",
+      "smtpConfigTitle": "SMTP configuration",
+      "smtpConfigDescription": "Effective email configuration for this instance (read-only). Set these values via environment variables.",
+      "smtpHost": "Host",
+      "smtpPort": "Port",
+      "smtpSsl": "SSL/TLS",
+      "smtpLogin": "Login",
+      "smtpPassword": "Password",
+      "smtpFrom": "Sender",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "passwordSet": "Set",
+      "passwordUnset": "Not set"
     },
     "analyticsDebug": {
       "menu": "Analytics debug",
@@ -1751,7 +1767,10 @@
       "planFree": "Free",
       "planOrganization": "Organization",
       "planGrantedFree": "Granted Free",
-      "planGov": "Public Administration"
+      "planGov": "Public Administration",
+      "planCommunity": "Community",
+      "planLicensed": "Licensed",
+      "planGovLicensed": "Licensed (Public Administration)"
     },
     "tenants": {
       "title": "Tenants",

@@ -69,13 +69,13 @@ export async function getLicenseStatus(forceRefresh = false): Promise<LicenseSta
   const licenseKey = devKey ?? config.licenseKey;
 
   if (!licenseKey) {
-    return { mode: "community", valid: false };
+    return { mode: "community", valid: false, reason: "no-key" };
   }
 
   // Offline verify (signature + expiry)
   const { payload, valid } = parseLicenseKey(licenseKey);
   if (!valid || !payload) {
-    return { mode: "community", valid: false };
+    return { mode: "community", valid: false, reason: "invalid" };
   }
 
   if (isLicenseExpired(payload)) {

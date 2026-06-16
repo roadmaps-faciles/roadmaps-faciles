@@ -14,15 +14,20 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 
-// Use dynamic rendering for database operations
-// export const dynamic = "force-dynamic";
+// Raw SQL surface (queryRawUnsafe): dev-only, never exposed in prod self-host.
+const devOnly = (): NextResponse | null =>
+  config.env === "dev" ? null : NextResponse.json({ message: "Not found" }, { status: StatusCodes.NOT_FOUND });
 
 export async function GET() {
+  const blocked = devOnly();
+  if (blocked) return blocked;
   await assertAdmin();
   return NextResponse.json({ message: "Studio API endpoint is running" }, { headers: CORS_HEADERS });
 }
 
 export async function POST(request: NextRequest) {
+  const blocked = devOnly();
+  if (blocked) return blocked;
   await assertAdmin();
   try {
     const { query } = z
@@ -44,6 +49,8 @@ export async function POST(request: NextRequest) {
 
 // Handle preflight requests for CORS
 export async function OPTIONS() {
+  const blocked = devOnly();
+  if (blocked) return blocked;
   await assertAdmin();
   return new NextResponse(null, { status: StatusCodes.NO_CONTENT, headers: CORS_HEADERS });
 }

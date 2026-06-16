@@ -113,6 +113,8 @@ export interface CurrentTenantContext {
 export interface UserMenuData {
   currentTenant?: CurrentTenantContext;
   currentTenantId?: number;
+  /** Global role >= ADMIN (or super admin): can reach /admin. Drives the admin link. */
+  isGlobalAdmin?: boolean;
   isSuperAdmin?: boolean;
   organizations: OrgMenuGroup[];
   user: {
@@ -355,7 +357,7 @@ const SidebarUserMenu = ({ userMenu }: { userMenu: UserMenuData }) => {
                 </DropdownMenuItem>
               )}
 
-              {userMenu.isSuperAdmin && (
+              {userMenu.isGlobalAdmin && (
                 <DropdownMenuItem asChild>
                   <Link href="/admin" className="flex items-center gap-2 px-3">
                     <Monitor className="size-4 shrink-0 text-muted-foreground" />
