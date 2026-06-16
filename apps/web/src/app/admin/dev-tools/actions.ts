@@ -15,6 +15,7 @@ import {
   resetLicenseStatusCache,
 } from "@/lib/ee/licensing/licenseService";
 import { parseLicenseKey } from "@/lib/ee/licensing/licenseVerifier";
+import { logger } from "@/lib/logger";
 import { assertAdmin } from "@/utils/auth";
 import { type ServerActionResponse } from "@/utils/next";
 
@@ -33,7 +34,7 @@ export const issueAndBindDevAction = async (): Promise<ServerActionResponse<{ li
     expiresAt.setFullYear(expiresAt.getFullYear() + 1);
 
     const result = await licensingAdminClient.createLicense({
-      email: "dev-tools@local",
+      email: "dev-tools@example.com",
       expiresAt: expiresAt.toISOString(),
       plan: "GOV_LICENSED",
     });
@@ -59,6 +60,7 @@ export const issueAndBindDevAction = async (): Promise<ServerActionResponse<{ li
 
     return { data: { licenseKey: result.licenseKey }, ok: true };
   } catch (error) {
+    logger.warn({ err: error, licensingServerUrl: config.licensingServerUrl }, "Dev license issue failed");
     return { error: (error as Error).message, ok: false };
   }
 };

@@ -35,7 +35,6 @@ export const LicensingDevSection = ({
   const [pending, startTransition] = useTransition();
   const [offline, setOffline] = useState(initialOffline);
   const [selfHost, setSelfHost] = useState(initialDeploymentMode === "self-host");
-  const [lastIssuedKey, setLastIssuedKey] = useState<null | string>(null);
   const [verifyOpen, setVerifyOpen] = useState(false);
 
   const reloadAfter = (action: () => Promise<void>) =>
@@ -51,8 +50,9 @@ export const LicensingDevSection = ({
         toast.error(result.error);
         return;
       }
-      setLastIssuedKey(result.data.licenseKey);
       toast.success(t("issuedSuccess"));
+      // Reload so the new cookies (license override + self-host mode) are reflected server-side.
+      window.location.reload();
     });
 
   const handleClear = () =>
@@ -110,13 +110,6 @@ export const LicensingDevSection = ({
           <code className="text-xs">{instanceId.slice(0, 16)}...</code>
         </div>
       </div>
-
-      {lastIssuedKey && (
-        <div className="rounded-md border border-orange-500/30 bg-orange-500/5 p-3 text-xs">
-          <p className="mb-1 font-medium">Clé émise (override actif) :</p>
-          <code className="break-all">{lastIssuedKey}</code>
-        </div>
-      )}
 
       <div className="space-y-3">
         <div className="flex items-start justify-between gap-3 rounded-md border p-3">

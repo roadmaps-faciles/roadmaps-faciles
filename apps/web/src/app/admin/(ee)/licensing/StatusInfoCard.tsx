@@ -25,6 +25,7 @@ export const StatusInfoCard = async ({ status, isCloud }: { isCloud: boolean; st
 
   const statusBadge = (() => {
     if (isCloud) return <Badge variant="secondary">{t("modeCloud")}</Badge>;
+    if (status.mode === "community") return <Badge variant="secondary">{t("modeCommunity")}</Badge>;
     if (!status.valid) return <Badge variant="destructive">{t("statusExpired")}</Badge>;
     if (status.gracePeriodEnd) return <Badge variant="outline">{t("statusGracePeriod")}</Badge>;
     if (status.mode === "licensed") return <Badge className="bg-green-600 text-white">{t("statusActive")}</Badge>;
