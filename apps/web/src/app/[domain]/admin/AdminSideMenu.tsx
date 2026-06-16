@@ -18,15 +18,18 @@ import Image from "next/image";
 
 import { config } from "@/config";
 import { useFeatureFlag } from "@/lib/feature-flags/client";
+import { ADDON_TYPE } from "@/lib/model/Organization";
 import { AdminSidebar, type NavGroup, type UserMenuData } from "@/ui/AdminSidebar";
 
 interface AdminSideMenuProps {
+  /** Per-addon entitlement of the current tenant: drives the lock marker on paid items. */
+  entitlements: Partial<Record<string, boolean>>;
   pendingModerationCount?: number;
   tenantName: string;
   userMenu: UserMenuData;
 }
 
-export const AdminSideMenu = ({ tenantName, pendingModerationCount, userMenu }: AdminSideMenuProps) => {
+export const AdminSideMenu = ({ tenantName, pendingModerationCount, userMenu, entitlements }: AdminSideMenuProps) => {
   const t = useTranslations("domainAdmin.sideMenu");
   const integrationsEnabled = useFeatureFlag("integrations");
 
@@ -53,18 +56,36 @@ export const AdminSideMenu = ({ tenantName, pendingModerationCount, userMenu }: 
             { label: t("invitations"), href: "/admin/users/invitations" },
           ],
         },
-        { label: t("authentication"), href: "/admin/authentication", icon: Shield },
-        { label: t("api"), href: "/admin/api", icon: KeyRound },
+        {
+          label: t("authentication"),
+          href: "/admin/authentication",
+          icon: Shield,
+          locked: !entitlements[ADDON_TYPE.SSO_ENTERPRISE],
+        },
+        { label: t("api"), href: "/admin/api", icon: KeyRound, locked: !entitlements[ADDON_TYPE.API_KEYS] },
       ],
     },
     {
       label: t("developers"),
       items: [
-        { label: t("webhooks"), href: "/admin/webhooks", icon: Webhook },
+        { label: t("webhooks"), href: "/admin/webhooks", icon: Webhook, locked: !entitlements[ADDON_TYPE.WEBHOOKS] },
         ...(integrationsEnabled
-          ? [{ label: t("integrations"), href: "/admin/integrations", icon: Plug, matchPrefix: true as const }]
+          ? [
+              {
+                label: t("integrations"),
+                href: "/admin/integrations",
+                icon: Plug,
+                matchPrefix: true as const,
+                locked: !entitlements[ADDON_TYPE.INTEGRATIONS],
+              },
+            ]
           : []),
-        { label: t("auditLog"), href: "/admin/audit-log", icon: ScrollText },
+        {
+          label: t("auditLog"),
+          href: "/admin/audit-log",
+          icon: ScrollText,
+          locked: !entitlements[ADDON_TYPE.AUDIT_LOG],
+        },
       ],
     },
   ];

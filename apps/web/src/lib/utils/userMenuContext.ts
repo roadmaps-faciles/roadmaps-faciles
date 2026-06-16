@@ -24,7 +24,11 @@ interface UserMenuContextOptions {
  * Fetch user context for the user menu (sidebar footer + header dropdowns).
  * Returns a grouped `UserMenuData` with organizations → tenants tree.
  */
-export async function getUserMenuContext({ session, currentTenantId }: UserMenuContextOptions): Promise<UserMenuData> {
+export async function getUserMenuContext({
+  session,
+  currentTenantId,
+  currentOrgId,
+}: UserMenuContextOptions): Promise<UserMenuData> {
   if (!session?.user?.uuid) {
     return {
       user: { email: "", name: "" },
@@ -151,6 +155,18 @@ export async function getUserMenuContext({ session, currentTenantId }: UserMenuC
     }
   }
 
+  // Role for the current admin scope, shown in the sidebar footer. Tenant admin -> tenant role,
+  // org admin -> org role, root admin -> super admin / global role.
+  let currentRole: string | undefined;
+  if (currentTenantId) {
+    currentRole = tenantRoleMap.get(currentTenantId) ?? (isSuperAdmin ? "superAdmin" : undefined);
+  } else if (currentOrgId) {
+    const membership = orgMemberships.find(om => om.organization.id === currentOrgId);
+    currentRole = membership?.role ?? (isSuperAdmin ? "superAdmin" : undefined);
+  } else {
+    currentRole = isSuperAdmin ? "superAdmin" : session.user.role;
+  }
+
   return {
     user: {
       email: session.user.email ?? "",
@@ -160,6 +176,7 @@ export async function getUserMenuContext({ session, currentTenantId }: UserMenuC
     organizations,
     currentTenantId,
     currentTenant,
+    currentRole,
     isSuperAdmin: session.user.isSuperAdmin ?? false,
     isGlobalAdmin,
   };

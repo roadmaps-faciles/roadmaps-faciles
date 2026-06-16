@@ -37,6 +37,7 @@ import {
   Building2,
   ChevronsUpDown,
   LayoutDashboard,
+  Lock,
   LogOut,
   type LucideIcon,
   Monitor,
@@ -67,6 +68,8 @@ interface NavItem {
   href: string;
   icon: LucideIcon;
   label: string;
+  /** Premium feature not entitled in the current scope: render a lock marker. */
+  locked?: boolean;
   /** Match pathname prefix instead of exact match */
   matchPrefix?: boolean;
   subItems?: SubItem[];
@@ -111,6 +114,8 @@ export interface CurrentTenantContext {
 }
 
 export interface UserMenuData {
+  /** Role of the user in the current admin scope (tenant / org / root), for the sidebar footer. */
+  currentRole?: string;
   currentTenant?: CurrentTenantContext;
   currentTenantId?: number;
   /** Global role >= ADMIN (or super admin): can reach /admin. Drives the admin link. */
@@ -263,6 +268,7 @@ const DarkModeToggle = ({ collapsed }: { collapsed?: boolean }) => {
 
 const SidebarUserMenu = ({ userMenu }: { userMenu: UserMenuData }) => {
   const t = useTranslations("sidebar");
+  const tr = useTranslations("roles");
   const { isMobile, state } = useSidebar();
   const collapsed = !isMobile && state === "collapsed";
   const displayName = userMenu.user.name || userMenu.user.email;
@@ -283,6 +289,11 @@ const SidebarUserMenu = ({ userMenu }: { userMenu: UserMenuData }) => {
                   <div className="grid flex-1 text-left text-sm/tight">
                     <span className="truncate font-semibold">{displayName}</span>
                     <span className="truncate text-xs text-sidebar-foreground/60">{userMenu.user.email}</span>
+                    {userMenu.currentRole && (
+                      <Badge variant="outline" className="mt-1 w-fit px-1.5 py-0 text-[10px]">
+                        {tr(userMenu.currentRole as "OWNER")}
+                      </Badge>
+                    )}
                   </div>
                   <ChevronsUpDown className="ml-auto size-4 shrink-0 text-sidebar-foreground/40" />
                 </>
@@ -450,6 +461,7 @@ export const AdminSidebar = ({
           <Link href={item.href}>
             <Icon className="size-5" />
             <span>{item.label}</span>
+            {item.locked && <Lock className="ml-auto size-3.5 shrink-0 text-sidebar-foreground/40" />}
           </Link>
         </SidebarMenuButton>
         {item.badge != null && (
