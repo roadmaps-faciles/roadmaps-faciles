@@ -3,6 +3,7 @@
 import { cookies, headers } from "next/headers";
 
 import { config } from "@/config";
+import { assertCloud } from "@/lib/deployment";
 import { createMultiPackCheckoutSession, type BillingInterval } from "@/lib/ee/billing/checkout";
 import { ALL_PURCHASABLE_IDS } from "@/lib/model/Pricing";
 import { organizationRepo } from "@/lib/repo";
@@ -33,6 +34,7 @@ export const startMultiCheckout = async (data: {
   pendingItems?: string[];
   pendingInterval?: BillingInterval;
 }): Promise<ServerActionResponse<{ url: string }>> => {
+  await assertCloud();
   const org = await organizationRepo.findBySlug(data.orgSlug);
   if (!org) return { ok: false, error: "Organization not found" };
 

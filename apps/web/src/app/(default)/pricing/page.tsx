@@ -2,9 +2,12 @@ import { Check } from "lucide-react";
 import { type Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import { connection } from "next/server";
 
 import { sharedMetadata } from "@/app/shared-metadata";
 import { config } from "@/config";
+import { isSelfHost } from "@/lib/deployment";
 import { ADDON_PACKS, BASE_FEATURES } from "@/lib/model/Pricing";
 import { auth } from "@/lib/next-auth/auth";
 
@@ -33,6 +36,8 @@ export const metadata: Metadata = {
 };
 
 const PricingPage = async () => {
+  await connection();
+  if (await isSelfHost()) notFound();
   const [t, session] = await Promise.all([getTranslations("pricing"), auth()]);
   const ctaHref = session ? "/workspaces" : "/signup";
 

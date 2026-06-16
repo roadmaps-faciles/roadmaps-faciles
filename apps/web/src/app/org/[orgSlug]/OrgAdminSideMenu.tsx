@@ -21,8 +21,12 @@ import { cleanStripeCustomer } from "./devActions";
 
 interface OrgAdminSideMenuProps {
   isDev: boolean;
+  /** Self-host with a valid license: domains stays available (gov needs a .gouv.fr custom domain). */
+  licensed: boolean;
   orgName: string;
   orgSlug: string;
+  /** Self-host: billing/addons (cloud) are hidden, plus security (stub) and domains in community. */
+  selfHost: boolean;
   userMenu: UserMenuData;
   useStripe: boolean;
 }
@@ -31,7 +35,15 @@ function setCookie(name: string, value: string) {
   document.cookie = `${name}=${value};path=/;max-age=${60 * 60 * 24 * 365}`;
 }
 
-export const OrgAdminSideMenu = ({ orgName, orgSlug, userMenu, isDev, useStripe }: OrgAdminSideMenuProps) => {
+export const OrgAdminSideMenu = ({
+  orgName,
+  orgSlug,
+  userMenu,
+  isDev,
+  useStripe,
+  selfHost,
+  licensed,
+}: OrgAdminSideMenuProps) => {
   const t = useTranslations("orgAdmin.sideMenu");
   const base = `/org/${orgSlug}`;
 
@@ -47,19 +59,23 @@ export const OrgAdminSideMenu = ({ orgName, orgSlug, userMenu, isDev, useStripe 
     {
       label: t("management"),
       items: [
-        { label: t("domains"), href: `${base}/domains`, icon: Globe },
-        { label: t("addons"), href: `${base}/addons`, icon: Puzzle },
-        { label: t("billing"), href: `${base}/billing`, icon: CreditCard },
+        ...(selfHost && !licensed ? [] : [{ label: t("domains"), href: `${base}/domains`, icon: Globe }]),
+        ...(selfHost
+          ? []
+          : [
+              { label: t("addons"), href: `${base}/addons`, icon: Puzzle },
+              { label: t("billing"), href: `${base}/billing`, icon: CreditCard },
+            ]),
       ],
     },
     {
       label: t("developers"),
       items: [
-        { label: t("security"), href: `${base}/security`, icon: Shield },
+        ...(selfHost ? [] : [{ label: t("security"), href: `${base}/security`, icon: Shield }]),
         { label: t("auditLog"), href: `${base}/audit-log`, icon: ScrollText },
       ],
     },
-  ];
+  ].filter(group => group.items.length > 0);
 
   const devToggles = isDev
     ? [

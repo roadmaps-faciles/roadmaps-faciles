@@ -3,6 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 
 import { config } from "@/config";
 import { prisma } from "@/lib/db/prisma";
+import { isSelfHost } from "@/lib/deployment";
 import { stripe } from "@/lib/ee/billing/stripe";
 import { logger } from "@/lib/logger";
 import { auth } from "@/lib/next-auth/auth";
@@ -18,6 +19,11 @@ export async function GET(request: NextRequest) {
       { error: "Dev checkout is disabled when Stripe is configured" },
       { status: StatusCodes.FORBIDDEN },
     );
+  }
+
+  // Self-host has no checkout (license-based entitlements); this dev bypass is cloud-only.
+  if (await isSelfHost()) {
+    return NextResponse.json({ error: "Not available in self-host" }, { status: StatusCodes.FORBIDDEN });
   }
 
   // Auth check - only authenticated users

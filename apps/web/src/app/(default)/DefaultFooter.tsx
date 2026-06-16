@@ -3,6 +3,7 @@ import { Map } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 import { config } from "@/config";
+import { isSelfHost } from "@/lib/deployment";
 import { ConsentManagementLink } from "@/ui/ConsentManagementLink";
 import { RootFooter } from "@/ui/RootFooter";
 
@@ -11,13 +12,13 @@ export interface DefaultFooterProps {
 }
 
 export const DefaultFooter = async ({ id }: DefaultFooterProps) => {
-  const t = await getTranslations("footer");
+  const [t, selfHost] = await Promise.all([getTranslations("footer"), isSelfHost()]);
 
   const columns = [
     {
       title: t("columns.product.title"),
       links: [
-        { text: t("columns.product.features"), href: "/pricing" },
+        ...(selfHost ? [] : [{ text: t("columns.product.features"), href: "/pricing" }]),
         { text: t("columns.product.publicRoadmap"), href: "/roadmap" },
         { text: t("columns.product.hosting"), href: "/doc/technical/self-hosting" },
       ],

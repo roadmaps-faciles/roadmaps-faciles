@@ -5,6 +5,7 @@ import { cookies, headers } from "next/headers";
 import { z } from "zod";
 
 import { config } from "@/config";
+import { assertCloud } from "@/lib/deployment";
 import { createPackCheckoutSession, type BillingInterval } from "@/lib/ee/billing/checkout";
 import { ADDON_PACKS, BUNDLE_COMPLETE, BUNDLE_PRO, type PurchasableId } from "@/lib/model/Pricing";
 import { orgAddonRepo, organizationRepo } from "@/lib/repo";
@@ -14,6 +15,7 @@ import { assertOrgAdmin } from "@/utils/auth";
 import { type ServerActionResponse } from "@/utils/next";
 
 export const toggleOrgAddon = async (data: unknown): Promise<ServerActionResponse> => {
+  await assertCloud();
   const validated = ToggleOrgAddonInput.safeParse(data);
   if (!validated.success) {
     return { ok: false, error: z.prettifyError(validated.error) };
@@ -68,6 +70,7 @@ export const toggleOrgPack = async (data: {
   organizationId: number;
   packId: string;
 }): Promise<ServerActionResponse> => {
+  await assertCloud();
   const pack = ADDON_PACKS.find(p => p.id === data.packId);
   if (!pack) return { ok: false, error: "Unknown pack" };
 
@@ -116,6 +119,7 @@ export const activateBundle = async (data: {
   bundleId: "bundleComplete" | "bundlePro";
   organizationId: number;
 }): Promise<ServerActionResponse> => {
+  await assertCloud();
   const bundle = BUNDLES[data.bundleId];
   if (!bundle) return { ok: false, error: "Unknown bundle" };
 
@@ -168,6 +172,7 @@ export const startCheckout = async (data: {
   orgSlug: string;
   purchaseId: PurchasableId;
 }): Promise<ServerActionResponse<{ url: string }>> => {
+  await assertCloud();
   const org = await organizationRepo.findBySlug(data.orgSlug);
   if (!org) return { ok: false, error: "Organization not found" };
 

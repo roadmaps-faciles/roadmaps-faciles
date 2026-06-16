@@ -1,5 +1,6 @@
 import "server-only";
 import { cookies } from "next/headers";
+import { forbidden } from "next/navigation";
 
 import { config } from "@/config";
 
@@ -26,6 +27,14 @@ export async function getDeploymentMode(): Promise<DeploymentMode> {
 export const isCloud = async (): Promise<boolean> => (await getDeploymentMode()) === "cloud";
 
 export const isSelfHost = async (): Promise<boolean> => (await getDeploymentMode()) === "self-host";
+
+/**
+ * Guard for cloud-only server actions (billing/addons/checkout/upgrade). Page renders are gated with
+ * notFound(), but the underlying Stripe actions stay POST-able: block them in self-host too.
+ */
+export async function assertCloud(): Promise<void> {
+  if (await isSelfHost()) forbidden();
+}
 
 /**
  * Boot-time guard (no request scope, reads config only). A cloud SaaS always configures Stripe,

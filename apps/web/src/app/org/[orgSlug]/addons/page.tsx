@@ -6,6 +6,7 @@ import { connection } from "next/server";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { config } from "@/config";
 import { prisma } from "@/lib/db/prisma";
+import { isSelfHost } from "@/lib/deployment";
 import { getAllPackPricing } from "@/lib/ee/billing/pricing";
 import { getActiveSubscription } from "@/lib/ee/billing/subscription-details";
 import { auth } from "@/lib/next-auth/auth";
@@ -15,6 +16,7 @@ import { OrgAddonsList } from "./OrgAddonsList";
 
 const OrgAddonsPage = async ({ params }: { params: Promise<{ orgSlug: string }> }) => {
   await connection();
+  if (await isSelfHost()) notFound();
   const { orgSlug } = await params;
   const [org, session, t] = await Promise.all([
     organizationRepo.findBySlug(orgSlug),

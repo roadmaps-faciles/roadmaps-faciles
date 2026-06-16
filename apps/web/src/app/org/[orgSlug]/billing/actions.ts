@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { config } from "@/config";
 import { prisma } from "@/lib/db/prisma";
+import { assertCloud } from "@/lib/deployment";
 import { createPortalSession } from "@/lib/ee/billing/checkout";
 import { getPackStripePriceIds } from "@/lib/ee/billing/pricing";
 import { getAllActiveSubscriptions } from "@/lib/ee/billing/subscription-details";
@@ -15,6 +16,7 @@ import { assertOrgOwner } from "@/utils/auth";
 import { type ServerActionResponse } from "@/utils/next";
 
 export const openPortal = async (orgSlug: string): Promise<ServerActionResponse<{ url: string }>> => {
+  await assertCloud();
   const reqCtx = await getRequestContext();
 
   const org = await organizationRepo.findBySlug(orgSlug);
@@ -53,6 +55,7 @@ export const openPortal = async (orgSlug: string): Promise<ServerActionResponse<
 };
 
 export const cancelOrgSubscription = async (orgSlug: string): Promise<ServerActionResponse> => {
+  await assertCloud();
   const reqCtx = await getRequestContext();
 
   const org = await organizationRepo.findBySlug(orgSlug);
@@ -91,6 +94,7 @@ export const cancelOrgSubscription = async (orgSlug: string): Promise<ServerActi
 };
 
 export const updatePayAsYouWant = async (orgSlug: string, amountCents: number): Promise<ServerActionResponse> => {
+  await assertCloud();
   const reqCtx = await getRequestContext();
 
   const org = await organizationRepo.findBySlug(orgSlug);
@@ -148,6 +152,7 @@ export const updatePayAsYouWant = async (orgSlug: string, amountCents: number): 
 export const restorePurchases = async (
   orgSlug: string,
 ): Promise<ServerActionResponse<{ activated: string[]; deactivated: string[] }>> => {
+  await assertCloud();
   const org = await organizationRepo.findBySlug(orgSlug);
   if (!org) return { ok: false, error: "Organization not found" };
 

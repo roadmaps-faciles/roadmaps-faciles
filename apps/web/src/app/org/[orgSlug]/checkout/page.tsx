@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { isSelfHost } from "@/lib/deployment";
 import { type BillingInterval } from "@/lib/ee/billing/checkout";
 import { organizationRepo } from "@/lib/repo";
 import { assertOrgAdmin } from "@/utils/auth";
@@ -41,6 +42,7 @@ const CheckoutPage = async ({
   searchParams: Promise<Record<string, string | undefined>>;
 }) => {
   await connection();
+  if (await isSelfHost()) notFound();
   const { orgSlug } = await params;
   const sp = await searchParams;
 

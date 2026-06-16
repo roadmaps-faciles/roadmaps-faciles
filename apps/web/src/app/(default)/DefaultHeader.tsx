@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import Image from "next/image";
 
 import { config } from "@/config";
+import { isSelfHost } from "@/lib/deployment";
 import { auth } from "@/lib/next-auth/auth";
 import { RootHeader } from "@/ui/RootHeader";
 import { getUserMenuContext } from "@/utils/userMenuContext";
@@ -11,7 +12,7 @@ import { ShadcnNavigation } from "./ShadcnNavigation";
 import { ShadcnUserHeaderItem } from "./ShadcnUserHeaderItem";
 
 export const DefaultHeader = async () => {
-  const [t, session] = await Promise.all([getTranslations("navigation"), auth()]);
+  const [t, session, selfHost] = await Promise.all([getTranslations("navigation"), auth(), isSelfHost()]);
 
   const userMenu = session ? await getUserMenuContext({ session }) : undefined;
 
@@ -35,7 +36,7 @@ export const DefaultHeader = async () => {
         href: "/",
         title: `${t("home")} - ${config.brand.name}`,
       }}
-      navigation={config.maintenance ? undefined : <ShadcnNavigation />}
+      navigation={config.maintenance ? undefined : <ShadcnNavigation isSelfHost={selfHost} />}
       quickAccessItems={<ShadcnUserHeaderItem userMenu={userMenu} />}
       mobileUserMenu={<ShadcnUserHeaderItem userMenu={userMenu} mode="sheet" />}
     />
