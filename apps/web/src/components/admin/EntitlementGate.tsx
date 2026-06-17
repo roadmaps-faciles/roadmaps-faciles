@@ -10,6 +10,7 @@ import { isSelfHost } from "@/lib/deployment";
 import { hasEntitlement } from "@/lib/ee/entitlements";
 import { getLicenseStatus } from "@/lib/ee/licensing/licenseService";
 import { ADDON_TYPE, type AddonType } from "@/lib/model/Organization";
+import { USER_ROLE } from "@/lib/model/User";
 import { auth } from "@/lib/next-auth/auth";
 import { orgMemberRepo, organizationRepo } from "@/lib/repo";
 
@@ -38,9 +39,13 @@ export const EntitlementGate = async ({ tenantId, addon, children }: Entitlement
     auth(),
   ]);
   const isSuperAdmin = session?.user.isSuperAdmin ?? false;
+  // Instance admin = whoever can reach /admin (global role >= ADMIN OR super admin). NOT the super-admin
+  // allowlist alone: the self-host bootstrap admin is a global OWNER but not in config.admins.
+  const isInstanceAdmin =
+    isSuperAdmin || session?.user.role === USER_ROLE.ADMIN || session?.user.role === USER_ROLE.OWNER;
 
-  // Self-host: the instance license is the ceiling; the instance admin (super admin) enables addons
-  // per org. Gate by instance-admin (not org role) and never point at the cloud /addons CTA (404 here).
+  // Self-host: the instance license is the ceiling; the instance admin enables addons per org. Gate by
+  // instance-admin (not org role) and never point at the cloud /addons CTA (404 here).
   if (await isSelfHost()) {
     const status = await getLicenseStatus();
     const isExpired = status.mode === "licensed" && !status.valid;
@@ -49,7 +54,7 @@ export const EntitlementGate = async ({ tenantId, addon, children }: Entitlement
 
     // 1) The instance license doesn't cover this addon -> needs a (higher) license (instance-level).
     if (!licenseCovers) {
-      if (!isSuperAdmin) {
+      if (!isInstanceAdmin) {
         return <GateShell title={t("title")} description={t("contactInstanceAdminLicense")} />;
       }
       return (
@@ -74,7 +79,7 @@ export const EntitlementGate = async ({ tenantId, addon, children }: Entitlement
     }
 
     // 2) Covered by the license but not enabled for this org -> per-org override (instance admin acts).
-    if (!isSuperAdmin) {
+    if (!isInstanceAdmin) {
       return <GateShell title={t("title")} description={t("contactInstanceAdminAddon")} />;
     }
     return (
