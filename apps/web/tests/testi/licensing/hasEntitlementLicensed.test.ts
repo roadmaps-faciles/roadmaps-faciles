@@ -4,7 +4,8 @@ import { fakeOrganization } from "../helpers";
 
 vi.mock("server-only", () => ({}));
 
-// Self-host mode: license is the ceiling, the instance admin enables each addon per org (override).
+// Self-host mode: the license is the ceiling; every covered addon is ON by default, the instance admin
+// can turn one OFF per org (denylist override).
 vi.mock("@/lib/deployment", () => ({
   isCloud: vi.fn().mockResolvedValue(false),
   isSelfHost: vi.fn().mockResolvedValue(true),
@@ -16,10 +17,10 @@ vi.mock("@/lib/ee/licensing/licenseService", () => ({
 }));
 
 const mockFindByTenantId = vi.fn();
-const mockIsActiveForTenant = vi.fn();
+const mockIsDisabledForTenant = vi.fn();
 vi.mock("@/lib/repo", () => ({
   organizationRepo: { findByTenantId: mockFindByTenantId },
-  orgAddonRepo: { isActiveForTenant: mockIsActiveForTenant },
+  orgAddonRepo: { isDisabledForTenant: mockIsDisabledForTenant },
 }));
 
 vi.mock("next/navigation", () => ({
@@ -28,7 +29,7 @@ vi.mock("next/navigation", () => ({
   },
 }));
 
-describe("hasEntitlement - self-host (license ceiling + per-org override)", () => {
+describe("hasEntitlement - self-host (license ceiling + per-org denylist)", () => {
   let hasEntitlement: typeof import("@/lib/ee/entitlements").hasEntitlement;
 
   beforeAll(async () => {
@@ -39,7 +40,7 @@ describe("hasEntitlement - self-host (license ceiling + per-org override)", () =
   beforeEach(() => {
     mockGetLicenseStatus.mockReset();
     mockFindByTenantId.mockReset();
-    mockIsActiveForTenant.mockReset();
+    mockIsDisabledForTenant.mockReset();
   });
 
   it("free tier addon (STORAGE_S3) is always available, without checking license or override", async () => {
@@ -53,22 +54,22 @@ describe("hasEntitlement - self-host (license ceiling + per-org override)", () =
 
     expect(await hasEntitlement(1, ADDON_TYPE.TRACKING)).toBe(false);
     expect(await hasEntitlement(1, ADDON_TYPE.MULTI_TENANT)).toBe(false);
-    expect(mockIsActiveForTenant).not.toHaveBeenCalled();
+    expect(mockIsDisabledForTenant).not.toHaveBeenCalled();
   });
 
-  it("licensed AND the addon is enabled for the org -> true", async () => {
+  it("licensed and the addon is NOT disabled for the org -> true (on by default)", async () => {
     mockGetLicenseStatus.mockResolvedValue({ mode: "licensed", valid: true, plan: "LICENSED" });
     mockFindByTenantId.mockResolvedValue(fakeOrganization({ id: 7 }));
-    mockIsActiveForTenant.mockResolvedValue(true);
+    mockIsDisabledForTenant.mockResolvedValue(false);
 
     expect(await hasEntitlement(1, ADDON_TYPE.SSO_ENTERPRISE)).toBe(true);
-    expect(mockIsActiveForTenant).toHaveBeenCalledWith(7, 1, ADDON_TYPE.SSO_ENTERPRISE);
+    expect(mockIsDisabledForTenant).toHaveBeenCalledWith(7, 1, ADDON_TYPE.SSO_ENTERPRISE);
   });
 
-  it("licensed but the addon is NOT enabled for the org -> false", async () => {
+  it("licensed but the addon is explicitly disabled for the org -> false", async () => {
     mockGetLicenseStatus.mockResolvedValue({ mode: "licensed", valid: true, plan: "LICENSED" });
     mockFindByTenantId.mockResolvedValue(fakeOrganization({ id: 7 }));
-    mockIsActiveForTenant.mockResolvedValue(false);
+    mockIsDisabledForTenant.mockResolvedValue(true);
 
     expect(await hasEntitlement(1, ADDON_TYPE.SSO_ENTERPRISE)).toBe(false);
   });
@@ -84,13 +85,13 @@ describe("hasEntitlement - self-host (license ceiling + per-org override)", () =
     mockGetLicenseStatus.mockResolvedValue({ mode: "licensed", valid: true, plan: "LICENSED" });
 
     expect(await hasEntitlement(1, ADDON_TYPE.THEME_DSFR)).toBe(false);
-    expect(mockIsActiveForTenant).not.toHaveBeenCalled();
+    expect(mockIsDisabledForTenant).not.toHaveBeenCalled();
   });
 
-  it("THEME_DSFR on a GOV license AND enabled for the org -> true", async () => {
+  it("THEME_DSFR on a GOV license and not disabled for the org -> true", async () => {
     mockGetLicenseStatus.mockResolvedValue({ mode: "licensed", valid: true, plan: "GOV_LICENSED" });
     mockFindByTenantId.mockResolvedValue(fakeOrganization({ id: 7 }));
-    mockIsActiveForTenant.mockResolvedValue(true);
+    mockIsDisabledForTenant.mockResolvedValue(false);
 
     expect(await hasEntitlement(1, ADDON_TYPE.THEME_DSFR)).toBe(true);
   });
