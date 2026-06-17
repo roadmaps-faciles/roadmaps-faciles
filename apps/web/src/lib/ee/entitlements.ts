@@ -10,8 +10,9 @@ import { orgAddonRepo, organizationRepo } from "@/lib/repo";
 export const FREE_TIER_ADDONS = new Set<AddonType>([ADDON_TYPE.STORAGE_S3]);
 
 export async function hasEntitlement(tenantId: number, addon: AddonType): Promise<boolean> {
-  // Self-host: the instance license is the ceiling (which addons are *available*); the instance admin
-  // then enables each one per org via the addon override. Free tier is always available.
+  // Self-host: the instance license is the ceiling (which addons are *available*). Everything covered
+  // is ON by default for every org; the instance admin can turn specific addons OFF per org (denylist
+  // override). Free tier is always available.
   if (await isSelfHost()) {
     if (FREE_TIER_ADDONS.has(addon)) return true;
     const status = await getLicenseStatus();
@@ -19,7 +20,7 @@ export async function hasEntitlement(tenantId: number, addon: AddonType): Promis
     if (addon === ADDON_TYPE.THEME_DSFR && status.plan !== "GOV_LICENSED") return false; // DSFR needs a gov license
     const org = await organizationRepo.findByTenantId(tenantId);
     if (!org) return false;
-    return orgAddonRepo.isActiveForTenant(org.id, tenantId, addon);
+    return !(await orgAddonRepo.isDisabledForTenant(org.id, tenantId, addon)); // on unless explicitly disabled
   }
 
   // Cloud mode: DB-based entitlements
@@ -67,14 +68,14 @@ export async function canCreateTenant(
 
   const client = tx ?? prisma;
 
-  // Self-host: like any other addon, multi-tenant is gated by the license (ceiling) AND enabled per
-  // org by the instance admin (override). First tenant already returned above.
+  // Self-host: like any other addon, multi-tenant is covered by the license and ON by default; the
+  // instance admin can disable it per org (denylist). First tenant already returned above.
   if (await isSelfHost()) {
     if (!(await getLicenseStatus()).valid) return false;
-    const multiTenant = await client.orgAddon.findFirst({
-      where: { organizationId: orgId, tenantId: null, addon: ADDON_TYPE.MULTI_TENANT, active: true },
+    const disabled = await client.orgAddon.findFirst({
+      where: { organizationId: orgId, tenantId: null, addon: ADDON_TYPE.MULTI_TENANT, active: false },
     });
-    return !!multiTenant;
+    return !disabled;
   }
 
   const org = await client.organization.findUnique({ where: { id: orgId } });

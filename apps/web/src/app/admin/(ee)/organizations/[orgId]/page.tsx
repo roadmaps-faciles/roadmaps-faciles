@@ -154,25 +154,48 @@ const OrgDetailPage = async ({ params }: NextServerPageProps<{ orgId: string }>)
 
       <Separator className="my-6" />
 
-      <div className="mb-8">
-        <h2 className="mb-4 text-xl font-semibold">
-          {t("addons")} ({addons.filter(a => a.active).length})
-        </h2>
-        {addons.filter(a => a.active).length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t("noAddons")}</p>
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {addons
-              .filter(a => a.active)
-              .map(a => (
-                <Badge key={a.id} variant="outline">
-                  {a.addon}
-                  {a.tenantId && <span className="ml-1 text-xs text-muted-foreground">(tenant #{a.tenantId})</span>}
-                </Badge>
-              ))}
-          </div>
-        )}
-      </div>
+      {selfHost ? (
+        // Denylist: everything covered is on by default; show what's been turned off for this org.
+        <div className="mb-8">
+          <h2 className="mb-4 text-xl font-semibold">
+            {t("addonsDisabled")} ({addons.filter(a => !a.active).length})
+          </h2>
+          {addons.filter(a => !a.active).length === 0 ? (
+            <p className="text-sm text-muted-foreground">{t("allAddonsActive")}</p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {addons
+                .filter(a => !a.active)
+                .map(a => (
+                  <Badge key={a.id} variant="destructive">
+                    {a.addon}
+                    {a.tenantId && <span className="ml-1 text-xs">(tenant #{a.tenantId})</span>}
+                  </Badge>
+                ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="mb-8">
+          <h2 className="mb-4 text-xl font-semibold">
+            {t("addons")} ({addons.filter(a => a.active).length})
+          </h2>
+          {addons.filter(a => a.active).length === 0 ? (
+            <p className="text-sm text-muted-foreground">{t("noAddons")}</p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {addons
+                .filter(a => a.active)
+                .map(a => (
+                  <Badge key={a.id} variant="outline">
+                    {a.addon}
+                    {a.tenantId && <span className="ml-1 text-xs text-muted-foreground">(tenant #{a.tenantId})</span>}
+                  </Badge>
+                ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/db/prisma";
+import { assertSelfHost } from "@/lib/deployment";
 import { isGouvDomain } from "@/lib/ee/domain-verification";
 import { orgAddonRepo, orgDomainRepo, organizationRepo } from "@/lib/repo";
 import { type AddonType, type OrgPlan } from "@/prisma/enums";
@@ -114,6 +115,42 @@ export const toggleOrgAddonAdmin = async (data: {
         userId: session.user.uuid,
         targetType: "Organization",
         targetId: String(data.orgId),
+      },
+      reqCtx,
+    );
+    return { ok: false, error: (error as Error).message };
+  }
+};
+
+export const resetOrgAddonsAdmin = async (orgId: number): Promise<ServerActionResponse> => {
+  const session = await assertAdmin();
+  await assertSelfHost(); // denylist reset is self-host only; in cloud this would wipe purchased addons
+  const reqCtx = await getRequestContext();
+
+  try {
+    await orgAddonRepo.deleteByOrgId(orgId);
+    audit(
+      {
+        action: AuditAction.ROOT_ORG_ADDON_TOGGLE,
+        userId: session.user.uuid,
+        targetType: "Organization",
+        targetId: String(orgId),
+        metadata: { reset: true },
+      },
+      reqCtx,
+    );
+    revalidatePath(`/admin/organizations/${orgId}`);
+    return { ok: true };
+  } catch (error) {
+    audit(
+      {
+        action: AuditAction.ROOT_ORG_ADDON_TOGGLE,
+        success: false,
+        error: (error as Error).message,
+        userId: session.user.uuid,
+        targetType: "Organization",
+        targetId: String(orgId),
+        metadata: { reset: true },
       },
       reqCtx,
     );

@@ -32,6 +32,11 @@ export async function assertCloud(): Promise<void> {
   if (await isSelfHost()) forbidden();
 }
 
+/** Guard for self-host-only server actions (e.g. the addon denylist reset). 403 in cloud. */
+export async function assertSelfHost(): Promise<void> {
+  if (!(await isSelfHost())) forbidden();
+}
+
 /**
  * Boot-time guard (no request scope, reads config only). A cloud SaaS always configures Stripe,
  * so "self-host mode + a Stripe secret key" is almost certainly a forgotten DEPLOYMENT_MODE=cloud.

@@ -8,7 +8,7 @@ import { useState, useTransition } from "react";
 import { ADDON_TYPE, ORG_PLAN } from "@/lib/model/Organization";
 import { type OrgAddon, type Organization } from "@/prisma/client";
 
-import { deleteOrganizationAdmin, toggleOrgAddonAdmin, updateOrgPlan } from "./actions";
+import { deleteOrganizationAdmin, resetOrgAddonsAdmin, toggleOrgAddonAdmin, updateOrgPlan } from "./actions";
 
 interface RootOrgActionsProps {
   activeAddons: OrgAddon[];
@@ -18,7 +18,10 @@ interface RootOrgActionsProps {
 }
 
 export const RootOrgActions = ({ activeAddons, org, selfHost }: RootOrgActionsProps) => {
+  // Cloud (allowlist): addon is on iff an active:true row exists. Self-host (denylist): addon is on by
+  // default (license covers it), off iff an explicit active:false row disables it.
   const activeAddonSet = new Set<string>(activeAddons.filter(a => a.active).map(a => a.addon));
+  const disabledAddonSet = new Set<string>(activeAddons.filter(a => !a.active).map(a => a.addon));
   const t = useTranslations("adminOrganizations");
   const [selectedPlan, setSelectedPlan] = useState(org.plan);
   const [reason, setReason] = useState("");
@@ -55,6 +58,20 @@ export const RootOrgActions = ({ activeAddons, org, selfHost }: RootOrgActionsPr
         setError(result.error);
       } else {
         setSuccess(t("addonToggled"));
+        setTimeout(() => setSuccess(null), 5000);
+      }
+    });
+  };
+
+  const handleReset = () => {
+    setError(null);
+    setSuccess(null);
+    startTransition(async () => {
+      const result = await resetOrgAddonsAdmin(org.id);
+      if (!result.ok) {
+        setError(result.error);
+      } else {
+        setSuccess(t("addonFilterReset"));
         setTimeout(() => setSuccess(null), 5000);
       }
     });
@@ -114,22 +131,31 @@ export const RootOrgActions = ({ activeAddons, org, selfHost }: RootOrgActionsPr
       )}
 
       <div>
-        <h2 className="mb-4 text-xl font-semibold">{t("overrideAddons")}</h2>
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <h2 className="text-xl font-semibold">{selfHost ? t("addonFilter") : t("overrideAddons")}</h2>
+          {selfHost && (
+            <Button variant="outline" size="sm" disabled={isPending} onClick={handleReset}>
+              {t("resetAddonFilter")}
+            </Button>
+          )}
+        </div>
+        {selfHost && <p className="mb-3 text-sm text-muted-foreground">{t("addonFilterHint")}</p>}
         <div className="flex flex-wrap gap-2">
           {Object.keys(ADDON_TYPE).map(addon => {
-            const isActive = activeAddonSet.has(addon);
+            // Self-host: on unless explicitly disabled. Cloud: on iff explicitly active.
+            const isOn = selfHost ? !disabledAddonSet.has(addon) : activeAddonSet.has(addon);
             return (
               <Button
                 key={addon}
-                variant={isActive ? "default" : "outline"}
+                variant={isOn ? "default" : "outline"}
                 size="sm"
                 disabled={isPending}
-                onClick={() => handleAddonToggle(addon, !isActive)}
+                onClick={() => handleAddonToggle(addon, !isOn)}
               >
-                <Badge variant={isActive ? "default" : "secondary"} className="mr-1">
+                <Badge variant={isOn ? "default" : "secondary"} className="mr-1">
                   {addon}
                 </Badge>
-                {isActive ? t("deactivate") : t("activate")}
+                {isOn ? t("deactivate") : t("activate")}
               </Button>
             );
           })}
