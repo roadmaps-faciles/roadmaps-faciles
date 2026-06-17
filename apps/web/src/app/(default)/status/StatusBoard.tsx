@@ -83,7 +83,7 @@ export const StatusBoard = () => {
     };
   }, []);
 
-  const level = data?.status ?? "operational";
+  const level = data?.status ?? null;
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-16">
@@ -98,9 +98,14 @@ export const StatusBoard = () => {
         </Button>
       </div>
 
-      <div className={cn("mb-6 flex items-center gap-3 rounded-lg border p-4", BANNER_CLASS[level])}>
-        <div className={cn("size-3 rounded-full", DOT_CLASS[level])} />
-        <span className="font-semibold">{t(level)}</span>
+      <div
+        className={cn(
+          "mb-6 flex items-center gap-3 rounded-lg border p-4",
+          level ? BANNER_CLASS[level] : "border-muted bg-muted/30 text-muted-foreground",
+        )}
+      >
+        <div className={cn("size-3 animate-pulse rounded-full", level ? DOT_CLASS[level] : "bg-muted-foreground/40")} />
+        <span className="font-semibold">{level ? t(level) : t("checking")}</span>
       </div>
 
       <div className="divide-y rounded-lg border">

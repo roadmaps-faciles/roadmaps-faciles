@@ -486,7 +486,6 @@
       "api": "API",
       "auditLog": "Audit log",
       "embedding": "Embedding",
-      "systemOperational": "System Operational",
       "backToSite": "Back to site"
     },
     "general": {
@@ -1219,7 +1218,6 @@
   },
   "rootAdmin": {
     "sideMenu": "Administration",
-    "systemOperational": "System Operational",
     "backToSite": "Back to site",
     "groups": {
       "management": "Management",
@@ -1771,7 +1769,6 @@
       "security": "Security",
       "auditLog": "Audit Log",
       "backToSite": "Back to site",
-      "systemOperational": "System Operational",
       "organization": "Organization"
     },
     "notFound": "Organization not found.",

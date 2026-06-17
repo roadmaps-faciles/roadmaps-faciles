@@ -486,7 +486,6 @@
       "api": "API",
       "auditLog": "Journal d'audit",
       "embedding": "Intégration",
-      "systemOperational": "Système Opérationnel",
       "backToSite": "Retour au site"
     },
     "general": {
@@ -1219,7 +1218,6 @@
   },
   "rootAdmin": {
     "sideMenu": "Administration",
-    "systemOperational": "Système Opérationnel",
     "backToSite": "Retour au site",
     "groups": {
       "management": "Gestion",
@@ -1771,7 +1769,6 @@
       "security": "Sécurité",
       "auditLog": "Journal d'audit",
       "backToSite": "Retour au site",
-      "systemOperational": "Système Opérationnel",
       "organization": "Organisation"
     },
     "notFound": "Organisation introuvable.",
