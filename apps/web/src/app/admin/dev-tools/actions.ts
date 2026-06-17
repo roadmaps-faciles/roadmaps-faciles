@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 
 import { config } from "@/config";
 import { type DeploymentMode, DEV_DEPLOYMENT_MODE_COOKIE } from "@/lib/deployment";
+import { devOverrides } from "@/lib/devOverride";
 import { licensingAdminClient } from "@/lib/ee/licensing/adminClient";
 import { getOrCreateInstanceId } from "@/lib/ee/licensing/instanceId";
 import { activateLicenseOnline } from "@/lib/ee/licensing/licenseFetcher";
@@ -58,6 +59,9 @@ export const issueAndBindDevAction = async (): Promise<ServerActionResponse<{ li
     cookieStore.set(DEV_LICENSE_KEY_COOKIE, result.licenseKey, devCookieOptions);
     // Issuing a license implies self-host testing — flip deployment mode so the licensing UI reflects it.
     cookieStore.set(DEV_DEPLOYMENT_MODE_COOKIE, "self-host", devCookieOptions);
+    // Process-wide override so tenant subdomains pick it up (cookies are host-only on localhost).
+    devOverrides.licenseKey = result.licenseKey;
+    devOverrides.deploymentMode = "self-host";
 
     const instanceId = await getOrCreateInstanceId();
     void activateLicenseOnline(result.licenseKey, instanceId);
@@ -78,6 +82,9 @@ export const clearDevLicenseOverrideAction = async (): Promise<ServerActionRespo
   deleteDevCookie(cookieStore, DEV_LICENSE_KEY_COOKIE);
   deleteDevCookie(cookieStore, DEV_LICENSE_OFFLINE_COOKIE);
   deleteDevCookie(cookieStore, DEV_DEPLOYMENT_MODE_COOKIE);
+  devOverrides.licenseKey = undefined;
+  devOverrides.licenseOffline = undefined;
+  devOverrides.deploymentMode = undefined;
   resetLicenseStatusCache();
 
   return { ok: true };
@@ -89,6 +96,7 @@ export const setDeploymentModeDevAction = async (mode: DeploymentMode): Promise<
 
   const cookieStore = await cookies();
   cookieStore.set(DEV_DEPLOYMENT_MODE_COOKIE, mode, devCookieOptions);
+  devOverrides.deploymentMode = mode;
 
   return { ok: true };
 };
@@ -126,6 +134,7 @@ export const toggleOfflineDevAction = async (value: boolean): Promise<ServerActi
   } else {
     deleteDevCookie(cookieStore, DEV_LICENSE_OFFLINE_COOKIE);
   }
+  devOverrides.licenseOffline = value;
   resetLicenseStatusCache();
 
   return { ok: true };

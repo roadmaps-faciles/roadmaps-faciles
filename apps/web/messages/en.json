@@ -1563,6 +1563,7 @@
         "toggleOfflineDescription": "Forces verifyLicenseOnline to return null. Useful to test grace period behavior.",
         "deploymentModeLabel": "Force self-host mode",
         "deploymentModeDescription": "Toggles DEPLOYMENT_MODE between cloud and self-host (dev cookie). Self-host + license = licensed, self-host without license = community.",
+        "deploymentModeDevNote": "Process-wide dev override: applies to the whole instance, tenant subdomains included (host-only cookies don't cross localhost → default.localhost).",
         "noLicenseToExpire": "No local key, cannot force expiry.",
         "issuedSuccess": "License issued and bound.",
         "expireSuccess": "License forced to expire."

@@ -2,6 +2,7 @@ import "server-only";
 import { cookies } from "next/headers";
 
 import { config } from "@/config";
+import { devOverrides } from "@/lib/devOverride";
 import { logger } from "@/lib/logger";
 
 import { getOrCreateInstanceId } from "./instanceId";
@@ -14,10 +15,19 @@ export const DEV_LICENSE_OFFLINE_COOKIE = "dev-license-offline";
 
 async function readDevOverrides(): Promise<{ key: null | string; offline: boolean }> {
   if (config.env !== "dev") return { key: null, offline: false };
+  // Process-wide override carries onto tenant subdomains (host-only cookies don't). When unset (fresh
+  // process), seed it from the root-host cookie so one visit to a root page re-propagates after a restart.
   const cookieStore = await cookies();
+  if (devOverrides.licenseKey === undefined) {
+    const cookieKey = cookieStore.get(DEV_LICENSE_KEY_COOKIE)?.value;
+    if (cookieKey) devOverrides.licenseKey = cookieKey;
+  }
+  if (devOverrides.licenseOffline === undefined && cookieStore.get(DEV_LICENSE_OFFLINE_COOKIE)?.value === "1") {
+    devOverrides.licenseOffline = true;
+  }
   return {
-    key: cookieStore.get(DEV_LICENSE_KEY_COOKIE)?.value || null,
-    offline: cookieStore.get(DEV_LICENSE_OFFLINE_COOKIE)?.value === "1",
+    key: devOverrides.licenseKey ?? null,
+    offline: devOverrides.licenseOffline ?? false,
   };
 }
 

@@ -6,6 +6,7 @@ import { connection } from "next/server";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { config } from "@/config";
 import { getDeploymentMode } from "@/lib/deployment";
+import { devOverrides } from "@/lib/devOverride";
 import { getOrCreateInstanceId } from "@/lib/ee/licensing/instanceId";
 import { DEV_LICENSE_KEY_COOKIE, DEV_LICENSE_OFFLINE_COOKIE } from "@/lib/ee/licensing/licenseService";
 
@@ -23,9 +24,9 @@ const DevToolsPage = async () => {
     getDeploymentMode(),
   ]);
 
-  const hasOverride = !!cookieStore.get(DEV_LICENSE_KEY_COOKIE)?.value;
+  const hasOverride = !!(devOverrides.licenseKey ?? cookieStore.get(DEV_LICENSE_KEY_COOKIE)?.value);
   const hasEnvKey = !!config.licenseKey;
-  const initialOffline = cookieStore.get(DEV_LICENSE_OFFLINE_COOKIE)?.value === "1";
+  const initialOffline = devOverrides.licenseOffline ?? cookieStore.get(DEV_LICENSE_OFFLINE_COOKIE)?.value === "1";
   const initialUseStripe = cookieStore.get("dev-use-stripe")?.value === "1";
 
   return (

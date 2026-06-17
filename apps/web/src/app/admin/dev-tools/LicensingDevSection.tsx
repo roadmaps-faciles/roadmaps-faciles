@@ -116,6 +116,7 @@ export const LicensingDevSection = ({
           <div className="space-y-0.5">
             <p className="text-sm font-medium">{t("deploymentModeLabel")}</p>
             <p className="text-xs text-muted-foreground">{t("deploymentModeDescription")}</p>
+            <p className="text-[11px] text-amber-600 dark:text-amber-500">{t("deploymentModeDevNote")}</p>
           </div>
           <Switch checked={selfHost} onCheckedChange={handleToggleSelfHost} disabled={pending} />
         </div>

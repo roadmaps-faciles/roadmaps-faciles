@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { forbidden } from "next/navigation";
 
 import { config } from "@/config";
+import { devOverrides } from "@/lib/devOverride";
 
 export type DeploymentMode = "cloud" | "self-host";
 
@@ -17,8 +18,14 @@ export const DEV_DEPLOYMENT_MODE_COOKIE = "dev-deployment-mode";
  */
 export async function getDeploymentMode(): Promise<DeploymentMode> {
   if (config.env === "dev") {
+    // Process-wide override carries onto tenant subdomains (host-only cookies don't). When unset (fresh
+    // process), seed it from the root-host cookie so one visit to a root page re-propagates after a restart.
+    if (devOverrides.deploymentMode) return devOverrides.deploymentMode;
     const override = (await cookies()).get(DEV_DEPLOYMENT_MODE_COOKIE)?.value;
-    if (override === "cloud" || override === "self-host") return override;
+    if (override === "cloud" || override === "self-host") {
+      devOverrides.deploymentMode = override;
+      return override;
+    }
     return "cloud";
   }
   return config.deployment.mode;
