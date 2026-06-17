@@ -21,6 +21,21 @@ import { type ServerActionResponse } from "@/utils/next";
 
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
+// Dev override cookies must be shared across tenant subdomains (default.localhost has to read what the
+// root localhost set). Host-only cookies aren't sent to subdomains, so scope them to the root domain
+// (sans port). Skipped for bare IPs: Domain cookies are invalid there and an IP has no subdomains.
+const cookieHost = config.rootDomain.replace(/:\d+$/, "");
+const COOKIE_DOMAIN = /^[\d.]+$/.test(cookieHost) ? undefined : cookieHost;
+const devCookieOptions = {
+  domain: COOKIE_DOMAIN,
+  httpOnly: true,
+  maxAge: COOKIE_MAX_AGE,
+  path: "/",
+  sameSite: "lax",
+} as const;
+const deleteDevCookie = (store: Awaited<ReturnType<typeof cookies>>, name: string) =>
+  store.delete({ domain: COOKIE_DOMAIN, name, path: "/" });
+
 const assertDev = () => {
   if (config.env !== "dev") notFound();
 };
@@ -40,19 +55,9 @@ export const issueAndBindDevAction = async (): Promise<ServerActionResponse<{ li
     });
 
     const cookieStore = await cookies();
-    cookieStore.set(DEV_LICENSE_KEY_COOKIE, result.licenseKey, {
-      httpOnly: true,
-      maxAge: COOKIE_MAX_AGE,
-      path: "/",
-      sameSite: "lax",
-    });
+    cookieStore.set(DEV_LICENSE_KEY_COOKIE, result.licenseKey, devCookieOptions);
     // Issuing a license implies self-host testing — flip deployment mode so the licensing UI reflects it.
-    cookieStore.set(DEV_DEPLOYMENT_MODE_COOKIE, "self-host", {
-      httpOnly: true,
-      maxAge: COOKIE_MAX_AGE,
-      path: "/",
-      sameSite: "lax",
-    });
+    cookieStore.set(DEV_DEPLOYMENT_MODE_COOKIE, "self-host", devCookieOptions);
 
     const instanceId = await getOrCreateInstanceId();
     void activateLicenseOnline(result.licenseKey, instanceId);
@@ -70,9 +75,9 @@ export const clearDevLicenseOverrideAction = async (): Promise<ServerActionRespo
   await assertAdmin();
 
   const cookieStore = await cookies();
-  cookieStore.delete(DEV_LICENSE_KEY_COOKIE);
-  cookieStore.delete(DEV_LICENSE_OFFLINE_COOKIE);
-  cookieStore.delete(DEV_DEPLOYMENT_MODE_COOKIE);
+  deleteDevCookie(cookieStore, DEV_LICENSE_KEY_COOKIE);
+  deleteDevCookie(cookieStore, DEV_LICENSE_OFFLINE_COOKIE);
+  deleteDevCookie(cookieStore, DEV_DEPLOYMENT_MODE_COOKIE);
   resetLicenseStatusCache();
 
   return { ok: true };
@@ -83,12 +88,7 @@ export const setDeploymentModeDevAction = async (mode: DeploymentMode): Promise<
   await assertAdmin();
 
   const cookieStore = await cookies();
-  cookieStore.set(DEV_DEPLOYMENT_MODE_COOKIE, mode, {
-    httpOnly: true,
-    maxAge: COOKIE_MAX_AGE,
-    path: "/",
-    sameSite: "lax",
-  });
+  cookieStore.set(DEV_DEPLOYMENT_MODE_COOKIE, mode, devCookieOptions);
 
   return { ok: true };
 };
@@ -122,14 +122,9 @@ export const toggleOfflineDevAction = async (value: boolean): Promise<ServerActi
 
   const cookieStore = await cookies();
   if (value) {
-    cookieStore.set(DEV_LICENSE_OFFLINE_COOKIE, "1", {
-      httpOnly: true,
-      maxAge: COOKIE_MAX_AGE,
-      path: "/",
-      sameSite: "lax",
-    });
+    cookieStore.set(DEV_LICENSE_OFFLINE_COOKIE, "1", devCookieOptions);
   } else {
-    cookieStore.delete(DEV_LICENSE_OFFLINE_COOKIE);
+    deleteDevCookie(cookieStore, DEV_LICENSE_OFFLINE_COOKIE);
   }
   resetLicenseStatusCache();
 
