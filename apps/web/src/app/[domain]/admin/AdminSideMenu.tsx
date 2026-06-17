@@ -20,6 +20,7 @@ import { config } from "@/config";
 import { useFeatureFlag } from "@/lib/feature-flags/client";
 import { ADDON_TYPE } from "@/lib/model/Organization";
 import { AdminSidebar, type NavGroup, type UserMenuData } from "@/ui/AdminSidebar";
+import { SystemStatusWidget } from "@/ui/SystemStatusWidget";
 
 interface AdminSideMenuProps {
   /** Per-addon entitlement of the current tenant: drives the lock marker on paid items. */
@@ -107,7 +108,7 @@ export const AdminSideMenu = ({ tenantName, pendingModerationCount, userMenu, en
       ]}
       backHref="/"
       backLabel={t("backToSite")}
-      footer={{ status: t("systemOperational"), version: `v${config.appVersion}` }}
+      footer={{ content: <SystemStatusWidget version={`v${config.appVersion}`} /> }}
       userMenu={userMenu}
     />
   );

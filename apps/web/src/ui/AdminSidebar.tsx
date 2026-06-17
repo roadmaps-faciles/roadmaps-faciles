@@ -140,10 +140,11 @@ interface AdminSidebarProps {
   devTools?: React.ReactNode;
   /** Extra items shown after a separator below the main nav groups */
   extraItems?: ExtraItem[];
-  /** Footer content: system status */
+  /** Footer content: system status. Pass `content` for a custom widget, else a static status string. */
   footer?: {
-    status: string;
-    version: string;
+    content?: React.ReactNode;
+    status?: string;
+    version?: string;
   };
   groups: NavGroup[];
   /** Header icon - ReactNode for full control (e.g. Image, SVG, or Lucide icon) */
@@ -578,36 +579,38 @@ export const AdminSidebar = ({
         </div>
 
         {/* System status */}
-        {footer && (
-          <>
-            <div className="rounded-lg border border-sidebar-border bg-sidebar-accent/50 p-2.5 group-data-[collapsible=icon]:hidden">
-              <div className="mb-0.5 flex items-center gap-2">
-                <div className="size-2 animate-pulse rounded-full bg-green-500" />
-                <span className="text-[10px] font-bold uppercase tracking-wide text-sidebar-foreground/70">
-                  {footer.status}
-                </span>
-              </div>
-              <p className="text-[10px] text-sidebar-foreground/50">{footer.version}</p>
-            </div>
-            {/* Collapsed: just the green dot with tooltip */}
-            <div className="hidden group-data-[collapsible=icon]:block">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center justify-center py-1">
-                      <div className="size-2 animate-pulse rounded-full bg-green-500" />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="right">
-                    <p className="text-xs">
-                      {footer.status} - {footer.version}
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          </>
-        )}
+        {footer?.content
+          ? footer.content
+          : footer && (
+              <>
+                <div className="rounded-lg border border-sidebar-border bg-sidebar-accent/50 p-2.5 group-data-[collapsible=icon]:hidden">
+                  <div className="mb-0.5 flex items-center gap-2">
+                    <div className="size-2 animate-pulse rounded-full bg-green-500" />
+                    <span className="text-[10px] font-bold uppercase tracking-wide text-sidebar-foreground/70">
+                      {footer.status}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-sidebar-foreground/50">{footer.version}</p>
+                </div>
+                {/* Collapsed: just the green dot with tooltip */}
+                <div className="hidden group-data-[collapsible=icon]:block">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex items-center justify-center py-1">
+                          <div className="size-2 animate-pulse rounded-full bg-green-500" />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="right">
+                        <p className="text-xs">
+                          {footer.status} - {footer.version}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </>
+            )}
 
         {/* Dev tools (dev mode only) */}
         {devTools && <div className="group-data-[collapsible=icon]:hidden">{devTools}</div>}

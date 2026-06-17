@@ -16,6 +16,7 @@ import { useTranslations } from "next-intl";
 import { type DevAction, DevToolsPanel } from "@/app/admin/DevToolsPanel";
 import { config } from "@/config";
 import { AdminSidebar, type NavGroup, type UserMenuData } from "@/ui/AdminSidebar";
+import { SystemStatusWidget } from "@/ui/SystemStatusWidget";
 
 import { cleanStripeCustomer } from "./devActions";
 
@@ -101,7 +102,7 @@ export const OrgAdminSideMenu = ({
       groups={groups}
       backHref="/"
       backLabel={t("backToSite")}
-      footer={{ status: t("systemOperational"), version: `v${config.appVersion}` }}
+      footer={{ content: <SystemStatusWidget version={`v${config.appVersion}`} /> }}
       devTools={
         isDev ? (
           <DevToolsPanel

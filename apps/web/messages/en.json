@@ -77,6 +77,23 @@
     "MEMBER": "Member",
     "superAdmin": "Super Admin"
   },
+  "systemStatus": {
+    "checking": "Checking...",
+    "operational": "Operational",
+    "degraded": "Degraded",
+    "down": "Down",
+    "pageTitle": "System status",
+    "pageSubtitle": "Real-time status of the instance services.",
+    "serviceDatabase": "Database",
+    "serviceRedis": "Cache (Redis)",
+    "serviceStorage": "Storage (S3)",
+    "healthy": "Operational",
+    "unhealthy": "Unavailable",
+    "uptime": "Uptime",
+    "version": "Version",
+    "lastChecked": "Last checked",
+    "refresh": "Refresh"
+  },
   "memberStatus": {
     "ACTIVE": "Active",
     "BLOCKED": "Blocked",

@@ -77,6 +77,23 @@
     "MEMBER": "Membre",
     "superAdmin": "Super Admin"
   },
+  "systemStatus": {
+    "checking": "Vérification...",
+    "operational": "Opérationnel",
+    "degraded": "Dégradé",
+    "down": "Hors service",
+    "pageTitle": "État du système",
+    "pageSubtitle": "État en temps réel des services de l'instance.",
+    "serviceDatabase": "Base de données",
+    "serviceRedis": "Cache (Redis)",
+    "serviceStorage": "Stockage (S3)",
+    "healthy": "Opérationnel",
+    "unhealthy": "Indisponible",
+    "uptime": "Uptime",
+    "version": "Version",
+    "lastChecked": "Dernière vérification",
+    "refresh": "Rafraîchir"
+  },
   "memberStatus": {
     "ACTIVE": "Actif",
     "BLOCKED": "Bloqué",
