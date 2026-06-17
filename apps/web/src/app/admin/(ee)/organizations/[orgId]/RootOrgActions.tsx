@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, Badge, Button, Input } from "@roadmaps-faciles/ui";
+import { Badge, Button, Input, toast } from "@roadmaps-faciles/ui";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -26,75 +26,43 @@ export const RootOrgActions = ({ activeAddons, org, selfHost }: RootOrgActionsPr
   const [selectedPlan, setSelectedPlan] = useState(org.plan);
   const [reason, setReason] = useState("");
   const [confirmSlug, setConfirmSlug] = useState("");
-  const [error, setError] = useState<null | string>(null);
-  const [success, setSuccess] = useState<null | string>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   const handlePlanUpdate = () => {
-    setError(null);
-    setSuccess(null);
     startTransition(async () => {
       const result = await updateOrgPlan({ orgId: org.id, plan: selectedPlan, reason: reason || undefined });
-      if (!result.ok) {
-        setError(result.error);
-      } else {
-        setSuccess(t("planUpdated"));
-        setTimeout(() => setSuccess(null), 5000);
-      }
+      if (!result.ok) toast.error(result.error);
+      else toast.success(t("planUpdated"));
     });
   };
 
   const handleAddonToggle = (addon: string, active: boolean) => {
-    setError(null);
-    setSuccess(null);
     startTransition(async () => {
-      const result = await toggleOrgAddonAdmin({
-        orgId: org.id,
-        addon: addon as keyof typeof ADDON_TYPE,
-        active,
-      });
-      if (!result.ok) {
-        setError(result.error);
-      } else {
-        setSuccess(t("addonToggled"));
-        setTimeout(() => setSuccess(null), 5000);
-      }
+      const result = await toggleOrgAddonAdmin({ orgId: org.id, addon: addon as keyof typeof ADDON_TYPE, active });
+      if (!result.ok) toast.error(result.error);
+      else toast.success(t("addonToggled"));
     });
   };
 
   const handleReset = () => {
-    setError(null);
-    setSuccess(null);
     startTransition(async () => {
       const result = await resetOrgAddonsAdmin(org.id);
-      if (!result.ok) {
-        setError(result.error);
-      } else {
-        setSuccess(t("addonFilterReset"));
-        setTimeout(() => setSuccess(null), 5000);
-      }
+      if (!result.ok) toast.error(result.error);
+      else toast.success(t("addonFilterReset"));
     });
   };
 
   const handleDelete = () => {
-    setError(null);
-    setSuccess(null);
     startTransition(async () => {
       const result = await deleteOrganizationAdmin({ orgId: org.id, confirmSlug });
-      if (!result.ok) {
-        setError(result.error);
-      } else {
-        router.push("/admin/organizations");
-      }
+      if (!result.ok) toast.error(result.error);
+      else router.push("/admin/organizations");
     });
   };
 
   return (
     <div className="space-y-6">
-      {error && <Alert variant="destructive">{error}</Alert>}
-      {success && <Alert>{success}</Alert>}
-
       {!selfHost && (
         <div>
           <h2 className="mb-4 text-xl font-semibold">{t("changePlan")}</h2>
