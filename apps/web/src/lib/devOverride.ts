@@ -13,6 +13,8 @@ export interface DevOverrides {
   deploymentMode?: "cloud" | "self-host";
   licenseKey?: null | string;
   licenseOffline?: boolean;
+  /** Cloud billing dev toggle: use the real Stripe checkout vs the dev-checkout bypass. */
+  useStripe?: boolean;
 }
 
 const store = globalThis as { __rfDevOverrides?: DevOverrides } & typeof globalThis;

@@ -1,5 +1,4 @@
 import { getTranslations } from "next-intl/server";
-import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 
@@ -8,7 +7,6 @@ import { config } from "@/config";
 import { getDeploymentMode } from "@/lib/deployment";
 import { devOverrides } from "@/lib/devOverride";
 import { getOrCreateInstanceId } from "@/lib/ee/licensing/instanceId";
-import { DEV_LICENSE_KEY_COOKIE, DEV_LICENSE_OFFLINE_COOKIE } from "@/lib/ee/licensing/licenseService";
 
 import { LicensingDevSection } from "./LicensingDevSection";
 import { StripeDevSection } from "./StripeDevSection";
@@ -17,17 +15,16 @@ const DevToolsPage = async () => {
   if (config.env !== "dev") notFound();
   await connection();
 
-  const [t, cookieStore, instanceId, deploymentMode] = await Promise.all([
+  const [t, instanceId, deploymentMode] = await Promise.all([
     getTranslations("rootAdmin.devTools"),
-    cookies(),
     getOrCreateInstanceId(),
     getDeploymentMode(),
   ]);
 
-  const hasOverride = !!(devOverrides.licenseKey ?? cookieStore.get(DEV_LICENSE_KEY_COOKIE)?.value);
+  const hasOverride = !!devOverrides.licenseKey;
   const hasEnvKey = !!config.licenseKey;
-  const initialOffline = devOverrides.licenseOffline ?? cookieStore.get(DEV_LICENSE_OFFLINE_COOKIE)?.value === "1";
-  const initialUseStripe = cookieStore.get("dev-use-stripe")?.value === "1";
+  const initialOffline = devOverrides.licenseOffline ?? false;
+  const initialUseStripe = devOverrides.useStripe ?? false;
 
   return (
     <>

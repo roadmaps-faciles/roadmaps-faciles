@@ -1,5 +1,4 @@
 import "server-only";
-import { cookies } from "next/headers";
 
 import { config } from "@/config";
 import { devOverrides } from "@/lib/devOverride";
@@ -10,21 +9,11 @@ import { activateLicenseOnline, verifyLicenseOnline } from "./licenseFetcher";
 import { isLicenseExpired, parseLicenseKey } from "./licenseVerifier";
 import { type LicenseStatus } from "./types";
 
-export const DEV_LICENSE_KEY_COOKIE = "dev-license-key";
-export const DEV_LICENSE_OFFLINE_COOKIE = "dev-license-offline";
-
+// Dev license override lives in the process-wide store (shared across all hosts of the single dev
+// process, so it reaches tenant subdomains), set via /admin/dev-tools. Resets on dev server restart.
+// eslint-disable-next-line @typescript-eslint/require-await -- async kept for API stability (getEffectiveLicenseKey / getLicenseStatus await this).
 async function readDevOverrides(): Promise<{ key: null | string; offline: boolean }> {
   if (config.env !== "dev") return { key: null, offline: false };
-  // Process-wide override carries onto tenant subdomains (host-only cookies don't). When unset (fresh
-  // process), seed it from the root-host cookie so one visit to a root page re-propagates after a restart.
-  const cookieStore = await cookies();
-  if (devOverrides.licenseKey === undefined) {
-    const cookieKey = cookieStore.get(DEV_LICENSE_KEY_COOKIE)?.value;
-    if (cookieKey) devOverrides.licenseKey = cookieKey;
-  }
-  if (devOverrides.licenseOffline === undefined && cookieStore.get(DEV_LICENSE_OFFLINE_COOKIE)?.value === "1") {
-    devOverrides.licenseOffline = true;
-  }
   return {
     key: devOverrides.licenseKey ?? null,
     offline: devOverrides.licenseOffline ?? false,

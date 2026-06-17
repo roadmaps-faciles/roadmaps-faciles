@@ -1,42 +1,21 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 
 import { config } from "@/config";
-import { type DeploymentMode, DEV_DEPLOYMENT_MODE_COOKIE } from "@/lib/deployment";
+import { type DeploymentMode } from "@/lib/deployment";
 import { devOverrides } from "@/lib/devOverride";
 import { licensingAdminClient } from "@/lib/ee/licensing/adminClient";
 import { getOrCreateInstanceId } from "@/lib/ee/licensing/instanceId";
 import { activateLicenseOnline } from "@/lib/ee/licensing/licenseFetcher";
-import {
-  DEV_LICENSE_KEY_COOKIE,
-  DEV_LICENSE_OFFLINE_COOKIE,
-  getEffectiveLicenseKey,
-  resetLicenseStatusCache,
-} from "@/lib/ee/licensing/licenseService";
+import { getEffectiveLicenseKey, resetLicenseStatusCache } from "@/lib/ee/licensing/licenseService";
 import { parseLicenseKey } from "@/lib/ee/licensing/licenseVerifier";
 import { logger } from "@/lib/logger";
 import { assertAdmin } from "@/utils/auth";
 import { type ServerActionResponse } from "@/utils/next";
 
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
-
-// Dev override cookies must be shared across tenant subdomains (default.localhost has to read what the
-// root localhost set). Host-only cookies aren't sent to subdomains, so scope them to the root domain
-// (sans port). Skipped for bare IPs: Domain cookies are invalid there and an IP has no subdomains.
-const cookieHost = config.rootDomain.replace(/:\d+$/, "");
-const COOKIE_DOMAIN = /^[\d.]+$/.test(cookieHost) ? undefined : cookieHost;
-const devCookieOptions = {
-  domain: COOKIE_DOMAIN,
-  httpOnly: true,
-  maxAge: COOKIE_MAX_AGE,
-  path: "/",
-  sameSite: "lax",
-} as const;
-const deleteDevCookie = (store: Awaited<ReturnType<typeof cookies>>, name: string) =>
-  store.delete({ domain: COOKIE_DOMAIN, name, path: "/" });
-
+// All dev overrides (deployment mode, license, Stripe toggle) live in the process-wide devOverrides
+// store, shared across every host of the single dev process. No dev cookies.
 const assertDev = () => {
   if (config.env !== "dev") notFound();
 };
@@ -55,11 +34,8 @@ export const issueAndBindDevAction = async (): Promise<ServerActionResponse<{ li
       plan: "GOV_LICENSED",
     });
 
-    const cookieStore = await cookies();
-    cookieStore.set(DEV_LICENSE_KEY_COOKIE, result.licenseKey, devCookieOptions);
+    // Process-wide dev override (shared across all hosts in the single dev process, unlike cookies).
     // Issuing a license implies self-host testing — flip deployment mode so the licensing UI reflects it.
-    cookieStore.set(DEV_DEPLOYMENT_MODE_COOKIE, "self-host", devCookieOptions);
-    // Process-wide override so tenant subdomains pick it up (cookies are host-only on localhost).
     devOverrides.licenseKey = result.licenseKey;
     devOverrides.deploymentMode = "self-host";
 
@@ -78,10 +54,6 @@ export const clearDevLicenseOverrideAction = async (): Promise<ServerActionRespo
   assertDev();
   await assertAdmin();
 
-  const cookieStore = await cookies();
-  deleteDevCookie(cookieStore, DEV_LICENSE_KEY_COOKIE);
-  deleteDevCookie(cookieStore, DEV_LICENSE_OFFLINE_COOKIE);
-  deleteDevCookie(cookieStore, DEV_DEPLOYMENT_MODE_COOKIE);
   devOverrides.licenseKey = undefined;
   devOverrides.licenseOffline = undefined;
   devOverrides.deploymentMode = undefined;
@@ -94,8 +66,6 @@ export const setDeploymentModeDevAction = async (mode: DeploymentMode): Promise<
   assertDev();
   await assertAdmin();
 
-  const cookieStore = await cookies();
-  cookieStore.set(DEV_DEPLOYMENT_MODE_COOKIE, mode, devCookieOptions);
   devOverrides.deploymentMode = mode;
 
   return { ok: true };
@@ -128,12 +98,6 @@ export const toggleOfflineDevAction = async (value: boolean): Promise<ServerActi
   assertDev();
   await assertAdmin();
 
-  const cookieStore = await cookies();
-  if (value) {
-    cookieStore.set(DEV_LICENSE_OFFLINE_COOKIE, "1", devCookieOptions);
-  } else {
-    deleteDevCookie(cookieStore, DEV_LICENSE_OFFLINE_COOKIE);
-  }
   devOverrides.licenseOffline = value;
   resetLicenseStatusCache();
 
@@ -144,8 +108,7 @@ export const toggleStripeCheckoutDevAction = async (value: boolean): Promise<Ser
   assertDev();
   await assertAdmin();
 
-  const cookieStore = await cookies();
-  cookieStore.set("dev-use-stripe", value ? "1" : "0", { maxAge: COOKIE_MAX_AGE, path: "/" });
+  devOverrides.useStripe = value;
 
   return { ok: true };
 };

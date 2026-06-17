@@ -1,9 +1,10 @@
 "use server";
 
-import { cookies, headers } from "next/headers";
+import { headers } from "next/headers";
 
 import { config } from "@/config";
 import { assertCloud } from "@/lib/deployment";
+import { devOverrides } from "@/lib/devOverride";
 import { createMultiPackCheckoutSession, type BillingInterval } from "@/lib/ee/billing/checkout";
 import { ALL_PURCHASABLE_IDS } from "@/lib/model/Pricing";
 import { organizationRepo } from "@/lib/repo";
@@ -64,7 +65,7 @@ export const startMultiCheckout = async (data: {
   const fullCart = encodeCartItems(data.items, data.interval, data.pendingItems, data.pendingInterval);
   const cancelUrl = `${baseUrl}/org/${data.orgSlug}/checkout?cart=${encodeURIComponent(fullCart)}&cancelled=1`;
 
-  const useStripe = config.env === "dev" ? (await cookies()).get("dev-use-stripe")?.value === "1" : true;
+  const useStripe = config.env === "dev" ? (devOverrides.useStripe ?? false) : true;
 
   try {
     const checkoutSession = await createMultiPackCheckoutSession(

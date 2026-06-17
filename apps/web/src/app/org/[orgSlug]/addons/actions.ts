@@ -1,11 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { cookies, headers } from "next/headers";
+import { headers } from "next/headers";
 import { z } from "zod";
 
 import { config } from "@/config";
 import { assertCloud } from "@/lib/deployment";
+import { devOverrides } from "@/lib/devOverride";
 import { createPackCheckoutSession, type BillingInterval } from "@/lib/ee/billing/checkout";
 import { ADDON_PACKS, BUNDLE_COMPLETE, BUNDLE_PRO, type PurchasableId } from "@/lib/model/Pricing";
 import { orgAddonRepo, organizationRepo } from "@/lib/repo";
@@ -186,7 +187,7 @@ export const startCheckout = async (data: {
   const successUrl = `${baseUrl}/org/${data.orgSlug}/addons?checkout=success`;
   const cancelUrl = `${baseUrl}/org/${data.orgSlug}/addons?checkout=cancelled`;
 
-  const useStripe = config.env === "dev" ? (await cookies()).get("dev-use-stripe")?.value === "1" : true;
+  const useStripe = config.env === "dev" ? (devOverrides.useStripe ?? false) : true;
 
   try {
     const session = await createPackCheckoutSession(

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { toggleStripeCheckoutDevAction } from "@/app/admin/dev-tools/actions";
 import { type DevAction, DevToolsPanel } from "@/app/admin/DevToolsPanel";
 import { config } from "@/config";
 import { AdminSidebar, type NavGroup, type UserMenuData } from "@/ui/AdminSidebar";
@@ -30,10 +31,6 @@ interface OrgAdminSideMenuProps {
   selfHost: boolean;
   userMenu: UserMenuData;
   useStripe: boolean;
-}
-
-function setCookie(name: string, value: string) {
-  document.cookie = `${name}=${value};path=/;max-age=${60 * 60 * 24 * 365}`;
 }
 
 export const OrgAdminSideMenu = ({
@@ -86,8 +83,7 @@ export const OrgAdminSideMenu = ({
           description: "Utiliser le vrai flow Stripe",
           defaultValue: useStripe,
           onChangeAction: (value: boolean) => {
-            setCookie("dev-use-stripe", value ? "1" : "0");
-            window.location.reload();
+            void toggleStripeCheckoutDevAction(value).then(() => window.location.reload());
           },
         },
       ]

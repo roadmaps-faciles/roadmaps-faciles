@@ -1,5 +1,4 @@
 import { getTranslations } from "next-intl/server";
-import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 
@@ -7,6 +6,7 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { config } from "@/config";
 import { prisma } from "@/lib/db/prisma";
 import { isSelfHost } from "@/lib/deployment";
+import { devOverrides } from "@/lib/devOverride";
 import { getAllPackPricing } from "@/lib/ee/billing/pricing";
 import { getActiveSubscription } from "@/lib/ee/billing/subscription-details";
 import { auth } from "@/lib/next-auth/auth";
@@ -27,7 +27,7 @@ const OrgAddonsPage = async ({ params }: { params: Promise<{ orgSlug: string }> 
 
   const membership = session?.user.uuid ? await orgMemberRepo.findByOrgAndUser(org.id, session.user.uuid) : null;
   const canEdit = session?.user.isSuperAdmin || membership?.role === "ADMIN" || membership?.role === "OWNER";
-  const useStripeCheckout = config.env === "dev" ? (await cookies()).get("dev-use-stripe")?.value === "1" : true;
+  const useStripeCheckout = config.env === "dev" ? (devOverrides.useStripe ?? false) : true;
 
   const [addons, tenants, addonPricing, subscription] = await Promise.all([
     orgAddonRepo.findByOrgId(org.id),

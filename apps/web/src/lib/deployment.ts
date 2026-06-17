@@ -1,5 +1,4 @@
 import "server-only";
-import { cookies } from "next/headers";
 import { forbidden } from "next/navigation";
 
 import { config } from "@/config";
@@ -7,27 +6,17 @@ import { devOverrides } from "@/lib/devOverride";
 
 export type DeploymentMode = "cloud" | "self-host";
 
-export const DEV_DEPLOYMENT_MODE_COOKIE = "dev-deployment-mode";
-
 /**
  * Resolve whether this instance runs as the official cloud SaaS or self-host.
  * Orthogonal to license status: cloud has no license, self-host may be licensed or community.
  *
- * Prod reads the env flag only (no cookie access, so this never forces dynamic rendering in prod).
- * Dev defaults to cloud (the SaaS dev environment) and can be flipped via the /admin/dev-tools cookie.
+ * Prod reads the env flag only. Dev defaults to cloud and can be flipped via the /admin/dev-tools
+ * toggle, which sets a process-wide override (shared across all hosts of the single dev process, so it
+ * reaches tenant subdomains; it resets on dev server restart).
  */
+// eslint-disable-next-line @typescript-eslint/require-await -- async kept for API stability: isCloud/isSelfHost and many call sites await this.
 export async function getDeploymentMode(): Promise<DeploymentMode> {
-  if (config.env === "dev") {
-    // Process-wide override carries onto tenant subdomains (host-only cookies don't). When unset (fresh
-    // process), seed it from the root-host cookie so one visit to a root page re-propagates after a restart.
-    if (devOverrides.deploymentMode) return devOverrides.deploymentMode;
-    const override = (await cookies()).get(DEV_DEPLOYMENT_MODE_COOKIE)?.value;
-    if (override === "cloud" || override === "self-host") {
-      devOverrides.deploymentMode = override;
-      return override;
-    }
-    return "cloud";
-  }
+  if (config.env === "dev") return devOverrides.deploymentMode ?? "cloud";
   return config.deployment.mode;
 }
 
