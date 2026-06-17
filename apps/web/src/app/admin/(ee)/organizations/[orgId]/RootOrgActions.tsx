@@ -13,9 +13,11 @@ import { deleteOrganizationAdmin, toggleOrgAddonAdmin, updateOrgPlan } from "./a
 interface RootOrgActionsProps {
   activeAddons: OrgAddon[];
   org: Organization;
+  /** Self-host: org plan is meaningless (entitlements come from the instance license). */
+  selfHost: boolean;
 }
 
-export const RootOrgActions = ({ activeAddons, org }: RootOrgActionsProps) => {
+export const RootOrgActions = ({ activeAddons, org, selfHost }: RootOrgActionsProps) => {
   const activeAddonSet = new Set<string>(activeAddons.filter(a => a.active).map(a => a.addon));
   const t = useTranslations("adminOrganizations");
   const [selectedPlan, setSelectedPlan] = useState(org.plan);
@@ -76,38 +78,40 @@ export const RootOrgActions = ({ activeAddons, org }: RootOrgActionsProps) => {
       {error && <Alert variant="destructive">{error}</Alert>}
       {success && <Alert>{success}</Alert>}
 
-      <div>
-        <h2 className="mb-4 text-xl font-semibold">{t("changePlan")}</h2>
-        <div className="flex items-end gap-3">
-          <div>
-            <label className="mb-1 block text-sm font-medium">{t("plan")}</label>
-            <select
-              value={selectedPlan}
-              onChange={e => setSelectedPlan(e.target.value as keyof typeof ORG_PLAN)}
-              className="rounded-md border px-3 py-2 text-sm"
-              disabled={isPending}
-            >
-              {Object.keys(ORG_PLAN).map(p => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
+      {!selfHost && (
+        <div>
+          <h2 className="mb-4 text-xl font-semibold">{t("changePlan")}</h2>
+          <div className="flex items-end gap-3">
+            <div>
+              <label className="mb-1 block text-sm font-medium">{t("plan")}</label>
+              <select
+                value={selectedPlan}
+                onChange={e => setSelectedPlan(e.target.value as keyof typeof ORG_PLAN)}
+                className="rounded-md border px-3 py-2 text-sm"
+                disabled={isPending}
+              >
+                {Object.keys(ORG_PLAN).map(p => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex-1">
+              <label className="mb-1 block text-sm font-medium">{t("reason")}</label>
+              <Input
+                value={reason}
+                onChange={e => setReason(e.target.value)}
+                placeholder={t("reasonPlaceholder")}
+                disabled={isPending}
+              />
+            </div>
+            <Button onClick={handlePlanUpdate} disabled={isPending || selectedPlan === org.plan}>
+              {t("updatePlan")}
+            </Button>
           </div>
-          <div className="flex-1">
-            <label className="mb-1 block text-sm font-medium">{t("reason")}</label>
-            <Input
-              value={reason}
-              onChange={e => setReason(e.target.value)}
-              placeholder={t("reasonPlaceholder")}
-              disabled={isPending}
-            />
-          </div>
-          <Button onClick={handlePlanUpdate} disabled={isPending || selectedPlan === org.plan}>
-            {t("updatePlan")}
-          </Button>
         </div>
-      </div>
+      )}
 
       <div>
         <h2 className="mb-4 text-xl font-semibold">{t("overrideAddons")}</h2>

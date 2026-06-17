@@ -10,12 +10,16 @@ import { orgAddonRepo, organizationRepo } from "@/lib/repo";
 export const FREE_TIER_ADDONS = new Set<AddonType>([ADDON_TYPE.STORAGE_S3]);
 
 export async function hasEntitlement(tenantId: number, addon: AddonType): Promise<boolean> {
-  // Self-host: license-based all-or-nothing. No/invalid license = community = free tier only.
+  // Self-host: the instance license is the ceiling (which addons are *available*); the instance admin
+  // then enables each one per org via the addon override. Free tier is always available.
   if (await isSelfHost()) {
+    if (FREE_TIER_ADDONS.has(addon)) return true;
     const status = await getLicenseStatus();
-    if (!status.valid) return FREE_TIER_ADDONS.has(addon);
-    if (addon === ADDON_TYPE.THEME_DSFR) return status.plan === "GOV_LICENSED";
-    return true; // Licensed = all EE features
+    if (!status.valid) return false; // no valid license: nothing beyond the free tier
+    if (addon === ADDON_TYPE.THEME_DSFR && status.plan !== "GOV_LICENSED") return false; // DSFR needs a gov license
+    const org = await organizationRepo.findByTenantId(tenantId);
+    if (!org) return false;
+    return orgAddonRepo.isActiveForTenant(org.id, tenantId, addon);
   }
 
   // Cloud mode: DB-based entitlements
@@ -61,13 +65,18 @@ export async function canCreateTenant(
 ): Promise<boolean> {
   if (currentTenantCount === 0) return true; // First tenant is always free
 
-  // Self-host: licensed = unlimited tenants, community = first tenant only.
-  // License-based and lock-independent, so it ignores tx (no org/addon rows read).
+  const client = tx ?? prisma;
+
+  // Self-host: like any other addon, multi-tenant is gated by the license (ceiling) AND enabled per
+  // org by the instance admin (override). First tenant already returned above.
   if (await isSelfHost()) {
-    return (await getLicenseStatus()).valid;
+    if (!(await getLicenseStatus()).valid) return false;
+    const multiTenant = await client.orgAddon.findFirst({
+      where: { organizationId: orgId, tenantId: null, addon: ADDON_TYPE.MULTI_TENANT, active: true },
+    });
+    return !!multiTenant;
   }
 
-  const client = tx ?? prisma;
   const org = await client.organization.findUnique({ where: { id: orgId } });
   if (!org) return false;
 

@@ -386,7 +386,12 @@
     "contactOrgAdmin": "Cette fonctionnalité nécessite l'activation d'un add-on. Contactez l'administrateur de votre organisation pour en faire la demande.",
     "selfHostHigherTier": "Licence supérieure requise",
     "selfHostHigherTierDescription": "Cette fonctionnalité nécessite une licence de niveau supérieur (Administration publique).",
-    "upgradeLicense": "Mettre à niveau la licence"
+    "upgradeLicense": "Mettre à niveau la licence",
+    "contactInstanceAdminLicense": "Cette fonctionnalité nécessite une licence active sur l'instance. Contactez l'administrateur de l'instance.",
+    "contactInstanceAdminAddon": "Demandez à l'administrateur de l'instance d'activer cette fonctionnalité pour votre organisation.",
+    "enableForOrgTitle": "Fonctionnalité non activée",
+    "enableForOrgDescription": "Cette fonctionnalité est couverte par la licence de l'instance mais n'est pas activée pour cette organisation.",
+    "manageOrgAddons": "Gérer les add-ons de l'organisation"
   },
   "upgrade": {
     "title": "Passer au plan Organisation",

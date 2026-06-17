@@ -6,6 +6,7 @@ import { connection } from "next/server";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/db/prisma";
+import { isSelfHost } from "@/lib/deployment";
 import { orgAddonRepo, orgDomainRepo, orgMemberRepo, organizationRepo } from "@/lib/repo";
 import { type NextServerPageProps } from "@/utils/next";
 
@@ -28,7 +29,7 @@ const OrgDetailPage = async ({ params }: NextServerPageProps<{ orgId: string }>)
     orgAddonRepo.findByOrgId(org.id),
     prisma.tenant.findMany({ where: { organizationId: org.id, deletedAt: null } }),
   ]);
-  const [t, locale] = await Promise.all([getTranslations("adminOrganizations"), getLocale()]);
+  const [t, locale, selfHost] = await Promise.all([getTranslations("adminOrganizations"), getLocale(), isSelfHost()]);
 
   const dateFormatter = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
 
@@ -53,15 +54,19 @@ const OrgDetailPage = async ({ params }: NextServerPageProps<{ orgId: string }>)
           <div>
             <dt className="inline font-bold">{t("slug")} :</dt> <dd className="inline">{org.slug}</dd>
           </div>
-          <div>
-            <dt className="inline font-bold">{t("plan")} :</dt>{" "}
-            <dd className="inline">
-              <Badge variant={PLAN_BADGE_VARIANT[org.plan] ?? "secondary"}>{org.plan}</Badge>
-            </dd>
-          </div>
-          <div>
-            <dt className="inline font-bold">Stripe :</dt> <dd className="inline">{org.stripeCustomerId ?? "-"}</dd>
-          </div>
+          {!selfHost && (
+            <>
+              <div>
+                <dt className="inline font-bold">{t("plan")} :</dt>{" "}
+                <dd className="inline">
+                  <Badge variant={PLAN_BADGE_VARIANT[org.plan] ?? "secondary"}>{org.plan}</Badge>
+                </dd>
+              </div>
+              <div>
+                <dt className="inline font-bold">Stripe :</dt> <dd className="inline">{org.stripeCustomerId ?? "-"}</dd>
+              </div>
+            </>
+          )}
           <div>
             <dt className="inline font-bold">{t("createdAt")} :</dt>{" "}
             <dd className="inline">{dateFormatter.format(new Date(org.createdAt))}</dd>
@@ -71,7 +76,7 @@ const OrgDetailPage = async ({ params }: NextServerPageProps<{ orgId: string }>)
 
       <Separator className="my-6" />
 
-      <RootOrgActions activeAddons={addons} org={org} />
+      <RootOrgActions activeAddons={addons} org={org} selfHost={selfHost} />
 
       <Separator className="my-6" />
 

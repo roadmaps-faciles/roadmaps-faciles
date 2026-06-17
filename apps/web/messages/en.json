@@ -386,7 +386,12 @@
     "contactOrgAdmin": "This feature requires an add-on to be enabled. Contact your organization's administrator to request it.",
     "selfHostHigherTier": "Higher license tier required",
     "selfHostHigherTierDescription": "This feature requires a higher license tier (Public Administration).",
-    "upgradeLicense": "Upgrade license"
+    "upgradeLicense": "Upgrade license",
+    "contactInstanceAdminLicense": "This feature requires an active license on the instance. Contact the instance administrator.",
+    "contactInstanceAdminAddon": "Ask the instance administrator to enable this feature for your organization.",
+    "enableForOrgTitle": "Feature not enabled",
+    "enableForOrgDescription": "This feature is covered by the instance license but is not enabled for this organization.",
+    "manageOrgAddons": "Manage organization add-ons"
   },
   "upgrade": {
     "title": "Upgrade to Organization plan",
