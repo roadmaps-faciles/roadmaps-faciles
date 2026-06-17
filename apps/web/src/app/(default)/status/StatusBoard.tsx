@@ -46,7 +46,7 @@ const formatUptime = (seconds: number): string => {
   return [d ? `${d}j` : "", h ? `${h}h` : "", `${m}m`].filter(Boolean).join(" ");
 };
 
-export const StatusBoard = () => {
+export const StatusBoard = ({ embedded = false }: { embedded?: boolean }) => {
   const t = useTranslations("systemStatus");
   const locale = useLocale();
   const [data, setData] = useState<null | StatusData>(null);
@@ -86,13 +86,15 @@ export const StatusBoard = () => {
   const level = data?.status ?? null;
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-16">
-      <div className="mb-8 flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{t("pageTitle")}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{t("pageSubtitle")}</p>
-        </div>
-        <Button variant="outline" size="sm" onClick={() => void refresh()} disabled={loading}>
+    <div className={cn(embedded ? "space-y-6" : "mx-auto max-w-2xl px-4 py-16")}>
+      <div className="mb-6 flex items-center justify-between gap-4">
+        {!embedded && (
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{t("pageTitle")}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">{t("pageSubtitle")}</p>
+          </div>
+        )}
+        <Button variant="outline" size="sm" className="ml-auto" onClick={() => void refresh()} disabled={loading}>
           <RefreshCw className={cn("size-4", loading && "animate-spin")} />
           {t("refresh")}
         </Button>

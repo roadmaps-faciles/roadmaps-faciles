@@ -282,7 +282,7 @@ const SidebarUserMenu = ({ userMenu }: { userMenu: UserMenuData }) => {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="h-auto py-2 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <UserAvatar name={displayName} image={userMenu.user.image} className="size-8 rounded-lg text-xs" />
               {!collapsed && (
@@ -291,7 +291,7 @@ const SidebarUserMenu = ({ userMenu }: { userMenu: UserMenuData }) => {
                     <span className="truncate font-semibold">{displayName}</span>
                     <span className="truncate text-xs text-sidebar-foreground/60">{userMenu.user.email}</span>
                     {userMenu.currentRole && (
-                      <Badge variant="outline" className="mt-1 w-fit px-1.5 py-0 text-[10px]">
+                      <Badge variant="outline" className="mt-1.5 w-fit px-1.5 py-0.5 text-[10px] leading-none">
                         {tr(userMenu.currentRole as "OWNER")}
                       </Badge>
                     )}

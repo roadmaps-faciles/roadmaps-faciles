@@ -14,12 +14,11 @@ import {
 import { type Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { connection } from "next/server";
 
-import { config } from "@/config";
+import { WorkspacesView } from "@/app/(default)/(authenticated)/workspaces/WorkspacesView";
 import { isSelfHost } from "@/lib/deployment";
-import { tenantRepo } from "@/lib/repo";
+import { redirectIfNotAuthenticated } from "@/utils/authRedirect";
 
 import { sharedMetadata } from "../shared-metadata";
 
@@ -36,25 +35,14 @@ export const metadata: Metadata = {
   },
 };
 
-// In self-host the marketing landing is dead weight: route to the actual instance.
-// The self-host entry point is the ROOT domain (what /api/setup advertises), so we never target a
-// tenant subdomain (no wildcard-DNS assumption) nor the root itself (would loop back to this page).
-// Single tenant on its own distinct custom domain -> jump straight in; otherwise the /workspaces hub
-// (which bounces to /login when signed out).
-const selfHostLandingRedirect = async (): Promise<void> => {
-  const tenants = await tenantRepo.findAllWithSettings();
-  if (tenants.length === 1) {
-    const { customDomain } = tenants[0].settings;
-    if (customDomain && customDomain !== config.rootDomain) {
-      redirect(`${new URL(config.host).protocol}//${customDomain}`);
-    }
-  }
-  redirect("/workspaces");
-};
-
 const Home = async (_: PageProps<"/">) => {
   await connection();
-  if (await isSelfHost()) await selfHostLandingRedirect();
+  // In self-host the marketing landing is dead weight: the root IS the workspace hub. Render it in
+  // place (no redirect, URL stays /), behind the same auth/2FA gate as the (authenticated) area.
+  if (await isSelfHost()) {
+    await redirectIfNotAuthenticated();
+    return <WorkspacesView />;
+  }
 
   const t = await getTranslations("home");
 

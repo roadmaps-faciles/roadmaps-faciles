@@ -383,7 +383,10 @@
     "expiredTitle": "Licence expirée",
     "expiredDescription": "Votre licence a expiré. Renouvelez-la pour continuer à utiliser les fonctionnalités entreprise.",
     "renewLicense": "Renouveler la licence",
-    "contactOrgAdmin": "Cette fonctionnalité nécessite l'activation d'un add-on. Contactez l'administrateur de votre organisation pour en faire la demande."
+    "contactOrgAdmin": "Cette fonctionnalité nécessite l'activation d'un add-on. Contactez l'administrateur de votre organisation pour en faire la demande.",
+    "selfHostHigherTier": "Licence supérieure requise",
+    "selfHostHigherTierDescription": "Cette fonctionnalité nécessite une licence de niveau supérieur (Administration publique).",
+    "upgradeLicense": "Mettre à niveau la licence"
   },
   "upgrade": {
     "title": "Passer au plan Organisation",

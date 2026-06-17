@@ -36,7 +36,7 @@ export const DefaultHeader = async () => {
         href: "/",
         title: `${t("home")} - ${config.brand.name}`,
       }}
-      navigation={config.maintenance ? undefined : <ShadcnNavigation isSelfHost={selfHost} />}
+      navigation={config.maintenance || selfHost ? undefined : <ShadcnNavigation />}
       quickAccessItems={<ShadcnUserHeaderItem userMenu={userMenu} />}
       mobileUserMenu={<ShadcnUserHeaderItem userMenu={userMenu} mode="sheet" />}
     />

@@ -30,9 +30,9 @@ const AdminEmailTestPage = async () => {
   return (
     <>
       <AdminPageHeader title={t("title")} description={t("description")} />
-      <div className="mb-8 max-w-xl rounded-lg border p-6">
-        <h2 className="text-sm font-semibold">{t("smtpConfigTitle")}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">{t("smtpConfigDescription")}</p>
+      <details className="mb-8 max-w-xl rounded-lg border p-4">
+        <summary className="cursor-pointer text-sm font-semibold">{t("smtpConfigTitle")}</summary>
+        <p className="mt-3 text-sm text-muted-foreground">{t("smtpConfigDescription")}</p>
         <dl className="mt-4">
           {smtpRows.map(row => (
             <div key={row.env} className="flex items-center justify-between gap-4 border-b py-2 last:border-b-0">
@@ -44,7 +44,7 @@ const AdminEmailTestPage = async () => {
             </div>
           ))}
         </dl>
-      </div>
+      </details>
       <EmailTestForm userEmail={userEmail} />
     </>
   );

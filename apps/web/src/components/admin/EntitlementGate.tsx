@@ -46,27 +46,32 @@ export const EntitlementGate = async ({ tenantId, addon, children }: Entitlement
     );
   }
 
-  // Self-host mode: show license-specific CTA
+  // Self-host: always a license-oriented gate, never the cloud /addons CTA (which is notFound here).
+  // community/expired -> buy/renew; licensed-valid but this addon isn't covered (e.g. THEME_DSFR needs
+  // a GOV license) -> point to a higher tier. Acquiring/upgrading a self-host license happens on the
+  // cloud licensing server.
   if (await isSelfHost()) {
     const status = await getLicenseStatus();
-
-    if (status.mode === "community" || (status.mode === "licensed" && !status.valid)) {
-      const isExpired = status.mode === "licensed" && !status.valid;
-      return (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
-          <Lock className="mb-4 size-10 text-muted-foreground" />
-          <h2 className="text-xl font-semibold">{isExpired ? t("expiredTitle") : t("selfHostTitle")}</h2>
-          <p className="mt-2 max-w-md text-muted-foreground">
-            {isExpired ? t("expiredDescription") : t("selfHostDescription")}
-          </p>
-          <Button className="mt-6" asChild>
-            <Link href={config.licensingServerUrl} target="_blank" rel="noopener noreferrer">
-              {isExpired ? t("renewLicense") : t("buyLicense")}
-            </Link>
-          </Button>
-        </div>
-      );
-    }
+    const isExpired = status.mode === "licensed" && !status.valid;
+    const isCommunity = status.mode === "community";
+    const title = isExpired ? t("expiredTitle") : isCommunity ? t("selfHostTitle") : t("selfHostHigherTier");
+    const description = isExpired
+      ? t("expiredDescription")
+      : isCommunity
+        ? t("selfHostDescription")
+        : t("selfHostHigherTierDescription");
+    return (
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
+        <Lock className="mb-4 size-10 text-muted-foreground" />
+        <h2 className="text-xl font-semibold">{title}</h2>
+        <p className="mt-2 max-w-md text-muted-foreground">{description}</p>
+        <Button className="mt-6" asChild>
+          <Link href={config.licensingServerUrl} target="_blank" rel="noopener noreferrer">
+            {isExpired ? t("renewLicense") : isCommunity ? t("buyLicense") : t("upgradeLicense")}
+          </Link>
+        </Button>
+      </div>
+    );
   }
 
   // Cloud mode: link to addons page (org admin only, enforced above)

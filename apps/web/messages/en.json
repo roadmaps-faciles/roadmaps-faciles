@@ -383,7 +383,10 @@
     "expiredTitle": "License expired",
     "expiredDescription": "Your license has expired. Renew it to continue using enterprise features.",
     "renewLicense": "Renew license",
-    "contactOrgAdmin": "This feature requires an add-on to be enabled. Contact your organization's administrator to request it."
+    "contactOrgAdmin": "This feature requires an add-on to be enabled. Contact your organization's administrator to request it.",
+    "selfHostHigherTier": "Higher license tier required",
+    "selfHostHigherTierDescription": "This feature requires a higher license tier (Public Administration).",
+    "upgradeLicense": "Upgrade license"
   },
   "upgrade": {
     "title": "Upgrade to Organization plan",

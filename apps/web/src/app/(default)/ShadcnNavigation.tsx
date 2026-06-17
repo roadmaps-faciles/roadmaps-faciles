@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export const ShadcnNavigation = ({ isSelfHost = false }: { isSelfHost?: boolean }) => {
+export const ShadcnNavigation = () => {
   const pathname = usePathname();
   const t = useTranslations("navigation");
 
@@ -17,7 +17,7 @@ export const ShadcnNavigation = ({ isSelfHost = false }: { isSelfHost?: boolean 
       isActive: pathname.startsWith("/workspaces") || pathname.startsWith("/tenant"),
     },
     { text: t("roadmap"), href: "/roadmap", isActive: pathname.startsWith("/roadmap") },
-    ...(isSelfHost ? [] : [{ text: t("pricing"), href: "/pricing", isActive: pathname.startsWith("/pricing") }]),
+    { text: t("pricing"), href: "/pricing", isActive: pathname.startsWith("/pricing") },
     { text: t("doc"), href: "/doc", isActive: pathname.startsWith("/doc") },
   ];
 
