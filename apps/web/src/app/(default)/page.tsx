@@ -14,6 +14,11 @@ import {
 import { type Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
+import { connection } from "next/server";
+
+import { WorkspacesView } from "@/app/(default)/(authenticated)/workspaces/WorkspacesView";
+import { isSelfHost } from "@/lib/deployment";
+import { redirectIfNotAuthenticated } from "@/utils/authRedirect";
 
 import { sharedMetadata } from "../shared-metadata";
 
@@ -31,6 +36,14 @@ export const metadata: Metadata = {
 };
 
 const Home = async (_: PageProps<"/">) => {
+  await connection();
+  // In self-host the marketing landing is dead weight: the root IS the workspace hub. Render it in
+  // place (no redirect, URL stays /), behind the same auth/2FA gate as the (authenticated) area.
+  if (await isSelfHost()) {
+    await redirectIfNotAuthenticated();
+    return <WorkspacesView />;
+  }
+
   const t = await getTranslations("home");
 
   return (

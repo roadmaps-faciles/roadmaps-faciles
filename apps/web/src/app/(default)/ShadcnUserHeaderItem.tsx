@@ -166,7 +166,7 @@ export const ShadcnUserHeaderItem = ({
               )}
 
               {/* Root admin */}
-              {userMenu?.isSuperAdmin && (
+              {userMenu?.isGlobalAdmin && (
                 <Link href="/admin" className={sheetItemClass}>
                   <Monitor className="size-4 shrink-0 text-muted-foreground" />
                   <span className="flex-1">{t("administration")}</span>
@@ -287,7 +287,7 @@ export const ShadcnUserHeaderItem = ({
                 )}
 
                 {/* Root admin */}
-                {userMenu?.isSuperAdmin && (
+                {userMenu?.isGlobalAdmin && (
                   <DropdownMenuItem asChild>
                     <Link
                       href="/admin"

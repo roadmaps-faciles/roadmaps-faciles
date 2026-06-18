@@ -308,6 +308,9 @@ export const config = {
     secretKey: ensureApiEnvVar(process.env.STRIPE_SECRET_KEY, ""),
     webhookSecret: ensureApiEnvVar(process.env.STRIPE_WEBHOOK_SECRET, ""),
   },
+  deployment: {
+    mode: ensureApiEnvVar<"cloud" | "self-host">(process.env.DEPLOYMENT_MODE, "self-host"),
+  },
   licenseKey: ensureApiEnvVar(process.env.LICENSE_KEY, ""),
   licensingServerUrl: ensureApiEnvVar(process.env.LICENSING_SERVER_URL, "https://licensing.roadmaps-faciles.fr"),
   licensingAdminApiKey: ensureApiEnvVar(process.env.LICENSING_ADMIN_API_KEY, ""),

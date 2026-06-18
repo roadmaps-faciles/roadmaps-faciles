@@ -4,27 +4,37 @@ import { Badge, Button, Switch, toast } from "@roadmaps-faciles/ui";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 
+import { type DeploymentMode } from "@/lib/deployment";
+
 import { VerifyLicenseDialog } from "../(ee)/licensing/VerifyLicenseDialog";
 import {
   clearDevLicenseOverrideAction,
   forceExpireDevAction,
   issueAndBindDevAction,
+  setDeploymentModeDevAction,
   toggleOfflineDevAction,
 } from "./actions";
 
 interface Props {
   hasEnvKey: boolean;
   hasOverride: boolean;
+  initialDeploymentMode: DeploymentMode;
   initialOffline: boolean;
   instanceId: string;
 }
 
-export const LicensingDevSection = ({ hasOverride, hasEnvKey, instanceId, initialOffline }: Props) => {
+export const LicensingDevSection = ({
+  hasOverride,
+  hasEnvKey,
+  instanceId,
+  initialOffline,
+  initialDeploymentMode,
+}: Props) => {
   const t = useTranslations("rootAdmin.devTools.licensing");
   const tVerify = useTranslations("rootAdmin.licensing.verify");
   const [pending, startTransition] = useTransition();
   const [offline, setOffline] = useState(initialOffline);
-  const [lastIssuedKey, setLastIssuedKey] = useState<null | string>(null);
+  const [selfHost, setSelfHost] = useState(initialDeploymentMode === "self-host");
   const [verifyOpen, setVerifyOpen] = useState(false);
 
   const reloadAfter = (action: () => Promise<void>) =>
@@ -40,8 +50,9 @@ export const LicensingDevSection = ({ hasOverride, hasEnvKey, instanceId, initia
         toast.error(result.error);
         return;
       }
-      setLastIssuedKey(result.data.licenseKey);
       toast.success(t("issuedSuccess"));
+      // Reload so the new dev overrides (license + self-host mode) are reflected server-side.
+      window.location.reload();
     });
 
   const handleClear = () =>
@@ -64,6 +75,14 @@ export const LicensingDevSection = ({ hasOverride, hasEnvKey, instanceId, initia
     setOffline(value);
     startTransition(async () => {
       const result = await toggleOfflineDevAction(value);
+      if (!result.ok) toast.error(result.error);
+    });
+  };
+
+  const handleToggleSelfHost = (value: boolean) => {
+    setSelfHost(value);
+    reloadAfter(async () => {
+      const result = await setDeploymentModeDevAction(value ? "self-host" : "cloud");
       if (!result.ok) toast.error(result.error);
     });
   };
@@ -92,14 +111,16 @@ export const LicensingDevSection = ({ hasOverride, hasEnvKey, instanceId, initia
         </div>
       </div>
 
-      {lastIssuedKey && (
-        <div className="rounded-md border border-orange-500/30 bg-orange-500/5 p-3 text-xs">
-          <p className="mb-1 font-medium">Clé émise (override actif) :</p>
-          <code className="break-all">{lastIssuedKey}</code>
-        </div>
-      )}
-
       <div className="space-y-3">
+        <div className="flex items-start justify-between gap-3 rounded-md border p-3">
+          <div className="space-y-0.5">
+            <p className="text-sm font-medium">{t("deploymentModeLabel")}</p>
+            <p className="text-xs text-muted-foreground">{t("deploymentModeDescription")}</p>
+            <p className="text-[11px] text-amber-600 dark:text-amber-500">{t("deploymentModeDevNote")}</p>
+          </div>
+          <Switch checked={selfHost} onCheckedChange={handleToggleSelfHost} disabled={pending} />
+        </div>
+
         <DevAction
           label={tVerify("button")}
           description={tVerify("description")}

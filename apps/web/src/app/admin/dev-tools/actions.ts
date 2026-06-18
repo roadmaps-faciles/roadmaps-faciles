@@ -1,24 +1,21 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 
 import { config } from "@/config";
+import { type DeploymentMode } from "@/lib/deployment";
+import { devOverrides } from "@/lib/devOverride";
 import { licensingAdminClient } from "@/lib/ee/licensing/adminClient";
 import { getOrCreateInstanceId } from "@/lib/ee/licensing/instanceId";
 import { activateLicenseOnline } from "@/lib/ee/licensing/licenseFetcher";
-import {
-  DEV_LICENSE_KEY_COOKIE,
-  DEV_LICENSE_OFFLINE_COOKIE,
-  getEffectiveLicenseKey,
-  resetLicenseStatusCache,
-} from "@/lib/ee/licensing/licenseService";
+import { getEffectiveLicenseKey, resetLicenseStatusCache } from "@/lib/ee/licensing/licenseService";
 import { parseLicenseKey } from "@/lib/ee/licensing/licenseVerifier";
+import { logger } from "@/lib/logger";
 import { assertAdmin } from "@/utils/auth";
 import { type ServerActionResponse } from "@/utils/next";
 
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
-
+// All dev overrides (deployment mode, license, Stripe toggle) live in the process-wide devOverrides
+// store, shared across every host of the single dev process. No dev cookies.
 const assertDev = () => {
   if (config.env !== "dev") notFound();
 };
@@ -32,18 +29,15 @@ export const issueAndBindDevAction = async (): Promise<ServerActionResponse<{ li
     expiresAt.setFullYear(expiresAt.getFullYear() + 1);
 
     const result = await licensingAdminClient.createLicense({
-      email: "dev-tools@local",
+      email: "dev-tools@example.com",
       expiresAt: expiresAt.toISOString(),
       plan: "GOV_LICENSED",
     });
 
-    const cookieStore = await cookies();
-    cookieStore.set(DEV_LICENSE_KEY_COOKIE, result.licenseKey, {
-      httpOnly: true,
-      maxAge: COOKIE_MAX_AGE,
-      path: "/",
-      sameSite: "lax",
-    });
+    // Process-wide dev override (shared across all hosts in the single dev process, unlike cookies).
+    // Issuing a license implies self-host testing — flip deployment mode so the licensing UI reflects it.
+    devOverrides.licenseKey = result.licenseKey;
+    devOverrides.deploymentMode = "self-host";
 
     const instanceId = await getOrCreateInstanceId();
     void activateLicenseOnline(result.licenseKey, instanceId);
@@ -51,6 +45,7 @@ export const issueAndBindDevAction = async (): Promise<ServerActionResponse<{ li
 
     return { data: { licenseKey: result.licenseKey }, ok: true };
   } catch (error) {
+    logger.warn({ err: error, licensingServerUrl: config.licensingServerUrl }, "Dev license issue failed");
     return { error: (error as Error).message, ok: false };
   }
 };
@@ -59,10 +54,19 @@ export const clearDevLicenseOverrideAction = async (): Promise<ServerActionRespo
   assertDev();
   await assertAdmin();
 
-  const cookieStore = await cookies();
-  cookieStore.delete(DEV_LICENSE_KEY_COOKIE);
-  cookieStore.delete(DEV_LICENSE_OFFLINE_COOKIE);
+  devOverrides.licenseKey = undefined;
+  devOverrides.licenseOffline = undefined;
+  devOverrides.deploymentMode = undefined;
   resetLicenseStatusCache();
+
+  return { ok: true };
+};
+
+export const setDeploymentModeDevAction = async (mode: DeploymentMode): Promise<ServerActionResponse<void>> => {
+  assertDev();
+  await assertAdmin();
+
+  devOverrides.deploymentMode = mode;
 
   return { ok: true };
 };
@@ -94,17 +98,7 @@ export const toggleOfflineDevAction = async (value: boolean): Promise<ServerActi
   assertDev();
   await assertAdmin();
 
-  const cookieStore = await cookies();
-  if (value) {
-    cookieStore.set(DEV_LICENSE_OFFLINE_COOKIE, "1", {
-      httpOnly: true,
-      maxAge: COOKIE_MAX_AGE,
-      path: "/",
-      sameSite: "lax",
-    });
-  } else {
-    cookieStore.delete(DEV_LICENSE_OFFLINE_COOKIE);
-  }
+  devOverrides.licenseOffline = value;
   resetLicenseStatusCache();
 
   return { ok: true };
@@ -114,8 +108,7 @@ export const toggleStripeCheckoutDevAction = async (value: boolean): Promise<Ser
   assertDev();
   await assertAdmin();
 
-  const cookieStore = await cookies();
-  cookieStore.set("dev-use-stripe", value ? "1" : "0", { maxAge: COOKIE_MAX_AGE, path: "/" });
+  devOverrides.useStripe = value;
 
   return { ok: true };
 };

@@ -1,7 +1,7 @@
 import "server-only";
-import { cookies } from "next/headers";
 
 import { config } from "@/config";
+import { devOverrides } from "@/lib/devOverride";
 import { logger } from "@/lib/logger";
 
 import { getOrCreateInstanceId } from "./instanceId";
@@ -9,15 +9,14 @@ import { activateLicenseOnline, verifyLicenseOnline } from "./licenseFetcher";
 import { isLicenseExpired, parseLicenseKey } from "./licenseVerifier";
 import { type LicenseStatus } from "./types";
 
-export const DEV_LICENSE_KEY_COOKIE = "dev-license-key";
-export const DEV_LICENSE_OFFLINE_COOKIE = "dev-license-offline";
-
+// Dev license override lives in the process-wide store (shared across all hosts of the single dev
+// process, so it reaches tenant subdomains), set via /admin/dev-tools. Resets on dev server restart.
+// eslint-disable-next-line @typescript-eslint/require-await -- async kept for API stability (getEffectiveLicenseKey / getLicenseStatus await this).
 async function readDevOverrides(): Promise<{ key: null | string; offline: boolean }> {
   if (config.env !== "dev") return { key: null, offline: false };
-  const cookieStore = await cookies();
   return {
-    key: cookieStore.get(DEV_LICENSE_KEY_COOKIE)?.value || null,
-    offline: cookieStore.get(DEV_LICENSE_OFFLINE_COOKIE)?.value === "1",
+    key: devOverrides.licenseKey ?? null,
+    offline: devOverrides.licenseOffline ?? false,
   };
 }
 
@@ -69,13 +68,13 @@ export async function getLicenseStatus(forceRefresh = false): Promise<LicenseSta
   const licenseKey = devKey ?? config.licenseKey;
 
   if (!licenseKey) {
-    return { mode: "community", valid: false };
+    return { mode: "community", valid: false, reason: "no-key" };
   }
 
   // Offline verify (signature + expiry)
   const { payload, valid } = parseLicenseKey(licenseKey);
   if (!valid || !payload) {
-    return { mode: "community", valid: false };
+    return { mode: "community", valid: false, reason: "invalid" };
   }
 
   if (isLicenseExpired(payload)) {

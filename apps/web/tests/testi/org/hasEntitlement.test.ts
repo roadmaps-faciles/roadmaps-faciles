@@ -4,11 +4,17 @@ import { fakeOrganization } from "../helpers";
 
 vi.mock("server-only", () => ({}));
 
+// Cloud mode: DB-based entitlements
+vi.mock("@/lib/deployment", () => ({
+  isCloud: vi.fn().mockResolvedValue(true),
+  isSelfHost: vi.fn().mockResolvedValue(false),
+}));
+
 const mockFindByTenantId = vi.fn();
-const mockIsActiveForTenant = vi.fn();
+const mockListOverrides = vi.fn();
 vi.mock("@/lib/repo", () => ({
   organizationRepo: { findByTenantId: mockFindByTenantId },
-  orgAddonRepo: { isActiveForTenant: mockIsActiveForTenant },
+  orgAddonRepo: { listOverridesForTenant: mockListOverrides },
 }));
 
 vi.mock("next/navigation", () => ({
@@ -27,7 +33,8 @@ describe("hasEntitlement", () => {
 
   beforeEach(() => {
     mockFindByTenantId.mockReset();
-    mockIsActiveForTenant.mockReset();
+    mockListOverrides.mockReset();
+    mockListOverrides.mockResolvedValue([]);
   });
 
   it("returns false when org is not found", async () => {
@@ -56,12 +63,12 @@ describe("hasEntitlement", () => {
 
   it("returns true when global addon is active", async () => {
     mockFindByTenantId.mockResolvedValue(fakeOrganization({ id: 1 }));
-    mockIsActiveForTenant.mockResolvedValue(true);
+    mockListOverrides.mockResolvedValue([ADDON_TYPE.TRACKING]);
 
     const result = await hasEntitlement(1, ADDON_TYPE.TRACKING);
 
     expect(result).toBe(true);
-    expect(mockIsActiveForTenant).toHaveBeenCalledWith(1, 1, ADDON_TYPE.TRACKING);
+    expect(mockListOverrides).toHaveBeenCalledWith(1, 1, true);
   });
 
   it("returns true for any addon when org has GRANTED_FREE plan", async () => {
@@ -70,7 +77,7 @@ describe("hasEntitlement", () => {
     const result = await hasEntitlement(1, ADDON_TYPE.TRACKING);
 
     expect(result).toBe(true);
-    expect(mockIsActiveForTenant).not.toHaveBeenCalled();
+    expect(mockListOverrides).not.toHaveBeenCalled();
   });
 
   it("returns true for any addon when org has GOV plan", async () => {
@@ -79,12 +86,12 @@ describe("hasEntitlement", () => {
     const result = await hasEntitlement(1, ADDON_TYPE.TRACKING);
 
     expect(result).toBe(true);
-    expect(mockIsActiveForTenant).not.toHaveBeenCalled();
+    expect(mockListOverrides).not.toHaveBeenCalled();
   });
 
   it("returns false when addon is not active and not in free tier", async () => {
     mockFindByTenantId.mockResolvedValue(fakeOrganization({ id: 1 }));
-    mockIsActiveForTenant.mockResolvedValue(false);
+    mockListOverrides.mockResolvedValue([]);
 
     const result = await hasEntitlement(1, ADDON_TYPE.TRACKING);
 

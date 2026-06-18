@@ -20,6 +20,7 @@ import Image from "next/image";
 
 import { config } from "@/config";
 import { AdminSidebar, type NavGroup, type UserMenuData } from "@/ui/AdminSidebar";
+import { SystemStatusWidget } from "@/ui/SystemStatusWidget";
 
 interface AdminSideMenuProps {
   isDev: boolean;
@@ -51,7 +52,7 @@ export const AdminSideMenu = ({ userMenu, isDev, showAnalyticsDebug }: AdminSide
     {
       label: t("groups.developers"),
       items: [
-        { label: t("prismaStudio"), href: "/admin/prisma", icon: Database },
+        ...(isDev ? [{ label: t("prismaStudio"), href: "/admin/prisma", icon: Database }] : []),
         { label: t("auditLog.title"), href: "/admin/audit-log", icon: ScrollText },
       ],
     },
@@ -77,7 +78,7 @@ export const AdminSideMenu = ({ userMenu, isDev, showAnalyticsDebug }: AdminSide
       groups={groups}
       backHref="/"
       backLabel={t("backToSite")}
-      footer={{ status: t("systemOperational"), version: `v${config.appVersion}` }}
+      footer={{ content: <SystemStatusWidget version={`v${config.appVersion}`} /> }}
       userMenu={userMenu}
     />
   );

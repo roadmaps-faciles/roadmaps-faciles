@@ -4,6 +4,7 @@ import { type Session } from "next-auth";
 import { config } from "@/config";
 import { prisma } from "@/lib/db/prisma";
 import { orgMemberRepo, organizationRepo, tenantRepo, userOnTenantRepo } from "@/lib/repo";
+import { UserRole } from "@/prisma/enums";
 import {
   type CurrentTenantContext,
   type OrgMenuGroup,
@@ -23,7 +24,11 @@ interface UserMenuContextOptions {
  * Fetch user context for the user menu (sidebar footer + header dropdowns).
  * Returns a grouped `UserMenuData` with organizations → tenants tree.
  */
-export async function getUserMenuContext({ session, currentTenantId }: UserMenuContextOptions): Promise<UserMenuData> {
+export async function getUserMenuContext({
+  session,
+  currentTenantId,
+  currentOrgId,
+}: UserMenuContextOptions): Promise<UserMenuData> {
   if (!session?.user?.uuid) {
     return {
       user: { email: "", name: "" },
@@ -35,6 +40,10 @@ export async function getUserMenuContext({ session, currentTenantId }: UserMenuC
   const userId = session.user.uuid;
   const hostUrl = new URL(config.host).host;
   const isSuperAdmin = session.user.isSuperAdmin ?? false;
+  // /admin (root admin) is gated by assertAdmin = global role >= ADMIN OR super admin.
+  // The link must mirror that, not isSuperAdmin alone (self-host bootstrap admin is
+  // role ADMIN but not in the ADMINS allowlist that drives isSuperAdmin).
+  const isGlobalAdmin = isSuperAdmin || session.user.role === UserRole.ADMIN || session.user.role === UserRole.OWNER;
 
   const [orgMemberships, tenantMemberships] = await Promise.all([
     orgMemberRepo.findByUserIdWithOrgsAndTenants(userId),
@@ -146,6 +155,18 @@ export async function getUserMenuContext({ session, currentTenantId }: UserMenuC
     }
   }
 
+  // Role for the current admin scope, shown in the sidebar footer. Tenant admin -> tenant role,
+  // org admin -> org role, root admin -> super admin / global role.
+  let currentRole: string | undefined;
+  if (currentTenantId) {
+    currentRole = tenantRoleMap.get(currentTenantId) ?? (isSuperAdmin ? "superAdmin" : undefined);
+  } else if (currentOrgId) {
+    const membership = orgMemberships.find(om => om.organization.id === currentOrgId);
+    currentRole = membership?.role ?? (isSuperAdmin ? "superAdmin" : undefined);
+  } else {
+    currentRole = isSuperAdmin ? "superAdmin" : session.user.role;
+  }
+
   return {
     user: {
       email: session.user.email ?? "",
@@ -155,6 +176,8 @@ export async function getUserMenuContext({ session, currentTenantId }: UserMenuC
     organizations,
     currentTenantId,
     currentTenant,
+    currentRole,
     isSuperAdmin: session.user.isSuperAdmin ?? false,
+    isGlobalAdmin,
   };
 }

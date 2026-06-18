@@ -4,6 +4,7 @@ import { connection } from "next/server";
 
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { prisma } from "@/lib/db/prisma";
+import { isSelfHost } from "@/lib/deployment";
 import { listInvoices } from "@/lib/ee/billing/invoices";
 import { getPackStripePriceIds } from "@/lib/ee/billing/pricing";
 import { getAllActiveSubscriptions } from "@/lib/ee/billing/subscription-details";
@@ -14,6 +15,7 @@ import { BillingPanel } from "./BillingPanel";
 
 const OrgBillingPage = async ({ params }: { params: Promise<{ orgSlug: string }> }) => {
   await connection();
+  if (await isSelfHost()) notFound();
   const t = await getTranslations("orgAdmin.billing");
   const { orgSlug } = await params;
 

@@ -13,19 +13,14 @@ import { formatDateHour } from "@/utils/date";
 
 import { deleteOrganization, updateOrganization } from "./actions";
 
-const PLAN_LABELS = {
-  FREE: "planFree",
-  ORGANIZATION: "planOrganization",
-  GRANTED_FREE: "planGrantedFree",
-  GOV: "planGov",
-} as const;
-
 interface OrgGeneralFormProps {
   canEdit?: boolean;
   org: Organization;
+  /** Display label for the plan/license, resolved server-side (license-derived in self-host). */
+  planLabel: string;
 }
 
-export const OrgGeneralForm = ({ org, canEdit = false }: OrgGeneralFormProps) => {
+export const OrgGeneralForm = ({ org, canEdit = false, planLabel }: OrgGeneralFormProps) => {
   const t = useTranslations("orgAdmin.general");
   const locale = useLocale();
   const [error, setError] = useState<null | string>(null);
@@ -80,7 +75,7 @@ export const OrgGeneralForm = ({ org, canEdit = false }: OrgGeneralFormProps) =>
         <div className="space-y-2">
           <Label>{t("plan")}</Label>
           <div>
-            <Badge variant="outline">{t(PLAN_LABELS[org.plan as keyof typeof PLAN_LABELS] ?? "planFree")}</Badge>
+            <Badge variant="outline">{planLabel}</Badge>
           </div>
         </div>
         <div className="space-y-2">

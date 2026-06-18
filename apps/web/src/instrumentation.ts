@@ -2,6 +2,9 @@ import * as Sentry from "@sentry/nextjs";
 
 export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
+    const { assertDeploymentConfig } = await import("@/lib/deployment");
+    assertDeploymentConfig();
+
     await import("../sentry.server.config");
   }
 

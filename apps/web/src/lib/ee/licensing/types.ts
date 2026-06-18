@@ -10,5 +10,7 @@ export interface LicenseStatus {
   lastVerified?: Date;
   mode: "community" | "licensed";
   plan?: "GOV_LICENSED" | "LICENSED";
+  /** Why the instance fell back to community: no key set vs a present-but-invalid key. */
+  reason?: "invalid" | "no-key";
   valid: boolean;
 }

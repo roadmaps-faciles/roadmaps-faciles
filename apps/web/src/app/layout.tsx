@@ -1,6 +1,7 @@
 import "./tailwind-entry.css";
 import "./globals.scss";
 import "react-loading-skeleton/dist/skeleton.css";
+import { Toaster } from "@roadmaps-faciles/ui";
 import * as Sentry from "@sentry/nextjs";
 import { type Metadata } from "next";
 import { type Session } from "next-auth";
@@ -119,6 +120,7 @@ const RootLayout = async ({ children }: LayoutProps<"/">) => {
                           {dbError ? <TechnicalErrorDisplay error={dbError} /> : children}
                         </div>
                       </Suspense>
+                      <Toaster />
                     </UIProvider>
                   </FeatureFlagProvider>
                 </SkeletonTheme>

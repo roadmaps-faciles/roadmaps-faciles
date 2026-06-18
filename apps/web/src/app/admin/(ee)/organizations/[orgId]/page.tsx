@@ -6,6 +6,7 @@ import { connection } from "next/server";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/db/prisma";
+import { isSelfHost } from "@/lib/deployment";
 import { orgAddonRepo, orgDomainRepo, orgMemberRepo, organizationRepo } from "@/lib/repo";
 import { type NextServerPageProps } from "@/utils/next";
 
@@ -28,7 +29,7 @@ const OrgDetailPage = async ({ params }: NextServerPageProps<{ orgId: string }>)
     orgAddonRepo.findByOrgId(org.id),
     prisma.tenant.findMany({ where: { organizationId: org.id, deletedAt: null } }),
   ]);
-  const [t, locale] = await Promise.all([getTranslations("adminOrganizations"), getLocale()]);
+  const [t, locale, selfHost] = await Promise.all([getTranslations("adminOrganizations"), getLocale(), isSelfHost()]);
 
   const dateFormatter = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
 
@@ -53,15 +54,19 @@ const OrgDetailPage = async ({ params }: NextServerPageProps<{ orgId: string }>)
           <div>
             <dt className="inline font-bold">{t("slug")} :</dt> <dd className="inline">{org.slug}</dd>
           </div>
-          <div>
-            <dt className="inline font-bold">{t("plan")} :</dt>{" "}
-            <dd className="inline">
-              <Badge variant={PLAN_BADGE_VARIANT[org.plan] ?? "secondary"}>{org.plan}</Badge>
-            </dd>
-          </div>
-          <div>
-            <dt className="inline font-bold">Stripe :</dt> <dd className="inline">{org.stripeCustomerId ?? "-"}</dd>
-          </div>
+          {!selfHost && (
+            <>
+              <div>
+                <dt className="inline font-bold">{t("plan")} :</dt>{" "}
+                <dd className="inline">
+                  <Badge variant={PLAN_BADGE_VARIANT[org.plan] ?? "secondary"}>{org.plan}</Badge>
+                </dd>
+              </div>
+              <div>
+                <dt className="inline font-bold">Stripe :</dt> <dd className="inline">{org.stripeCustomerId ?? "-"}</dd>
+              </div>
+            </>
+          )}
           <div>
             <dt className="inline font-bold">{t("createdAt")} :</dt>{" "}
             <dd className="inline">{dateFormatter.format(new Date(org.createdAt))}</dd>
@@ -71,7 +76,7 @@ const OrgDetailPage = async ({ params }: NextServerPageProps<{ orgId: string }>)
 
       <Separator className="my-6" />
 
-      <RootOrgActions activeAddons={addons} org={org} />
+      <RootOrgActions activeAddons={addons} org={org} selfHost={selfHost} />
 
       <Separator className="my-6" />
 
@@ -149,25 +154,48 @@ const OrgDetailPage = async ({ params }: NextServerPageProps<{ orgId: string }>)
 
       <Separator className="my-6" />
 
-      <div className="mb-8">
-        <h2 className="mb-4 text-xl font-semibold">
-          {t("addons")} ({addons.filter(a => a.active).length})
-        </h2>
-        {addons.filter(a => a.active).length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t("noAddons")}</p>
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {addons
-              .filter(a => a.active)
-              .map(a => (
-                <Badge key={a.id} variant="outline">
-                  {a.addon}
-                  {a.tenantId && <span className="ml-1 text-xs text-muted-foreground">(tenant #{a.tenantId})</span>}
-                </Badge>
-              ))}
-          </div>
-        )}
-      </div>
+      {selfHost ? (
+        // Denylist: everything covered is on by default; show what's been turned off for this org.
+        <div className="mb-8">
+          <h2 className="mb-4 text-xl font-semibold">
+            {t("addonsDisabled")} ({addons.filter(a => !a.active).length})
+          </h2>
+          {addons.filter(a => !a.active).length === 0 ? (
+            <p className="text-sm text-muted-foreground">{t("allAddonsActive")}</p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {addons
+                .filter(a => !a.active)
+                .map(a => (
+                  <Badge key={a.id} variant="destructive">
+                    {a.addon}
+                    {a.tenantId && <span className="ml-1 text-xs">(tenant #{a.tenantId})</span>}
+                  </Badge>
+                ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="mb-8">
+          <h2 className="mb-4 text-xl font-semibold">
+            {t("addons")} ({addons.filter(a => a.active).length})
+          </h2>
+          {addons.filter(a => a.active).length === 0 ? (
+            <p className="text-sm text-muted-foreground">{t("noAddons")}</p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {addons
+                .filter(a => a.active)
+                .map(a => (
+                  <Badge key={a.id} variant="outline">
+                    {a.addon}
+                    {a.tenantId && <span className="ml-1 text-xs text-muted-foreground">(tenant #{a.tenantId})</span>}
+                  </Badge>
+                ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

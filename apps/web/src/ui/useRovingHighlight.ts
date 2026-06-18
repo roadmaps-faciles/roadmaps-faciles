@@ -23,8 +23,10 @@ export const useRovingHighlight = (containerSelector: string) => {
       if (!container) return;
       const itemRect = item.getBoundingClientRect();
       const containerRect = container.getBoundingClientRect();
+      // Position relative to the scrollable content (not the viewport): the highlight lives inside
+      // the scroll container, so adding scrollTop keeps it pinned to the item while scrolling.
       setHighlight({
-        y: itemRect.top - containerRect.top,
+        y: itemRect.top - containerRect.top + container.scrollTop,
         height: itemRect.height,
       });
     },

@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { notFound, redirect } from "next/navigation";
 import { connection } from "next/server";
 
+import { isSelfHost } from "@/lib/deployment";
 import { organizationRepo } from "@/lib/repo";
 import { assertSession } from "@/utils/auth";
 
@@ -9,6 +10,7 @@ import { UpgradeForm } from "./UpgradeForm";
 
 const UpgradePage = async ({ searchParams }: { searchParams: Promise<{ orgId?: string }> }) => {
   await connection();
+  if (await isSelfHost()) notFound();
   const session = await assertSession();
   const t = await getTranslations("upgrade");
   const { orgId } = await searchParams;

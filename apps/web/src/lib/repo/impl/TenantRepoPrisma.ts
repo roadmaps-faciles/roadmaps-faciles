@@ -16,7 +16,7 @@ export class TenantRepoPrisma implements ITenantRepo {
 
   public findAllWithSettings(): Promise<TenantWithSettingsAndMemberCount[]> {
     return prisma.tenant.findMany({
-      where: { settings: { isNot: null } },
+      where: { deletedAt: null, settings: { isNot: null } },
       include: {
         settings: true,
         members: {

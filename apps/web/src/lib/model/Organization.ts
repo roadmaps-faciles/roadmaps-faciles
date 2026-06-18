@@ -34,6 +34,9 @@ export const ADDON_TYPE = {
 
 export type AddonType = keyof typeof ADDON_TYPE;
 
+/** Addons available without any license (community/free tier). Never disablable per org. */
+export const FREE_TIER_ADDONS = new Set<AddonType>([ADDON_TYPE.STORAGE_S3]);
+
 export const orgPlanEnum = z.enum(ORG_PLAN);
 export const orgRoleEnum = z.enum(ORG_ROLE);
 export const addonTypeEnum = z.enum(ADDON_TYPE);

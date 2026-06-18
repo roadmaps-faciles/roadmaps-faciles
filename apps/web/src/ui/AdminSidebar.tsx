@@ -37,6 +37,7 @@ import {
   Building2,
   ChevronsUpDown,
   LayoutDashboard,
+  Lock,
   LogOut,
   type LucideIcon,
   Monitor,
@@ -67,6 +68,8 @@ interface NavItem {
   href: string;
   icon: LucideIcon;
   label: string;
+  /** Premium feature not entitled in the current scope: render a lock marker. */
+  locked?: boolean;
   /** Match pathname prefix instead of exact match */
   matchPrefix?: boolean;
   subItems?: SubItem[];
@@ -111,8 +114,12 @@ export interface CurrentTenantContext {
 }
 
 export interface UserMenuData {
+  /** Role of the user in the current admin scope (tenant / org / root), for the sidebar footer. */
+  currentRole?: string;
   currentTenant?: CurrentTenantContext;
   currentTenantId?: number;
+  /** Global role >= ADMIN (or super admin): can reach /admin. Drives the admin link. */
+  isGlobalAdmin?: boolean;
   isSuperAdmin?: boolean;
   organizations: OrgMenuGroup[];
   user: {
@@ -133,10 +140,11 @@ interface AdminSidebarProps {
   devTools?: React.ReactNode;
   /** Extra items shown after a separator below the main nav groups */
   extraItems?: ExtraItem[];
-  /** Footer content: system status */
+  /** Footer content: system status. Pass `content` for a custom widget, else a static status string. */
   footer?: {
-    status: string;
-    version: string;
+    content?: React.ReactNode;
+    status?: string;
+    version?: string;
   };
   groups: NavGroup[];
   /** Header icon - ReactNode for full control (e.g. Image, SVG, or Lucide icon) */
@@ -261,6 +269,7 @@ const DarkModeToggle = ({ collapsed }: { collapsed?: boolean }) => {
 
 const SidebarUserMenu = ({ userMenu }: { userMenu: UserMenuData }) => {
   const t = useTranslations("sidebar");
+  const tr = useTranslations("roles");
   const { isMobile, state } = useSidebar();
   const collapsed = !isMobile && state === "collapsed";
   const displayName = userMenu.user.name || userMenu.user.email;
@@ -273,7 +282,7 @@ const SidebarUserMenu = ({ userMenu }: { userMenu: UserMenuData }) => {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="h-auto py-2 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <UserAvatar name={displayName} image={userMenu.user.image} className="size-8 rounded-lg text-xs" />
               {!collapsed && (
@@ -281,6 +290,11 @@ const SidebarUserMenu = ({ userMenu }: { userMenu: UserMenuData }) => {
                   <div className="grid flex-1 text-left text-sm/tight">
                     <span className="truncate font-semibold">{displayName}</span>
                     <span className="truncate text-xs text-sidebar-foreground/60">{userMenu.user.email}</span>
+                    {userMenu.currentRole && (
+                      <Badge variant="outline" className="mt-1.5 w-fit px-1.5 py-0.5 text-[10px] leading-none">
+                        {tr(userMenu.currentRole as "OWNER")}
+                      </Badge>
+                    )}
                   </div>
                   <ChevronsUpDown className="ml-auto size-4 shrink-0 text-sidebar-foreground/40" />
                 </>
@@ -355,7 +369,7 @@ const SidebarUserMenu = ({ userMenu }: { userMenu: UserMenuData }) => {
                 </DropdownMenuItem>
               )}
 
-              {userMenu.isSuperAdmin && (
+              {userMenu.isGlobalAdmin && (
                 <DropdownMenuItem asChild>
                   <Link href="/admin" className="flex items-center gap-2 px-3">
                     <Monitor className="size-4 shrink-0 text-muted-foreground" />
@@ -448,6 +462,7 @@ export const AdminSidebar = ({
           <Link href={item.href}>
             <Icon className="size-5" />
             <span>{item.label}</span>
+            {item.locked && <Lock className="ml-auto size-3.5 shrink-0 text-sidebar-foreground/40" />}
           </Link>
         </SidebarMenuButton>
         {item.badge != null && (
@@ -564,36 +579,38 @@ export const AdminSidebar = ({
         </div>
 
         {/* System status */}
-        {footer && (
-          <>
-            <div className="rounded-lg border border-sidebar-border bg-sidebar-accent/50 p-2.5 group-data-[collapsible=icon]:hidden">
-              <div className="mb-0.5 flex items-center gap-2">
-                <div className="size-2 animate-pulse rounded-full bg-green-500" />
-                <span className="text-[10px] font-bold uppercase tracking-wide text-sidebar-foreground/70">
-                  {footer.status}
-                </span>
-              </div>
-              <p className="text-[10px] text-sidebar-foreground/50">{footer.version}</p>
-            </div>
-            {/* Collapsed: just the green dot with tooltip */}
-            <div className="hidden group-data-[collapsible=icon]:block">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center justify-center py-1">
-                      <div className="size-2 animate-pulse rounded-full bg-green-500" />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="right">
-                    <p className="text-xs">
-                      {footer.status} - {footer.version}
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          </>
-        )}
+        {footer?.content
+          ? footer.content
+          : footer && (
+              <>
+                <div className="rounded-lg border border-sidebar-border bg-sidebar-accent/50 p-2.5 group-data-[collapsible=icon]:hidden">
+                  <div className="mb-0.5 flex items-center gap-2">
+                    <div className="size-2 animate-pulse rounded-full bg-green-500" />
+                    <span className="text-[10px] font-bold uppercase tracking-wide text-sidebar-foreground/70">
+                      {footer.status}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-sidebar-foreground/50">{footer.version}</p>
+                </div>
+                {/* Collapsed: just the green dot with tooltip */}
+                <div className="hidden group-data-[collapsible=icon]:block">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex items-center justify-center py-1">
+                          <div className="size-2 animate-pulse rounded-full bg-green-500" />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="right">
+                        <p className="text-xs">
+                          {footer.status} - {footer.version}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </>
+            )}
 
         {/* Dev tools (dev mode only) */}
         {devTools && <div className="group-data-[collapsible=icon]:hidden">{devTools}</div>}

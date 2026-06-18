@@ -1,9 +1,12 @@
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@roadmaps-faciles/ui";
-import { cookies, headers } from "next/headers";
+import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { connection } from "next/server";
 
 import { config } from "@/config";
+import { isSelfHost } from "@/lib/deployment";
+import { devOverrides } from "@/lib/devOverride";
+import { getLicenseStatus } from "@/lib/ee/licensing/licenseService";
 import { auth } from "@/lib/next-auth/auth";
 import { organizationRepo } from "@/lib/repo";
 import { DefaultThemeForcer } from "@/ui/DefaultThemeForcer";
@@ -41,7 +44,9 @@ const OrgAdminLayout = async ({
 
   const userMenu = await getUserMenuContext({ session, currentOrgId: org.id });
   const isDev = config.env === "dev";
-  const useStripe = isDev ? (await cookies()).get("dev-use-stripe")?.value === "1" : false;
+  const useStripe = isDev ? (devOverrides.useStripe ?? false) : false;
+  const selfHost = await isSelfHost();
+  const licensed = selfHost ? (await getLicenseStatus()).valid : false;
 
   return (
     <UIProvider value="Default">
@@ -53,6 +58,8 @@ const OrgAdminLayout = async ({
           userMenu={userMenu}
           isDev={isDev}
           useStripe={useStripe}
+          selfHost={selfHost}
+          licensed={licensed}
         />
         <SidebarInset id="content" className="max-h-svh overflow-x-hidden overflow-y-auto">
           <header className="sticky top-0 z-10 flex h-12 items-center border-b bg-background px-4 md:hidden">

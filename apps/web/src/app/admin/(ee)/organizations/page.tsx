@@ -16,6 +16,10 @@ import { z } from "zod";
 
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { Link } from "@/i18n/navigation";
+import { prisma } from "@/lib/db/prisma";
+import { isSelfHost } from "@/lib/deployment";
+import { getLicenseStatus } from "@/lib/ee/licensing/licenseService";
+import { ADDON_TYPE, FREE_TIER_ADDONS } from "@/lib/model/Organization";
 import { organizationRepo } from "@/lib/repo";
 import { OrgPlan } from "@/prisma/enums";
 import { type NextServerPageProps } from "@/utils/next";
@@ -48,6 +52,41 @@ const OrganizationsPage = async ({
   const totalPages = Math.ceil(total / PAGE_SIZE);
   const dateFormatter = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
 
+  // Self-host: the org "plan" is meaningless; reflect the instance license instead, and show how many
+  // addons are active per org (covered by the license minus the per-org denylist overrides).
+  const selfHost = await isSelfHost();
+  const licenseStatus = selfHost ? await getLicenseStatus() : null;
+  const licensed = !!licenseStatus?.valid;
+  // Premium addons the license covers (DSFR needs a gov license). Free-tier addons are excluded: they're
+  // always on and not disablable, so they're neither "covered premium" nor counted in the denylist.
+  const coveredAddonKeys = Object.values(ADDON_TYPE).filter(
+    a => !FREE_TIER_ADDONS.has(a) && (licenseStatus?.plan === "GOV_LICENSED" || a !== ADDON_TYPE.THEME_DSFR),
+  );
+  const coveredAddons = coveredAddonKeys.length;
+  const disabledByOrg = new Map<number, number>();
+  if (selfHost && licensed && orgs.length > 0) {
+    const rows = await prisma.orgAddon.findMany({
+      where: {
+        active: false,
+        tenantId: null,
+        addon: { in: coveredAddonKeys },
+        organizationId: { in: orgs.map(o => o.id) },
+      },
+      select: { organizationId: true },
+    });
+    for (const r of rows) disabledByOrg.set(r.organizationId, (disabledByOrg.get(r.organizationId) ?? 0) + 1);
+  }
+  const licenseBadge = !licenseStatus
+    ? null
+    : licenseStatus.mode === "community"
+      ? { label: t("licenseCommunity"), variant: "outline" as const }
+      : !licenseStatus.valid
+        ? { label: t("licenseExpired"), variant: "destructive" as const }
+        : {
+            label: licenseStatus.plan === "GOV_LICENSED" ? t("licenseGov") : t("licensed"),
+            variant: "default" as const,
+          };
+
   return (
     <div>
       <AdminPageHeader title={t("title")} description={t("orgCount", { count: total })} />
@@ -73,7 +112,11 @@ const OrganizationsPage = async ({
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">{org.name}</CardTitle>
-                <Badge variant={PLAN_BADGE_VARIANT[org.plan] ?? "secondary"}>{org.plan}</Badge>
+                {selfHost && licenseBadge ? (
+                  <Badge variant={licenseBadge.variant}>{licenseBadge.label}</Badge>
+                ) : (
+                  <Badge variant={PLAN_BADGE_VARIANT[org.plan] ?? "secondary"}>{org.plan}</Badge>
+                )}
               </div>
               <p className="text-sm text-muted-foreground">{org.slug}</p>
             </CardHeader>
@@ -94,6 +137,14 @@ const OrganizationsPage = async ({
                   {org._count.domains}
                 </span>
               </div>
+              {selfHost && licensed && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {t("addonsActive", {
+                    active: coveredAddons - (disabledByOrg.get(org.id) ?? 0),
+                    total: coveredAddons,
+                  })}
+                </p>
+              )}
               <p className="mt-2 text-xs text-muted-foreground">{dateFormatter.format(new Date(org.createdAt))}</p>
             </CardContent>
             <CardFooter>

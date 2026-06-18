@@ -1,5 +1,6 @@
 "use server";
 
+import { assertCloud } from "@/lib/deployment";
 import { OrganizationInput } from "@/lib/model/Organization";
 import { organizationRepo } from "@/lib/repo";
 import { AuditAction, audit, getRequestContext } from "@/utils/audit";
@@ -15,6 +16,7 @@ export const upgradeOrganization = async (data: {
   orgId: number;
   slug: string;
 }): Promise<ServerActionResponse<{ checkoutUrl: string }>> => {
+  await assertCloud();
   const reqCtx = await getRequestContext();
   const session = await assertOrgOwner(data.orgId);
 

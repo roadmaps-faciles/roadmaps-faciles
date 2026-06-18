@@ -11,3 +11,6 @@ dist/
 !prisma.config.ts
 !eslint.config.ts
 !vitest.config.ts
+
+# ...but re-ignore compiled test declarations (!tests/**/*.ts above matches *.d.ts too)
+tests/**/*.test.d.ts

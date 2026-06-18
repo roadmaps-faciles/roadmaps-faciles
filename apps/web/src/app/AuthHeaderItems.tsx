@@ -54,7 +54,7 @@ const AuthenticatedUserMenu = ({
     });
   }
 
-  if (userMenu?.isSuperAdmin) {
+  if (userMenu?.isGlobalAdmin) {
     menuItems.push({
       label: ts("administration"),
       iconId: "fr-icon-settings-5-line",

@@ -3,29 +3,34 @@ import { Map } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 import { config } from "@/config";
+import { isSelfHost } from "@/lib/deployment";
 import { ConsentManagementLink } from "@/ui/ConsentManagementLink";
 import { RootFooter } from "@/ui/RootFooter";
+
+// Managed offering: self-host footer points its non-legal links here (legal stays local, config-driven).
+const CLOUD_URL = "https://roadmaps-faciles.fr";
 
 export interface DefaultFooterProps {
   id: string;
 }
 
 export const DefaultFooter = async ({ id }: DefaultFooterProps) => {
-  const t = await getTranslations("footer");
+  const [t, selfHost] = await Promise.all([getTranslations("footer"), isSelfHost()]);
+  const link = (path: string) => (selfHost ? `${CLOUD_URL}${path}` : path);
 
   const columns = [
     {
       title: t("columns.product.title"),
       links: [
-        { text: t("columns.product.features"), href: "/pricing" },
-        { text: t("columns.product.publicRoadmap"), href: "/roadmap" },
-        { text: t("columns.product.hosting"), href: "/doc/technical/self-hosting" },
+        { text: t("columns.product.features"), href: link("/pricing") },
+        { text: t("columns.product.publicRoadmap"), href: link("/roadmap") },
+        { text: t("columns.product.hosting"), href: link("/doc/technical/self-hosting") },
       ],
     },
     {
       title: t("columns.resources.title"),
       links: [
-        { text: t("columns.resources.documentation"), href: "/doc" },
+        { text: t("columns.resources.documentation"), href: link("/doc") },
         { text: t("columns.resources.github"), href: config.repositoryUrl },
       ],
     },

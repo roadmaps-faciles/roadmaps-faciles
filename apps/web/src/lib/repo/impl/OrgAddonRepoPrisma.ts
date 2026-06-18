@@ -8,6 +8,10 @@ export class OrgAddonRepoPrisma implements IOrgAddonRepo {
     await prisma.orgAddon.delete({ where: { id } });
   }
 
+  public async deleteByOrgId(organizationId: number): Promise<void> {
+    await prisma.orgAddon.deleteMany({ where: { organizationId } });
+  }
+
   public findByOrgAndAddon(organizationId: number, addon: AddonType): Promise<null | OrgAddon> {
     return prisma.orgAddon.findFirst({ where: { organizationId, addon, tenantId: null } });
   }
@@ -30,6 +34,38 @@ export class OrgAddonRepoPrisma implements IOrgAddonRepo {
       },
     });
     return result !== null;
+  }
+
+  public async isDisabledForTenant(
+    organizationId: number,
+    tenantId: null | number,
+    addon: AddonType,
+  ): Promise<boolean> {
+    const result = await prisma.orgAddon.findFirst({
+      where: {
+        organizationId,
+        addon,
+        active: false,
+        OR: tenantId !== null ? [{ tenantId: null }, { tenantId }] : [{ tenantId: null }],
+      },
+    });
+    return result !== null;
+  }
+
+  public async listOverridesForTenant(
+    organizationId: number,
+    tenantId: null | number,
+    active: boolean,
+  ): Promise<AddonType[]> {
+    const rows = await prisma.orgAddon.findMany({
+      where: {
+        organizationId,
+        active,
+        OR: tenantId !== null ? [{ tenantId: null }, { tenantId }] : [{ tenantId: null }],
+      },
+      select: { addon: true },
+    });
+    return rows.map(r => r.addon);
   }
 
   public async upsert(data: Prisma.OrgAddonUncheckedCreateInput): Promise<OrgAddon> {

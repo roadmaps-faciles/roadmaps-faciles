@@ -13,25 +13,35 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { toggleStripeCheckoutDevAction } from "@/app/admin/dev-tools/actions";
 import { type DevAction, DevToolsPanel } from "@/app/admin/DevToolsPanel";
 import { config } from "@/config";
 import { AdminSidebar, type NavGroup, type UserMenuData } from "@/ui/AdminSidebar";
+import { SystemStatusWidget } from "@/ui/SystemStatusWidget";
 
 import { cleanStripeCustomer } from "./devActions";
 
 interface OrgAdminSideMenuProps {
   isDev: boolean;
+  /** Self-host with a valid license: domains stays available (gov needs a .gouv.fr custom domain). */
+  licensed: boolean;
   orgName: string;
   orgSlug: string;
+  /** Self-host: billing/addons (cloud) are hidden, plus security (stub) and domains in community. */
+  selfHost: boolean;
   userMenu: UserMenuData;
   useStripe: boolean;
 }
 
-function setCookie(name: string, value: string) {
-  document.cookie = `${name}=${value};path=/;max-age=${60 * 60 * 24 * 365}`;
-}
-
-export const OrgAdminSideMenu = ({ orgName, orgSlug, userMenu, isDev, useStripe }: OrgAdminSideMenuProps) => {
+export const OrgAdminSideMenu = ({
+  orgName,
+  orgSlug,
+  userMenu,
+  isDev,
+  useStripe,
+  selfHost,
+  licensed,
+}: OrgAdminSideMenuProps) => {
   const t = useTranslations("orgAdmin.sideMenu");
   const base = `/org/${orgSlug}`;
 
@@ -47,19 +57,23 @@ export const OrgAdminSideMenu = ({ orgName, orgSlug, userMenu, isDev, useStripe 
     {
       label: t("management"),
       items: [
-        { label: t("domains"), href: `${base}/domains`, icon: Globe },
-        { label: t("addons"), href: `${base}/addons`, icon: Puzzle },
-        { label: t("billing"), href: `${base}/billing`, icon: CreditCard },
+        ...(selfHost && !licensed ? [] : [{ label: t("domains"), href: `${base}/domains`, icon: Globe }]),
+        ...(selfHost
+          ? []
+          : [
+              { label: t("addons"), href: `${base}/addons`, icon: Puzzle },
+              { label: t("billing"), href: `${base}/billing`, icon: CreditCard },
+            ]),
       ],
     },
     {
       label: t("developers"),
       items: [
-        { label: t("security"), href: `${base}/security`, icon: Shield },
+        ...(selfHost ? [] : [{ label: t("security"), href: `${base}/security`, icon: Shield }]),
         { label: t("auditLog"), href: `${base}/audit-log`, icon: ScrollText },
       ],
     },
-  ];
+  ].filter(group => group.items.length > 0);
 
   const devToggles = isDev
     ? [
@@ -69,8 +83,7 @@ export const OrgAdminSideMenu = ({ orgName, orgSlug, userMenu, isDev, useStripe 
           description: "Utiliser le vrai flow Stripe",
           defaultValue: useStripe,
           onChangeAction: (value: boolean) => {
-            setCookie("dev-use-stripe", value ? "1" : "0");
-            window.location.reload();
+            void toggleStripeCheckoutDevAction(value).then(() => window.location.reload());
           },
         },
       ]
@@ -85,7 +98,7 @@ export const OrgAdminSideMenu = ({ orgName, orgSlug, userMenu, isDev, useStripe 
       groups={groups}
       backHref="/"
       backLabel={t("backToSite")}
-      footer={{ status: t("systemOperational"), version: `v${config.appVersion}` }}
+      footer={{ content: <SystemStatusWidget version={`v${config.appVersion}`} /> }}
       devTools={
         isDev ? (
           <DevToolsPanel
