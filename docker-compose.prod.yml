@@ -1,6 +1,10 @@
 services:
   roadmaps-faciles-web:
     image: ghcr.io/roadmaps-faciles/roadmaps-faciles-web:${WEB_IMAGE_TAG:-latest}
+    # Tag mutable (dev) : poser WEB_PULL_POLICY=always dans cet environnement, sinon `compose up -d`
+    # réutilise l'image locale en cache et le redéploiement ne récupère jamais la nouvelle image GHCR.
+    # Tag immuable (release vX.Y.Z, self-host) : laisser le défaut `missing` (pas de re-pull inutile).
+    pull_policy: ${WEB_PULL_POLICY:-missing}
     restart: unless-stopped
     expose:
       - "3000"
