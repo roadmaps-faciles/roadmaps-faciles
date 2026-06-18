@@ -52,6 +52,22 @@ export class OrgAddonRepoPrisma implements IOrgAddonRepo {
     return result !== null;
   }
 
+  public async listOverridesForTenant(
+    organizationId: number,
+    tenantId: null | number,
+    active: boolean,
+  ): Promise<AddonType[]> {
+    const rows = await prisma.orgAddon.findMany({
+      where: {
+        organizationId,
+        active,
+        OR: tenantId !== null ? [{ tenantId: null }, { tenantId }] : [{ tenantId: null }],
+      },
+      select: { addon: true },
+    });
+    return rows.map(r => r.addon);
+  }
+
   public async upsert(data: Prisma.OrgAddonUncheckedCreateInput): Promise<OrgAddon> {
     // Prisma doesn't support upsert on composite unique with nullable fields.
     // Wrap in serializable transaction to prevent TOCTOU race on concurrent toggles.

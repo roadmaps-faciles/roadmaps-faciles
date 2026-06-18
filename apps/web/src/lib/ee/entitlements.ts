@@ -4,45 +4,58 @@ import { forbidden } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
 import { isSelfHost } from "@/lib/deployment";
 import { getLicenseStatus } from "@/lib/ee/licensing/licenseService";
-import { ADDON_TYPE, type AddonType, ORG_PLAN } from "@/lib/model/Organization";
+import { ADDON_TYPE, type AddonType, FREE_TIER_ADDONS, ORG_PLAN } from "@/lib/model/Organization";
 import { orgAddonRepo, organizationRepo } from "@/lib/repo";
 
-export const FREE_TIER_ADDONS = new Set<AddonType>([ADDON_TYPE.STORAGE_S3]);
+export { FREE_TIER_ADDONS };
 
-export async function hasEntitlement(tenantId: number, addon: AddonType): Promise<boolean> {
+/**
+ * Resolve several addons in one shot (one org lookup + one override query), to avoid the N+1 of
+ * calling hasEntitlement per addon (e.g. sidebar lock markers). Single source of truth for the rules;
+ * hasEntitlement delegates here.
+ */
+export async function hasEntitlements(
+  tenantId: number,
+  addons: readonly AddonType[],
+): Promise<Record<string, boolean>> {
+  const result: Record<string, boolean> = {};
+
   // Self-host: the instance license is the ceiling (which addons are *available*). Everything covered
   // is ON by default for every org; the instance admin can turn specific addons OFF per org (denylist
   // override). Free tier is always available.
   if (await isSelfHost()) {
-    if (FREE_TIER_ADDONS.has(addon)) return true;
     const status = await getLicenseStatus();
-    if (!status.valid) return false; // no valid license: nothing beyond the free tier
-    if (addon === ADDON_TYPE.THEME_DSFR && status.plan !== "GOV_LICENSED") return false; // DSFR needs a gov license
-    const org = await organizationRepo.findByTenantId(tenantId);
-    if (!org) return false;
-    return !(await orgAddonRepo.isDisabledForTenant(org.id, tenantId, addon)); // on unless explicitly disabled
+    const org = status.valid ? await organizationRepo.findByTenantId(tenantId) : null;
+    const disabled = org
+      ? new Set<string>(await orgAddonRepo.listOverridesForTenant(org.id, tenantId, false))
+      : new Set<string>();
+    for (const addon of addons) {
+      if (FREE_TIER_ADDONS.has(addon)) result[addon] = true;
+      else if (!status.valid || !org) result[addon] = false;
+      else if (addon === ADDON_TYPE.THEME_DSFR && status.plan !== "GOV_LICENSED") result[addon] = false;
+      else result[addon] = !disabled.has(addon); // on unless explicitly disabled
+    }
+    return result;
   }
 
-  // Cloud mode: DB-based entitlements
+  // Cloud: DB-based entitlements (allowlist).
   const org = await organizationRepo.findByTenantId(tenantId);
-  if (!org) return false;
-
-  // THEME_DSFR : only for Gov plan
-  if (addon === ADDON_TYPE.THEME_DSFR) {
-    return org.plan === ORG_PLAN.GOV;
+  const grantsAll = org?.plan === ORG_PLAN.GOV || org?.plan === ORG_PLAN.GRANTED_FREE;
+  const active =
+    org && !grantsAll
+      ? new Set<string>(await orgAddonRepo.listOverridesForTenant(org.id, tenantId, true))
+      : new Set<string>();
+  for (const addon of addons) {
+    if (!org) result[addon] = false;
+    else if (addon === ADDON_TYPE.THEME_DSFR) result[addon] = org.plan === ORG_PLAN.GOV;
+    else if (grantsAll) result[addon] = true;
+    else result[addon] = active.has(addon) || FREE_TIER_ADDONS.has(addon);
   }
+  return result;
+}
 
-  // GOV / GRANTED_FREE: all addons are entitled
-  if (org.plan === ORG_PLAN.GOV || org.plan === ORG_PLAN.GRANTED_FREE) {
-    return true;
-  }
-
-  // Check addon global OR tenant-specific
-  const active = await orgAddonRepo.isActiveForTenant(org.id, tenantId, addon);
-  if (active) return true;
-
-  // Free tier fallback
-  return FREE_TIER_ADDONS.has(addon);
+export async function hasEntitlement(tenantId: number, addon: AddonType): Promise<boolean> {
+  return (await hasEntitlements(tenantId, [addon]))[addon];
 }
 
 export async function assertEntitlement(tenantId: number, addon: AddonType): Promise<void> {

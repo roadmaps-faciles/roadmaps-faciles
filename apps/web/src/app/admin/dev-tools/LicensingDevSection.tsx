@@ -51,7 +51,7 @@ export const LicensingDevSection = ({
         return;
       }
       toast.success(t("issuedSuccess"));
-      // Reload so the new cookies (license override + self-host mode) are reflected server-side.
+      // Reload so the new dev overrides (license + self-host mode) are reflected server-side.
       window.location.reload();
     });
 

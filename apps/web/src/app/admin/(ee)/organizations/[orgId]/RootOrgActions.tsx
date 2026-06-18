@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
-import { ADDON_TYPE, ORG_PLAN } from "@/lib/model/Organization";
+import { ADDON_TYPE, FREE_TIER_ADDONS, ORG_PLAN } from "@/lib/model/Organization";
 import { type OrgAddon, type Organization } from "@/prisma/client";
 
 import { deleteOrganizationAdmin, resetOrgAddonsAdmin, toggleOrgAddonAdmin, updateOrgPlan } from "./actions";
@@ -109,24 +109,27 @@ export const RootOrgActions = ({ activeAddons, org, selfHost }: RootOrgActionsPr
         </div>
         {selfHost && <p className="mb-3 text-sm text-muted-foreground">{t("addonFilterHint")}</p>}
         <div className="flex flex-wrap gap-2">
-          {Object.keys(ADDON_TYPE).map(addon => {
-            // Self-host: on unless explicitly disabled. Cloud: on iff explicitly active.
-            const isOn = selfHost ? !disabledAddonSet.has(addon) : activeAddonSet.has(addon);
-            return (
-              <Button
-                key={addon}
-                variant={isOn ? "default" : "outline"}
-                size="sm"
-                disabled={isPending}
-                onClick={() => handleAddonToggle(addon, !isOn)}
-              >
-                <Badge variant={isOn ? "default" : "secondary"} className="mr-1">
-                  {addon}
-                </Badge>
-                {isOn ? t("deactivate") : t("activate")}
-              </Button>
-            );
-          })}
+          {/* Self-host denylist: free-tier addons are always on and can't be disabled, so hide them. */}
+          {Object.keys(ADDON_TYPE)
+            .filter(addon => !(selfHost && FREE_TIER_ADDONS.has(addon as keyof typeof ADDON_TYPE)))
+            .map(addon => {
+              // Self-host: on unless explicitly disabled. Cloud: on iff explicitly active.
+              const isOn = selfHost ? !disabledAddonSet.has(addon) : activeAddonSet.has(addon);
+              return (
+                <Button
+                  key={addon}
+                  variant={isOn ? "default" : "outline"}
+                  size="sm"
+                  disabled={isPending}
+                  onClick={() => handleAddonToggle(addon, !isOn)}
+                >
+                  <Badge variant={isOn ? "default" : "secondary"} className="mr-1">
+                    {addon}
+                  </Badge>
+                  {isOn ? t("deactivate") : t("activate")}
+                </Button>
+              );
+            })}
         </div>
       </div>
 

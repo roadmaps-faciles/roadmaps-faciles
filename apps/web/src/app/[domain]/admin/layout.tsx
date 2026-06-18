@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { connection } from "next/server";
 
 import { prisma } from "@/lib/db/prisma";
-import { hasEntitlement } from "@/lib/ee/entitlements";
+import { hasEntitlements } from "@/lib/ee/entitlements";
 import { ADDON_TYPE } from "@/lib/model/Organization";
 import { POST_APPROVAL_STATUS } from "@/lib/model/Post";
 import { auth } from "@/lib/next-auth/auth";
@@ -42,7 +42,7 @@ const TenantAdminLayout = async ({ children, params }: LayoutProps<"/[domain]/ad
   await assertTenantAdmin(domain);
 
   const tenant = await getTenantFromDomain(domain);
-  const [pendingModerationCount, tenantSettings, userMenu, entitlementPairs] = await Promise.all([
+  const [pendingModerationCount, tenantSettings, userMenu, entitlements] = await Promise.all([
     prisma.post.count({
       where: { tenantId: tenant.id, approvalStatus: POST_APPROVAL_STATUS.PENDING },
     }),
@@ -51,9 +51,8 @@ const TenantAdminLayout = async ({ children, params }: LayoutProps<"/[domain]/ad
       select: { name: true },
     }),
     getUserMenuContext({ session, currentTenantId: tenant.id }),
-    Promise.all(PREMIUM_ADDONS.map(async addon => [addon, await hasEntitlement(tenant.id, addon)] as const)),
+    hasEntitlements(tenant.id, PREMIUM_ADDONS),
   ]);
-  const entitlements = Object.fromEntries(entitlementPairs);
 
   return (
     <UIProvider value="Default">

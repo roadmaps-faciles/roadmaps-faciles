@@ -17,10 +17,10 @@ vi.mock("@/lib/ee/licensing/licenseService", () => ({
 }));
 
 const mockFindByTenantId = vi.fn();
-const mockIsDisabledForTenant = vi.fn();
+const mockListOverrides = vi.fn();
 vi.mock("@/lib/repo", () => ({
   organizationRepo: { findByTenantId: mockFindByTenantId },
-  orgAddonRepo: { isDisabledForTenant: mockIsDisabledForTenant },
+  orgAddonRepo: { listOverridesForTenant: mockListOverrides },
 }));
 
 vi.mock("next/navigation", () => ({
@@ -31,21 +31,25 @@ vi.mock("next/navigation", () => ({
 
 describe("hasEntitlement - self-host (license ceiling + per-org denylist)", () => {
   let hasEntitlement: typeof import("@/lib/ee/entitlements").hasEntitlement;
+  let hasEntitlements: typeof import("@/lib/ee/entitlements").hasEntitlements;
 
   beforeAll(async () => {
     const mod = await import("@/lib/ee/entitlements");
     hasEntitlement = mod.hasEntitlement;
+    hasEntitlements = mod.hasEntitlements;
   });
 
   beforeEach(() => {
     mockGetLicenseStatus.mockReset();
     mockFindByTenantId.mockReset();
-    mockIsDisabledForTenant.mockReset();
+    mockListOverrides.mockReset();
+    mockListOverrides.mockResolvedValue([]);
   });
 
-  it("free tier addon (STORAGE_S3) is always available, without checking license or override", async () => {
+  it("free tier addon (STORAGE_S3) is always available, without an org/override lookup", async () => {
+    mockGetLicenseStatus.mockResolvedValue({ mode: "community", valid: false });
+
     expect(await hasEntitlement(1, ADDON_TYPE.STORAGE_S3)).toBe(true);
-    expect(mockGetLicenseStatus).not.toHaveBeenCalled();
     expect(mockFindByTenantId).not.toHaveBeenCalled();
   });
 
@@ -54,24 +58,35 @@ describe("hasEntitlement - self-host (license ceiling + per-org denylist)", () =
 
     expect(await hasEntitlement(1, ADDON_TYPE.TRACKING)).toBe(false);
     expect(await hasEntitlement(1, ADDON_TYPE.MULTI_TENANT)).toBe(false);
-    expect(mockIsDisabledForTenant).not.toHaveBeenCalled();
+    expect(mockListOverrides).not.toHaveBeenCalled();
   });
 
   it("licensed and the addon is NOT disabled for the org -> true (on by default)", async () => {
     mockGetLicenseStatus.mockResolvedValue({ mode: "licensed", valid: true, plan: "LICENSED" });
     mockFindByTenantId.mockResolvedValue(fakeOrganization({ id: 7 }));
-    mockIsDisabledForTenant.mockResolvedValue(false);
+    mockListOverrides.mockResolvedValue([]);
 
     expect(await hasEntitlement(1, ADDON_TYPE.SSO_ENTERPRISE)).toBe(true);
-    expect(mockIsDisabledForTenant).toHaveBeenCalledWith(7, 1, ADDON_TYPE.SSO_ENTERPRISE);
+    expect(mockListOverrides).toHaveBeenCalledWith(7, 1, false);
   });
 
   it("licensed but the addon is explicitly disabled for the org -> false", async () => {
     mockGetLicenseStatus.mockResolvedValue({ mode: "licensed", valid: true, plan: "LICENSED" });
     mockFindByTenantId.mockResolvedValue(fakeOrganization({ id: 7 }));
-    mockIsDisabledForTenant.mockResolvedValue(true);
+    mockListOverrides.mockResolvedValue([ADDON_TYPE.SSO_ENTERPRISE]);
 
     expect(await hasEntitlement(1, ADDON_TYPE.SSO_ENTERPRISE)).toBe(false);
+  });
+
+  it("batch resolves several addons in one override lookup", async () => {
+    mockGetLicenseStatus.mockResolvedValue({ mode: "licensed", valid: true, plan: "LICENSED" });
+    mockFindByTenantId.mockResolvedValue(fakeOrganization({ id: 7 }));
+    mockListOverrides.mockResolvedValue([ADDON_TYPE.WEBHOOKS]);
+
+    const result = await hasEntitlements(1, [ADDON_TYPE.SSO_ENTERPRISE, ADDON_TYPE.WEBHOOKS, ADDON_TYPE.STORAGE_S3]);
+
+    expect(result).toEqual({ SSO_ENTERPRISE: true, WEBHOOKS: false, STORAGE_S3: true });
+    expect(mockListOverrides).toHaveBeenCalledTimes(1);
   });
 
   it("licensed but org not found -> false", async () => {
@@ -81,17 +96,17 @@ describe("hasEntitlement - self-host (license ceiling + per-org denylist)", () =
     expect(await hasEntitlement(1, ADDON_TYPE.TRACKING)).toBe(false);
   });
 
-  it("THEME_DSFR requires a GOV license: false on a plain LICENSED plan (no override check)", async () => {
+  it("THEME_DSFR requires a GOV license: false on a plain LICENSED plan", async () => {
     mockGetLicenseStatus.mockResolvedValue({ mode: "licensed", valid: true, plan: "LICENSED" });
+    mockFindByTenantId.mockResolvedValue(fakeOrganization({ id: 7 }));
 
     expect(await hasEntitlement(1, ADDON_TYPE.THEME_DSFR)).toBe(false);
-    expect(mockIsDisabledForTenant).not.toHaveBeenCalled();
   });
 
   it("THEME_DSFR on a GOV license and not disabled for the org -> true", async () => {
     mockGetLicenseStatus.mockResolvedValue({ mode: "licensed", valid: true, plan: "GOV_LICENSED" });
     mockFindByTenantId.mockResolvedValue(fakeOrganization({ id: 7 }));
-    mockIsDisabledForTenant.mockResolvedValue(false);
+    mockListOverrides.mockResolvedValue([]);
 
     expect(await hasEntitlement(1, ADDON_TYPE.THEME_DSFR)).toBe(true);
   });

@@ -19,7 +19,7 @@ import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/db/prisma";
 import { isSelfHost } from "@/lib/deployment";
 import { getLicenseStatus } from "@/lib/ee/licensing/licenseService";
-import { ADDON_TYPE } from "@/lib/model/Organization";
+import { ADDON_TYPE, FREE_TIER_ADDONS } from "@/lib/model/Organization";
 import { organizationRepo } from "@/lib/repo";
 import { OrgPlan } from "@/prisma/enums";
 import { type NextServerPageProps } from "@/utils/next";
@@ -57,10 +57,10 @@ const OrganizationsPage = async ({
   const selfHost = await isSelfHost();
   const licenseStatus = selfHost ? await getLicenseStatus() : null;
   const licensed = !!licenseStatus?.valid;
-  // Addons the license actually covers (DSFR needs a gov license). Count disabled overrides only among
-  // these, so "active / covered" can never go negative.
+  // Premium addons the license covers (DSFR needs a gov license). Free-tier addons are excluded: they're
+  // always on and not disablable, so they're neither "covered premium" nor counted in the denylist.
   const coveredAddonKeys = Object.values(ADDON_TYPE).filter(
-    a => licenseStatus?.plan === "GOV_LICENSED" || a !== ADDON_TYPE.THEME_DSFR,
+    a => !FREE_TIER_ADDONS.has(a) && (licenseStatus?.plan === "GOV_LICENSED" || a !== ADDON_TYPE.THEME_DSFR),
   );
   const coveredAddons = coveredAddonKeys.length;
   const disabledByOrg = new Map<number, number>();
