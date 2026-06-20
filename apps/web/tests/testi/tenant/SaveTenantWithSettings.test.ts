@@ -27,6 +27,7 @@ describe("SaveTenantWithSettings", () => {
     allowAnonymousVoting: true,
     requirePostApproval: false,
     allowEmbedding: false,
+    allowIndexing: true,
   };
 
   it("updates tenant settings successfully", async () => {
@@ -47,7 +48,18 @@ describe("SaveTenantWithSettings", () => {
       allowAnonymousVoting: true,
       requirePostApproval: false,
       allowEmbedding: false,
+      allowIndexing: true,
     });
+  });
+
+  it("persists allowIndexing toggle to repo", async () => {
+    const updated = fakeTenantSettings({ id: 1, allowIndexing: false });
+    mockSettingsRepo.update.mockResolvedValue(updated);
+
+    const result = await useCase.execute({ ...validInput, allowIndexing: false });
+
+    expect(result.allowIndexing).toBe(false);
+    expect(mockSettingsRepo.update).toHaveBeenCalledWith(1, expect.objectContaining({ allowIndexing: false }));
   });
 
   it("passes allowEmbedding=true to repo", async () => {
@@ -78,6 +90,7 @@ describe("SaveTenantWithSettings", () => {
       allowAnonymousVoting: true,
       requirePostApproval: false,
       allowEmbedding: true,
+      allowIndexing: true,
     });
   });
 
