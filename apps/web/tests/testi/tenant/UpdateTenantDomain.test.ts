@@ -94,6 +94,23 @@ describe("UpdateTenantDomain", () => {
     expect(mockAddDomain).toHaveBeenCalledWith("new.com", "custom");
   });
 
+  it("disables the canonical redirect when the custom domain is removed", async () => {
+    const existing = fakeTenantSettings({
+      id: 1,
+      subdomain: "sub",
+      customDomain: "acme.com",
+      forceCustomDomainRedirect: true,
+    });
+    mockSettingsRepo.findById.mockResolvedValue(existing);
+    mockSettingsRepo.update.mockResolvedValue(fakeTenantSettings({ customDomain: null }));
+    mockRemoveDomain.mockResolvedValue(undefined);
+
+    await useCase.execute({ settingsId: 1, customDomain: null });
+
+    expect(mockSettingsRepo.update).toHaveBeenCalledWith(1, { customDomain: null, forceCustomDomainRedirect: false });
+    expect(mockRemoveDomain).toHaveBeenCalledWith("acme.com");
+  });
+
   it("throws when custom domain conflicts", async () => {
     mockSettingsRepo.findById.mockResolvedValue(fakeTenantSettings({ id: 1 }));
     mockFindFirst.mockResolvedValue({ id: 2 }); // conflict
@@ -101,6 +118,36 @@ describe("UpdateTenantDomain", () => {
     await expect(useCase.execute({ settingsId: 1, customDomain: "taken.com" })).rejects.toThrow(
       "Ce domaine personnalisé est déjà utilisé par un autre tenant.",
     );
+  });
+
+  it("rejects a custom domain that is itself a platform host", async () => {
+    mockSettingsRepo.findById.mockResolvedValue(fakeTenantSettings({ id: 1, customDomain: null }));
+
+    await expect(useCase.execute({ settingsId: 1, customDomain: "other.localhost" })).rejects.toThrow(
+      "Domaine personnalisé invalide",
+    );
+    expect(mockSettingsRepo.update).not.toHaveBeenCalled();
+  });
+
+  it("rejects an unparseable custom domain", async () => {
+    mockSettingsRepo.findById.mockResolvedValue(fakeTenantSettings({ id: 1, customDomain: null }));
+
+    await expect(useCase.execute({ settingsId: 1, customDomain: "not a domain" })).rejects.toThrow(
+      "Domaine personnalisé invalide",
+    );
+    expect(mockSettingsRepo.update).not.toHaveBeenCalled();
+  });
+
+  it("normalizes a custom domain entered with a scheme and path", async () => {
+    mockSettingsRepo.findById.mockResolvedValue(fakeTenantSettings({ id: 1, customDomain: null }));
+    mockFindFirst.mockResolvedValue(null);
+    mockSettingsRepo.update.mockResolvedValue(fakeTenantSettings({ customDomain: "feedback.acme.com" }));
+    mockAddDomain.mockResolvedValue(undefined);
+
+    await useCase.execute({ settingsId: 1, customDomain: "https://feedback.acme.com/roadmap" });
+
+    expect(mockSettingsRepo.update).toHaveBeenCalledWith(1, { customDomain: "feedback.acme.com" });
+    expect(mockAddDomain).toHaveBeenCalledWith("feedback.acme.com", "custom");
   });
 
   it("blocks removing the custom domain while the DSFR theme is active", async () => {

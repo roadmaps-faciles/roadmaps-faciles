@@ -7,6 +7,7 @@ import { getDomainProvider } from "@/lib/ee/domain-provider";
 import { logger } from "@/lib/logger";
 import { type ITenantSettingsRepo } from "@/lib/repo/ITenantSettingsRepo";
 import { type TenantSettings } from "@/prisma/client";
+import { isValidCustomDomain, sanitizeCustomDomain } from "@/utils/customDomain";
 import { isReservedSubdomain } from "@/utils/reservedSubdomains";
 
 import { type UseCase } from "../types";
@@ -50,6 +51,7 @@ export class UpdateTenantDomain implements UseCase<UpdateTenantDomainInput, Upda
       data.subdomain = input.subdomain;
     }
 
+    let nextCustomDomain: null | string | undefined;
     if (input.customDomain !== undefined) {
       if (existing.uiTheme === "Dsfr" && !input.customDomain?.endsWith(".gouv.fr")) {
         throw new Error(
@@ -57,14 +59,27 @@ export class UpdateTenantDomain implements UseCase<UpdateTenantDomainInput, Upda
         );
       }
       if (input.customDomain) {
+        const sanitized = sanitizeCustomDomain(input.customDomain);
+        if (!isValidCustomDomain(sanitized, config.rootDomain)) {
+          throw new Error(
+            "Domaine personnalisé invalide : indiquez un nom de domaine complet (ex: feedback.exemple.com), différent du domaine de la plateforme.",
+          );
+        }
         const domainConflict = await prisma.tenantSettings.findFirst({
-          where: { customDomain: input.customDomain, id: { not: input.settingsId } },
+          where: { customDomain: sanitized, id: { not: input.settingsId } },
         });
         if (domainConflict) {
           throw new Error("Ce domaine personnalisé est déjà utilisé par un autre tenant.");
         }
+        nextCustomDomain = sanitized;
+        data.customDomain = sanitized;
+      } else {
+        nextCustomDomain = null;
+        data.customDomain = null;
+        // Retirer le custom domain doit desactiver la redirection canonique, sinon le flag reste actif
+        // sans domaine cible (dormant cote redirect, mais reactive en silence si le meme domaine revient).
+        data.forceCustomDomainRedirect = false;
       }
-      data.customDomain = input.customDomain;
     }
 
     const result = await this.tenantSettingsRepo.update(input.settingsId, data);
@@ -84,9 +99,9 @@ export class UpdateTenantDomain implements UseCase<UpdateTenantDomainInput, Upda
       }
     }
 
-    if (input.customDomain !== undefined && input.customDomain !== existing.customDomain) {
+    if (nextCustomDomain !== undefined && nextCustomDomain !== existing.customDomain) {
       if (existing.customDomain) await provider.removeDomain(existing.customDomain);
-      if (input.customDomain) await provider.addDomain(input.customDomain, "custom");
+      if (nextCustomDomain) await provider.addDomain(nextCustomDomain, "custom");
     }
 
     return result;

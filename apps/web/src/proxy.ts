@@ -24,6 +24,7 @@ export function proxy(req: NextRequest) {
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set(CORRELATION_ID_HEADER, correlationId);
   requestHeaders.set("x-pathname", pathname);
+  requestHeaders.set("x-search", url.search);
 
   // Ensure x-forwarded-proto is set (missing in local dev without reverse proxy)
   if (!requestHeaders.has("x-forwarded-proto")) {
