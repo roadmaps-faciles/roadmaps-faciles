@@ -71,6 +71,7 @@ export const generateTenantMetadata = async (domain: string): Promise<Metadata> 
       template: `%s - ${settings.name}`,
       default: settings.name,
     },
+    alternates: { canonical: url },
     openGraph: {
       type: "website",
       locale: "fr_FR",
@@ -109,6 +110,7 @@ export const generateBoardMetadata = async (domain: string, boardSlug: string): 
   return {
     title: board.name,
     description,
+    alternates: { canonical: url },
     openGraph: {
       type: "website",
       title: `${board.name} - ${settings.name}`,
@@ -150,6 +152,7 @@ export const generatePostMetadata = async (domain: string, postId: string): Prom
   return {
     title: post.title,
     description,
+    alternates: { canonical: url },
     openGraph: {
       type: "article",
       title: `${post.title} - ${settings.name}`,
