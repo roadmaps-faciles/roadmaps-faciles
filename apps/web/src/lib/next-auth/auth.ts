@@ -14,7 +14,6 @@ import { config } from "@/config";
 import { getEmailTranslations } from "@/emails/getEmailTranslations";
 import { renderMagicLinkEmail } from "@/emails/renderEmails";
 import { verifyBridgeToken } from "@/lib/authBridge";
-import { authDebug, dbgEmail, dbgStr } from "@/lib/debug/authDebug";
 import { createMailTransporter } from "@/lib/mailer";
 import { getDomainFromHost, getTenantSubdomain } from "@/lib/utils/tenant";
 import { type UserRole, type UserStatus } from "@/prisma/enums";
@@ -71,25 +70,8 @@ declare module "@auth/core/jwt" {
   }
 }
 
-// Debug : wrappe fetch pour logger chaque requête `/member/<username>` de l'annuaire
-// (la valeur RÉELLEMENT envoyée à getByUsername + le status). Révèle si la normalisation
-// du provider transforme l'identifiant avant l'appel (cause du 404 → wrapper return false).
-const loggingFetch: typeof fetch = async (input, init) => {
-  const res = await fetch(input, init);
-  try {
-    const reqUrl = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
-    if (reqUrl.includes("/member/")) {
-      const segment = decodeURIComponent(new URL(reqUrl).pathname.split("/").pop() ?? "");
-      authDebug("em.fetch", { member: dbgStr(segment), status: res.status });
-    }
-  } catch {
-    // ignore logging failures
-  }
-  return res;
-};
-
 const espaceMembreProvider = EspaceMembreProvider({
-  fetch: loggingFetch,
+  fetch,
   fetchOptions: {
     next: {
       revalidate: 300, // 5 minutes
@@ -114,7 +96,6 @@ const adapter: typeof baseEmAdapter = {
         const member = await espaceMembreProvider.client.member.getByUsername(emailOrUsername);
         if (member.isActive) {
           await userRepo.update(user.id, { username: member.username, isBetaGouvMember: true });
-          authDebug("adapter.emBackfill", { userId: dbgStr(user.id), username: dbgStr(member.username) });
           return { ...user, username: member.username };
         }
       } catch {
@@ -136,7 +117,6 @@ const nodemailerProvider = Nodemailer({
   },
   from: config.mailer.from,
   async sendVerificationRequest({ identifier, url, provider }) {
-    authDebug("sendVerificationRequest", { identifier: dbgEmail(identifier) });
     const cookieStore = await cookies();
     const locale = (cookieStore.get("NEXT_LOCALE")?.value as Locale) || "fr";
 
@@ -258,37 +238,19 @@ const {
   const getTenantForDomain = new GetTenantForDomain(tenantRepo);
   const getTenantSettings = new GetTenantSettings(tenantSettingsRepo);
 
-  authDebug("factory.host", {
-    rawHost: dbgStr(rawHost),
-    host: dbgStr(host),
-    xForwardedHost: dbgStr(headersList.get("x-forwarded-host")),
-    protocol,
-    normalizedHost: dbgStr(normalizedHost),
-    isRootHost,
-    domain: dbgStr(domain),
-    configHost: config.host,
-    additionalRootDomains: config.additionalRootDomains,
-  });
-
   let tenant: Awaited<ReturnType<typeof getTenantForDomain.execute>> | null = null;
   try {
     tenant = domain ? await getTenantForDomain.execute({ domain }) : null;
   } catch (error) {
-    // Fix B : un host non résolu (probe par IP publique, requête interne localhost, etc.) ne
-    // doit pas faire planter l'auth. On retombe sur tenant=null (contexte root) au lieu de throw.
+    // Un host non résolu (probe par IP publique, requête interne, etc.) ne doit pas faire
+    // planter l'auth : on retombe sur tenant=null (contexte root) au lieu de throw.
     if (error instanceof GetTenantForDomainNotFoundError) {
-      authDebug("factory.tenantUnresolved", { domain: dbgStr(domain) });
       tenant = null;
     } else {
       throw error;
     }
   }
   const tenantSettings = tenant ? await getTenantSettings.execute({ tenantId: tenant.id }) : null;
-  authDebug("factory.tenant", {
-    domain: dbgStr(domain),
-    tenantId: tenant?.id ?? null,
-    hasTenantSettings: !!tenantSettings,
-  });
 
   if (!url) {
     const { logger } = await import("../logger");
@@ -378,16 +340,6 @@ const {
         return fallback;
       },
       async signIn(params) {
-        authDebug("signIn.entry", {
-          provider: params.account?.provider ?? null,
-          accountType: params.account?.type ?? null,
-          verificationRequest: params.email?.verificationRequest ?? null,
-          userEmail: dbgEmail(params.user?.email),
-          userId: dbgStr(params.user?.id),
-          userName: dbgStr((params.user as { username?: string })?.username),
-          tenantId: tenant?.id ?? null,
-          hasTenantSettings: !!tenantSettings,
-        });
         // Pre-login OTP check: block magic link if user has OTP configured but no pre-login proof
         const isEmailProvider =
           params.account?.provider === "nodemailer" || params.account?.provider === ESPACE_MEMBRE_PROVIDER_ID;
@@ -400,17 +352,11 @@ const {
               where: { email },
               select: { id: true, otpSecret: true, otpVerifiedAt: true },
             });
-            authDebug("signIn.otpCheck", {
-              userEmail: dbgEmail(email),
-              otpUserFound: !!otpUser,
-              hasOtp: !!(otpUser?.otpSecret && otpUser?.otpVerifiedAt),
-            });
             if (otpUser?.otpSecret && otpUser.otpVerifiedAt) {
               // User has OTP configured - require pre-login proof
               const { redis } = await import("../db/redis/storage");
               const proof = await redis.getItem<string>(`otp:pre-login:${otpUser.id}`);
               if (!proof) {
-                authDebug("signIn.deny", { reason: "otpNoProof", userId: dbgStr(otpUser.id) });
                 return false; // Block magic link - no OTP proof
               }
               // Don't consume proof here - consumed in JWT callback on signIn
@@ -624,16 +570,9 @@ const {
           }
         }
 
-        authDebug("signIn.allow", { provider: params.account?.provider ?? null });
         return true;
       },
       async jwt({ token, trigger, account, espaceMembreMember }) {
-        authDebug("jwt.entry", {
-          trigger: trigger ?? null,
-          provider: account?.provider ?? null,
-          hasTokenUser: !!token.user,
-          espaceMembreMember: espaceMembreMember ? dbgStr(espaceMembreMember.username) : null,
-        });
         // Handle client-side session.update() calls for 2FA verification
         if (trigger === "update") {
           // Re-validate user before accepting update (block deleted/blocked users)
@@ -670,10 +609,6 @@ const {
             : await userRepo.findByEmail(token.email!);
 
           if (!dbUser) {
-            authDebug("jwt.userNotFound", {
-              byUsername: !!espaceMembreMember,
-              lookup: espaceMembreMember ? dbgStr(espaceMembreMember.username) : dbgEmail(token.email),
-            });
             throw new Error("User not found in database");
           }
 
