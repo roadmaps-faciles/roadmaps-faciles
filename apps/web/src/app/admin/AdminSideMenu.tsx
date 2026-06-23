@@ -12,6 +12,7 @@ import {
   Settings2,
   Shield,
   ToggleLeft,
+  UserSearch,
   Users,
   Wrench,
 } from "lucide-react";
@@ -61,6 +62,7 @@ export const AdminSideMenu = ({ userMenu, isDev, showAnalyticsDebug }: AdminSide
       items: [
         { label: t("config.menu"), href: "/admin/config", icon: Settings2 },
         { label: t("emailTest.menu"), href: "/admin/email-test", icon: Mail },
+        { label: t("emTest.menu"), href: "/admin/em-test", icon: UserSearch },
         ...(showAnalyticsDebug
           ? [{ label: t("analyticsDebug.menu"), href: "/admin/analytics-debug", icon: ChartLine }]
           : []),

@@ -19,7 +19,7 @@ import { getDomainFromHost, getTenantSubdomain } from "@/lib/utils/tenant";
 import { type UserRole, type UserStatus } from "@/prisma/enums";
 import { type UiTheme } from "@/ui/types";
 import { GetTenantSettings } from "@/useCases/tenant_settings/GetTenantSettings";
-import { GetTenantForDomain } from "@/useCases/tenant/GetTenantForDomain";
+import { GetTenantForDomain, GetTenantForDomainNotFoundError } from "@/useCases/tenant/GetTenantForDomain";
 import { type Locale } from "@/utils/i18n";
 
 import { prisma } from "../db/prisma";
@@ -79,6 +79,32 @@ const espaceMembreProvider = EspaceMembreProvider({
     cache: "default",
   },
 });
+
+// Fix A (rattachement EM) : si un compte existe déjà par email (créé via password / magic-link
+// classique) mais sans `username` beta.gouv, le wrapper EM appellerait getByUsername(user.email)
+// → 404 → AccessDenied. On backfill le `username` depuis l'annuaire au moment où l'adapter
+// résout l'utilisateur par username (identifiant sans `@`), donc AVANT le getByUsername du
+// wrapper du package. Sûr : l'EM prouve la possession (magic link vers l'email annuaire) et on
+// ne lie que si l'email annuaire correspond au row existant.
+const baseEmAdapter = espaceMembreProvider.AdapterWrapper(PrismaAdapter(prisma));
+const adapter: typeof baseEmAdapter = {
+  ...baseEmAdapter,
+  async getUserByEmail(emailOrUsername) {
+    const user = await baseEmAdapter.getUserByEmail?.(emailOrUsername);
+    if (user && !user.username && !emailOrUsername.includes("@")) {
+      try {
+        const member = await espaceMembreProvider.client.member.getByUsername(emailOrUsername);
+        if (member.isActive) {
+          await userRepo.update(user.id, { username: member.username, isBetaGouvMember: true });
+          return { ...user, username: member.username };
+        }
+      } catch {
+        // annuaire injoignable / membre absent : retourner l'utilisateur tel quel
+      }
+    }
+    return user ?? null;
+  },
+};
 
 const nodemailerProvider = Nodemailer({
   server: {
@@ -188,7 +214,7 @@ const {
 } = NextAuth(async () => {
   const headersList = await headers();
   const protocol = headersList.get("x-forwarded-proto");
-  const rawHost = headersList.get("host");
+  const rawHost = headersList.get("x-forwarded-host") || headersList.get("host");
   const host = rawHost?.startsWith("0.0.0.0") ? rawHost.replace("0.0.0.0", "localhost") : rawHost;
   const url = protocol && host ? `${protocol}://${host}/api/auth` : null;
 
@@ -212,7 +238,18 @@ const {
   const getTenantForDomain = new GetTenantForDomain(tenantRepo);
   const getTenantSettings = new GetTenantSettings(tenantSettingsRepo);
 
-  const tenant = domain ? await getTenantForDomain.execute({ domain }) : null;
+  let tenant: Awaited<ReturnType<typeof getTenantForDomain.execute>> | null = null;
+  try {
+    tenant = domain ? await getTenantForDomain.execute({ domain }) : null;
+  } catch (error) {
+    // Un host non résolu (probe par IP publique, requête interne, etc.) ne doit pas faire
+    // planter l'auth : on retombe sur tenant=null (contexte root) au lieu de throw.
+    if (error instanceof GetTenantForDomainNotFoundError) {
+      tenant = null;
+    } else {
+      throw error;
+    }
+  }
   const tenantSettings = tenant ? await getTenantSettings.execute({ tenantId: tenant.id }) : null;
 
   if (!url) {
@@ -234,7 +271,7 @@ const {
     session: {
       strategy: "jwt",
     },
-    adapter: espaceMembreProvider.AdapterWrapper(PrismaAdapter(prisma)),
+    adapter,
     providers: [
       nodemailerProvider,
       espaceMembreProvider.ProviderWrapper(nodemailerProvider),
@@ -719,3 +756,8 @@ export const auth = cache(authCore);
 
 // Re-export other auth functions
 export { signIn, signOut, GET, POST };
+
+// Exposé pour l'outil admin de test Espace Membre : réutiliser ce provider garantit que
+// l'appel `getByUsername` du test passe par exactement le même client (clé, URL, fetch
+// cache `revalidate: 300`) que le flow de login réel.
+export { espaceMembreProvider };
