@@ -67,7 +67,19 @@ export async function loginAction(identifier: string, loginWithEmail: boolean, c
       redirectTo: isSafeRelativeCallbackUrl(callbackUrl) ? callbackUrl : "/",
     });
   } catch (error) {
-    if (isRedirectError(error as NextError)) rethrow(error);
+    if (isRedirectError(error as NextError)) {
+      // Succès email : NextAuth redirige vers /api/auth/verify-request qui re-redirige vers la
+      // page custom. Ce double-hop 404 en navigation soft (server action + Next 16
+      // cacheComponents) : le client reste sur l'intermédiaire. On collapse directement vers la
+      // page terminale (un seul hop vers une page qui rend).
+      const digest = (error as { digest?: string }).digest;
+      if (typeof digest === "string" && digest.includes("/api/auth/verify-request")) {
+        const after = digest.slice(digest.indexOf("/api/auth/verify-request"));
+        const search = after.includes("?") ? after.slice(after.indexOf("?")).split(";")[0] : "";
+        redirect(`/login/verify-request${search}`);
+      }
+      rethrow(error);
+    }
     if (error instanceof AuthError) {
       const causeErr = (error as { cause?: { err?: unknown } } & AuthError).cause?.err;
       authDebug("loginAction.authError", {
@@ -78,9 +90,10 @@ export async function loginAction(identifier: string, loginWithEmail: boolean, c
         causeMessage: causeErr instanceof Error ? dbgRedact(causeErr.message) : String(causeErr),
         isMemberNotFound: causeErr instanceof EspaceMembreClientMemberNotFoundError,
       });
-      if (error.cause?.err instanceof EspaceMembreClientMemberNotFoundError)
-        redirect("/login/error?error=AccessDenied");
-      redirect(`/login/error?error=${error.type}`);
+      // Redirect direct vers la page terminale /error (et non /login/error qui re-redirige vers
+      // /error et 404 en soft-nav). /login/error mappe ?error=X vers ?source=login-X.
+      if (causeErr instanceof EspaceMembreClientMemberNotFoundError) redirect("/error?source=login-AccessDenied");
+      redirect(`/error?source=login-${error.type}`);
     }
     authDebug("loginAction.nonAuthError", {
       name: error instanceof Error ? error.name : typeof error,
