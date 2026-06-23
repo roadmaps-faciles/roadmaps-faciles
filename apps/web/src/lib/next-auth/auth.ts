@@ -719,3 +719,8 @@ export const auth = cache(authCore);
 
 // Re-export other auth functions
 export { signIn, signOut, GET, POST };
+
+// Exposé pour l'outil admin de test Espace Membre : réutiliser ce provider garantit que
+// l'appel `getByUsername` du test passe par exactement le même client (clé, URL, fetch
+// cache `revalidate: 300`) que le flow de login réel.
+export { espaceMembreProvider };
