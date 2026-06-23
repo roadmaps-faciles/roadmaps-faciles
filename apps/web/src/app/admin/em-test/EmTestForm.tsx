@@ -5,7 +5,7 @@ import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 
-import { type EmTestCall, type EmTestResult, testEspaceMembreLogin } from "./actions";
+import { type DbUserInfo, type EmTestCall, type EmTestResult, testEspaceMembreLogin } from "./actions";
 
 const CallResult = ({ call, title }: { call: EmTestCall; title: string }) => {
   const t = useTranslations("rootAdmin.emTest");
@@ -43,6 +43,40 @@ const CallResult = ({ call, title }: { call: EmTestCall; title: string }) => {
         </dl>
       </CardContent>
     </Card>
+  );
+};
+
+const DbColumn = ({ info, title }: { info: DbUserInfo | undefined; title: string }) => {
+  const t = useTranslations("rootAdmin.emTest");
+  const hasOtp = !!(info?.hasOtpSecret && info.hasOtpVerifiedAt);
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-sm font-semibold">{title}</span>
+        {info?.exists ? (
+          <Badge variant={hasOtp ? "destructive" : "secondary"}>{hasOtp ? t("dbHasOtp") : t("dbExists")}</Badge>
+        ) : (
+          <Badge variant="secondary">{t("dbNone")}</Badge>
+        )}
+      </div>
+      {info?.exists && (
+        <dl className="text-sm">
+          <div className="flex items-center justify-between gap-4 border-b py-1.5">
+            <dt className="text-muted-foreground">{t("dbHasOtp")}</dt>
+            <dd className="font-semibold">{hasOtp ? t("yes") : t("no")}</dd>
+          </div>
+          <div className="flex items-center justify-between gap-4 border-b py-1.5">
+            <dt className="text-muted-foreground">{t("dbTwoFactor")}</dt>
+            <dd className="font-semibold">{info.twoFactorEnabled ? t("yes") : t("no")}</dd>
+          </div>
+          <div className="flex items-center justify-between gap-4 py-1.5">
+            <dt className="text-muted-foreground">id</dt>
+            <dd className="font-mono text-xs">{info.idHint}…</dd>
+          </div>
+        </dl>
+      )}
+    </div>
   );
 };
 
@@ -110,6 +144,35 @@ export const EmTestForm = () => {
             <CallResult call={result.cached} title={t("cachedTitle")} />
             <CallResult call={result.fresh} title={t("freshTitle")} />
           </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-semibold">{t("dbTitle")}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {result.dbError ? (
+                <p className="text-sm text-destructive">{result.dbError}</p>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <DbColumn info={result.dbByUsername} title={t("dbByUsernameLabel")} />
+                    <DbColumn info={result.dbByEmail} title={t("dbByEmailLabel")} />
+                  </div>
+                  <div className="flex items-center justify-between gap-4 border-t pt-3 text-sm">
+                    <span className="text-muted-foreground">{t("dbSameUser")}</span>
+                    <span className="font-semibold">
+                      {result.dbSameUser === null || result.dbSameUser === undefined
+                        ? "—"
+                        : result.dbSameUser
+                          ? t("yes")
+                          : t("no")}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{t("dbHint")}</p>
+                </>
+              )}
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>

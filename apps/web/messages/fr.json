@@ -1501,6 +1501,15 @@
       "duration": "Durée",
       "yes": "Oui",
       "no": "Non",
+      "dbTitle": "Utilisateur en base (DB locale)",
+      "dbByUsernameLabel": "Recherche par username",
+      "dbByEmailLabel": "Recherche par email résolu",
+      "dbExists": "Existe",
+      "dbHasOtp": "OTP configuré",
+      "dbTwoFactor": "2FA activée",
+      "dbSameUser": "Même utilisateur (username = email)",
+      "dbNone": "Aucun utilisateur",
+      "dbHint": "Si l'utilisateur trouvé par email a OTP configuré mais que la recherche par username ne le trouve pas, le bloc OTP du login renvoie false (AccessDenied).",
       "emptyError": "Saisis un identifiant."
     },
     "emailTest": {

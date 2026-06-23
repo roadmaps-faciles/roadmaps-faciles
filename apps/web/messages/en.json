@@ -1501,6 +1501,15 @@
       "duration": "Duration",
       "yes": "Yes",
       "no": "No",
+      "dbTitle": "User in database (local DB)",
+      "dbByUsernameLabel": "Lookup by username",
+      "dbByEmailLabel": "Lookup by resolved email",
+      "dbExists": "Exists",
+      "dbHasOtp": "OTP configured",
+      "dbTwoFactor": "2FA enabled",
+      "dbSameUser": "Same user (username = email)",
+      "dbNone": "No user",
+      "dbHint": "If the user found by email has OTP configured but the username lookup misses it, the login OTP block returns false (AccessDenied).",
       "emptyError": "Enter an identifier."
     },
     "emailTest": {

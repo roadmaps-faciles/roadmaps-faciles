@@ -8,6 +8,7 @@ import { verifySync } from "otplib";
 
 import { prisma } from "@/lib/db/prisma";
 import { redis } from "@/lib/db/redis/storage";
+import { authDebug, dbgRedact, dbgStr } from "@/lib/debug/authDebug";
 import { signIn } from "@/lib/next-auth/auth";
 import { isRedirectError, type NextError } from "@/utils/next";
 
@@ -59,6 +60,7 @@ export async function preLoginVerifyAction(
  * mal formées fallback sur "/".
  */
 export async function loginAction(identifier: string, loginWithEmail: boolean, callbackUrl?: string): Promise<void> {
+  authDebug("loginAction.start", { identifier: dbgStr(identifier), loginWithEmail });
   try {
     await signIn(loginWithEmail ? "nodemailer" : ESPACE_MEMBRE_PROVIDER_ID, {
       email: identifier,
@@ -67,10 +69,23 @@ export async function loginAction(identifier: string, loginWithEmail: boolean, c
   } catch (error) {
     if (isRedirectError(error as NextError)) rethrow(error);
     if (error instanceof AuthError) {
+      const causeErr = (error as { cause?: { err?: unknown } } & AuthError).cause?.err;
+      authDebug("loginAction.authError", {
+        type: error.type,
+        name: error.name,
+        message: dbgRedact(error.message),
+        causeName: causeErr instanceof Error ? causeErr.name : typeof causeErr,
+        causeMessage: causeErr instanceof Error ? dbgRedact(causeErr.message) : String(causeErr),
+        isMemberNotFound: causeErr instanceof EspaceMembreClientMemberNotFoundError,
+      });
       if (error.cause?.err instanceof EspaceMembreClientMemberNotFoundError)
         redirect("/login/error?error=AccessDenied");
       redirect(`/login/error?error=${error.type}`);
     }
+    authDebug("loginAction.nonAuthError", {
+      name: error instanceof Error ? error.name : typeof error,
+      message: error instanceof Error ? dbgRedact(error.message) : String(error),
+    });
     redirect("/error");
   }
 }

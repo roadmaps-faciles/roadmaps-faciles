@@ -14,6 +14,7 @@ import { config } from "@/config";
 import { getEmailTranslations } from "@/emails/getEmailTranslations";
 import { renderMagicLinkEmail } from "@/emails/renderEmails";
 import { verifyBridgeToken } from "@/lib/authBridge";
+import { authDebug, dbgEmail, dbgStr } from "@/lib/debug/authDebug";
 import { createMailTransporter } from "@/lib/mailer";
 import { getDomainFromHost, getTenantSubdomain } from "@/lib/utils/tenant";
 import { type UserRole, type UserStatus } from "@/prisma/enums";
@@ -91,6 +92,7 @@ const nodemailerProvider = Nodemailer({
   },
   from: config.mailer.from,
   async sendVerificationRequest({ identifier, url, provider }) {
+    authDebug("sendVerificationRequest", { identifier: dbgEmail(identifier) });
     const cookieStore = await cookies();
     const locale = (cookieStore.get("NEXT_LOCALE")?.value as Locale) || "fr";
 
@@ -212,8 +214,34 @@ const {
   const getTenantForDomain = new GetTenantForDomain(tenantRepo);
   const getTenantSettings = new GetTenantSettings(tenantSettingsRepo);
 
-  const tenant = domain ? await getTenantForDomain.execute({ domain }) : null;
+  authDebug("factory.host", {
+    rawHost: dbgStr(rawHost),
+    host: dbgStr(host),
+    xForwardedHost: dbgStr(headersList.get("x-forwarded-host")),
+    protocol,
+    normalizedHost: dbgStr(normalizedHost),
+    isRootHost,
+    domain: dbgStr(domain),
+    configHost: config.host,
+    additionalRootDomains: config.additionalRootDomains,
+  });
+
+  let tenant: Awaited<ReturnType<typeof getTenantForDomain.execute>> | null = null;
+  try {
+    tenant = domain ? await getTenantForDomain.execute({ domain }) : null;
+  } catch (error) {
+    authDebug("factory.tenantLookupError", {
+      domain: dbgStr(domain),
+      error: error instanceof Error ? `${error.name}: ${error.message}` : String(error),
+    });
+    throw error;
+  }
   const tenantSettings = tenant ? await getTenantSettings.execute({ tenantId: tenant.id }) : null;
+  authDebug("factory.tenant", {
+    domain: dbgStr(domain),
+    tenantId: tenant?.id ?? null,
+    hasTenantSettings: !!tenantSettings,
+  });
 
   if (!url) {
     const { logger } = await import("../logger");
@@ -303,6 +331,16 @@ const {
         return fallback;
       },
       async signIn(params) {
+        authDebug("signIn.entry", {
+          provider: params.account?.provider ?? null,
+          accountType: params.account?.type ?? null,
+          verificationRequest: params.email?.verificationRequest ?? null,
+          userEmail: dbgEmail(params.user?.email),
+          userId: dbgStr(params.user?.id),
+          userName: dbgStr((params.user as { username?: string })?.username),
+          tenantId: tenant?.id ?? null,
+          hasTenantSettings: !!tenantSettings,
+        });
         // Pre-login OTP check: block magic link if user has OTP configured but no pre-login proof
         const isEmailProvider =
           params.account?.provider === "nodemailer" || params.account?.provider === ESPACE_MEMBRE_PROVIDER_ID;
@@ -315,11 +353,17 @@ const {
               where: { email },
               select: { id: true, otpSecret: true, otpVerifiedAt: true },
             });
+            authDebug("signIn.otpCheck", {
+              userEmail: dbgEmail(email),
+              otpUserFound: !!otpUser,
+              hasOtp: !!(otpUser?.otpSecret && otpUser?.otpVerifiedAt),
+            });
             if (otpUser?.otpSecret && otpUser.otpVerifiedAt) {
               // User has OTP configured - require pre-login proof
               const { redis } = await import("../db/redis/storage");
               const proof = await redis.getItem<string>(`otp:pre-login:${otpUser.id}`);
               if (!proof) {
+                authDebug("signIn.deny", { reason: "otpNoProof", userId: dbgStr(otpUser.id) });
                 return false; // Block magic link - no OTP proof
               }
               // Don't consume proof here - consumed in JWT callback on signIn
@@ -533,9 +577,16 @@ const {
           }
         }
 
+        authDebug("signIn.allow", { provider: params.account?.provider ?? null });
         return true;
       },
       async jwt({ token, trigger, account, espaceMembreMember }) {
+        authDebug("jwt.entry", {
+          trigger: trigger ?? null,
+          provider: account?.provider ?? null,
+          hasTokenUser: !!token.user,
+          espaceMembreMember: espaceMembreMember ? dbgStr(espaceMembreMember.username) : null,
+        });
         // Handle client-side session.update() calls for 2FA verification
         if (trigger === "update") {
           // Re-validate user before accepting update (block deleted/blocked users)
@@ -572,6 +623,10 @@ const {
             : await userRepo.findByEmail(token.email!);
 
           if (!dbUser) {
+            authDebug("jwt.userNotFound", {
+              byUsername: !!espaceMembreMember,
+              lookup: espaceMembreMember ? dbgStr(espaceMembreMember.username) : dbgEmail(token.email),
+            });
             throw new Error("User not found in database");
           }
 

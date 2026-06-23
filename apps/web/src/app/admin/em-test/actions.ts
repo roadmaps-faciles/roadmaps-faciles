@@ -3,6 +3,7 @@
 import { EspaceMembreProvider } from "@incubateur-ademe/next-auth-espace-membre-provider";
 import { EspaceMembreClientMemberNotFoundError } from "@incubateur-ademe/next-auth-espace-membre-provider/EspaceMembreClient";
 
+import { prisma } from "@/lib/db/prisma";
 import { espaceMembreProvider } from "@/lib/next-auth/auth";
 import { assertAdmin } from "@/utils/auth";
 import { type ServerActionResponse } from "@/utils/next";
@@ -30,8 +31,20 @@ export interface EmTestCall {
   username?: string;
 }
 
+export interface DbUserInfo {
+  exists: boolean;
+  hasOtpSecret?: boolean;
+  hasOtpVerifiedAt?: boolean;
+  idHint?: string;
+  twoFactorEnabled?: boolean;
+}
+
 export interface EmTestResult {
   cached: EmTestCall;
+  dbByEmail?: DbUserInfo;
+  dbByUsername?: DbUserInfo;
+  dbError?: string;
+  dbSameUser?: boolean | null;
   endpointUrl: string;
   fresh: EmTestCall;
   identifierSent: string;
@@ -73,6 +86,19 @@ const runCall = async (client: (typeof espaceMembreProvider)["client"], identifi
   }
 };
 
+const toDbUserInfo = (
+  user: { id: string; otpSecret: null | string; otpVerifiedAt: Date | null; twoFactorEnabled: boolean } | null,
+): DbUserInfo =>
+  user
+    ? {
+        exists: true,
+        hasOtpSecret: !!user.otpSecret,
+        hasOtpVerifiedAt: !!user.otpVerifiedAt,
+        twoFactorEnabled: user.twoFactorEnabled,
+        idHint: user.id.slice(0, 8),
+      }
+    : { exists: false };
+
 export const testEspaceMembreLogin = async (identifier: string): Promise<ServerActionResponse<EmTestResult>> => {
   await assertAdmin();
 
@@ -84,6 +110,35 @@ export const testEspaceMembreLogin = async (identifier: string): Promise<ServerA
     runCall(freshEspaceMembreProvider.client, identifierSent),
   ]);
 
+  // Diagnostic DB : le bloc OTP pré-login (auth.ts) cherche l'utilisateur PAR EMAIL résolu,
+  // alors que le pré-check OTP du formulaire cherche PAR USERNAME. Un row trouvé par email
+  // avec OTP configuré (et introuvable par username) fait renvoyer false à signIn → AccessDenied.
+  const select = { id: true, otpSecret: true, otpVerifiedAt: true, twoFactorEnabled: true } as const;
+  let dbByUsername: DbUserInfo | undefined;
+  let dbByEmail: DbUserInfo | undefined;
+  let dbSameUser: boolean | null | undefined;
+  let dbError: string | undefined;
+  try {
+    let resolvedEmail: string | undefined;
+    try {
+      const member = await espaceMembreProvider.client.member.getByUsername(identifierSent);
+      resolvedEmail = member.communication_email === "primary" ? member.primary_email : member.secondary_email;
+    } catch {
+      resolvedEmail = undefined;
+    }
+
+    const [byUsername, byEmail] = await Promise.all([
+      prisma.user.findFirst({ where: { username: identifierSent }, select }),
+      resolvedEmail ? prisma.user.findFirst({ where: { email: resolvedEmail }, select }) : Promise.resolve(null),
+    ]);
+
+    dbByUsername = toDbUserInfo(byUsername);
+    dbByEmail = toDbUserInfo(byEmail);
+    dbSameUser = byUsername && byEmail ? byUsername.id === byEmail.id : null;
+  } catch (error) {
+    dbError = error instanceof Error ? error.message : String(error);
+  }
+
   return {
     ok: true,
     data: {
@@ -91,6 +146,10 @@ export const testEspaceMembreLogin = async (identifier: string): Promise<ServerA
       endpointUrl: process.env.ESPACE_MEMBRE_URL || "https://espace-membre.incubateur.net",
       cached,
       fresh,
+      dbByUsername,
+      dbByEmail,
+      dbSameUser,
+      dbError,
     },
   };
 };
