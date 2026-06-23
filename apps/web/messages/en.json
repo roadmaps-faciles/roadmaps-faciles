@@ -539,6 +539,8 @@
       "subdomainLabel": "Subdomain",
       "customDomain": "Custom domain",
       "customDomainHint": "Leave empty if you don't use a custom domain",
+      "customDomainVerified": "Ownership verified",
+      "customDomainOwnershipHint": "Domain ownership must first be proven at the organization level. <link>Manage organization domains</link>",
       "updateDomains": "Update domains",
       "domainsUpdated": "Domains updated",
       "dnsValid": "DNS valid",

@@ -181,10 +181,11 @@ interface GeneralFormProps {
   canUseDsfr: boolean;
   hasData: boolean;
   isOwner: boolean;
+  orgDomainsHref: string;
   tenantSettings: TenantSettings;
 }
 
-export const GeneralForm = ({ tenantSettings, isOwner, hasData, canUseDsfr }: GeneralFormProps) => {
+export const GeneralForm = ({ tenantSettings, isOwner, hasData, canUseDsfr, orgDomainsHref }: GeneralFormProps) => {
   const t = useTranslations("domainAdmin.general");
   const te = useTranslations("errors");
   const themeSwitchingEnabled = useFeatureFlag("themeSwitching");
@@ -356,7 +357,7 @@ export const GeneralForm = ({ tenantSettings, isOwner, hasData, canUseDsfr }: Ge
 
           {isOwner && (
             <>
-              <DomainSection tenantSettings={tenantSettings} />
+              <DomainSection tenantSettings={tenantSettings} orgDomainsHref={orgDomainsHref} />
               <DangerZone />
             </>
           )}
@@ -542,7 +543,13 @@ const DNS_STATUS_KEY: Record<DNSStatus, "dnsError" | "dnsInvalid" | "dnsValid"> 
 
 const DNS_POLL_INTERVAL = 30_000;
 
-const DomainSection = ({ tenantSettings }: { tenantSettings: TenantSettings }) => {
+const DomainSection = ({
+  tenantSettings,
+  orgDomainsHref,
+}: {
+  orgDomainsHref: string;
+  tenantSettings: TenantSettings;
+}) => {
   const t = useTranslations("domainAdmin.general");
   const tc = useTranslations("common");
   const tv = useTranslations("validation");
@@ -679,6 +686,21 @@ const DomainSection = ({ tenantSettings }: { tenantSettings: TenantSettings }) =
             <Label htmlFor="custom-domain">{t("customDomain")}</Label>
             <Input id="custom-domain" {...register("customDomain")} placeholder="feedback.example.com" />
             <p className="text-sm text-muted-foreground">{t("customDomainHint")}</p>
+            {savedCustomDomain && !isDomainDirty && tenantSettings.customDomainVerifiedAt && (
+              <Badge variant="success" className="gap-1">
+                <Check className="size-3.5" />
+                {t("customDomainVerified")}
+              </Badge>
+            )}
+            <p className="text-sm text-muted-foreground">
+              {t.rich("customDomainOwnershipHint", {
+                link: chunks => (
+                  <a className="underline" href={orgDomainsHref}>
+                    {chunks}
+                  </a>
+                ),
+              })}
+            </p>
             {domainErrors.customDomain && (
               <p className="text-sm text-destructive">{domainErrors.customDomain.message}</p>
             )}

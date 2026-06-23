@@ -539,6 +539,8 @@
       "subdomainLabel": "Sous-domaine",
       "customDomain": "Domaine personnalisé",
       "customDomainHint": "Laissez vide si vous n'utilisez pas de domaine personnalisé",
+      "customDomainVerified": "Propriété vérifiée",
+      "customDomainOwnershipHint": "La propriété du domaine doit d'abord être prouvée au niveau de l'organisation. <link>Gérer les domaines de l'organisation</link>",
       "updateDomains": "Mettre à jour les domaines",
       "domainsUpdated": "Domaines mis à jour",
       "dnsValid": "DNS valide",
