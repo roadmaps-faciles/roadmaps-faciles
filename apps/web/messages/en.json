@@ -1510,6 +1510,10 @@
       "dbSameUser": "Same user (username = email)",
       "dbNone": "No user",
       "dbHint": "If the user found by email has OTP configured but the username lookup misses it, the login OTP block returns false (AccessDenied).",
+      "linkButton": "Link to Espace Membre",
+      "linking": "Linking...",
+      "linkSuccess": "Account linked to Espace Membre.",
+      "linkError": "Linking failed ({code}).",
       "emptyError": "Enter an identifier."
     },
     "emailTest": {

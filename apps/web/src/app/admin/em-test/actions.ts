@@ -5,6 +5,7 @@ import { EspaceMembreClientMemberNotFoundError } from "@incubateur-ademe/next-au
 
 import { prisma } from "@/lib/db/prisma";
 import { espaceMembreProvider } from "@/lib/next-auth/auth";
+import { audit, AuditAction, getRequestContext } from "@/utils/audit";
 import { assertAdmin } from "@/utils/auth";
 import { type ServerActionResponse } from "@/utils/next";
 
@@ -37,6 +38,7 @@ export interface DbUserInfo {
   hasOtpVerifiedAt?: boolean;
   idHint?: string;
   twoFactorEnabled?: boolean;
+  username?: null | string;
 }
 
 export interface EmTestResult {
@@ -87,7 +89,13 @@ const runCall = async (client: (typeof espaceMembreProvider)["client"], identifi
 };
 
 const toDbUserInfo = (
-  user: { id: string; otpSecret: null | string; otpVerifiedAt: Date | null; twoFactorEnabled: boolean } | null,
+  user: {
+    id: string;
+    otpSecret: null | string;
+    otpVerifiedAt: Date | null;
+    twoFactorEnabled: boolean;
+    username: null | string;
+  } | null,
 ): DbUserInfo =>
   user
     ? {
@@ -96,6 +104,7 @@ const toDbUserInfo = (
         hasOtpVerifiedAt: !!user.otpVerifiedAt,
         twoFactorEnabled: user.twoFactorEnabled,
         idHint: user.id.slice(0, 8),
+        username: user.username,
       }
     : { exists: false };
 
@@ -113,7 +122,7 @@ export const testEspaceMembreLogin = async (identifier: string): Promise<ServerA
   // Diagnostic DB : le bloc OTP pré-login (auth.ts) cherche l'utilisateur PAR EMAIL résolu,
   // alors que le pré-check OTP du formulaire cherche PAR USERNAME. Un row trouvé par email
   // avec OTP configuré (et introuvable par username) fait renvoyer false à signIn → AccessDenied.
-  const select = { id: true, otpSecret: true, otpVerifiedAt: true, twoFactorEnabled: true } as const;
+  const select = { id: true, otpSecret: true, otpVerifiedAt: true, twoFactorEnabled: true, username: true } as const;
   let dbByUsername: DbUserInfo | undefined;
   let dbByEmail: DbUserInfo | undefined;
   let dbSameUser: boolean | null | undefined;
@@ -152,4 +161,60 @@ export const testEspaceMembreLogin = async (identifier: string): Promise<ServerA
       dbError,
     },
   };
+};
+
+// Rattachement manuel : backfille le `username` beta.gouv (+ isBetaGouvMember) sur un compte
+// existant trouvé par email, pour qu'il puisse se connecter via l'Espace Membre. Version
+// manuelle de Fix A, pour débloquer un compte à la demande depuis l'admin.
+export const linkEspaceMembreAccount = async (identifier: string): Promise<ServerActionResponse> => {
+  const session = await assertAdmin();
+  const reqCtx = await getRequestContext();
+
+  const id = identifier.trim();
+  if (!id) return { ok: false, error: "empty" };
+
+  const member = await espaceMembreProvider.client.member.getByUsername(id).catch(() => null);
+  if (!member) return { ok: false, error: "memberNotFound" };
+  if (!member.isActive) return { ok: false, error: "memberInactive" };
+
+  const email = member.communication_email === "primary" ? member.primary_email : member.secondary_email;
+  if (!email) return { ok: false, error: "noEmail" };
+
+  const user = await prisma.user.findFirst({ where: { email }, select: { id: true, username: true } });
+  if (!user) return { ok: false, error: "noUser" };
+  if (user.username === member.username) return { ok: true };
+  if (user.username) return { ok: false, error: "usernameConflict" };
+
+  try {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { username: member.username, isBetaGouvMember: true },
+    });
+  } catch {
+    audit(
+      {
+        action: AuditAction.ROOT_USER_UPDATE,
+        success: false,
+        error: "usernameTaken",
+        userId: session.user.uuid,
+        targetType: "User",
+        targetId: user.id,
+      },
+      reqCtx,
+    );
+    return { ok: false, error: "usernameTaken" };
+  }
+
+  audit(
+    {
+      action: AuditAction.ROOT_USER_UPDATE,
+      success: true,
+      userId: session.user.uuid,
+      targetType: "User",
+      targetId: user.id,
+      metadata: { linkedEspaceMembreUsername: member.username },
+    },
+    reqCtx,
+  );
+  return { ok: true };
 };

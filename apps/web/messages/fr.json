@@ -1510,6 +1510,10 @@
       "dbSameUser": "Même utilisateur (username = email)",
       "dbNone": "Aucun utilisateur",
       "dbHint": "Si l'utilisateur trouvé par email a OTP configuré mais que la recherche par username ne le trouve pas, le bloc OTP du login renvoie false (AccessDenied).",
+      "linkButton": "Rattacher à l'Espace Membre",
+      "linking": "Rattachement...",
+      "linkSuccess": "Compte rattaché à l'Espace Membre.",
+      "linkError": "Échec du rattachement ({code}).",
       "emptyError": "Saisis un identifiant."
     },
     "emailTest": {

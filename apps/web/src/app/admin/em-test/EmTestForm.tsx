@@ -1,11 +1,17 @@
 "use client";
 
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, Label, toast } from "@roadmaps-faciles/ui";
-import { Search } from "lucide-react";
+import { Link2, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 
-import { type DbUserInfo, type EmTestCall, type EmTestResult, testEspaceMembreLogin } from "./actions";
+import {
+  type DbUserInfo,
+  type EmTestCall,
+  type EmTestResult,
+  linkEspaceMembreAccount,
+  testEspaceMembreLogin,
+} from "./actions";
 
 const CallResult = ({ call, title }: { call: EmTestCall; title: string }) => {
   const t = useTranslations("rootAdmin.emTest");
@@ -85,6 +91,7 @@ export const EmTestForm = () => {
   const [identifier, setIdentifier] = useState("");
   const [result, setResult] = useState<EmTestResult | null>(null);
   const [isRunning, startTransition] = useTransition();
+  const [isLinking, startLinkTransition] = useTransition();
 
   const handleRun = () => {
     if (!identifier.trim()) {
@@ -97,6 +104,20 @@ export const EmTestForm = () => {
         setResult(response.data);
       } else {
         toast.error(t("emptyError"));
+      }
+    });
+  };
+
+  const handleLink = () => {
+    if (!result) return;
+    startLinkTransition(async () => {
+      const response = await linkEspaceMembreAccount(result.identifierSent);
+      if (response.ok) {
+        toast.success(t("linkSuccess"));
+        const refreshed = await testEspaceMembreLogin(result.identifierSent);
+        if (refreshed.ok) setResult(refreshed.data);
+      } else {
+        toast.error(t("linkError", { code: response.error ?? "?" }));
       }
     });
   };
@@ -169,6 +190,12 @@ export const EmTestForm = () => {
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground">{t("dbHint")}</p>
+                  {result.dbByEmail?.exists && !result.dbByEmail.username && (
+                    <Button onClick={handleLink} disabled={isLinking} className="mt-2">
+                      <Link2 className="mr-2 size-4" />
+                      {isLinking ? t("linking") : t("linkButton")}
+                    </Button>
+                  )}
                 </>
               )}
             </CardContent>
