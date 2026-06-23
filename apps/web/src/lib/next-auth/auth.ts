@@ -71,8 +71,25 @@ declare module "@auth/core/jwt" {
   }
 }
 
+// Debug : wrappe fetch pour logger chaque requête `/member/<username>` de l'annuaire
+// (la valeur RÉELLEMENT envoyée à getByUsername + le status). Révèle si la normalisation
+// du provider transforme l'identifiant avant l'appel (cause du 404 → wrapper return false).
+const loggingFetch: typeof fetch = async (input, init) => {
+  const res = await fetch(input, init);
+  try {
+    const reqUrl = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+    if (reqUrl.includes("/member/")) {
+      const segment = decodeURIComponent(new URL(reqUrl).pathname.split("/").pop() ?? "");
+      authDebug("em.fetch", { member: dbgStr(segment), status: res.status });
+    }
+  } catch {
+    // ignore logging failures
+  }
+  return res;
+};
+
 const espaceMembreProvider = EspaceMembreProvider({
-  fetch,
+  fetch: loggingFetch,
   fetchOptions: {
     next: {
       revalidate: 300, // 5 minutes
