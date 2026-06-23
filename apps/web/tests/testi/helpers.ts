@@ -96,6 +96,7 @@ export function createMockTenantRepo(): MockRepo<ITenantRepo> {
     findById: vi.fn(),
     findByIdWithSettings: vi.fn(),
     findBySubdomain: vi.fn(),
+    findByVerifiedCustomDomain: vi.fn(),
     update: vi.fn(),
   };
 }

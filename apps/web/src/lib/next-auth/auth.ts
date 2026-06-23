@@ -15,7 +15,7 @@ import { getEmailTranslations } from "@/emails/getEmailTranslations";
 import { renderMagicLinkEmail } from "@/emails/renderEmails";
 import { verifyBridgeToken } from "@/lib/authBridge";
 import { createMailTransporter } from "@/lib/mailer";
-import { getDomainFromHost, getTenantSubdomain } from "@/lib/utils/tenant";
+import { getDomainFromHost } from "@/lib/utils/tenant";
 import { type UserRole, type UserStatus } from "@/prisma/enums";
 import { type UiTheme } from "@/ui/types";
 import { GetTenantSettings } from "@/useCases/tenant_settings/GetTenantSettings";
@@ -118,21 +118,25 @@ const nodemailerProvider = Nodemailer({
   },
   from: config.mailer.from,
   async sendVerificationRequest({ identifier, url, provider }) {
-    const safeUrl = toTrustedAuthUrl(url);
     const cookieStore = await cookies();
     const locale = (cookieStore.get("NEXT_LOCALE")?.value as Locale) || "fr";
 
     let theme: UiTheme = "Default";
+    let trustedCustomHost: null | string = null;
     try {
       const domain = await getDomainFromHost();
-      if (getTenantSubdomain(domain)) {
-        const tenant = await new GetTenantForDomain(tenantRepo).execute({ domain });
-        const settings = await new GetTenantSettings(tenantSettingsRepo).execute({ tenantId: tenant.id });
-        theme = settings.uiTheme;
+      const tenant = await new GetTenantForDomain(tenantRepo).execute({ domain });
+      const settings = await new GetTenantSettings(tenantSettingsRepo).execute({ tenantId: tenant.id });
+      theme = settings.uiTheme;
+      // Un customDomain vérifié est de confiance pour porter l'URL du token (sinon réécrite sur le host canonique).
+      if (settings.customDomainVerifiedAt && settings.customDomain) {
+        trustedCustomHost = settings.customDomain;
       }
     } catch {
-      // Fall back to Default on any resolution error
+      // Root domain or unresolved host: Default theme, no custom host trusted
     }
+
+    const safeUrl = toTrustedAuthUrl(url, trustedCustomHost);
 
     const [t, tFooter] = await Promise.all([
       getEmailTranslations(locale, "emails.magicLink", ["subject", "title", "body", "button", "expiry", "ignore"]),
@@ -319,13 +323,14 @@ const {
     ],
     callbacks: espaceMembreProvider.CallbacksWrapper({
       redirect({ url }) {
-        // Pour la base de redirection post-login (sévérité basse : un simple redirect, pas un
-        // token), on tolère un tenant résolu en plus des hosts canoniques, afin de ne pas casser
-        // le retour sur un custom domain tenant. On NE fait PAS ça pour l'URL du magic link
-        // (toTrustedAuthUrl), où un host non vérifié permettrait un vol de token.
+        // Base de redirection post-login : hosts canoniques + customDomain tenant VÉRIFIÉ (couvert
+        // par un OrgDomain vérifié). Un customDomain non vérifié n'est pas de confiance, même si un
+        // tenant résout dessus (sinon redirect ouvert via un customDomain forgé).
         const normalizedReqHost = host?.startsWith("0.0.0.0") ? host.replace("0.0.0.0", "localhost") : host;
         const safeBase =
-          protocol && normalizedReqHost && (isTrustedAuthHost(normalizedReqHost) || !!tenant)
+          protocol &&
+          normalizedReqHost &&
+          (isTrustedAuthHost(normalizedReqHost) || !!tenantSettings?.customDomainVerifiedAt)
             ? `${protocol}://${host}`
             : new URL(config.host).origin;
         const fallback = `${safeBase}/`;

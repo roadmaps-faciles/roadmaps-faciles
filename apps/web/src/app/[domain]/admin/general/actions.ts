@@ -15,7 +15,7 @@ import {
 } from "@/lib/ee/tracking-provider/trackingPlan";
 import { logger } from "@/lib/logger";
 import { ADDON_TYPE } from "@/lib/model/Organization";
-import { boardRepo, postStatusRepo, tenantRepo, tenantSettingsRepo, userOnTenantRepo } from "@/lib/repo";
+import { boardRepo, orgDomainRepo, postStatusRepo, tenantRepo, tenantSettingsRepo, userOnTenantRepo } from "@/lib/repo";
 import { DeleteTenant } from "@/useCases/tenant/DeleteTenant";
 import { SaveTenantWithSettings, SaveTenantWithSettingsInput } from "@/useCases/tenant/SaveTenantWithSettings";
 import { UpdateTenantDomain, UpdateTenantDomainInput } from "@/useCases/tenant/UpdateTenantDomain";
@@ -130,7 +130,7 @@ export const updateTenantDomain = async (data: unknown): Promise<ServerActionRes
   }
 
   try {
-    const useCase = new UpdateTenantDomain(tenantSettingsRepo);
+    const useCase = new UpdateTenantDomain(tenantSettingsRepo, orgDomainRepo);
     await useCase.execute(validated.data);
     audit(
       {

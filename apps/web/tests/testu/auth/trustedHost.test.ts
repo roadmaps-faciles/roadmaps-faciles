@@ -92,6 +92,18 @@ describe("toTrustedAuthUrl", () => {
     expect(toTrustedAuthUrl(url)).toBe("https://roadmaps-faciles.fr/api/auth/callback/nodemailer?token=secret");
   });
 
+  it("keeps a verified custom domain untouched when passed as trustedCustomHost", () => {
+    const url = "https://monorga.gouv.fr/api/auth/callback/nodemailer?token=secret";
+    expect(toTrustedAuthUrl(url, "monorga.gouv.fr")).toBe(url);
+  });
+
+  it("still rewrites a host that does not match the passed trustedCustomHost", () => {
+    const url = "https://evil.com/api/auth/callback/nodemailer?token=secret";
+    expect(toTrustedAuthUrl(url, "monorga.gouv.fr")).toBe(
+      "https://roadmaps-faciles.fr/api/auth/callback/nodemailer?token=secret",
+    );
+  });
+
   it("normalizes a 0.0.0.0 host as localhost (trusted in dev)", () => {
     mutableConfig.host = "http://localhost:3000";
     mutableConfig.rootDomain = "localhost:3000";

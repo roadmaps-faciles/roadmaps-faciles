@@ -328,6 +328,7 @@ model TenantSettings {
   tenantId                Int                     @unique
   name                    String
   customDomain            String?
+  customDomainVerifiedAt  DateTime?
   subdomain               String
   locale                  Locale                  @default(fr)
   isPrivate               Boolean                 @default(false)

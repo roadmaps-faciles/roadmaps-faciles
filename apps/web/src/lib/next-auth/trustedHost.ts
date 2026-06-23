@@ -16,11 +16,13 @@ export function isTrustedAuthHost(host: string): boolean {
 // Réécrit une URL d'auth sur le host canonique quand le host de la requête n'est pas de confiance,
 // en gardant le path + query porteur du token. Ferme l'injection de host quand AUTH_URL n'est pas
 // set (la base de l'URL retombe sinon sur x-forwarded-host, spoofable).
-export function toTrustedAuthUrl(rawUrl: string): string {
+// `trustedCustomHost` : un customDomain de tenant VÉRIFIÉ (couvert par un OrgDomain vérifié),
+// résolu par l'appelant, qu'on accepte en plus des hosts canoniques.
+export function toTrustedAuthUrl(rawUrl: string, trustedCustomHost?: null | string): string {
   try {
     const parsed = new URL(rawUrl);
     const host = parsed.host.startsWith("0.0.0.0") ? parsed.host.replace("0.0.0.0", "localhost") : parsed.host;
-    if (isTrustedAuthHost(host)) return rawUrl;
+    if (isTrustedAuthHost(host) || (!!trustedCustomHost && host === trustedCustomHost)) return rawUrl;
     // Rebuild from the canonical origin (assigning .host/.protocol would leak the spoofed port).
     return new URL(config.host).origin + parsed.pathname + parsed.search + parsed.hash;
   } catch {
