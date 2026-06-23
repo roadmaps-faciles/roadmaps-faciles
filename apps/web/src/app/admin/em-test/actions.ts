@@ -190,19 +190,24 @@ export const linkEspaceMembreAccount = async (identifier: string): Promise<Serve
       where: { id: user.id },
       data: { username: member.username, isBetaGouvMember: true },
     });
-  } catch {
+  } catch (error) {
+    // P2002 = violation de contrainte d'unicité (username déjà pris). Toute autre erreur
+    // (DB/transitoire) ne doit pas être maquillée en conflit d'unicité : on la distingue
+    // pour que l'audit et la réponse reflètent la vraie cause.
+    const code = error && typeof error === "object" && "code" in error ? (error as { code?: unknown }).code : undefined;
+    const reason = code === "P2002" ? "usernameTaken" : "updateFailed";
     audit(
       {
         action: AuditAction.ROOT_USER_UPDATE,
         success: false,
-        error: "usernameTaken",
+        error: reason,
         userId: session.user.uuid,
         targetType: "User",
         targetId: user.id,
       },
       reqCtx,
     );
-    return { ok: false, error: "usernameTaken" };
+    return { ok: false, error: reason };
   }
 
   audit(
