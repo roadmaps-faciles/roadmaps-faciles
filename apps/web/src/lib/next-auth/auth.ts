@@ -35,6 +35,7 @@ import {
 } from "../repo";
 import { refreshAccessToken } from "./refresh";
 import { revalidateSessionUser } from "./revalidateSessionUser";
+import { isTrustedAuthHost, toTrustedAuthUrl } from "./trustedHost";
 
 type CustomUser = {
   currentTenantRole?: UserRole;
@@ -117,6 +118,7 @@ const nodemailerProvider = Nodemailer({
   },
   from: config.mailer.from,
   async sendVerificationRequest({ identifier, url, provider }) {
+    const safeUrl = toTrustedAuthUrl(url);
     const cookieStore = await cookies();
     const locale = (cookieStore.get("NEXT_LOCALE")?.value as Locale) || "fr";
 
@@ -142,7 +144,7 @@ const nodemailerProvider = Nodemailer({
       locale,
       theme,
       translations: { ...t, footer: tFooter.footer },
-      url,
+      url: safeUrl,
     });
 
     const transporter = createMailTransporter();
@@ -151,7 +153,7 @@ const nodemailerProvider = Nodemailer({
       to: identifier,
       subject: t.subject,
       html,
-      text: `${t.body}\n\n${url}\n\n${t.expiry}`,
+      text: `${t.body}\n\n${safeUrl}\n\n${t.expiry}`,
     });
   },
 });
@@ -317,22 +319,23 @@ const {
     ],
     callbacks: espaceMembreProvider.CallbacksWrapper({
       redirect({ url }) {
-        const fallback = `${protocol}://${host}/`;
+        // Pour la base de redirection post-login (sévérité basse : un simple redirect, pas un
+        // token), on tolère un tenant résolu en plus des hosts canoniques, afin de ne pas casser
+        // le retour sur un custom domain tenant. On NE fait PAS ça pour l'URL du magic link
+        // (toTrustedAuthUrl), où un host non vérifié permettrait un vol de token.
+        const normalizedReqHost = host?.startsWith("0.0.0.0") ? host.replace("0.0.0.0", "localhost") : host;
+        const safeBase =
+          protocol && normalizedReqHost && (isTrustedAuthHost(normalizedReqHost) || !!tenant)
+            ? `${protocol}://${host}`
+            : new URL(config.host).origin;
+        const fallback = `${safeBase}/`;
 
-        if (url.startsWith("/")) return `${protocol}://${host}${url}`;
+        if (url.startsWith("/")) return `${safeBase}${url}`;
 
         try {
           const parsed = new URL(url);
           if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return fallback;
-
-          const rootHost = new URL(config.host).host;
-          if (
-            parsed.host === rootHost ||
-            parsed.host.endsWith(`.${config.rootDomain}`) ||
-            config.additionalRootDomains.some(alt => parsed.host === alt || parsed.host.endsWith(`.${alt}`))
-          ) {
-            return url;
-          }
+          if (isTrustedAuthHost(parsed.host)) return url;
         } catch {
           // invalid URL - fall through
         }
