@@ -22,7 +22,6 @@ import { Header as ShadcnHeader } from "@/ui/Header";
 import { getTheme } from "@/ui/server";
 import { ThemeInjector } from "@/ui/ThemeInjector";
 import { UIThemeDevToggle } from "@/ui/UIThemeDevToggle";
-import { enforceCanonicalRedirect } from "@/utils/canonicalRedirect";
 import { getDirtyDomain } from "@/utils/dirtyDomain/getDirtyDomain";
 import { dirtySafePathname } from "@/utils/dirtyDomain/pathnameDirtyCheck";
 import { generateTenantMetadata } from "@/utils/metadata";
@@ -72,8 +71,6 @@ const DashboardLayout = async ({ children, modal, params }: LayoutProps<"/[domai
   if (!tenantSettings) {
     notFound();
   }
-
-  await enforceCanonicalRedirect(tenantSettings);
 
   const session = await auth();
 

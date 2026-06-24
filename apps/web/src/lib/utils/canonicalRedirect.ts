@@ -1,16 +1,10 @@
-import "server-only";
-import { headers } from "next/headers";
-import { permanentRedirect } from "next/navigation";
-
-import { config } from "@/config";
 import { sanitizeCustomDomain } from "@/utils/customDomain";
-import { getDomainFromHost } from "@/utils/tenant";
 
 /**
  * Normalise un host pour la comparaison anti-boucle : un visiteur sur www.acme.com,
  * acme.com:443 ou acme.com. doit etre considere comme deja sur acme.com.
  */
-const normalizeHost = (host: string): string =>
+export const normalizeHost = (host: string): string =>
   host
     .toLowerCase()
     .replace(/:\d+$/, "")
@@ -23,39 +17,46 @@ interface CanonicalRedirectSettings {
 }
 
 /**
- * Redirige (308) le host courant vers le domaine personnalise du tenant quand le toggle est actif.
- * Sans effet si le flag est off, si aucun customDomain n'est configure, ou si on est deja sur le
- * customDomain (anti-boucle). A appeler hors try/catch : permanentRedirect leve une exception.
+ * Hote canonique cible vers lequel rediriger le visiteur, ou null si aucun redirect ne doit avoir
+ * lieu. Fonction pure (aucune dependance runtime Next) : reutilisable cote proxy Edge ET cote route
+ * Node. Anti-boucle : jamais vers un host de la plateforme (casse le ping-pong inter-tenant), ni si
+ * on est deja sur la cible.
  */
-export const enforceCanonicalRedirect = async (settings: CanonicalRedirectSettings): Promise<void> => {
+export const resolveCanonicalTargetHost = (
+  settings: CanonicalRedirectSettings,
+  currentHost: string,
+  rootDomain: string,
+): null | string => {
   if (!settings.forceCustomDomainRedirect || !settings.customDomain) {
-    return;
+    return null;
   }
 
   const target = sanitizeCustomDomain(settings.customDomain);
   if (!target) {
-    return;
+    return null;
   }
 
   const normalizedTarget = normalizeHost(target);
-  const rootHost = normalizeHost(config.rootDomain);
-  // Ne jamais rediriger vers un host de la plateforme : casse tout cycle passant par un subdomain
-  // canonique (ping-pong entre deux tenants qui se pointent mutuellement).
+  const rootHost = normalizeHost(rootDomain);
   if (normalizedTarget === rootHost || normalizedTarget.endsWith(`.${rootHost}`)) {
-    return;
+    return null;
   }
 
-  const currentHost = await getDomainFromHost();
   if (normalizeHost(currentHost) === normalizedTarget) {
-    return;
+    return null;
   }
 
-  const headersList = await headers();
-  // Host-first : le path et la query (controles par l'URL entrante) ne doivent JAMAIS pouvoir
-  // reecrire le host de la cible, sinon `//evil.com` en pathname ouvre un open-redirect.
-  const url = new URL(`https://${target}`);
-  url.pathname = `/${(headersList.get("x-pathname") || "").replace(/^[/\\]+/, "")}`;
-  url.search = headersList.get("x-search") || "";
+  return target;
+};
 
-  permanentRedirect(url.toString());
+/**
+ * Construit l'URL de redirect en host-first : le path et la query (controles par l'URL entrante) ne
+ * doivent JAMAIS pouvoir reecrire le host de la cible, sinon `//evil.com` en pathname ouvre un
+ * open-redirect.
+ */
+export const buildCanonicalRedirectUrl = (target: string, pathname: string, search: string): string => {
+  const url = new URL(`https://${target}`);
+  url.pathname = `/${pathname.replace(/^[/\\]+/, "")}`;
+  url.search = search;
+  return url.toString();
 };
