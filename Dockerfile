@@ -1,4 +1,9 @@
 # syntax=docker/dockerfile:1
+# check=skip=SecretsUsedInArgOrEnv
+#
+# check=skip ci-dessus : ESPACE_MEMBRE_API_KEY (plus bas) est un placeholder build
+# (fakesecret), la vraie clé est injectée au runtime — faux positif. Vrai fix = lazy-init
+# du client pour ne plus dépendre de l'env var au build (cf TODO sur le ARG).
 #
 # Image multi-usage :
 #   - SaaS prod (roadmaps-faciles.fr) : déployée avec Dockerfile.licensing à côté
