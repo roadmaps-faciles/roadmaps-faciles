@@ -61,6 +61,11 @@ const DashboardLayout = async ({ children, modal, params }: LayoutProps<"/[domai
     where: {
       tenantId: tenant.id,
     },
+    omit: {
+      // Secret de vérification de propriété : ne doit jamais atterrir dans le payload RSC public
+      // (ce layout passe les settings à des client components servis aux visiteurs non authentifiés).
+      customDomainVerificationToken: true,
+    },
   });
 
   if (!tenantSettings) {

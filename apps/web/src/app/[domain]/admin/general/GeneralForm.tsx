@@ -669,7 +669,10 @@ const DomainSection = ({ tenantSettings }: { tenantSettings: TenantSettings }) =
   };
 
   const isVerified = !!tenantSettings.customDomainVerifiedAt;
-  const showOwnership = savedCustomDomain && !isDomainDirty;
+  // On n'affiche le bloc propriété que quand le state local (optimiste) et les props serveur
+  // (rafraîchies par revalidatePath) concordent, sinon on montrerait brièvement le badge/token
+  // du domaine précédent pour le nouveau domaine.
+  const showOwnership = savedCustomDomain && !isDomainDirty && savedCustomDomain === tenantSettings.customDomain;
   const showDnsStatus = savedCustomDomain && !isDomainDirty && dnsStatus;
 
   return (
@@ -729,13 +732,14 @@ const DomainSection = ({ tenantSettings }: { tenantSettings: TenantSettings }) =
                   {tenantSettings.customDomainVerificationToken && (
                     <div className="space-y-1 rounded-sm bg-muted p-3 font-mono text-xs">
                       <p>
-                        <span className="text-muted-foreground">Type:</span> TXT
+                        <span className="text-muted-foreground">{t("dnsRecordType")}</span> TXT
                       </p>
                       <p>
-                        <span className="text-muted-foreground">Nom:</span> {getTxtRecordName(savedCustomDomain)}
+                        <span className="text-muted-foreground">{t("dnsRecordName")}</span>{" "}
+                        {getTxtRecordName(savedCustomDomain)}
                       </p>
                       <p className="break-all">
-                        <span className="text-muted-foreground">Valeur:</span>{" "}
+                        <span className="text-muted-foreground">{t("dnsRecordValue")}</span>{" "}
                         {tenantSettings.customDomainVerificationToken}
                       </p>
                     </div>

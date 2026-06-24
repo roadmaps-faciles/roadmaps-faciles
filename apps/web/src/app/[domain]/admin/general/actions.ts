@@ -151,6 +151,8 @@ export const updateTenantDomain = async (data: unknown): Promise<ServerActionRes
 
     // Le routing résout les domaines via GetTenantForDomain (cache 1h) : on l'invalide pour que le
     // retrait/changement d'un customDomain cesse/commence de router sans attendre l'expiration.
+    // NB : cache LRU process-local. En multi-instance, les autres process gardent l'ancien
+    // résultat jusqu'à expiration (acceptable single-instance Coolify ; sinon Redis pub/sub).
     GetTenantForDomain.revalidate("GetTenantForDomain");
     revalidatePath("/admin/general");
     return { ok: true };
