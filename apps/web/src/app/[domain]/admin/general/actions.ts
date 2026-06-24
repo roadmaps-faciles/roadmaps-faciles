@@ -17,6 +17,7 @@ import { logger } from "@/lib/logger";
 import { ADDON_TYPE } from "@/lib/model/Organization";
 import { boardRepo, postStatusRepo, tenantRepo, tenantSettingsRepo, userOnTenantRepo } from "@/lib/repo";
 import { DeleteTenant } from "@/useCases/tenant/DeleteTenant";
+import { GetTenantForDomain } from "@/useCases/tenant/GetTenantForDomain";
 import { SaveTenantWithSettings, SaveTenantWithSettingsInput } from "@/useCases/tenant/SaveTenantWithSettings";
 import { UpdateTenantDomain, UpdateTenantDomainInput } from "@/useCases/tenant/UpdateTenantDomain";
 import { VerifyTenantCustomDomain } from "@/useCases/tenant/VerifyTenantCustomDomain";
@@ -148,6 +149,9 @@ export const updateTenantDomain = async (data: unknown): Promise<ServerActionRes
       tenantDomainConfigured({ tenantId: String(tenant.id), domain: String(validated.data.customDomain ?? "") }),
     );
 
+    // Le routing résout les domaines via GetTenantForDomain (cache 1h) : on l'invalide pour que le
+    // retrait/changement d'un customDomain cesse/commence de router sans attendre l'expiration.
+    GetTenantForDomain.revalidate("GetTenantForDomain");
     revalidatePath("/admin/general");
     return { ok: true };
   } catch (error) {
@@ -192,6 +196,7 @@ export const verifyTenantCustomDomain = async (): Promise<ServerActionResponse<{
       },
       reqCtx,
     );
+    if (verified) GetTenantForDomain.revalidate("GetTenantForDomain");
     revalidatePath("/admin/general");
     return { data: { verified }, ok: true };
   } catch (error) {
