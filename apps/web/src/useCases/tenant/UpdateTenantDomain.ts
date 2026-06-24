@@ -54,13 +54,17 @@ export class UpdateTenantDomain implements UseCase<UpdateTenantDomainInput, Upda
 
     let nextCustomDomain: null | string | undefined;
     if (input.customDomain !== undefined) {
-      if (existing.uiTheme === "Dsfr" && !input.customDomain?.endsWith(".gouv.fr")) {
+      // Sanitize d'abord : le check DSFR .gouv.fr ET la validation portent sur le hostname normalisé,
+      // jamais sur le raw (sinon un input valide comme `https://feedback.gouv.fr/x` serait rejeté).
+      // Le choix set/clear reste piloté par l'intention brute (input.customDomain) : un input non
+      // parsable ("not a domain") sanitize en "" mais ne doit PAS être interprété comme un clear.
+      const sanitized = input.customDomain ? sanitizeCustomDomain(input.customDomain) : "";
+      if (existing.uiTheme === "Dsfr" && !sanitized.endsWith(".gouv.fr")) {
         throw new Error(
           "Le thème DSFR requiert un domaine .gouv.fr : repassez en thème par défaut avant de retirer ou changer ce domaine.",
         );
       }
       if (input.customDomain) {
-        const sanitized = sanitizeCustomDomain(input.customDomain);
         if (!isValidCustomDomain(sanitized, config.rootDomain)) {
           throw new Error(
             "Domaine personnalisé invalide : indiquez un nom de domaine complet (ex: feedback.exemple.com), différent du domaine de la plateforme.",

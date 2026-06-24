@@ -224,4 +224,21 @@ describe("UpdateTenantDomain", () => {
     expect(updateData.customDomainVerifiedAt).toBeNull();
     expect(mockAddDomain).toHaveBeenCalledWith("new.gouv.fr", "custom");
   });
+
+  it("accepts a .gouv.fr domain entered with a scheme and path while the DSFR theme is active", async () => {
+    mockSettingsRepo.findById.mockResolvedValue(
+      fakeTenantSettings({ id: 1, uiTheme: "Dsfr", customDomain: "old.gouv.fr" }),
+    );
+    mockFindFirst.mockResolvedValue(null);
+    mockSettingsRepo.update.mockResolvedValue(fakeTenantSettings({ customDomain: "feedback.gouv.fr" }));
+    mockAddDomain.mockResolvedValue(undefined);
+
+    // Le check DSFR doit porter sur le hostname sanitizé, pas sur le raw : sans ça ce input passerait
+    // à la trappe (le raw ne finit pas par ".gouv.fr").
+    await useCase.execute({ settingsId: 1, customDomain: "https://feedback.gouv.fr/roadmap" });
+
+    const [, updateData] = mockSettingsRepo.update.mock.calls[0];
+    expect(updateData.customDomain).toBe("feedback.gouv.fr");
+    expect(mockAddDomain).toHaveBeenCalledWith("feedback.gouv.fr", "custom");
+  });
 });
