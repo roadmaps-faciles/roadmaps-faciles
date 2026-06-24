@@ -24,21 +24,26 @@ export class IntegrationRepoPrisma implements IIntegrationRepo {
       where: {
         type: "GITHUB",
         enabled: true,
+        // Un tenant soft-deleted ne doit plus recevoir de webhook entrant (mutation sur tenant supprimé).
+        tenant: { deletedAt: null },
         config: { path: ["installationId"], equals: installationId },
       },
     });
   }
 
   public findDueForSync(): Promise<TenantIntegration[]> {
+    // JOIN sur Tenant + deletedAt IS NULL : un tenant soft-deleted ne doit plus être synchronisé par le cron.
     return prisma.$queryRaw<TenantIntegration[]>`
-      SELECT * FROM "TenantIntegration"
-      WHERE "enabled" = true
-        AND "syncIntervalMinutes" IS NOT NULL
+      SELECT ti.* FROM "TenantIntegration" ti
+      JOIN "Tenant" t ON t.id = ti."tenantId"
+      WHERE ti."enabled" = true
+        AND t."deletedAt" IS NULL
+        AND ti."syncIntervalMinutes" IS NOT NULL
         AND (
-          "lastSyncAt" IS NULL
-          OR "lastSyncAt" + ("syncIntervalMinutes" || ' minutes')::interval < NOW()
+          ti."lastSyncAt" IS NULL
+          OR ti."lastSyncAt" + (ti."syncIntervalMinutes" || ' minutes')::interval < NOW()
         )
-      ORDER BY "lastSyncAt" ASC NULLS FIRST
+      ORDER BY ti."lastSyncAt" ASC NULLS FIRST
     `;
   }
 

@@ -1,3 +1,4 @@
+import { prisma } from "@/lib/db/prisma";
 import { TenantRepoPrisma } from "@/lib/repo/impl/TenantRepoPrisma";
 
 import { createTestMembership, createTestOrganization, createTestTenantWithSettings, createTestUser } from "../helpers";
@@ -69,6 +70,15 @@ describe("TenantRepoPrisma", () => {
 
       expect(found).toBeNull();
     });
+
+    it("returns null when the tenant is soft-deleted", async () => {
+      const { tenant } = await createTestTenantWithSettings({ subdomain: "deleted-sub" });
+      await prisma.tenant.update({ where: { id: tenant.id }, data: { deletedAt: new Date() } });
+
+      const found = await repo.findBySubdomain("deleted-sub");
+
+      expect(found).toBeNull();
+    });
   });
 
   describe("findByCustomDomain", () => {
@@ -83,6 +93,15 @@ describe("TenantRepoPrisma", () => {
 
     it("returns null for unknown custom domain", async () => {
       const found = await repo.findByCustomDomain("unknown.example.com");
+
+      expect(found).toBeNull();
+    });
+
+    it("returns null when the tenant is soft-deleted", async () => {
+      const { tenant } = await createTestTenantWithSettings({ customDomain: "deleted.example.com" });
+      await prisma.tenant.update({ where: { id: tenant.id }, data: { deletedAt: new Date() } });
+
+      const found = await repo.findByCustomDomain("deleted.example.com");
 
       expect(found).toBeNull();
     });
@@ -105,6 +124,18 @@ describe("TenantRepoPrisma", () => {
       await createTestTenantWithSettings({ customDomain: "unverified.example.com" });
 
       const found = await repo.findByVerifiedCustomDomain("unverified.example.com");
+
+      expect(found).toBeNull();
+    });
+
+    it("returns null when the tenant is soft-deleted", async () => {
+      const { tenant } = await createTestTenantWithSettings({
+        customDomain: "deleted-verified.example.com",
+        customDomainVerifiedAt: new Date(),
+      });
+      await prisma.tenant.update({ where: { id: tenant.id }, data: { deletedAt: new Date() } });
+
+      const found = await repo.findByVerifiedCustomDomain("deleted-verified.example.com");
 
       expect(found).toBeNull();
     });
