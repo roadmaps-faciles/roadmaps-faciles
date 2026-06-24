@@ -10,7 +10,6 @@
   "pull-request-title-pattern": "chore(release): ${version}",
   "packages": {
     "apps/web": {
-      "release-as": "1.0.0-alpha.0",
       "prerelease-type": "alpha",
       "exclude-paths": [ "apps/web/content/docs/", ".github/", "CLAUDE.md", "CLAUDE.local.md", "README.md", "packages/ui/" ]
     }

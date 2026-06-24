@@ -2,7 +2,7 @@ name: Storybook
 
 on:
   push:
-    branches: [main, dev]
+    branches: [main]
     paths:
       - 'packages/ui/src/**'
       - 'packages/ui/.storybook/**'

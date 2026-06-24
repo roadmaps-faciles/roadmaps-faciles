@@ -2,7 +2,7 @@ name: Docker build and push
 
 on:
   push:
-    branches: [dev]
+    branches: [main]
     tags: ["v*"]
   workflow_dispatch:
     inputs:
@@ -26,7 +26,7 @@ env:
 jobs:
   # Gate prod : sur tag v*, ne build l'image que si Build/Lint/Tests sont verts sur le
   # commit du tag (équivalent de l'ancien ci-gate-release.js du deploy Scalingo). Skippé
-  # sur push dev et dispatch (staging non gaté, Coolify ne pull qu'en manuel).
+  # sur push main et dispatch (staging non gaté, Coolify ne pull qu'en manuel).
   gate:
     name: Verify CI for release
     if: startsWith(github.ref, 'refs/tags/v')
@@ -157,7 +157,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ env.IMAGE }}
           # Tags par event :
-          #   push dev          → `dev`
+          #   push main         → `main`
           #   push tag v1.2.3   → `v1.2.3` + `1.2.3` + `1.2` (stable) + `latest`
           # ({{major}}.{{minor}} et latest sont volontairement omis sur les prereleases alpha/beta
           #  par metadata-action ; `latest` est forcé ci-dessous sur tout tag v*.)
@@ -180,7 +180,7 @@ jobs:
       # Purge les untagged orphelins des builds dev précédents. Dernier step : le
       # manifest dev courant est déjà poussé, donc ses enfants sont préservés.
       - name: Cleanup orphan manifests
-        if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: dataaxiom/ghcr-cleanup-action@f092b48ba3b604b2a83690dc4b2bbb3392e1045f # v1.2.1
         with:
           owner: ${{ env.IMAGE_OWNER }}

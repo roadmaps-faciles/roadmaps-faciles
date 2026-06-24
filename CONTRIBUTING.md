@@ -41,7 +41,7 @@ pnpm dev
    pnpm build
    pnpm test
    ```
-5. **Ouvrez une Pull Request** vers `dev` avec une description claire.
+5. **Ouvrez une Pull Request** vers `main` avec une description claire.
 
 ## Conventions
 
