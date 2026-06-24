@@ -88,6 +88,28 @@ describe("TenantRepoPrisma", () => {
     });
   });
 
+  describe("findByVerifiedCustomDomain", () => {
+    it("finds a tenant whose custom domain is verified", async () => {
+      const { tenant } = await createTestTenantWithSettings({
+        customDomain: "verified.example.com",
+        customDomainVerifiedAt: new Date(),
+      });
+
+      const found = await repo.findByVerifiedCustomDomain("verified.example.com");
+
+      expect(found).not.toBeNull();
+      expect(found!.id).toBe(tenant.id);
+    });
+
+    it("does not find a tenant whose custom domain is unverified", async () => {
+      await createTestTenantWithSettings({ customDomain: "unverified.example.com" });
+
+      const found = await repo.findByVerifiedCustomDomain("unverified.example.com");
+
+      expect(found).toBeNull();
+    });
+  });
+
   describe("findAllWithSettings", () => {
     it("includes settings, owner members, and member count", async () => {
       const user = await createTestUser();

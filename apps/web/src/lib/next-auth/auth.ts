@@ -15,11 +15,11 @@ import { getEmailTranslations } from "@/emails/getEmailTranslations";
 import { renderMagicLinkEmail } from "@/emails/renderEmails";
 import { verifyBridgeToken } from "@/lib/authBridge";
 import { createMailTransporter } from "@/lib/mailer";
-import { getDomainFromHost, getTenantSubdomain } from "@/lib/utils/tenant";
+import { getDomainFromHost } from "@/lib/utils/tenant";
 import { type UserRole, type UserStatus } from "@/prisma/enums";
 import { type UiTheme } from "@/ui/types";
 import { GetTenantSettings } from "@/useCases/tenant_settings/GetTenantSettings";
-import { GetTenantForDomain } from "@/useCases/tenant/GetTenantForDomain";
+import { GetTenantForDomain, GetTenantForDomainNotFoundError } from "@/useCases/tenant/GetTenantForDomain";
 import { type Locale } from "@/utils/i18n";
 
 import { prisma } from "../db/prisma";
@@ -35,6 +35,7 @@ import {
 } from "../repo";
 import { refreshAccessToken } from "./refresh";
 import { revalidateSessionUser } from "./revalidateSessionUser";
+import { resolveTrustedRedirect, toTrustedAuthUrl } from "./trustedHost";
 
 type CustomUser = {
   currentTenantRole?: UserRole;
@@ -80,6 +81,32 @@ const espaceMembreProvider = EspaceMembreProvider({
   },
 });
 
+// Fix A (rattachement EM) : si un compte existe déjà par email (créé via password / magic-link
+// classique) mais sans `username` beta.gouv, le wrapper EM appellerait getByUsername(user.email)
+// → 404 → AccessDenied. On backfill le `username` depuis l'annuaire au moment où l'adapter
+// résout l'utilisateur par username (identifiant sans `@`), donc AVANT le getByUsername du
+// wrapper du package. Sûr : l'EM prouve la possession (magic link vers l'email annuaire) et on
+// ne lie que si l'email annuaire correspond au row existant.
+const baseEmAdapter = espaceMembreProvider.AdapterWrapper(PrismaAdapter(prisma));
+const adapter: typeof baseEmAdapter = {
+  ...baseEmAdapter,
+  async getUserByEmail(emailOrUsername) {
+    const user = await baseEmAdapter.getUserByEmail?.(emailOrUsername);
+    if (user && !user.username && !emailOrUsername.includes("@")) {
+      try {
+        const member = await espaceMembreProvider.client.member.getByUsername(emailOrUsername);
+        if (member.isActive) {
+          await userRepo.update(user.id, { username: member.username, isBetaGouvMember: true });
+          return { ...user, username: member.username };
+        }
+      } catch {
+        // annuaire injoignable / membre absent : retourner l'utilisateur tel quel
+      }
+    }
+    return user ?? null;
+  },
+};
+
 const nodemailerProvider = Nodemailer({
   server: {
     host: config.mailer.host,
@@ -95,16 +122,21 @@ const nodemailerProvider = Nodemailer({
     const locale = (cookieStore.get("NEXT_LOCALE")?.value as Locale) || "fr";
 
     let theme: UiTheme = "Default";
+    let trustedCustomHost: null | string = null;
     try {
       const domain = await getDomainFromHost();
-      if (getTenantSubdomain(domain)) {
-        const tenant = await new GetTenantForDomain(tenantRepo).execute({ domain });
-        const settings = await new GetTenantSettings(tenantSettingsRepo).execute({ tenantId: tenant.id });
-        theme = settings.uiTheme;
+      const tenant = await new GetTenantForDomain(tenantRepo).execute({ domain });
+      const settings = await new GetTenantSettings(tenantSettingsRepo).execute({ tenantId: tenant.id });
+      theme = settings.uiTheme;
+      // Un customDomain vérifié est de confiance pour porter l'URL du token (sinon réécrite sur le host canonique).
+      if (settings.customDomainVerifiedAt && settings.customDomain) {
+        trustedCustomHost = settings.customDomain;
       }
     } catch {
-      // Fall back to Default on any resolution error
+      // Root domain or unresolved host: Default theme, no custom host trusted
     }
+
+    const safeUrl = toTrustedAuthUrl(url, trustedCustomHost);
 
     const [t, tFooter] = await Promise.all([
       getEmailTranslations(locale, "emails.magicLink", ["subject", "title", "body", "button", "expiry", "ignore"]),
@@ -116,7 +148,7 @@ const nodemailerProvider = Nodemailer({
       locale,
       theme,
       translations: { ...t, footer: tFooter.footer },
-      url,
+      url: safeUrl,
     });
 
     const transporter = createMailTransporter();
@@ -125,7 +157,7 @@ const nodemailerProvider = Nodemailer({
       to: identifier,
       subject: t.subject,
       html,
-      text: `${t.body}\n\n${url}\n\n${t.expiry}`,
+      text: `${t.body}\n\n${safeUrl}\n\n${t.expiry}`,
     });
   },
 });
@@ -188,7 +220,7 @@ const {
 } = NextAuth(async () => {
   const headersList = await headers();
   const protocol = headersList.get("x-forwarded-proto");
-  const rawHost = headersList.get("host");
+  const rawHost = headersList.get("x-forwarded-host") || headersList.get("host");
   const host = rawHost?.startsWith("0.0.0.0") ? rawHost.replace("0.0.0.0", "localhost") : rawHost;
   const url = protocol && host ? `${protocol}://${host}/api/auth` : null;
 
@@ -212,7 +244,18 @@ const {
   const getTenantForDomain = new GetTenantForDomain(tenantRepo);
   const getTenantSettings = new GetTenantSettings(tenantSettingsRepo);
 
-  const tenant = domain ? await getTenantForDomain.execute({ domain }) : null;
+  let tenant: Awaited<ReturnType<typeof getTenantForDomain.execute>> | null = null;
+  try {
+    tenant = domain ? await getTenantForDomain.execute({ domain }) : null;
+  } catch (error) {
+    // Un host non résolu (probe par IP publique, requête interne, etc.) ne doit pas faire
+    // planter l'auth : on retombe sur tenant=null (contexte root) au lieu de throw.
+    if (error instanceof GetTenantForDomainNotFoundError) {
+      tenant = null;
+    } else {
+      throw error;
+    }
+  }
   const tenantSettings = tenant ? await getTenantSettings.execute({ tenantId: tenant.id }) : null;
 
   if (!url) {
@@ -234,7 +277,7 @@ const {
     session: {
       strategy: "jwt",
     },
-    adapter: espaceMembreProvider.AdapterWrapper(PrismaAdapter(prisma)),
+    adapter,
     providers: [
       nodemailerProvider,
       espaceMembreProvider.ProviderWrapper(nodemailerProvider),
@@ -280,27 +323,11 @@ const {
     ],
     callbacks: espaceMembreProvider.CallbacksWrapper({
       redirect({ url }) {
-        const fallback = `${protocol}://${host}/`;
-
-        if (url.startsWith("/")) return `${protocol}://${host}${url}`;
-
-        try {
-          const parsed = new URL(url);
-          if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return fallback;
-
-          const rootHost = new URL(config.host).host;
-          if (
-            parsed.host === rootHost ||
-            parsed.host.endsWith(`.${config.rootDomain}`) ||
-            config.additionalRootDomains.some(alt => parsed.host === alt || parsed.host.endsWith(`.${alt}`))
-          ) {
-            return url;
-          }
-        } catch {
-          // invalid URL - fall through
-        }
-
-        return fallback;
+        return resolveTrustedRedirect(url, {
+          protocol,
+          host,
+          customDomainVerified: !!tenantSettings?.customDomainVerifiedAt,
+        });
       },
       async signIn(params) {
         // Pre-login OTP check: block magic link if user has OTP configured but no pre-login proof
@@ -719,3 +746,8 @@ export const auth = cache(authCore);
 
 // Re-export other auth functions
 export { signIn, signOut, GET, POST };
+
+// Exposé pour l'outil admin de test Espace Membre : réutiliser ce provider garantit que
+// l'appel `getByUsername` du test passe par exactement le même client (clé, URL, fetch
+// cache `revalidate: 300`) que le flow de login réel.
+export { espaceMembreProvider };

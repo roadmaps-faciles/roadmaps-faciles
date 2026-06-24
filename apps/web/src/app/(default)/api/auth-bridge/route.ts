@@ -27,7 +27,8 @@ async function resolveTenantFromUrl(parsedUrl: URL, rootHost: string) {
   if (subdomain !== null) {
     return tenantRepo.findBySubdomain(subdomain);
   }
-  return tenantRepo.findByCustomDomain(parsedUrl.hostname);
+  // Custom domain : uniquement s'il est vérifié, sinon un domaine forgé recevrait le bridge token.
+  return tenantRepo.findByVerifiedCustomDomain(parsedUrl.hostname);
 }
 
 export const GET = async (request: NextRequest) => {
@@ -50,7 +51,7 @@ export const GET = async (request: NextRequest) => {
   // Allow redirect to same host, tenant subdomains, or registered custom domains
   const rootHost = rootUrl().host;
   const isSubdomainHost = isSubdomainOrRootHost(parsedUrl, rootHost);
-  const isCustomDomainHost = !isSubdomainHost && !!(await tenantRepo.findByCustomDomain(parsedUrl.hostname));
+  const isCustomDomainHost = !isSubdomainHost && !!(await tenantRepo.findByVerifiedCustomDomain(parsedUrl.hostname));
   if (!isSubdomainHost && !isCustomDomainHost) {
     return NextResponse.redirect(rootUrl());
   }

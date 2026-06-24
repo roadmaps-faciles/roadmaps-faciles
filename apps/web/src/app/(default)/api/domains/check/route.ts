@@ -13,8 +13,11 @@ export async function GET(request: Request) {
 
   const subdomain = getTenantSubdomain(domain);
 
+  // Custom domain : seulement s'il est vérifié (ex: ask endpoint TLS on-demand ne doit pas
+  // reconnaître un domaine forgé/non vérifié).
   const tenant =
-    (await tenantRepo.findByCustomDomain(domain)) ?? (subdomain ? await tenantRepo.findBySubdomain(subdomain) : null);
+    (await tenantRepo.findByVerifiedCustomDomain(domain)) ??
+    (subdomain ? await tenantRepo.findBySubdomain(subdomain) : null);
 
   if (!tenant) return getStatusCodeResponse("NOT_FOUND");
 

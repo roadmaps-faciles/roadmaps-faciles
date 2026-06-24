@@ -1,16 +1,6 @@
 "use client";
 
-import {
-  Building2,
-  CreditCard,
-  Globe,
-  LayoutDashboard,
-  Puzzle,
-  ScrollText,
-  Settings,
-  Shield,
-  Users,
-} from "lucide-react";
+import { Building2, CreditCard, LayoutDashboard, Puzzle, ScrollText, Settings, Shield, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { toggleStripeCheckoutDevAction } from "@/app/admin/dev-tools/actions";
@@ -23,25 +13,15 @@ import { cleanStripeCustomer } from "./devActions";
 
 interface OrgAdminSideMenuProps {
   isDev: boolean;
-  /** Self-host with a valid license: domains stays available (gov needs a .gouv.fr custom domain). */
-  licensed: boolean;
   orgName: string;
   orgSlug: string;
-  /** Self-host: billing/addons (cloud) are hidden, plus security (stub) and domains in community. */
+  /** Self-host: billing/addons (cloud) are hidden, plus security (stub). */
   selfHost: boolean;
   userMenu: UserMenuData;
   useStripe: boolean;
 }
 
-export const OrgAdminSideMenu = ({
-  orgName,
-  orgSlug,
-  userMenu,
-  isDev,
-  useStripe,
-  selfHost,
-  licensed,
-}: OrgAdminSideMenuProps) => {
+export const OrgAdminSideMenu = ({ orgName, orgSlug, userMenu, isDev, useStripe, selfHost }: OrgAdminSideMenuProps) => {
   const t = useTranslations("orgAdmin.sideMenu");
   const base = `/org/${orgSlug}`;
 
@@ -57,7 +37,8 @@ export const OrgAdminSideMenu = ({
     {
       label: t("management"),
       items: [
-        ...(selfHost && !licensed ? [] : [{ label: t("domains"), href: `${base}/domains`, icon: Globe }]),
+        // Domaines org désactivés (feature dormante, réveil futur façon "org domains" GitHub).
+        // La preuve de propriété d'un customDomain se fait désormais au niveau tenant (TXT).
         ...(selfHost
           ? []
           : [

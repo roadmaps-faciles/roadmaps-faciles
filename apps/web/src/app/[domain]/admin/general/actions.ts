@@ -17,9 +17,11 @@ import { logger } from "@/lib/logger";
 import { ADDON_TYPE } from "@/lib/model/Organization";
 import { boardRepo, postStatusRepo, tenantRepo, tenantSettingsRepo, userOnTenantRepo } from "@/lib/repo";
 import { DeleteTenant } from "@/useCases/tenant/DeleteTenant";
+import { GetTenantForDomain } from "@/useCases/tenant/GetTenantForDomain";
 import { SaveTenantWithSettings, SaveTenantWithSettingsInput } from "@/useCases/tenant/SaveTenantWithSettings";
 import { SetTenantForceCustomDomainRedirect } from "@/useCases/tenant/SetTenantForceCustomDomainRedirect";
 import { UpdateTenantDomain, UpdateTenantDomainInput } from "@/useCases/tenant/UpdateTenantDomain";
+import { VerifyTenantCustomDomain } from "@/useCases/tenant/VerifyTenantCustomDomain";
 import { audit, AuditAction, getRequestContext } from "@/utils/audit";
 import { assertTenantAdmin, assertTenantOwner } from "@/utils/auth";
 import { type ServerActionResponse } from "@/utils/next";
@@ -148,6 +150,11 @@ export const updateTenantDomain = async (data: unknown): Promise<ServerActionRes
       tenantDomainConfigured({ tenantId: String(tenant.id), domain: String(validated.data.customDomain ?? "") }),
     );
 
+    // Le routing résout les domaines via GetTenantForDomain (cache 1h) : on l'invalide pour que le
+    // retrait/changement d'un customDomain cesse/commence de router sans attendre l'expiration.
+    // NB : cache LRU process-local. En multi-instance, les autres process gardent l'ancien
+    // résultat jusqu'à expiration (acceptable single-instance Coolify ; sinon Redis pub/sub).
+    GetTenantForDomain.revalidate("GetTenantForDomain");
     revalidatePath("/admin/general");
     return { ok: true };
   } catch (error) {
@@ -223,6 +230,51 @@ export const setForceCustomDomainRedirect = async (enabled: unknown): Promise<Se
     audit(
       {
         action: AuditAction.TENANT_FORCE_CUSTOM_DOMAIN_REDIRECT_UPDATE,
+        success: false,
+        error: (error as Error).message,
+        userId: session.user.uuid,
+        tenantId: tenant.id,
+      },
+      reqCtx,
+    );
+    return { ok: false, error: (error as Error).message };
+  }
+};
+
+export const verifyTenantCustomDomain = async (): Promise<ServerActionResponse<{ verified: boolean }>> => {
+  const domain = await getDomainFromHost();
+  const session = await assertTenantOwner(domain);
+  const tenant = await getTenantFromDomain(domain);
+  await assertEntitlement(tenant.id, ADDON_TYPE.CUSTOM_DOMAIN);
+  const reqCtx = await getRequestContext();
+
+  // settingsId dérivé du tenant appelant (jamais du client) : on ne vérifie que SON domaine.
+  const settings = await tenantSettingsRepo.findByTenantId(tenant.id);
+  if (!settings) {
+    return { ok: false, error: "Configuration du tenant introuvable." };
+  }
+
+  try {
+    const useCase = new VerifyTenantCustomDomain(tenantSettingsRepo);
+    const { verified } = await useCase.execute({ settingsId: settings.id });
+    audit(
+      {
+        action: AuditAction.TENANT_DOMAIN_VERIFY,
+        success: verified,
+        userId: session.user.uuid,
+        tenantId: tenant.id,
+        targetType: "TenantSettings",
+        metadata: { customDomain: settings.customDomain, verified },
+      },
+      reqCtx,
+    );
+    if (verified) GetTenantForDomain.revalidate("GetTenantForDomain");
+    revalidatePath("/admin/general");
+    return { data: { verified }, ok: true };
+  } catch (error) {
+    audit(
+      {
+        action: AuditAction.TENANT_DOMAIN_VERIFY,
         success: false,
         error: (error as Error).message,
         userId: session.user.uuid,

@@ -4,6 +4,7 @@ import { config } from "@/config";
 import { prisma } from "@/lib/db/prisma";
 import { getDnsProvider } from "@/lib/ee/dns-provider";
 import { getDomainProvider } from "@/lib/ee/domain-provider";
+import { generateVerificationToken } from "@/lib/ee/domain-verification";
 import { logger } from "@/lib/logger";
 import { type ITenantSettingsRepo } from "@/lib/repo/ITenantSettingsRepo";
 import { type TenantSettings } from "@/prisma/client";
@@ -65,17 +66,27 @@ export class UpdateTenantDomain implements UseCase<UpdateTenantDomainInput, Upda
             "Domaine personnalisé invalide : indiquez un nom de domaine complet (ex: feedback.exemple.com), différent du domaine de la plateforme.",
           );
         }
-        const domainConflict = await prisma.tenantSettings.findFirst({
-          where: { customDomain: sanitized, id: { not: input.settingsId } },
-        });
-        if (domainConflict) {
-          throw new Error("Ce domaine personnalisé est déjà utilisé par un autre tenant.");
-        }
         nextCustomDomain = sanitized;
-        data.customDomain = sanitized;
+        // On enregistre le domaine en NON vérifié + on émet un token TXT ; la propriété est prouvée
+        // ensuite via VerifyTenantCustomDomain (verifiedAt). On compare la forme sanitized (pas le raw)
+        // pour qu'un re-save du même domaine (casse/dot/www différent) ne régénère ni le token ni le
+        // statut : sinon on invaliderait une vérif déjà acquise à la moindre édition.
+        if (sanitized !== existing.customDomain) {
+          const domainConflict = await prisma.tenantSettings.findFirst({
+            where: { customDomain: sanitized, id: { not: input.settingsId } },
+          });
+          if (domainConflict) {
+            throw new Error("Ce domaine personnalisé est déjà utilisé par un autre tenant.");
+          }
+          data.customDomain = sanitized;
+          data.customDomainVerificationToken = generateVerificationToken();
+          data.customDomainVerifiedAt = null;
+        }
       } else {
         nextCustomDomain = null;
         data.customDomain = null;
+        data.customDomainVerificationToken = null;
+        data.customDomainVerifiedAt = null;
         // Retirer le custom domain doit desactiver la redirection canonique, sinon le flag reste actif
         // sans domaine cible (dormant cote redirect, mais reactive en silence si le meme domaine revient).
         data.forceCustomDomainRedirect = false;

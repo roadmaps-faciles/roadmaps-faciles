@@ -18,6 +18,7 @@ export interface ITenantRepo {
   findById(id: number): Promise<null | Tenant>;
   findByIdWithSettings(id: number): Promise<({ settings: null | TenantSettings } & Tenant) | null>;
   findBySubdomain(subdomain: string): Promise<null | Tenant>;
+  findByVerifiedCustomDomain(customDomain: string): Promise<null | Tenant>;
   update<WithSetting extends boolean = false>(
     id: number,
     data: Prisma.TenantUncheckedUpdateInput,

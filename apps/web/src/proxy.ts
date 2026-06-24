@@ -43,8 +43,15 @@ export function proxy(req: NextRequest) {
   }
 
   // Get hostname of request (e.g. demo.vercel.pub, demo.localhost:3000)
+  // Derrière un reverse proxy (Traefik/Coolify) le header `host` brut peut être l'hôte interne
+  // (ex: localhost:3000), le vrai domaine étant dans `x-forwarded-host`. Lire x-forwarded-host
+  // en priorité (comme getDomainFromHost et la factory NextAuth) sinon les requêtes du root
+  // domain sont mal routées vers la route tenant `[domain]` (404 / soft-nav cassée).
   // Normalize localhost subdomains to rootDomain (supports any port, not just :3000)
-  let hostname = req.headers.get("host")!.replace(/\.localhost:\d+$/, `.${appConfig.rootDomain}`);
+  let hostname = (req.headers.get("x-forwarded-host") || req.headers.get("host"))!.replace(
+    /\.localhost:\d+$/,
+    `.${appConfig.rootDomain}`,
+  );
 
   // Normalize subdomains of additional root domains to canonical rootDomain
   // e.g. e2e.ducmaxv2.ts.sagetlethias.tech:3000 → e2e.localhost:3000

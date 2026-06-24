@@ -32,14 +32,22 @@ describe("GetTenantForDomain", () => {
     expect(mockTenantRepo.findBySubdomain).toHaveBeenCalledWith("test");
   });
 
-  it("resolves tenant by custom domain", async () => {
+  it("resolves tenant by verified custom domain", async () => {
     const tenant = fakeTenant({ id: 2 });
-    mockTenantRepo.findByCustomDomain.mockResolvedValue(tenant);
+    mockTenantRepo.findByVerifiedCustomDomain.mockResolvedValue(tenant);
 
     const result = await useCase.execute({ domain: "custom.example.com" });
 
     expect(result).toBeDefined();
-    expect(mockTenantRepo.findByCustomDomain).toHaveBeenCalledWith("custom.example.com");
+    expect(mockTenantRepo.findByVerifiedCustomDomain).toHaveBeenCalledWith("custom.example.com");
+  });
+
+  it("does not resolve an unverified custom domain (returns not found)", async () => {
+    mockTenantRepo.findByVerifiedCustomDomain.mockResolvedValue(null);
+
+    await expect(useCase.execute({ domain: "unverified.example.com" })).rejects.toThrow(
+      "Tenant not found for domain: unverified.example.com",
+    );
   });
 
   it("throws when tenant is not found", async () => {
