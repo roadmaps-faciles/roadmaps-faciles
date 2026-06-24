@@ -1,0 +1,1 @@
+import{i as e}from"./preload-helper-DLnNNFi6.js";import{t}from"./jsx-runtime-G3nxQKZ8.js";import{n,t as r}from"./cn-BZnpRrJX.js";function i({className:e,...t}){return(0,a.jsx)(`div`,{"data-slot":`skeleton`,className:r(`bg-accent animate-pulse rounded-md`,e),...t})}var a,o=e((()=>{n(),a=t(),i.__docgenInfo={description:``,methods:[],displayName:`Skeleton`}}));export{o as n,i as t};
