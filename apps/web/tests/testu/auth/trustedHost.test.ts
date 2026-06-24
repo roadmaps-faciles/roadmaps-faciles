@@ -8,7 +8,7 @@ vi.mock("@/config", () => ({
   },
 }));
 
-const { isTrustedAuthHost, toTrustedAuthUrl } = await import("@/lib/next-auth/trustedHost");
+const { isTrustedAuthHost, resolveTrustedRedirect, toTrustedAuthUrl } = await import("@/lib/next-auth/trustedHost");
 const { config } = await import("@/config");
 const mutableConfig = config as {
   additionalRootDomains: string[];
@@ -113,5 +113,59 @@ describe("toTrustedAuthUrl", () => {
 
   it("falls back to the canonical origin on an unparseable URL", () => {
     expect(toTrustedAuthUrl("not a url")).toBe("https://roadmaps-faciles.fr");
+  });
+});
+
+describe("resolveTrustedRedirect", () => {
+  beforeEach(() => {
+    mutableConfig.host = "https://roadmaps-faciles.fr";
+    mutableConfig.rootDomain = "roadmaps-faciles.fr";
+    mutableConfig.additionalRootDomains = ["app.tailnet.ts.net"];
+  });
+
+  const onRoot = { protocol: "https", host: "roadmaps-faciles.fr", customDomainVerified: false };
+  const onVerifiedCustom = { protocol: "https", host: "feedback.gouv.fr", customDomainVerified: true };
+  const onUnverifiedCustom = { protocol: "https", host: "feedback.gouv.fr", customDomainVerified: false };
+
+  it("resolves a relative URL against the trusted request host", () => {
+    expect(resolveTrustedRedirect("/board/1", onRoot)).toBe("https://roadmaps-faciles.fr/board/1");
+  });
+
+  it("resolves a relative URL against a verified custom domain", () => {
+    expect(resolveTrustedRedirect("/board/1", onVerifiedCustom)).toBe("https://feedback.gouv.fr/board/1");
+  });
+
+  it("rewrites a relative URL to canonical when the host is an unverified custom domain", () => {
+    expect(resolveTrustedRedirect("/board/1", onUnverifiedCustom)).toBe("https://roadmaps-faciles.fr/board/1");
+  });
+
+  it("keeps an absolute URL on the canonical host", () => {
+    expect(resolveTrustedRedirect("https://roadmaps-faciles.fr/x", onRoot)).toBe("https://roadmaps-faciles.fr/x");
+  });
+
+  it("keeps an absolute URL on a tenant subdomain", () => {
+    expect(resolveTrustedRedirect("https://foo.roadmaps-faciles.fr/x", onRoot)).toBe(
+      "https://foo.roadmaps-faciles.fr/x",
+    );
+  });
+
+  it("keeps an absolute URL on the verified custom domain serving the request (finding #4)", () => {
+    expect(resolveTrustedRedirect("https://feedback.gouv.fr/some/page", onVerifiedCustom)).toBe(
+      "https://feedback.gouv.fr/some/page",
+    );
+  });
+
+  it("does NOT keep an absolute URL on an unverified custom domain (falls back)", () => {
+    expect(resolveTrustedRedirect("https://feedback.gouv.fr/some/page", onUnverifiedCustom)).toBe(
+      "https://roadmaps-faciles.fr/",
+    );
+  });
+
+  it("falls back for an absolute URL on an untrusted/evil host", () => {
+    expect(resolveTrustedRedirect("https://evil.com/x", onVerifiedCustom)).toBe("https://feedback.gouv.fr/");
+  });
+
+  it("falls back for a non-http(s) protocol", () => {
+    expect(resolveTrustedRedirect("javascript:alert(1)", onRoot)).toBe("https://roadmaps-faciles.fr/");
   });
 });

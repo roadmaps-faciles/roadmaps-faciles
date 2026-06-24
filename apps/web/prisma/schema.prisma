@@ -328,6 +328,7 @@ model TenantSettings {
   tenantId                Int                     @unique
   name                    String
   customDomain            String?
+  customDomainVerificationToken String?
   customDomainVerifiedAt  DateTime?
   subdomain               String
   locale                  Locale                  @default(fr)
@@ -785,6 +786,7 @@ enum AuditAction {
   ROADMAP_SETTINGS_UPDATE
   TENANT_DELETE
   TENANT_DOMAIN_UPDATE
+  TENANT_DOMAIN_VERIFY
   TENANT_PURGE_DATA
   TENANT_SEED_DATA
   TENANT_SETTINGS_UPDATE

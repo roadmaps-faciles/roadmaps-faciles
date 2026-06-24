@@ -1,26 +1,12 @@
-import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { connection } from "next/server";
 
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { orgDomainRepo, organizationRepo } from "@/lib/repo";
-
-import { OrgDomainsList } from "./OrgDomainsList";
-
-const OrgDomainsPage = async ({ params }: { params: Promise<{ orgSlug: string }> }) => {
-  await connection();
-  const { orgSlug } = await params;
-  const [org, t] = await Promise.all([organizationRepo.findBySlug(orgSlug), getTranslations("orgAdmin.domains")]);
-  if (!org) notFound();
-
-  const domains = await orgDomainRepo.findByOrgId(org.id);
-
-  return (
-    <>
-      <AdminPageHeader title={t("title")} description={t("description")} />
-      <OrgDomainsList domains={domains} orgId={org.id} />
-    </>
-  );
+// Feature "domaines d'organisation" désactivée (dormante). La preuve de propriété d'un customDomain
+// se fait désormais au niveau tenant (vérif TXT, cf. VerifyTenantCustomDomain). Le reste de la
+// machinerie (OrgDomainsList, use cases AddOrgDomain/VerifyOrgDomain/RemoveOrgDomain, orgDomainRepo,
+// cron) est conservé pour un réveil futur façon "org domains" GitHub. Réveil = restaurer ce fichier
+// + l'entrée nav dans OrgAdminSideMenu.
+const OrgDomainsPage = () => {
+  notFound();
 };
 
 export default OrgDomainsPage;

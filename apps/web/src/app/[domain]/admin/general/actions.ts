@@ -15,10 +15,11 @@ import {
 } from "@/lib/ee/tracking-provider/trackingPlan";
 import { logger } from "@/lib/logger";
 import { ADDON_TYPE } from "@/lib/model/Organization";
-import { boardRepo, orgDomainRepo, postStatusRepo, tenantRepo, tenantSettingsRepo, userOnTenantRepo } from "@/lib/repo";
+import { boardRepo, postStatusRepo, tenantRepo, tenantSettingsRepo, userOnTenantRepo } from "@/lib/repo";
 import { DeleteTenant } from "@/useCases/tenant/DeleteTenant";
 import { SaveTenantWithSettings, SaveTenantWithSettingsInput } from "@/useCases/tenant/SaveTenantWithSettings";
 import { UpdateTenantDomain, UpdateTenantDomainInput } from "@/useCases/tenant/UpdateTenantDomain";
+import { VerifyTenantCustomDomain } from "@/useCases/tenant/VerifyTenantCustomDomain";
 import { audit, AuditAction, getRequestContext } from "@/utils/audit";
 import { assertTenantAdmin, assertTenantOwner } from "@/utils/auth";
 import { type ServerActionResponse } from "@/utils/next";
@@ -130,7 +131,7 @@ export const updateTenantDomain = async (data: unknown): Promise<ServerActionRes
   }
 
   try {
-    const useCase = new UpdateTenantDomain(tenantSettingsRepo, orgDomainRepo);
+    const useCase = new UpdateTenantDomain(tenantSettingsRepo);
     await useCase.execute(validated.data);
     audit(
       {
@@ -153,6 +154,50 @@ export const updateTenantDomain = async (data: unknown): Promise<ServerActionRes
     audit(
       {
         action: AuditAction.TENANT_DOMAIN_UPDATE,
+        success: false,
+        error: (error as Error).message,
+        userId: session.user.uuid,
+        tenantId: tenant.id,
+      },
+      reqCtx,
+    );
+    return { ok: false, error: (error as Error).message };
+  }
+};
+
+export const verifyTenantCustomDomain = async (): Promise<ServerActionResponse<{ verified: boolean }>> => {
+  const domain = await getDomainFromHost();
+  const session = await assertTenantOwner(domain);
+  const tenant = await getTenantFromDomain(domain);
+  await assertEntitlement(tenant.id, ADDON_TYPE.CUSTOM_DOMAIN);
+  const reqCtx = await getRequestContext();
+
+  // settingsId dérivé du tenant appelant (jamais du client) : on ne vérifie que SON domaine.
+  const settings = await tenantSettingsRepo.findByTenantId(tenant.id);
+  if (!settings) {
+    return { ok: false, error: "Configuration du tenant introuvable." };
+  }
+
+  try {
+    const useCase = new VerifyTenantCustomDomain(tenantSettingsRepo);
+    const { verified } = await useCase.execute({ settingsId: settings.id });
+    audit(
+      {
+        action: AuditAction.TENANT_DOMAIN_VERIFY,
+        success: verified,
+        userId: session.user.uuid,
+        tenantId: tenant.id,
+        targetType: "TenantSettings",
+        metadata: { customDomain: settings.customDomain, verified },
+      },
+      reqCtx,
+    );
+    revalidatePath("/admin/general");
+    return { data: { verified }, ok: true };
+  } catch (error) {
+    audit(
+      {
+        action: AuditAction.TENANT_DOMAIN_VERIFY,
         success: false,
         error: (error as Error).message,
         userId: session.user.uuid,

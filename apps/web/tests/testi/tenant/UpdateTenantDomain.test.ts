@@ -1,32 +1,21 @@
 import { UpdateTenantDomain } from "@/useCases/tenant/UpdateTenantDomain";
 
 import {
-  type createMockOrgDomainRepo as CreateMockOrgDomainRepo,
   type createMockTenantSettingsRepo as CreateMockTenantSettingsRepo,
-  createMockOrgDomainRepo,
   createMockTenantSettingsRepo,
   fakeTenantSettings,
 } from "../helpers";
 
 const mockFindFirst = vi.fn();
-const mockTenantFindUnique = vi.fn();
 vi.mock("@/lib/db/prisma", () => ({
   prisma: {
     tenantSettings: { findFirst: (...args: unknown[]) => mockFindFirst(...args) },
-    tenant: { findUnique: (...args: unknown[]) => mockTenantFindUnique(...args) },
   },
 }));
 
-const verifiedOrgDomain = (domain: string) => ({
-  id: 1,
-  organizationId: 42,
-  domain,
-  verificationToken: "tok",
-  verifiedAt: new Date(),
-  isGouv: domain.endsWith(".gouv.fr"),
-  createdAt: new Date(),
-  updatedAt: new Date(),
-});
+vi.mock("@/lib/ee/domain-verification", () => ({
+  generateVerificationToken: () => "roadmaps-faciles-verify=testtoken",
+}));
 
 const mockAddDomain = vi.fn();
 const mockRemoveDomain = vi.fn();
@@ -49,17 +38,12 @@ vi.mock("@/config", () => ({
 
 describe("UpdateTenantDomain", () => {
   let mockSettingsRepo: ReturnType<typeof CreateMockTenantSettingsRepo>;
-  let mockOrgDomainRepo: ReturnType<typeof CreateMockOrgDomainRepo>;
   let useCase: UpdateTenantDomain;
 
   beforeEach(() => {
     mockSettingsRepo = createMockTenantSettingsRepo();
-    mockOrgDomainRepo = createMockOrgDomainRepo();
-    useCase = new UpdateTenantDomain(mockSettingsRepo, mockOrgDomainRepo);
+    useCase = new UpdateTenantDomain(mockSettingsRepo);
     mockFindFirst.mockReset();
-    mockTenantFindUnique.mockReset();
-    mockTenantFindUnique.mockResolvedValue({ organizationId: 42 });
-    mockOrgDomainRepo.findByOrgId.mockResolvedValue([]);
     mockAddDomain.mockReset();
     mockRemoveDomain.mockReset();
     mockAddRecord.mockReset();
@@ -100,11 +84,10 @@ describe("UpdateTenantDomain", () => {
     );
   });
 
-  it("updates custom domain when covered by a verified org domain", async () => {
+  it("registers a new custom domain as unverified with a TXT token", async () => {
     const existing = fakeTenantSettings({ id: 1, subdomain: "sub", customDomain: "old.com" });
     mockSettingsRepo.findById.mockResolvedValue(existing);
     mockFindFirst.mockResolvedValue(null); // no conflict
-    mockOrgDomainRepo.findByOrgId.mockResolvedValue([verifiedOrgDomain("new.com")]);
     mockSettingsRepo.update.mockResolvedValue(fakeTenantSettings({ customDomain: "new.com" }));
     mockRemoveDomain.mockResolvedValue(undefined);
     mockAddDomain.mockResolvedValue(undefined);
@@ -113,67 +96,48 @@ describe("UpdateTenantDomain", () => {
 
     const [, updateData] = mockSettingsRepo.update.mock.calls[0];
     expect(updateData.customDomain).toBe("new.com");
-    expect(updateData.customDomainVerifiedAt).toBeInstanceOf(Date);
+    expect(updateData.customDomainVerificationToken).toBe("roadmaps-faciles-verify=testtoken");
+    expect(updateData.customDomainVerifiedAt).toBeNull();
     expect(mockRemoveDomain).toHaveBeenCalledWith("old.com");
     expect(mockAddDomain).toHaveBeenCalledWith("new.com", "custom");
   });
 
-  it("updates custom domain when covered by a verified parent org domain", async () => {
-    const existing = fakeTenantSettings({ id: 1, subdomain: "sub", customDomain: null });
+  it("clears domain + token + verification when the custom domain is removed", async () => {
+    const existing = fakeTenantSettings({ id: 1, subdomain: "sub", customDomain: "old.com" });
     mockSettingsRepo.findById.mockResolvedValue(existing);
-    mockFindFirst.mockResolvedValue(null);
-    mockOrgDomainRepo.findByOrgId.mockResolvedValue([verifiedOrgDomain("ademe.gouv.fr")]);
-    mockSettingsRepo.update.mockResolvedValue(fakeTenantSettings({ customDomain: "roadmaps.ademe.gouv.fr" }));
-    mockAddDomain.mockResolvedValue(undefined);
+    mockSettingsRepo.update.mockResolvedValue(fakeTenantSettings({ customDomain: null }));
+    mockRemoveDomain.mockResolvedValue(undefined);
 
-    await useCase.execute({ settingsId: 1, customDomain: "roadmaps.ademe.gouv.fr" });
+    await useCase.execute({ settingsId: 1, customDomain: null });
 
-    expect(mockAddDomain).toHaveBeenCalledWith("roadmaps.ademe.gouv.fr", "custom");
+    const [, updateData] = mockSettingsRepo.update.mock.calls[0];
+    expect(updateData.customDomain).toBeNull();
+    expect(updateData.customDomainVerificationToken).toBeNull();
+    expect(updateData.customDomainVerifiedAt).toBeNull();
+    expect(mockRemoveDomain).toHaveBeenCalledWith("old.com");
   });
 
-  it("rejects a custom domain not covered by any verified org domain", async () => {
-    mockSettingsRepo.findById.mockResolvedValue(fakeTenantSettings({ id: 1, customDomain: null }));
-    mockFindFirst.mockResolvedValue(null);
-    mockOrgDomainRepo.findByOrgId.mockResolvedValue([]);
-
-    await expect(useCase.execute({ settingsId: 1, customDomain: "evil.com" })).rejects.toThrow(
-      "doit d'abord être vérifié au niveau de l'organisation",
-    );
-    expect(mockSettingsRepo.update).not.toHaveBeenCalled();
-  });
-
-  it("rejects a custom domain covered only by an UNVERIFIED org domain", async () => {
-    mockSettingsRepo.findById.mockResolvedValue(fakeTenantSettings({ id: 1, customDomain: null }));
-    mockFindFirst.mockResolvedValue(null);
-    mockOrgDomainRepo.findByOrgId.mockResolvedValue([{ ...verifiedOrgDomain("evil.com"), verifiedAt: null }]);
-
-    await expect(useCase.execute({ settingsId: 1, customDomain: "evil.com" })).rejects.toThrow(
-      "doit d'abord être vérifié au niveau de l'organisation",
-    );
-  });
-
-  it("does not re-check coverage when the custom domain is unchanged (grandfathered re-save)", async () => {
+  it("does not re-issue a token nor reset verification when the custom domain is unchanged", async () => {
     const existing = fakeTenantSettings({ id: 1, subdomain: "old", customDomain: "legacy.com" });
     mockSettingsRepo.findById.mockResolvedValue(existing);
     mockFindFirst.mockResolvedValue(null);
-    mockOrgDomainRepo.findByOrgId.mockResolvedValue([]); // no covering domain
     mockSettingsRepo.update.mockResolvedValue(fakeTenantSettings({ subdomain: "new", customDomain: "legacy.com" }));
     mockRemoveDomain.mockResolvedValue(undefined);
     mockAddDomain.mockResolvedValue(undefined);
     mockRemoveRecord.mockResolvedValue(undefined);
     mockAddRecord.mockResolvedValue(undefined);
 
-    // Only the subdomain changes; customDomain stays "legacy.com" → coverage gate must be skipped.
+    // Only the subdomain changes; customDomain stays "legacy.com" → no token/verification churn.
     await useCase.execute({ settingsId: 1, subdomain: "new", customDomain: "legacy.com" });
 
-    expect(mockOrgDomainRepo.findByOrgId).not.toHaveBeenCalled();
     const [, updateData] = mockSettingsRepo.update.mock.calls[0];
     expect(updateData.customDomain).toBeUndefined();
+    expect(updateData.customDomainVerificationToken).toBeUndefined();
     expect(updateData.customDomainVerifiedAt).toBeUndefined();
   });
 
   it("throws when custom domain conflicts", async () => {
-    mockSettingsRepo.findById.mockResolvedValue(fakeTenantSettings({ id: 1 }));
+    mockSettingsRepo.findById.mockResolvedValue(fakeTenantSettings({ id: 1, customDomain: null }));
     mockFindFirst.mockResolvedValue({ id: 2 }); // conflict
 
     await expect(useCase.execute({ settingsId: 1, customDomain: "taken.com" })).rejects.toThrow(
@@ -203,12 +167,11 @@ describe("UpdateTenantDomain", () => {
     expect(mockSettingsRepo.update).not.toHaveBeenCalled();
   });
 
-  it("allows switching between .gouv.fr domains while the DSFR theme is active", async () => {
+  it("allows switching between .gouv.fr domains while the DSFR theme is active (re-issues token, unverified)", async () => {
     mockSettingsRepo.findById.mockResolvedValue(
       fakeTenantSettings({ id: 1, uiTheme: "Dsfr", customDomain: "old.gouv.fr" }),
     );
     mockFindFirst.mockResolvedValue(null);
-    mockOrgDomainRepo.findByOrgId.mockResolvedValue([verifiedOrgDomain("new.gouv.fr")]);
     mockSettingsRepo.update.mockResolvedValue(fakeTenantSettings({ customDomain: "new.gouv.fr" }));
     mockRemoveDomain.mockResolvedValue(undefined);
     mockAddDomain.mockResolvedValue(undefined);
@@ -217,7 +180,8 @@ describe("UpdateTenantDomain", () => {
 
     const [, updateData] = mockSettingsRepo.update.mock.calls[0];
     expect(updateData.customDomain).toBe("new.gouv.fr");
-    expect(updateData.customDomainVerifiedAt).toBeInstanceOf(Date);
+    expect(updateData.customDomainVerificationToken).toBe("roadmaps-faciles-verify=testtoken");
+    expect(updateData.customDomainVerifiedAt).toBeNull();
     expect(mockAddDomain).toHaveBeenCalledWith("new.gouv.fr", "custom");
   });
 });

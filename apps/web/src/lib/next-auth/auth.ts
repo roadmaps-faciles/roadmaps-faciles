@@ -35,7 +35,7 @@ import {
 } from "../repo";
 import { refreshAccessToken } from "./refresh";
 import { revalidateSessionUser } from "./revalidateSessionUser";
-import { isTrustedAuthHost, toTrustedAuthUrl } from "./trustedHost";
+import { resolveTrustedRedirect, toTrustedAuthUrl } from "./trustedHost";
 
 type CustomUser = {
   currentTenantRole?: UserRole;
@@ -323,29 +323,11 @@ const {
     ],
     callbacks: espaceMembreProvider.CallbacksWrapper({
       redirect({ url }) {
-        // Base de redirection post-login : hosts canoniques + customDomain tenant VÉRIFIÉ (couvert
-        // par un OrgDomain vérifié). Un customDomain non vérifié n'est pas de confiance, même si un
-        // tenant résout dessus (sinon redirect ouvert via un customDomain forgé).
-        const normalizedReqHost = host?.startsWith("0.0.0.0") ? host.replace("0.0.0.0", "localhost") : host;
-        const safeBase =
-          protocol &&
-          normalizedReqHost &&
-          (isTrustedAuthHost(normalizedReqHost) || !!tenantSettings?.customDomainVerifiedAt)
-            ? `${protocol}://${host}`
-            : new URL(config.host).origin;
-        const fallback = `${safeBase}/`;
-
-        if (url.startsWith("/")) return `${safeBase}${url}`;
-
-        try {
-          const parsed = new URL(url);
-          if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return fallback;
-          if (isTrustedAuthHost(parsed.host)) return url;
-        } catch {
-          // invalid URL - fall through
-        }
-
-        return fallback;
+        return resolveTrustedRedirect(url, {
+          protocol,
+          host,
+          customDomainVerified: !!tenantSettings?.customDomainVerifiedAt,
+        });
       },
       async signIn(params) {
         // Pre-login OTP check: block magic link if user has OTP configured but no pre-login proof

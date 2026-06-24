@@ -4,9 +4,8 @@ import { config } from "@/config";
 import { prisma } from "@/lib/db/prisma";
 import { getDnsProvider } from "@/lib/ee/dns-provider";
 import { getDomainProvider } from "@/lib/ee/domain-provider";
-import { isDomainProtectedBy } from "@/lib/ee/domain-verification";
+import { generateVerificationToken } from "@/lib/ee/domain-verification";
 import { logger } from "@/lib/logger";
-import { type IOrgDomainRepo } from "@/lib/repo/IOrgDomainRepo";
 import { type ITenantSettingsRepo } from "@/lib/repo/ITenantSettingsRepo";
 import { type TenantSettings } from "@/prisma/client";
 import { isReservedSubdomain } from "@/utils/reservedSubdomains";
@@ -27,10 +26,7 @@ export type UpdateTenantDomainInput = z.infer<typeof UpdateTenantDomainInput>;
 export type UpdateTenantDomainOutput = TenantSettings;
 
 export class UpdateTenantDomain implements UseCase<UpdateTenantDomainInput, UpdateTenantDomainOutput> {
-  constructor(
-    private readonly tenantSettingsRepo: ITenantSettingsRepo,
-    private readonly orgDomainRepo: IOrgDomainRepo,
-  ) {}
+  constructor(private readonly tenantSettingsRepo: ITenantSettingsRepo) {}
 
   public async execute(input: UpdateTenantDomainInput): Promise<UpdateTenantDomainOutput> {
     const existing = await this.tenantSettingsRepo.findById(input.settingsId);
@@ -62,9 +58,9 @@ export class UpdateTenantDomain implements UseCase<UpdateTenantDomainInput, Upda
         );
       }
 
-      // Le gate de propriété ne s'applique qu'au changement effectif : un re-save du même domaine
-      // (ex: on ne touche que le subdomain) ne doit pas re-valider la couverture, sinon les
-      // customDomains grandfathered sans OrgDomain vérifié casseraient à la moindre édition.
+      // On enregistre le domaine en NON vérifié + on émet un token TXT ; la propriété est prouvée
+      // ensuite via VerifyTenantCustomDomain (verifiedAt). Le re-save du même domaine ne touche ni
+      // au token ni au statut (sinon on invaliderait une vérif déjà acquise à la moindre édition).
       if (input.customDomain !== existing.customDomain) {
         if (input.customDomain) {
           const domainConflict = await prisma.tenantSettings.findFirst({
@@ -74,28 +70,12 @@ export class UpdateTenantDomain implements UseCase<UpdateTenantDomainInput, Upda
             throw new Error("Ce domaine personnalisé est déjà utilisé par un autre tenant.");
           }
 
-          // Propriété : le customDomain doit être couvert par un OrgDomain vérifié de l'org.
-          const tenant = await prisma.tenant.findUnique({
-            where: { id: existing.tenantId },
-            select: { organizationId: true },
-          });
-          if (!tenant) {
-            throw new Error("Organisation du tenant introuvable.");
-          }
-          const orgDomains = await this.orgDomainRepo.findByOrgId(tenant.organizationId);
-          const isCovered = orgDomains.some(
-            d => d.verifiedAt !== null && isDomainProtectedBy(input.customDomain!, d.domain),
-          );
-          if (!isCovered) {
-            throw new Error(
-              "Ce domaine doit d'abord être vérifié au niveau de l'organisation : ajoutez et vérifiez ce domaine (ou son domaine parent) dans les domaines de l'organisation avant de l'utiliser ici.",
-            );
-          }
-
           data.customDomain = input.customDomain;
-          data.customDomainVerifiedAt = new Date();
+          data.customDomainVerificationToken = generateVerificationToken();
+          data.customDomainVerifiedAt = null;
         } else {
           data.customDomain = null;
+          data.customDomainVerificationToken = null;
           data.customDomainVerifiedAt = null;
         }
       }

@@ -29,6 +29,7 @@ import z from "zod";
 
 import { config } from "@/config";
 import { type DNSStatus } from "@/lib/ee/domain-provider/dns";
+import { getTxtRecordName } from "@/lib/ee/domain-verification-constants";
 import { useFeatureFlag } from "@/lib/feature-flags/client";
 import { UI_THEME } from "@/lib/model/TenantSettings";
 import { type TenantSettings } from "@/prisma/client";
@@ -41,6 +42,7 @@ import {
   saveTenantSettings,
   seedDefaultData,
   updateTenantDomain,
+  verifyTenantCustomDomain,
 } from "./actions";
 
 const formSchema = z.object({
@@ -181,11 +183,10 @@ interface GeneralFormProps {
   canUseDsfr: boolean;
   hasData: boolean;
   isOwner: boolean;
-  orgDomainsHref: string;
   tenantSettings: TenantSettings;
 }
 
-export const GeneralForm = ({ tenantSettings, isOwner, hasData, canUseDsfr, orgDomainsHref }: GeneralFormProps) => {
+export const GeneralForm = ({ tenantSettings, isOwner, hasData, canUseDsfr }: GeneralFormProps) => {
   const t = useTranslations("domainAdmin.general");
   const te = useTranslations("errors");
   const themeSwitchingEnabled = useFeatureFlag("themeSwitching");
@@ -357,7 +358,7 @@ export const GeneralForm = ({ tenantSettings, isOwner, hasData, canUseDsfr, orgD
 
           {isOwner && (
             <>
-              <DomainSection tenantSettings={tenantSettings} orgDomainsHref={orgDomainsHref} />
+              <DomainSection tenantSettings={tenantSettings} />
               <DangerZone />
             </>
           )}
@@ -543,19 +544,18 @@ const DNS_STATUS_KEY: Record<DNSStatus, "dnsError" | "dnsInvalid" | "dnsValid"> 
 
 const DNS_POLL_INTERVAL = 30_000;
 
-const DomainSection = ({
-  tenantSettings,
-  orgDomainsHref,
-}: {
-  orgDomainsHref: string;
-  tenantSettings: TenantSettings;
-}) => {
+const DomainSection = ({ tenantSettings }: { tenantSettings: TenantSettings }) => {
   const t = useTranslations("domainAdmin.general");
   const tc = useTranslations("common");
   const tv = useTranslations("validation");
   const [error, setError] = useState<null | string>(null);
   const [domainPending, setDomainPending] = useState(false);
   const [domainSuccess, setDomainSuccess] = useState(false);
+
+  // Vérification de propriété (TXT). L'état de référence vient des props (rafraîchies par
+  // revalidatePath après save/verify) ; `ownershipResult` capture l'issue d'un clic "Vérifier".
+  const [ownershipChecking, setOwnershipChecking] = useState(false);
+  const [ownershipResult, setOwnershipResult] = useState<"failed" | null>(null);
 
   const [dnsStatus, setDnsStatus] = useState<DNSStatus | null>(null);
   const [dnsExpected, setDnsExpected] = useState<null | string>(null);
@@ -658,6 +658,18 @@ const DomainSection = ({
     setDomainPending(false);
   };
 
+  const onVerifyOwnership = async () => {
+    setOwnershipResult(null);
+    setOwnershipChecking(true);
+    const result = await verifyTenantCustomDomain();
+    if (result.ok && !result.data.verified) {
+      setOwnershipResult("failed");
+    }
+    setOwnershipChecking(false);
+  };
+
+  const isVerified = !!tenantSettings.customDomainVerifiedAt;
+  const showOwnership = savedCustomDomain && !isDomainDirty;
   const showDnsStatus = savedCustomDomain && !isDomainDirty && dnsStatus;
 
   return (
@@ -686,25 +698,53 @@ const DomainSection = ({
             <Label htmlFor="custom-domain">{t("customDomain")}</Label>
             <Input id="custom-domain" {...register("customDomain")} placeholder="feedback.example.com" />
             <p className="text-sm text-muted-foreground">{t("customDomainHint")}</p>
-            {savedCustomDomain && !isDomainDirty && tenantSettings.customDomainVerifiedAt && (
-              <Badge variant="success" className="gap-1">
-                <Check className="size-3.5" />
-                {t("customDomainVerified")}
-              </Badge>
-            )}
-            <p className="text-sm text-muted-foreground">
-              {t.rich("customDomainOwnershipHint", {
-                link: chunks => (
-                  <a className="underline" href={orgDomainsHref}>
-                    {chunks}
-                  </a>
-                ),
-              })}
-            </p>
             {domainErrors.customDomain && (
               <p className="text-sm text-destructive">{domainErrors.customDomain.message}</p>
             )}
           </div>
+
+          {showOwnership && (
+            <div className="space-y-2">
+              {isVerified ? (
+                <Badge variant="success" className="gap-1">
+                  <Check className="size-3.5" />
+                  {t("customDomainVerified")}
+                </Badge>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="warning">{t("customDomainUnverified")}</Badge>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      disabled={ownershipChecking || !tenantSettings.customDomainVerificationToken}
+                      onClick={() => void onVerifyOwnership()}
+                    >
+                      <RefreshCw className={cn("mr-1 size-4", ownershipChecking && "animate-spin")} />
+                      {ownershipChecking ? t("ownershipChecking") : t("ownershipVerify")}
+                    </Button>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{t("ownershipInstructions")}</p>
+                  {tenantSettings.customDomainVerificationToken && (
+                    <div className="space-y-1 rounded-sm bg-muted p-3 font-mono text-xs">
+                      <p>
+                        <span className="text-muted-foreground">Type:</span> TXT
+                      </p>
+                      <p>
+                        <span className="text-muted-foreground">Nom:</span> {getTxtRecordName(savedCustomDomain)}
+                      </p>
+                      <p className="break-all">
+                        <span className="text-muted-foreground">Valeur:</span>{" "}
+                        {tenantSettings.customDomainVerificationToken}
+                      </p>
+                    </div>
+                  )}
+                  {ownershipResult === "failed" && <p className="text-sm text-destructive">{t("ownershipFailed")}</p>}
+                </>
+              )}
+            </div>
+          )}
 
           {showDnsStatus && (
             <div className="space-y-2">
