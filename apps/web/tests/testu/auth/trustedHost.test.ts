@@ -139,6 +139,14 @@ describe("resolveTrustedRedirect", () => {
     expect(resolveTrustedRedirect("/board/1", onUnverifiedCustom)).toBe("https://roadmaps-faciles.fr/board/1");
   });
 
+  it("normalizes a 0.0.0.0 trusted request host to localhost in the safe base (dev)", () => {
+    mutableConfig.host = "http://localhost:3000";
+    mutableConfig.rootDomain = "localhost:3000";
+    expect(
+      resolveTrustedRedirect("/board/1", { protocol: "http", host: "0.0.0.0:3000", customDomainVerified: false }),
+    ).toBe("http://localhost:3000/board/1");
+  });
+
   it("keeps an absolute URL on the canonical host", () => {
     expect(resolveTrustedRedirect("https://roadmaps-faciles.fr/x", onRoot)).toBe("https://roadmaps-faciles.fr/x");
   });

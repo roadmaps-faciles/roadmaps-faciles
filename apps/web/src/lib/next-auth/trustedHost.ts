@@ -41,7 +41,8 @@ export function resolveTrustedRedirect(
   const { protocol, host, customDomainVerified } = opts;
   const normalizedHost = host?.startsWith("0.0.0.0") ? host.replace("0.0.0.0", "localhost") : host;
   const hostTrusted = !!normalizedHost && (isTrustedAuthHost(normalizedHost) || customDomainVerified);
-  const safeBase = protocol && normalizedHost && hostTrusted ? `${protocol}://${host}` : new URL(config.host).origin;
+  const safeBase =
+    protocol && normalizedHost && hostTrusted ? `${protocol}://${normalizedHost}` : new URL(config.host).origin;
   const fallback = `${safeBase}/`;
 
   if (rawUrl.startsWith("/")) return `${safeBase}${rawUrl}`;

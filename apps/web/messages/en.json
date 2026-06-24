@@ -545,6 +545,7 @@
       "ownershipVerify": "Verify",
       "ownershipChecking": "Verifying…",
       "ownershipFailed": "TXT record not found yet. DNS propagation can take a few minutes, try again.",
+      "ownershipError": "Verification failed (server or DNS error). Try again in a moment.",
       "dnsRecordType": "Type:",
       "dnsRecordName": "Name:",
       "dnsRecordValue": "Value:",

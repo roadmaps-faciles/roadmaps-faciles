@@ -555,7 +555,7 @@ const DomainSection = ({ tenantSettings }: { tenantSettings: TenantSettings }) =
   // Vérification de propriété (TXT). L'état de référence vient des props (rafraîchies par
   // revalidatePath après save/verify) ; `ownershipResult` capture l'issue d'un clic "Vérifier".
   const [ownershipChecking, setOwnershipChecking] = useState(false);
-  const [ownershipResult, setOwnershipResult] = useState<"failed" | null>(null);
+  const [ownershipResult, setOwnershipResult] = useState<"error" | "failed" | null>(null);
 
   const [dnsStatus, setDnsStatus] = useState<DNSStatus | null>(null);
   const [dnsExpected, setDnsExpected] = useState<null | string>(null);
@@ -662,7 +662,9 @@ const DomainSection = ({ tenantSettings }: { tenantSettings: TenantSettings }) =
     setOwnershipResult(null);
     setOwnershipChecking(true);
     const result = await verifyTenantCustomDomain();
-    if (result.ok && !result.data.verified) {
+    if (!result.ok) {
+      setOwnershipResult("error");
+    } else if (!result.data.verified) {
       setOwnershipResult("failed");
     }
     setOwnershipChecking(false);
@@ -745,6 +747,7 @@ const DomainSection = ({ tenantSettings }: { tenantSettings: TenantSettings }) =
                     </div>
                   )}
                   {ownershipResult === "failed" && <p className="text-sm text-destructive">{t("ownershipFailed")}</p>}
+                  {ownershipResult === "error" && <p className="text-sm text-destructive">{t("ownershipError")}</p>}
                 </>
               )}
             </div>

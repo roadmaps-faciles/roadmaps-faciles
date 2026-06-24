@@ -545,6 +545,7 @@
       "ownershipVerify": "Vérifier",
       "ownershipChecking": "Vérification…",
       "ownershipFailed": "Enregistrement TXT introuvable pour le moment. La propagation DNS peut prendre quelques minutes, réessayez.",
+      "ownershipError": "La vérification a échoué (erreur serveur ou DNS). Réessayez dans un instant.",
       "dnsRecordType": "Type :",
       "dnsRecordName": "Nom :",
       "dnsRecordValue": "Valeur :",
