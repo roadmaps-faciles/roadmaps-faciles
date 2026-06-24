@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html class="" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Notion Integration - Roadmaps Faciles</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "sidebar-bg": "#E5EAF4",
+                        "error": "#E7000B",
+                        "primary": "#163C90",
+                        "primary-hover": "#102a66",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#121620",
+                        "success": "#10b981",
+                        "error": "#E7000B",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"],
+                        "sans": ["Public Sans", "sans-serif"],
+                    },
+                    borderRadius: {
+                        "DEFAULT": "10px",
+                        "lg": "10px",
+                        "xl": "12px",
+                        "full": "9999px",
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply font-display bg-background-light text-slate-900;
+            }
+        }
+        .custom-border {
+            border-color: rgba(22, 60, 144, 0.4);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .no-shadow {
+            box-shadow: none !important;
+        }
+    </style>
+
+<style id="stitch-dark-overrides">
+/* === Dark Mode Global Overrides === */
+/* Unlayered styles beat @layer base/utilities from Tailwind CDN */
+
+/* Page backgrounds */
+html.dark body {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+html.dark .bg-white,
+html.dark .bg-surface {
+  background-color: #1e293b;
+}
+html.dark .bg-background-light,
+html.dark .bg-\[\#f6f6f8\],
+html.dark .bg-background {
+  background-color: #0f172a;
+}
+html.dark .bg-slate-50,
+html.dark .bg-slate-100 {
+  background-color: #1e293b;
+}
+html.dark .bg-slate-50\/50,
+html.dark .bg-slate-100\/50,
+html.dark .bg-slate-50\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-sidebar-bg {
+  background-color: #1a2035;
+}
+html.dark .bg-white\/50,
+html.dark .bg-white\/60,
+html.dark .bg-white\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+html.dark .bg-background\/95,
+html.dark .bg-background\/60 {
+  background-color: rgba(15, 23, 42, 0.95);
+}
+
+/* Text colors */
+html.dark .text-slate-900 { color: #f1f5f9; }
+html.dark .text-slate-800 { color: #e2e8f0; }
+html.dark .text-slate-700 { color: #cbd5e1; }
+html.dark .text-slate-600 { color: #94a3b8; }
+html.dark .text-slate-500 { color: #64748b; }
+html.dark .text-slate-400 { color: #64748b; }
+html.dark .text-foreground { color: #e2e8f0; }
+html.dark .text-muted-foreground { color: #8b9ec8; }
+html.dark h1, html.dark h2, html.dark h3, html.dark h4 {
+  color: #f1f5f9;
+}
+
+/* Border colors */
+html.dark .border-slate-200,
+html.dark .border-slate-300,
+html.dark .border-border,
+html.dark .border-slate-200\/40,
+html.dark .border-slate-200\/60,
+html.dark .border-slate-300\/40 {
+  border-color: #334155;
+}
+html.dark .border-slate-100 {
+  border-color: #1e293b;
+}
+html.dark .border-primary\/40,
+html.dark .border-primary\/20 {
+  border-color: rgba(93, 131, 212, 0.3);
+}
+html.dark .border-border\/40 {
+  border-color: rgba(51, 65, 85, 0.4);
+}
+
+/* Dividers */
+html.dark .divide-slate-100 > * + *,
+html.dark .divide-slate-200 > * + * {
+  border-color: #334155;
+}
+html.dark .border-t { border-top-color: #334155; }
+html.dark .border-b { border-bottom-color: #334155; }
+html.dark .border-r { border-right-color: #334155; }
+html.dark .border-l { border-left-color: #334155; }
+
+/* Form elements */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b;
+}
+
+/* Cards and surfaces */
+html.dark .shadcn-card {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+html.dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+
+/* Badges, pills */
+html.dark .bg-green-100 { background-color: rgba(34, 197, 94, 0.15); }
+html.dark .bg-blue-100, html.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.15); }
+html.dark .bg-orange-100, html.dark .bg-orange-50 { background-color: rgba(249, 115, 22, 0.15); }
+html.dark .bg-purple-100 { background-color: rgba(168, 85, 247, 0.15); }
+html.dark .bg-red-100, html.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.15); }
+html.dark .bg-amber-100 { background-color: rgba(245, 158, 11, 0.15); }
+html.dark .bg-emerald-100 { background-color: rgba(16, 185, 129, 0.15); }
+
+/* Hover states */
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-100:hover {
+  background-color: rgba(51, 65, 85, 0.5);
+}
+html.dark .hover\:bg-slate-200\/50:hover {
+  background-color: rgba(51, 65, 85, 0.3);
+}
+
+/* Ring */
+html.dark .ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+html.dark .ring-1.ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+
+/* Glass / backdrop */
+html.dark .glass-header {
+  background-color: rgba(15, 23, 42, 0.85);
+}
+html.dark .backdrop-blur-md {
+  background-color: rgba(15, 23, 42, 0.8);
+}
+
+/* Scrollbar line in h-px */
+html.dark .h-px { background-color: #334155; }
+html.dark .bg-slate-200 { background-color: #334155; }
+
+/* Primary adjustments for dark */
+html.dark .bg-primary\/10 { background-color: rgba(93, 131, 212, 0.15); }
+html.dark .bg-primary\/5 { background-color: rgba(93, 131, 212, 0.08); }
+html.dark .text-primary { color: #7ba3e8; }
+html.dark .bg-primary { background-color: #4a73c4; }
+html.dark .hover\:bg-primary\/5:hover { background-color: rgba(93, 131, 212, 0.1); }
+html.dark .hover\:bg-primary\/10:hover { background-color: rgba(93, 131, 212, 0.15); }
+
+/* Table */
+html.dark table { color: #e2e8f0; }
+html.dark thead { background-color: #1e293b; }
+html.dark th { color: #94a3b8; border-color: #334155; }
+html.dark td { border-color: #334155; }
+html.dark tr:hover { background-color: rgba(51, 65, 85, 0.3); }
+
+/* Specific admin patterns */
+html.dark .bg-white.rounded-custom,
+html.dark .bg-white.rounded-\[10px\],
+html.dark .bg-white.rounded-lg,
+html.dark .bg-white.rounded-xl {
+  background-color: #1e293b;
+}
+
+/* Footer adjustments */
+html.dark footer {
+  background-color: #0f172a;
+  border-color: #334155;
+}
+</style>
+
+</head>
+<body class="flex min-h-screen">
+<aside class="fixed left-0 top-0 z-40 h-screen w-[250px] border-r border-slate-300/40 bg-sidebar-bg flex flex-col justify-between p-4 transition-colors">
+  <div class="flex flex-col gap-8">
+    <div class="flex items-center gap-3 px-2 pt-2">
+      <div class="h-9 w-9 rounded-lg bg-primary flex items-center justify-center text-white shadow-sm">
+        <span class="material-symbols-outlined text-[20px]">map</span>
+      </div>
+      <div class="flex flex-col">
+        <h1 class="text-sm font-bold text-slate-900 leading-tight">Roadmaps Faciles</h1>
+        <p class="text-slate-500 text-[10px] font-medium">Administration</p>
+      </div>
+    </div>
+    <nav class="flex flex-col gap-1">
+      <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Configuration</p>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">settings</span>
+        <span class="text-sm font-medium">Général</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">dashboard</span>
+        <span class="text-sm font-medium">Boards</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">radio_button_checked</span>
+        <span class="text-sm font-medium">Statuts</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">map</span>
+        <span class="text-sm font-medium">Roadmap</span>
+      </a>
+      <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-4 mb-2">Sécurité & Accès</p>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">group</span>
+        <span class="text-sm font-medium">Utilisateurs</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">shield</span>
+        <span class="text-sm font-medium">Authentification</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">key</span>
+        <span class="text-sm font-medium">Clés API</span>
+      </a>
+      <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-4 mb-2">Développeurs</p>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">webhook</span>
+        <span class="text-sm font-medium">Webhooks</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg bg-white/60 px-3 py-2 text-primary shadow-sm ring-1 ring-black/5 transition-colors focus-visible-ring" href="#">
+        <span class="material-symbols-outlined text-[20px]">power</span>
+        <span class="text-sm font-bold">Intégrations</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">receipt_long</span>
+        <span class="text-sm font-medium">Journal d'audit</span>
+      </a>
+      <div class="my-2 h-px bg-slate-200"></div>
+      <a class="flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group mt-2" href="#">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary group-hover:text-error">gpp_maybe</span>
+          <span class="text-sm font-medium">Modération</span>
+        </div>
+        <span class="flex h-5 w-5 items-center justify-center rounded-full bg-error text-[10px] font-bold text-white shadow-sm">3</span>
+      </a>
+    </nav>
+  </div>
+  <div class="px-2 pb-2">
+    <div class="rounded-lg bg-white/50 p-3 border border-slate-200/60">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
+        <span class="text-[10px] font-bold text-slate-700 uppercase tracking-wide">Système Opérationnel</span>
+      </div>
+      <p class="text-[10px] text-slate-500">v4.2.0</p>
+    </div>
+  </div>
+</aside>
+<main class="ml-[250px] flex-1 p-8 lg:p-12">
+<nav class="flex items-center gap-2 text-sm text-slate-500 mb-6">
+<a class="hover:text-primary transition-colors" href="#">Intégrations</a>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span class="text-slate-900 font-medium">Notion Integration</span>
+</nav>
+<header class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+<div class="flex items-center gap-4">
+<div class="h-16 w-16 rounded bg-slate-100 flex items-center justify-center border custom-border">
+<svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4.148 2h15.704c.348 0 .64.12.875.361.235.241.353.541.353.899v17.48c0 .358-.118.658-.353.899-.235.241-.527.361-.875.361H4.148c-.348 0-.64-.12-.875-.361a1.229 1.229 0 01-.353-.899V3.26c0-.358.118-.658.353-.899A1.185 1.185 0 014.148 2zm-.233 17.558c0 .1.034.184.1.253.067.069.148.104.244.104h15.482c.096 0 .177-.035.244-.104.066-.069.1-.153.1-.253V4.442c0-.1-.034-.184-.1-.253a.333.333 0 00-.244-.104H4.259c-.096 0-.177.035-.244.104-.066.069-.1.153-.1.253v15.116zm3.32-12.721h9.53v1.454h-9.53V6.837zm0 3.395h9.53v1.454h-9.53v-1.454zm0 3.395h9.53v1.454h-9.53v-1.454zm0 3.396h6.353v1.453H7.235v-1.453z" fill="currentColor"></path></svg>
+</div>
+<div>
+<div class="flex items-center gap-3 mb-1">
+<h1 class="text-3xl font-black tracking-tight text-slate-900">Notion Integration</h1>
+<span class="inline-flex items-center rounded-full bg-emerald-100 text-emerald-700 px-3 py-1 text-xs font-bold border border-emerald-200">
+                            Connecté
+                        </span>
+</div>
+<p class="text-slate-600">Synchronisez vos bases de données Notion directement avec vos roadmaps.</p>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-3">
+<button class="h-10 px-6 bg-primary hover:bg-primary-hover text-white rounded font-bold text-sm transition-all flex items-center gap-2 no-shadow">
+<span class="material-symbols-outlined text-[18px]">sync</span>
+                    Synchroniser
+                </button>
+<button class="h-10 px-5 bg-white border custom-border hover:bg-slate-50 text-slate-700 rounded font-semibold text-sm transition-all flex items-center gap-2 no-shadow">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+                    Modifier
+                </button>
+<button class="h-10 px-5 bg-error/10 hover:bg-error hover:text-white text-error border border-error/20 rounded font-semibold text-sm transition-all flex items-center gap-2 no-shadow">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+                    Déconnecter
+                </button>
+</div>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<div class="lg:col-span-8">
+<section class="bg-white rounded-xl border custom-border p-6 no-shadow">
+<div class="flex items-center justify-between mb-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">alt_route</span>
+<h2 class="text-lg font-bold text-slate-900">Configuration des champs</h2>
+</div>
+<button class="text-sm font-semibold text-primary hover:underline">Ajouter un mappage</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-sm text-left border-collapse">
+<thead>
+<tr class="bg-slate-50 border-b custom-border">
+<th class="px-4 py-3 font-bold text-slate-700 uppercase text-[11px] tracking-wider">Champ Notion</th>
+<th class="px-4 py-3 font-bold text-slate-700 uppercase text-[11px] tracking-wider text-center">Direction</th>
+<th class="px-4 py-3 font-bold text-slate-700 uppercase text-[11px] tracking-wider">Board/Statut</th>
+<th class="px-4 py-3 font-bold text-slate-700 uppercase text-[11px] tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y custom-border">
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-4 py-4 font-medium text-slate-900">Nom de la tâche</td>
+<td class="px-4 py-4 text-center">
+<span class="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600 border border-slate-200">
+<span class="material-symbols-outlined text-[14px]">sync_alt</span>
+                                            Bidirectionnel
+                                        </span>
+</td>
+<td class="px-4 py-4">Titre de l'Item</td>
+<td class="px-4 py-4 text-right">
+<button class="text-slate-400 hover:text-primary">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-4 py-4 font-medium text-slate-900">Status (Select)</td>
+<td class="px-4 py-4 text-center">
+<span class="inline-flex items-center gap-1 rounded bg-blue-50 px-2 py-0.5 text-xs font-semibold text-primary border border-primary/20">
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                                            Vers Notion
+                                        </span>
+</td>
+<td class="px-4 py-4">
+<select class="text-xs border custom-border rounded bg-white px-2 py-1 focus:ring-primary focus:border-primary transition-all">
+<option>Colonne Statut</option>
+<option>Propriété Tags</option>
+</select>
+</td>
+<td class="px-4 py-4 text-right">
+<button class="text-slate-400 hover:text-primary">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-4 py-4 font-medium text-slate-900">Date de fin</td>
+<td class="px-4 py-4 text-center">
+<span class="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600 border border-slate-200">
+<span class="material-symbols-outlined text-[14px]">arrow_back</span>
+                                            Depuis Notion
+                                        </span>
+</td>
+<td class="px-4 py-4">Timeline (Fin)</td>
+<td class="px-4 py-4 text-right">
+<button class="text-slate-400 hover:text-primary">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+<div class="lg:col-span-4 space-y-6">
+<section class="bg-white rounded-xl border custom-border p-6 no-shadow">
+<h3 class="text-sm font-bold text-slate-900 mb-4 uppercase tracking-wider">Informations API</h3>
+<div class="space-y-4">
+<div>
+<p class="text-[10px] font-bold text-slate-400 uppercase">Database ID</p>
+<code class="text-xs bg-slate-100 p-1 rounded block mt-1 overflow-hidden truncate">550e8400-e29b-41d4-a716-446655440000</code>
+</div>
+<div>
+<p class="text-[10px] font-bold text-slate-400 uppercase">Dernière vérification</p>
+<p class="text-sm text-slate-700 mt-1">Aujourd'hui, à 14:32</p>
+</div>
+<div class="pt-2 border-t custom-border">
+<button class="text-sm font-semibold text-primary hover:text-primary-hover flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+                                Voir dans Notion
+                            </button>
+</div>
+</div>
+</section>
+<section class="bg-white rounded-xl border custom-border p-6 no-shadow">
+<h3 class="text-sm font-bold text-slate-900 mb-4 uppercase tracking-wider">Filtre Rapide</h3>
+<div class="relative group">
+<button class="w-full flex items-center justify-between px-3 py-2 bg-white border custom-border rounded text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all no-shadow">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">filter_alt</span>
+                                Filtrer par statut
+                            </div>
+<span class="material-symbols-outlined">expand_more</span>
+</button>
+<div class="absolute left-0 mt-2 w-full origin-top-left rounded bg-white border custom-border shadow-lg z-20 p-4 invisible group-focus-within:visible">
+<h4 class="text-xs font-bold text-slate-900 mb-3">Statuts à synchroniser</h4>
+<div class="space-y-3 mb-4">
+<div class="flex items-center">
+<input checked="" class="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary" id="filter-ongoing" type="checkbox"/>
+<label class="ml-2 text-sm text-slate-700" for="filter-ongoing">En cours</label>
+</div>
+<div class="flex items-center">
+<input checked="" class="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary" id="filter-done" type="checkbox"/>
+<label class="ml-2 text-sm text-slate-700" for="filter-done">Terminé</label>
+</div>
+<div class="flex items-center">
+<input class="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary" id="filter-paused" type="checkbox"/>
+<label class="ml-2 text-sm text-slate-700" for="filter-paused">En pause</label>
+</div>
+</div>
+<button class="w-full h-9 bg-primary hover:bg-primary-hover text-white rounded font-bold text-sm transition-colors no-shadow">
+                                Appliquer
+                            </button>
+</div>
+</div>
+</section>
+</div>
+<div class="lg:col-span-12">
+<section class="bg-white rounded-xl border custom-border p-6 no-shadow">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary">history</span>
+<h2 class="text-lg font-bold text-slate-900">Historique des synchronisations</h2>
+</div>
+<div class="overflow-x-auto mb-6">
+<table class="w-full text-sm text-left border-collapse">
+<thead>
+<tr class="bg-slate-50 border-b custom-border">
+<th class="px-4 py-3 font-bold text-slate-700 uppercase text-[11px] tracking-wider">Date &amp; Heure</th>
+<th class="px-4 py-3 font-bold text-slate-700 uppercase text-[11px] tracking-wider">Statut</th>
+<th class="px-4 py-3 font-bold text-slate-700 uppercase text-[11px] tracking-wider">Éléments synchronisés</th>
+<th class="px-4 py-3 font-bold text-slate-700 uppercase text-[11px] tracking-wider">Utilisateur</th>
+</tr>
+</thead>
+<tbody class="divide-y custom-border">
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-4 py-4 text-slate-600 font-medium">12 Oct 2023, 14:32</td>
+<td class="px-4 py-4">
+<span class="inline-flex items-center rounded-full bg-emerald-100 text-emerald-700 px-2 py-0.5 text-xs font-bold border border-emerald-200">
+                                            Succès
+                                        </span>
+</td>
+<td class="px-4 py-4 text-slate-900">24 items mis à jour, 2 créés</td>
+<td class="px-4 py-4 flex items-center gap-2">
+<div class="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">AD</div>
+<span class="text-slate-600">Alice D.</span>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-4 py-4 text-slate-600 font-medium">11 Oct 2023, 09:15</td>
+<td class="px-4 py-4">
+<span class="inline-flex items-center rounded-full bg-emerald-100 text-emerald-700 px-2 py-0.5 text-xs font-bold border border-emerald-200">
+                                            Succès
+                                        </span>
+</td>
+<td class="px-4 py-4 text-slate-900">12 items mis à jour</td>
+<td class="px-4 py-4 flex items-center gap-2">
+<div class="h-6 w-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500">Auto</div>
+<span class="text-slate-600">Système</span>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-4 py-4 text-slate-600 font-medium">10 Oct 2023, 18:45</td>
+<td class="px-4 py-4">
+<span class="inline-flex items-center rounded-full bg-red-100 text-red-700 px-2 py-0.5 text-xs font-bold border border-red-200">
+                                            Erreur
+                                        </span>
+</td>
+<td class="px-4 py-4 text-red-600 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">warning</span>
+                                        Token API expiré
+                                    </td>
+<td class="px-4 py-4 flex items-center gap-2">
+<div class="h-6 w-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500">Auto</div>
+<span class="text-slate-600">Système</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="flex items-center justify-between pt-4 border-t custom-border">
+<p class="text-xs text-slate-500">Affichage de 1 à 3 sur 12 entrées</p>
+<nav aria-label="Pagination" class="isolate inline-flex -space-x-px rounded shadow-sm no-shadow">
+<a class="relative inline-flex items-center rounded-l px-2 py-2 text-slate-400 ring-1 ring-inset custom-border hover:bg-slate-50 focus:z-20 no-shadow" href="#">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</a>
+<a class="relative inline-flex items-center px-4 py-2 text-sm font-bold text-white bg-primary focus:z-20 no-shadow" href="#">1</a>
+<a class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-slate-900 ring-1 ring-inset custom-border hover:bg-slate-50 focus:z-20 no-shadow" href="#">2</a>
+<a class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-slate-900 ring-1 ring-inset custom-border hover:bg-slate-50 focus:z-20 no-shadow" href="#">3</a>
+<a class="relative inline-flex items-center rounded-r px-2 py-2 text-slate-400 ring-1 ring-inset custom-border hover:bg-slate-50 focus:z-20 no-shadow" href="#">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</a>
+</nav>
+</div>
+</section>
+</div>
+</div>
+</main>
+
+
+<script id="stitch-dark-toggle">
+(function() {
+  var html = document.documentElement;
+  var stored = localStorage.getItem('stitch-theme');
+  if (stored === 'dark') html.classList.add('dark');
+  else if (stored === 'light') html.classList.remove('dark');
+
+  var btn = document.createElement('button');
+  btn.id = 'theme-toggle';
+  btn.setAttribute('aria-label', 'Toggle dark mode');
+  Object.assign(btn.style, {
+    position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: '9999',
+    width: '3rem', height: '3rem', borderRadius: '50%',
+    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'all 0.2s ease', fontSize: '1.25rem', border: 'none',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.15)'
+  });
+
+  function update() {
+    var isDark = html.classList.contains('dark');
+    var icon = document.createElement('span');
+    icon.className = 'material-symbols-outlined';
+    icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+    icon.style.fontSize = '1.4rem';
+    btn.textContent = '';
+    btn.appendChild(icon);
+    btn.style.backgroundColor = isDark ? '#1e293b' : '#ffffff';
+    btn.style.color = isDark ? '#fbbf24' : '#64748b';
+    btn.style.boxShadow = isDark
+      ? '0 2px 12px rgba(0,0,0,0.4), 0 0 0 1px rgba(100,116,139,0.2)'
+      : '0 2px 12px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05)';
+  }
+
+  btn.addEventListener('click', function() {
+    html.classList.toggle('dark');
+    localStorage.setItem('stitch-theme', html.classList.contains('dark') ? 'dark' : 'light');
+    update();
+  });
+
+  document.body.appendChild(btn);
+  update();
+})();
+</script>
+
+</body></html>

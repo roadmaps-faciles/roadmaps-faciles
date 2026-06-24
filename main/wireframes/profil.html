@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html class="" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Roadmaps Faciles - Profil Utilisateur</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#163C90",
+                        "primary-hover": "#102a66",
+                        "primary-focus": "#1e4bb3",
+                        "background-light": "#ffffff",
+                        "background-dark": "#121620",
+                        "surface": "#f8f9fa",
+                        "border": "#e2e8f0",
+                        error: "#E7000B",
+                        "disabled-bg": "#E5EAF4",
+                    },
+                    fontFamily: {
+                        sans: ['"Public Sans"', "sans-serif"],
+                        display: ['"Geist"', "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "10px",
+                        lg: "10px",
+                        xl: "12px",
+                        full: "9999px",
+                    },
+                    animation: {
+                        pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                font-family: "Public Sans", sans-serif;
+                background-color: #ffffff;
+                color: #111317;
+            }
+        }
+        .focus-visible-ring:focus-visible {
+            outline: 2px solid #163C90;
+            outline-offset: 2px;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+
+<style id="stitch-dark-overrides">
+/* === Dark Mode Global Overrides === */
+/* Unlayered styles beat @layer base/utilities from Tailwind CDN */
+
+/* Page backgrounds */
+html.dark body {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+html.dark .bg-white,
+html.dark .bg-surface {
+  background-color: #1e293b;
+}
+html.dark .bg-background-light,
+html.dark .bg-\[\#f6f6f8\],
+html.dark .bg-background {
+  background-color: #0f172a;
+}
+html.dark .bg-slate-50,
+html.dark .bg-slate-100 {
+  background-color: #1e293b;
+}
+html.dark .bg-slate-50\/50,
+html.dark .bg-slate-100\/50,
+html.dark .bg-slate-50\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-sidebar-bg {
+  background-color: #1a2035;
+}
+html.dark .bg-white\/50,
+html.dark .bg-white\/60,
+html.dark .bg-white\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+html.dark .bg-background\/95,
+html.dark .bg-background\/60 {
+  background-color: rgba(15, 23, 42, 0.95);
+}
+
+/* Text colors */
+html.dark .text-slate-900 { color: #f1f5f9; }
+html.dark .text-slate-800 { color: #e2e8f0; }
+html.dark .text-slate-700 { color: #cbd5e1; }
+html.dark .text-slate-600 { color: #94a3b8; }
+html.dark .text-slate-500 { color: #64748b; }
+html.dark .text-slate-400 { color: #64748b; }
+html.dark .text-foreground { color: #e2e8f0; }
+html.dark .text-muted-foreground { color: #8b9ec8; }
+html.dark h1, html.dark h2, html.dark h3, html.dark h4 {
+  color: #f1f5f9;
+}
+
+/* Border colors */
+html.dark .border-slate-200,
+html.dark .border-slate-300,
+html.dark .border-border,
+html.dark .border-slate-200\/40,
+html.dark .border-slate-200\/60,
+html.dark .border-slate-300\/40 {
+  border-color: #334155;
+}
+html.dark .border-slate-100 {
+  border-color: #1e293b;
+}
+html.dark .border-primary\/40,
+html.dark .border-primary\/20 {
+  border-color: rgba(93, 131, 212, 0.3);
+}
+html.dark .border-border\/40 {
+  border-color: rgba(51, 65, 85, 0.4);
+}
+
+/* Dividers */
+html.dark .divide-slate-100 > * + *,
+html.dark .divide-slate-200 > * + * {
+  border-color: #334155;
+}
+html.dark .border-t { border-top-color: #334155; }
+html.dark .border-b { border-bottom-color: #334155; }
+html.dark .border-r { border-right-color: #334155; }
+html.dark .border-l { border-left-color: #334155; }
+
+/* Form elements */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b;
+}
+
+/* Cards and surfaces */
+html.dark .shadcn-card {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+html.dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+
+/* Badges, pills */
+html.dark .bg-green-100 { background-color: rgba(34, 197, 94, 0.15); }
+html.dark .bg-blue-100, html.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.15); }
+html.dark .bg-orange-100, html.dark .bg-orange-50 { background-color: rgba(249, 115, 22, 0.15); }
+html.dark .bg-purple-100 { background-color: rgba(168, 85, 247, 0.15); }
+html.dark .bg-red-100, html.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.15); }
+html.dark .bg-amber-100 { background-color: rgba(245, 158, 11, 0.15); }
+html.dark .bg-emerald-100 { background-color: rgba(16, 185, 129, 0.15); }
+
+/* Hover states */
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-100:hover {
+  background-color: rgba(51, 65, 85, 0.5);
+}
+html.dark .hover\:bg-slate-200\/50:hover {
+  background-color: rgba(51, 65, 85, 0.3);
+}
+
+/* Ring */
+html.dark .ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+html.dark .ring-1.ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+
+/* Glass / backdrop */
+html.dark .glass-header {
+  background-color: rgba(15, 23, 42, 0.85);
+}
+html.dark .backdrop-blur-md {
+  background-color: rgba(15, 23, 42, 0.8);
+}
+
+/* Scrollbar line in h-px */
+html.dark .h-px { background-color: #334155; }
+html.dark .bg-slate-200 { background-color: #334155; }
+
+/* Primary adjustments for dark */
+html.dark .bg-primary\/10 { background-color: rgba(93, 131, 212, 0.15); }
+html.dark .bg-primary\/5 { background-color: rgba(93, 131, 212, 0.08); }
+html.dark .text-primary { color: #7ba3e8; }
+html.dark .bg-primary { background-color: #4a73c4; }
+html.dark .hover\:bg-primary\/5:hover { background-color: rgba(93, 131, 212, 0.1); }
+html.dark .hover\:bg-primary\/10:hover { background-color: rgba(93, 131, 212, 0.15); }
+
+/* Table */
+html.dark table { color: #e2e8f0; }
+html.dark thead { background-color: #1e293b; }
+html.dark th { color: #94a3b8; border-color: #334155; }
+html.dark td { border-color: #334155; }
+html.dark tr:hover { background-color: rgba(51, 65, 85, 0.3); }
+
+/* Specific admin patterns */
+html.dark .bg-white.rounded-custom,
+html.dark .bg-white.rounded-\[10px\],
+html.dark .bg-white.rounded-lg,
+html.dark .bg-white.rounded-xl {
+  background-color: #1e293b;
+}
+
+/* Footer adjustments */
+html.dark footer {
+  background-color: #0f172a;
+  border-color: #334155;
+}
+</style>
+
+</head>
+<body class="min-h-screen bg-background-light text-slate-900">
+
+<!-- Header simple -->
+<header class="border-b border-border bg-white">
+  <div class="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white">
+        <span class="material-symbols-outlined text-[18px]">map</span>
+      </div>
+      <span class="text-base font-bold text-slate-900">Roadmaps Faciles</span>
+    </div>
+    <nav class="flex items-center gap-4 text-sm">
+      <a class="text-slate-600 hover:text-primary" href="#">Mes boards</a>
+      <a class="text-primary font-medium" href="#">Mon profil</a>
+      <a class="text-slate-600 hover:text-primary" href="#">Déconnexion</a>
+    </nav>
+  </div>
+</header>
+
+<main class="mx-auto max-w-4xl px-6 py-10">
+  <!-- Breadcrumb -->
+  <div class="flex items-center gap-2 text-sm text-slate-500 mb-8">
+    <a href="#" class="hover:text-primary">Accueil</a>
+    <span class="material-symbols-outlined text-xs">chevron_right</span>
+    <span class="text-slate-900 font-medium">Mon profil</span>
+  </div>
+
+  <h1 class="text-3xl font-bold text-slate-900 mb-8">Mon profil</h1>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Colonne gauche : avatar + info résumée -->
+    <div class="lg:col-span-1">
+      <div class="bg-white rounded-lg border border-border p-6 text-center">
+        <div class="relative inline-block mb-4">
+          <div class="h-24 w-24 rounded-full bg-slate-200 border-2 border-white shadow-sm overflow-hidden mx-auto">
+            <img alt="Avatar" class="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoy1P_W9CEshUKBr0t1bqyaOJkenoyJaiHVFE8Fpk4BqOEdCIMBpZ22_AU5rJPrxvafKmAokhxgSz4lox2EfWxfxWxN7EUFfE_ymCpQ_mxLjomcKR-wZFlH5SqAy5L_aQjh-YpdVy16_qxeI8kaRqZ5wUv1oz6dFPdh4tAMFdqDfvpDqcgVfWNY0hGte3Q_-ex1vzcWnD0ffTMMD4YlqRSFew8JaRm0yIHP0WAuqlC54REUFysr6q06IW-mDabg-0fPolVAjdL17UM"/>
+          </div>
+          <button aria-label="Modifier l'avatar" class="absolute bottom-0 right-0 h-7 w-7 bg-white border border-slate-300 rounded-full flex items-center justify-center text-slate-600 hover:text-primary hover:border-primary transition-colors">
+            <span class="material-symbols-outlined text-[16px]">edit</span>
+          </button>
+        </div>
+        <h2 class="text-lg font-bold text-slate-900">Jean Dupont</h2>
+        <p class="text-sm text-slate-500 mb-1">jean.dupont@example.com</p>
+        <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary mt-2">Membre</span>
+        <div class="mt-4 pt-4 border-t border-border text-left">
+          <div class="flex items-center justify-between text-sm mb-2">
+            <span class="text-slate-500">Inscrit depuis</span>
+            <span class="text-slate-900 font-medium">12 janv. 2023</span>
+          </div>
+          <div class="flex items-center justify-between text-sm mb-2">
+            <span class="text-slate-500">Posts créés</span>
+            <span class="text-slate-900 font-medium">24</span>
+          </div>
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-slate-500">Votes donnés</span>
+            <span class="text-slate-900 font-medium">156</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Colonne droite : formulaires -->
+    <div class="lg:col-span-2 space-y-6">
+      <!-- Informations personnelles -->
+      <div class="bg-white rounded-lg border border-border p-6">
+        <h3 class="text-lg font-bold text-slate-900 mb-6">Informations personnelles</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium text-slate-700">Prénom</label>
+            <input class="h-10 w-full rounded border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary" type="text" value="Jean"/>
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium text-slate-700">Nom</label>
+            <input class="h-10 w-full rounded border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary" type="text" value="Dupont"/>
+          </div>
+          <div class="flex flex-col gap-2 md:col-span-2">
+            <label class="text-sm font-medium text-slate-400">Email</label>
+            <input class="h-10 w-full rounded border-slate-200 bg-disabled-bg px-3 py-2 text-sm text-slate-500 cursor-not-allowed" disabled type="email" value="jean.dupont@example.com"/>
+            <p class="text-xs text-slate-400">L'email ne peut pas être modifié. Contactez un administrateur si besoin.</p>
+          </div>
+          <div class="flex flex-col gap-2 md:col-span-2">
+            <label class="text-sm font-medium text-slate-700">Bio</label>
+            <textarea class="w-full rounded border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary" rows="3" placeholder="Décrivez-vous en quelques mots...">Passionné de product management et d'UX design.</textarea>
+          </div>
+        </div>
+        <div class="flex justify-end mt-6">
+          <button class="h-10 px-6 bg-primary hover:bg-primary-hover text-white rounded font-medium text-sm transition-colors">
+            Enregistrer
+          </button>
+        </div>
+      </div>
+
+      <!-- Préférences de notification -->
+      <div class="bg-white rounded-lg border border-border p-6">
+        <h3 class="text-lg font-bold text-slate-900 mb-6">Notifications</h3>
+        <div class="space-y-4">
+          <div class="flex items-center justify-between py-2">
+            <div class="flex flex-col">
+              <span class="text-sm font-medium text-slate-900">Nouveaux posts sur mes boards</span>
+              <span class="text-xs text-slate-500">Recevoir un email quand un post est créé sur un board que je suis</span>
+            </div>
+            <label class="relative inline-flex cursor-pointer items-center">
+              <input checked class="peer sr-only" type="checkbox"/>
+              <div class="peer h-6 w-11 rounded-full bg-slate-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
+            </label>
+          </div>
+          <div class="border-t border-border"></div>
+          <div class="flex items-center justify-between py-2">
+            <div class="flex flex-col">
+              <span class="text-sm font-medium text-slate-900">Réponses à mes posts</span>
+              <span class="text-xs text-slate-500">Recevoir un email quand quelqu'un commente sur mon post</span>
+            </div>
+            <label class="relative inline-flex cursor-pointer items-center">
+              <input checked class="peer sr-only" type="checkbox"/>
+              <div class="peer h-6 w-11 rounded-full bg-slate-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
+            </label>
+          </div>
+          <div class="border-t border-border"></div>
+          <div class="flex items-center justify-between py-2">
+            <div class="flex flex-col">
+              <span class="text-sm font-medium text-slate-900">Changements de statut</span>
+              <span class="text-xs text-slate-500">Recevoir un email quand le statut de mon post change</span>
+            </div>
+            <label class="relative inline-flex cursor-pointer items-center">
+              <input class="peer sr-only" type="checkbox"/>
+              <div class="peer h-6 w-11 rounded-full bg-slate-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
+            </label>
+          </div>
+          <div class="border-t border-border"></div>
+          <div class="flex items-center justify-between py-2">
+            <div class="flex flex-col">
+              <span class="text-sm font-medium text-slate-900">Newsletter</span>
+              <span class="text-xs text-slate-500">Recevoir des nouvelles et mises à jour de la plateforme</span>
+            </div>
+            <label class="relative inline-flex cursor-pointer items-center">
+              <input class="peer sr-only" type="checkbox"/>
+              <div class="peer h-6 w-11 rounded-full bg-slate-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sécurité -->
+      <div class="bg-white rounded-lg border border-border p-6">
+        <h3 class="text-lg font-bold text-slate-900 mb-6">Sécurité</h3>
+        <div class="space-y-4">
+          <div class="flex items-center justify-between py-2">
+            <div class="flex flex-col">
+              <span class="text-sm font-medium text-slate-900">Authentification à deux facteurs (2FA)</span>
+              <span class="text-xs text-slate-500">Ajouter une couche de sécurité supplémentaire à votre compte</span>
+            </div>
+            <button class="h-9 px-4 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded font-medium text-sm transition-colors">
+              Configurer
+            </button>
+          </div>
+          <div class="border-t border-border"></div>
+          <div class="flex items-center justify-between py-2">
+            <div class="flex flex-col">
+              <span class="text-sm font-medium text-slate-900">Passkeys</span>
+              <span class="text-xs text-slate-500">Se connecter sans mot de passe avec un appareil de confiance</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">1 clé enregistrée</span>
+              <button class="h-9 px-4 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded font-medium text-sm transition-colors">
+                Gérer
+              </button>
+            </div>
+          </div>
+          <div class="border-t border-border"></div>
+          <div class="flex items-center justify-between py-2">
+            <div class="flex flex-col">
+              <span class="text-sm font-medium text-slate-900">Sessions actives</span>
+              <span class="text-xs text-slate-500">Gérer les appareils connectés à votre compte</span>
+            </div>
+            <span class="text-sm text-slate-500">2 sessions</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Zone danger -->
+      <div class="bg-white rounded-lg border border-red-200 p-6">
+        <h3 class="text-lg font-bold text-red-600 mb-2">Zone de danger</h3>
+        <p class="text-sm text-slate-600 mb-4">La suppression du compte est irréversible. Toutes vos données seront définitivement effacées.</p>
+        <button class="h-10 px-6 bg-white border border-red-300 hover:bg-red-50 text-red-600 rounded font-medium text-sm transition-colors">
+          Supprimer mon compte
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script id="stitch-dark-toggle">
+(function() {
+  var html = document.documentElement;
+  var stored = localStorage.getItem('stitch-theme');
+  if (stored === 'dark') html.classList.add('dark');
+  else if (stored === 'light') html.classList.remove('dark');
+
+  var btn = document.createElement('button');
+  btn.id = 'theme-toggle';
+  btn.setAttribute('aria-label', 'Toggle dark mode');
+  Object.assign(btn.style, {
+    position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: '9999',
+    width: '3rem', height: '3rem', borderRadius: '50%',
+    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'all 0.2s ease', fontSize: '1.25rem', border: 'none',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.15)'
+  });
+
+  function update() {
+    var isDark = html.classList.contains('dark');
+    var icon = document.createElement('span');
+    icon.className = 'material-symbols-outlined';
+    icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+    icon.style.fontSize = '1.4rem';
+    btn.textContent = '';
+    btn.appendChild(icon);
+    btn.style.backgroundColor = isDark ? '#1e293b' : '#ffffff';
+    btn.style.color = isDark ? '#fbbf24' : '#64748b';
+    btn.style.boxShadow = isDark
+      ? '0 2px 12px rgba(0,0,0,0.4), 0 0 0 1px rgba(100,116,139,0.2)'
+      : '0 2px 12px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05)';
+  }
+
+  btn.addEventListener('click', function() {
+    html.classList.toggle('dark');
+    localStorage.setItem('stitch-theme', html.classList.contains('dark') ? 'dark' : 'light');
+    update();
+  });
+
+  document.body.appendChild(btn);
+  update();
+})();
+</script>
+
+</body></html>

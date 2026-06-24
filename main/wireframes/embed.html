@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html class="" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Roadmaps Faciles - Embed Views</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#163C90",
+                        "primary-hover": "#102a66",
+                        "primary-focus": "#1e4bb3",
+                        "background-light": "#ffffff",
+                        "background-dark": "#121620",
+                        "surface": "#f8f9fa",
+                        "border": "#e2e8f0",
+                        error: "#E7000B",
+                        "disabled-bg": "#E5EAF4",
+                    },
+                    fontFamily: {
+                        sans: ['"Public Sans"', "sans-serif"],
+                        display: ['"Geist"', "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "10px",
+                        lg: "10px",
+                        xl: "12px",
+                        full: "9999px",
+                    },
+                    animation: {
+                        pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                font-family: "Public Sans", sans-serif;
+                background-color: #ffffff;
+                color: #111317;
+            }
+        }
+        .focus-visible-ring:focus-visible {
+            outline: 2px solid #163C90;
+            outline-offset: 2px;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+
+<style id="stitch-dark-overrides">
+/* === Dark Mode Global Overrides === */
+/* Unlayered styles beat @layer base/utilities from Tailwind CDN */
+
+/* Page backgrounds */
+html.dark body {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+html.dark .bg-white,
+html.dark .bg-surface {
+  background-color: #1e293b;
+}
+html.dark .bg-background-light,
+html.dark .bg-\[\#f6f6f8\],
+html.dark .bg-background {
+  background-color: #0f172a;
+}
+html.dark .bg-slate-50,
+html.dark .bg-slate-100 {
+  background-color: #1e293b;
+}
+html.dark .bg-slate-50\/50,
+html.dark .bg-slate-100\/50,
+html.dark .bg-slate-50\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-sidebar-bg {
+  background-color: #1a2035;
+}
+html.dark .bg-white\/50,
+html.dark .bg-white\/60,
+html.dark .bg-white\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+html.dark .bg-background\/95,
+html.dark .bg-background\/60 {
+  background-color: rgba(15, 23, 42, 0.95);
+}
+
+/* Text colors */
+html.dark .text-slate-900 { color: #f1f5f9; }
+html.dark .text-slate-800 { color: #e2e8f0; }
+html.dark .text-slate-700 { color: #cbd5e1; }
+html.dark .text-slate-600 { color: #94a3b8; }
+html.dark .text-slate-500 { color: #64748b; }
+html.dark .text-slate-400 { color: #64748b; }
+html.dark .text-foreground { color: #e2e8f0; }
+html.dark .text-muted-foreground { color: #8b9ec8; }
+html.dark h1, html.dark h2, html.dark h3, html.dark h4 {
+  color: #f1f5f9;
+}
+
+/* Border colors */
+html.dark .border-slate-200,
+html.dark .border-slate-300,
+html.dark .border-border,
+html.dark .border-slate-200\/40,
+html.dark .border-slate-200\/60,
+html.dark .border-slate-300\/40 {
+  border-color: #334155;
+}
+html.dark .border-slate-100 {
+  border-color: #1e293b;
+}
+html.dark .border-primary\/40,
+html.dark .border-primary\/20 {
+  border-color: rgba(93, 131, 212, 0.3);
+}
+html.dark .border-border\/40 {
+  border-color: rgba(51, 65, 85, 0.4);
+}
+
+/* Dividers */
+html.dark .divide-slate-100 > * + *,
+html.dark .divide-slate-200 > * + * {
+  border-color: #334155;
+}
+html.dark .border-t { border-top-color: #334155; }
+html.dark .border-b { border-bottom-color: #334155; }
+html.dark .border-r { border-right-color: #334155; }
+html.dark .border-l { border-left-color: #334155; }
+
+/* Form elements */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b;
+}
+
+/* Cards and surfaces */
+html.dark .shadcn-card {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+html.dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+
+/* Badges, pills */
+html.dark .bg-green-100 { background-color: rgba(34, 197, 94, 0.15); }
+html.dark .bg-blue-100, html.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.15); }
+html.dark .bg-orange-100, html.dark .bg-orange-50 { background-color: rgba(249, 115, 22, 0.15); }
+html.dark .bg-purple-100 { background-color: rgba(168, 85, 247, 0.15); }
+html.dark .bg-red-100, html.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.15); }
+html.dark .bg-amber-100 { background-color: rgba(245, 158, 11, 0.15); }
+html.dark .bg-emerald-100 { background-color: rgba(16, 185, 129, 0.15); }
+
+/* Hover states */
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-100:hover {
+  background-color: rgba(51, 65, 85, 0.5);
+}
+html.dark .hover\:bg-slate-200\/50:hover {
+  background-color: rgba(51, 65, 85, 0.3);
+}
+
+/* Ring */
+html.dark .ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+html.dark .ring-1.ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+
+/* Glass / backdrop */
+html.dark .glass-header {
+  background-color: rgba(15, 23, 42, 0.85);
+}
+html.dark .backdrop-blur-md {
+  background-color: rgba(15, 23, 42, 0.8);
+}
+
+/* Scrollbar line in h-px */
+html.dark .h-px { background-color: #334155; }
+html.dark .bg-slate-200 { background-color: #334155; }
+
+/* Primary adjustments for dark */
+html.dark .bg-primary\/10 { background-color: rgba(93, 131, 212, 0.15); }
+html.dark .bg-primary\/5 { background-color: rgba(93, 131, 212, 0.08); }
+html.dark .text-primary { color: #7ba3e8; }
+html.dark .bg-primary { background-color: #4a73c4; }
+html.dark .hover\:bg-primary\/5:hover { background-color: rgba(93, 131, 212, 0.1); }
+html.dark .hover\:bg-primary\/10:hover { background-color: rgba(93, 131, 212, 0.15); }
+
+/* Table */
+html.dark table { color: #e2e8f0; }
+html.dark thead { background-color: #1e293b; }
+html.dark th { color: #94a3b8; border-color: #334155; }
+html.dark td { border-color: #334155; }
+html.dark tr:hover { background-color: rgba(51, 65, 85, 0.3); }
+
+/* Specific admin patterns */
+html.dark .bg-white.rounded-custom,
+html.dark .bg-white.rounded-\[10px\],
+html.dark .bg-white.rounded-lg,
+html.dark .bg-white.rounded-xl {
+  background-color: #1e293b;
+}
+
+/* Footer adjustments */
+html.dark footer {
+  background-color: #0f172a;
+  border-color: #334155;
+}
+</style>
+
+</head>
+<body class="min-h-screen bg-background-light text-slate-900">
+
+<main class="mx-auto max-w-5xl px-6 py-10">
+  <h1 class="text-3xl font-bold text-slate-900 mb-2">Configuration des embeds</h1>
+  <p class="text-slate-600 mb-8">Intégrez vos boards et roadmaps sur vos sites web via des iframes.</p>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+    <!-- Embed Board View -->
+    <div class="bg-white rounded-lg border border-border overflow-hidden">
+      <div class="p-5 border-b border-border">
+        <h2 class="text-lg font-bold text-slate-900 mb-1">Embed Board (Liste de suggestions)</h2>
+        <p class="text-sm text-slate-500">Vue compacte avec votes et détails des posts</p>
+      </div>
+      <div class="p-5">
+        <!-- Preview -->
+        <div class="border border-slate-200 rounded-lg bg-slate-50/50 overflow-hidden h-[350px] flex flex-col">
+          <div class="p-3 bg-white border-b border-slate-200 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+              <h4 class="font-bold text-slate-900 text-sm">Suggestions</h4>
+              <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-xs font-medium border border-slate-200">12</span>
+            </div>
+          </div>
+          <div class="p-3 overflow-y-auto flex-1 scrollbar-hide">
+            <div class="space-y-2">
+              <div class="bg-white p-3 rounded border border-slate-200 shadow-sm hover:border-primary/30 transition-colors cursor-pointer group">
+                <div class="flex justify-between items-start gap-3">
+                  <h5 class="text-sm font-medium text-slate-900 group-hover:text-primary transition-colors">Mode sombre automatique</h5>
+                  <button class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-primary transition-colors shrink-0">
+                    <span class="material-symbols-outlined text-[16px]">expand_less</span>
+                    <span class="text-[10px] font-bold">42</span>
+                  </button>
+                </div>
+                <div class="mt-1.5 text-[10px] text-slate-400">12 Oct 2023</div>
+              </div>
+              <div class="bg-white p-3 rounded border border-slate-200 shadow-sm hover:border-primary/30 transition-colors cursor-pointer group">
+                <div class="flex justify-between items-start gap-3">
+                  <h5 class="text-sm font-medium text-slate-900 group-hover:text-primary transition-colors">Export PDF des roadmaps</h5>
+                  <button class="flex flex-col items-center gap-0.5 text-primary shrink-0">
+                    <span class="material-symbols-outlined text-[16px]">expand_less</span>
+                    <span class="text-[10px] font-bold">156</span>
+                  </button>
+                </div>
+                <div class="mt-1.5 text-[10px] text-slate-400">08 Oct 2023</div>
+              </div>
+              <div class="bg-white p-3 rounded border border-slate-200 shadow-sm hover:border-primary/30 transition-colors cursor-pointer group">
+                <div class="flex justify-between items-start gap-3">
+                  <h5 class="text-sm font-medium text-slate-900 group-hover:text-primary transition-colors">Intégration Slack</h5>
+                  <button class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-primary transition-colors shrink-0">
+                    <span class="material-symbols-outlined text-[16px]">expand_less</span>
+                    <span class="text-[10px] font-bold">89</span>
+                  </button>
+                </div>
+                <div class="mt-1.5 text-[10px] text-slate-400">25 Sept 2023</div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-slate-50 border-t border-slate-200 p-2 text-center shrink-0">
+            <span class="text-[10px] text-slate-400 font-medium">Propulsé par <span class="text-primary">Roadmaps Faciles</span></span>
+          </div>
+        </div>
+      </div>
+      <!-- Code snippet -->
+      <div class="p-5 border-t border-border bg-slate-50">
+        <h4 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Code d'intégration</h4>
+        <div class="bg-slate-900 text-slate-300 rounded-lg p-4 text-xs font-mono overflow-x-auto">
+          &lt;iframe src="https://app.roadmaps-faciles.fr/e/mon-board" width="100%" height="500" frameborder="0"&gt;&lt;/iframe&gt;
+        </div>
+        <div class="flex gap-2 mt-3">
+          <button class="h-8 px-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded font-medium text-xs transition-colors flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[14px]">content_copy</span> Copier
+          </button>
+          <button class="h-8 px-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded font-medium text-xs transition-colors flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[14px]">open_in_new</span> Prévisualiser
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Embed Roadmap View -->
+    <div class="bg-white rounded-lg border border-border overflow-hidden">
+      <div class="p-5 border-b border-border">
+        <h2 class="text-lg font-bold text-slate-900 mb-1">Embed Roadmap (Kanban)</h2>
+        <p class="text-sm text-slate-500">Vue kanban avec colonnes par statut</p>
+      </div>
+      <div class="p-5">
+        <!-- Preview -->
+        <div class="border border-slate-200 rounded-lg bg-slate-50/50 overflow-hidden h-[350px] flex flex-col">
+          <div class="flex-1 overflow-x-auto p-3 scrollbar-hide">
+            <div class="flex gap-3 min-w-max h-full">
+              <div class="w-52 flex flex-col gap-2 h-full">
+                <div class="flex items-center justify-between px-1">
+                  <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">À faire</span>
+                  <span class="bg-slate-200 text-slate-600 text-[9px] px-1.5 py-0.5 rounded-full font-bold">3</span>
+                </div>
+                <div class="bg-white p-2.5 rounded border border-slate-200 shadow-sm">
+                  <span class="inline-block px-1.5 py-0.5 bg-blue-50 text-blue-700 text-[9px] rounded font-medium mb-1.5 border border-blue-100">Design</span>
+                  <h5 class="text-xs font-medium text-slate-900">Maquettes V2</h5>
+                </div>
+                <div class="bg-white p-2.5 rounded border border-slate-200 shadow-sm">
+                  <span class="inline-block px-1.5 py-0.5 bg-amber-50 text-amber-700 text-[9px] rounded font-medium mb-1.5 border border-amber-100">Marketing</span>
+                  <h5 class="text-xs font-medium text-slate-900">Campagne Emailing</h5>
+                </div>
+              </div>
+              <div class="w-52 flex flex-col gap-2 h-full">
+                <div class="flex items-center justify-between px-1">
+                  <span class="text-[10px] font-bold text-primary uppercase tracking-wider">En cours</span>
+                  <span class="bg-primary/10 text-primary text-[9px] px-1.5 py-0.5 rounded-full font-bold">2</span>
+                </div>
+                <div class="bg-white p-2.5 rounded border border-slate-200 shadow-sm border-l-4 border-l-primary">
+                  <span class="inline-block px-1.5 py-0.5 bg-purple-50 text-purple-700 text-[9px] rounded font-medium mb-1.5 border border-purple-100">Dev</span>
+                  <h5 class="text-xs font-medium text-slate-900">API Authentification</h5>
+                </div>
+                <div class="bg-white p-2.5 rounded border border-slate-200 shadow-sm">
+                  <span class="inline-block px-1.5 py-0.5 bg-emerald-50 text-emerald-700 text-[9px] rounded font-medium mb-1.5 border border-emerald-100">QA</span>
+                  <h5 class="text-xs font-medium text-slate-900">Tests unitaires</h5>
+                </div>
+              </div>
+              <div class="w-52 flex flex-col gap-2 h-full">
+                <div class="flex items-center justify-between px-1">
+                  <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Terminé</span>
+                  <span class="bg-emerald-100 text-emerald-700 text-[9px] px-1.5 py-0.5 rounded-full font-bold">5</span>
+                </div>
+                <div class="bg-white p-2.5 rounded border border-slate-200 shadow-sm opacity-60">
+                  <h5 class="text-xs font-medium text-slate-900 line-through text-slate-500">Kickoff Meeting</h5>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-slate-50 border-t border-slate-200 p-2 text-center shrink-0">
+            <span class="text-[10px] text-slate-400 font-medium">Propulsé par <span class="text-primary">Roadmaps Faciles</span></span>
+          </div>
+        </div>
+      </div>
+      <!-- Code snippet -->
+      <div class="p-5 border-t border-border bg-slate-50">
+        <h4 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Code d'intégration</h4>
+        <div class="bg-slate-900 text-slate-300 rounded-lg p-4 text-xs font-mono overflow-x-auto">
+          &lt;iframe src="https://app.roadmaps-faciles.fr/e/mon-board/roadmap" width="100%" height="500" frameborder="0"&gt;&lt;/iframe&gt;
+        </div>
+        <div class="flex gap-2 mt-3">
+          <button class="h-8 px-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded font-medium text-xs transition-colors flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[14px]">content_copy</span> Copier
+          </button>
+          <button class="h-8 px-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded font-medium text-xs transition-colors flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[14px]">open_in_new</span> Prévisualiser
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Options d'embed -->
+  <div class="mt-8 bg-white rounded-lg border border-border p-6">
+    <h3 class="text-lg font-bold text-slate-900 mb-4">Options de personnalisation</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="flex items-center justify-between py-2">
+        <div class="flex flex-col">
+          <span class="text-sm font-medium text-slate-900">Autoriser l'embedding</span>
+          <span class="text-xs text-slate-500">Permettre l'intégration de vos boards sur des sites tiers</span>
+        </div>
+        <label class="relative inline-flex cursor-pointer items-center">
+          <input checked class="peer sr-only" type="checkbox"/>
+          <div class="peer h-6 w-11 rounded-full bg-slate-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
+        </label>
+      </div>
+      <div class="flex items-center justify-between py-2">
+        <div class="flex flex-col">
+          <span class="text-sm font-medium text-slate-900">Afficher le branding</span>
+          <span class="text-xs text-slate-500">Montrer "Propulsé par Roadmaps Faciles" dans l'embed</span>
+        </div>
+        <label class="relative inline-flex cursor-pointer items-center">
+          <input checked class="peer sr-only" type="checkbox"/>
+          <div class="peer h-6 w-11 rounded-full bg-slate-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
+        </label>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-slate-700">Domaines autorisés</label>
+        <input class="h-10 w-full rounded border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" type="text" placeholder="example.com, blog.example.com" value="example.com"/>
+        <p class="text-xs text-slate-400">Séparez les domaines par des virgules. Laissez vide pour autoriser tous les domaines.</p>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-slate-700">Thème de l'embed</label>
+        <div class="inline-flex h-10 items-center justify-center rounded-lg bg-slate-100 p-1 text-slate-500">
+          <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md bg-white px-3 py-1.5 text-sm font-medium text-slate-900 shadow-sm">
+            Auto
+          </button>
+          <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium hover:bg-white/50">
+            Clair
+          </button>
+          <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium hover:bg-white/50">
+            Sombre
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script id="stitch-dark-toggle">
+(function() {
+  var html = document.documentElement;
+  var stored = localStorage.getItem('stitch-theme');
+  if (stored === 'dark') html.classList.add('dark');
+  else if (stored === 'light') html.classList.remove('dark');
+
+  var btn = document.createElement('button');
+  btn.id = 'theme-toggle';
+  btn.setAttribute('aria-label', 'Toggle dark mode');
+  Object.assign(btn.style, {
+    position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: '9999',
+    width: '3rem', height: '3rem', borderRadius: '50%',
+    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'all 0.2s ease', fontSize: '1.25rem', border: 'none',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.15)'
+  });
+
+  function update() {
+    var isDark = html.classList.contains('dark');
+    var icon = document.createElement('span');
+    icon.className = 'material-symbols-outlined';
+    icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+    icon.style.fontSize = '1.4rem';
+    btn.textContent = '';
+    btn.appendChild(icon);
+    btn.style.backgroundColor = isDark ? '#1e293b' : '#ffffff';
+    btn.style.color = isDark ? '#fbbf24' : '#64748b';
+    btn.style.boxShadow = isDark
+      ? '0 2px 12px rgba(0,0,0,0.4), 0 0 0 1px rgba(100,116,139,0.2)'
+      : '0 2px 12px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05)';
+  }
+
+  btn.addEventListener('click', function() {
+    html.classList.toggle('dark');
+    localStorage.setItem('stitch-theme', html.classList.contains('dark') ? 'dark' : 'light');
+    update();
+  });
+
+  document.body.appendChild(btn);
+  update();
+})();
+</script>
+
+</body></html>

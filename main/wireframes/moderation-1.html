@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html class="" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Roadmaps Faciles - Admin Modération</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#163C90",
+                        "primary-hover": "#102a66",
+                        "primary-focus": "#1e4bb3",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#121620",
+                        "surface": "#ffffff",
+                        "border": "#e2e8f0",
+                        error: "#E7000B",
+                        "disabled-bg": "#E5EAF4",
+                    },
+                    fontFamily: {
+                        sans: ['"Public Sans"', "sans-serif"],
+                        display: ['"Geist"', "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "10px",
+                        lg: "10px",
+                        xl: "12px",
+                        full: "9999px",
+                    },
+                    animation: {
+                        pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                font-family: "Geist", "Public Sans", sans-serif;
+                background-color: #f6f6f8;
+                color: #111317;
+            }
+        }
+        .focus-visible-ring:focus-visible {
+            outline: 2px solid #163C90;
+            outline-offset: 2px;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .dialog-backdrop {
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(2px);
+        }
+    </style>
+
+<style id="stitch-dark-overrides">
+/* === Dark Mode Global Overrides === */
+/* Unlayered styles beat @layer base/utilities from Tailwind CDN */
+
+/* Page backgrounds */
+html.dark body {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+html.dark .bg-white,
+html.dark .bg-surface {
+  background-color: #1e293b;
+}
+html.dark .bg-background-light,
+html.dark .bg-\[\#f6f6f8\],
+html.dark .bg-background {
+  background-color: #0f172a;
+}
+html.dark .bg-slate-50,
+html.dark .bg-slate-100 {
+  background-color: #1e293b;
+}
+html.dark .bg-slate-50\/50,
+html.dark .bg-slate-100\/50,
+html.dark .bg-slate-50\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-sidebar-bg {
+  background-color: #1a2035;
+}
+html.dark .bg-white\/50,
+html.dark .bg-white\/60,
+html.dark .bg-white\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+html.dark .bg-background\/95,
+html.dark .bg-background\/60 {
+  background-color: rgba(15, 23, 42, 0.95);
+}
+
+/* Text colors */
+html.dark .text-slate-900 { color: #f1f5f9; }
+html.dark .text-slate-800 { color: #e2e8f0; }
+html.dark .text-slate-700 { color: #cbd5e1; }
+html.dark .text-slate-600 { color: #94a3b8; }
+html.dark .text-slate-500 { color: #64748b; }
+html.dark .text-slate-400 { color: #64748b; }
+html.dark .text-foreground { color: #e2e8f0; }
+html.dark .text-muted-foreground { color: #8b9ec8; }
+html.dark h1, html.dark h2, html.dark h3, html.dark h4 {
+  color: #f1f5f9;
+}
+
+/* Border colors */
+html.dark .border-slate-200,
+html.dark .border-slate-300,
+html.dark .border-border,
+html.dark .border-slate-200\/40,
+html.dark .border-slate-200\/60,
+html.dark .border-slate-300\/40 {
+  border-color: #334155;
+}
+html.dark .border-slate-100 {
+  border-color: #1e293b;
+}
+html.dark .border-primary\/40,
+html.dark .border-primary\/20 {
+  border-color: rgba(93, 131, 212, 0.3);
+}
+html.dark .border-border\/40 {
+  border-color: rgba(51, 65, 85, 0.4);
+}
+
+/* Dividers */
+html.dark .divide-slate-100 > * + *,
+html.dark .divide-slate-200 > * + * {
+  border-color: #334155;
+}
+html.dark .border-t { border-top-color: #334155; }
+html.dark .border-b { border-bottom-color: #334155; }
+html.dark .border-r { border-right-color: #334155; }
+html.dark .border-l { border-left-color: #334155; }
+
+/* Form elements */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b;
+}
+
+/* Cards and surfaces */
+html.dark .shadcn-card {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+html.dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+
+/* Badges, pills */
+html.dark .bg-green-100 { background-color: rgba(34, 197, 94, 0.15); }
+html.dark .bg-blue-100, html.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.15); }
+html.dark .bg-orange-100, html.dark .bg-orange-50 { background-color: rgba(249, 115, 22, 0.15); }
+html.dark .bg-purple-100 { background-color: rgba(168, 85, 247, 0.15); }
+html.dark .bg-red-100, html.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.15); }
+html.dark .bg-amber-100 { background-color: rgba(245, 158, 11, 0.15); }
+html.dark .bg-emerald-100 { background-color: rgba(16, 185, 129, 0.15); }
+
+/* Hover states */
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-100:hover {
+  background-color: rgba(51, 65, 85, 0.5);
+}
+html.dark .hover\:bg-slate-200\/50:hover {
+  background-color: rgba(51, 65, 85, 0.3);
+}
+
+/* Ring */
+html.dark .ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+html.dark .ring-1.ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+
+/* Glass / backdrop */
+html.dark .glass-header {
+  background-color: rgba(15, 23, 42, 0.85);
+}
+html.dark .backdrop-blur-md {
+  background-color: rgba(15, 23, 42, 0.8);
+}
+
+/* Scrollbar line in h-px */
+html.dark .h-px { background-color: #334155; }
+html.dark .bg-slate-200 { background-color: #334155; }
+
+/* Primary adjustments for dark */
+html.dark .bg-primary\/10 { background-color: rgba(93, 131, 212, 0.15); }
+html.dark .bg-primary\/5 { background-color: rgba(93, 131, 212, 0.08); }
+html.dark .text-primary { color: #7ba3e8; }
+html.dark .bg-primary { background-color: #4a73c4; }
+html.dark .hover\:bg-primary\/5:hover { background-color: rgba(93, 131, 212, 0.1); }
+html.dark .hover\:bg-primary\/10:hover { background-color: rgba(93, 131, 212, 0.15); }
+
+/* Table */
+html.dark table { color: #e2e8f0; }
+html.dark thead { background-color: #1e293b; }
+html.dark th { color: #94a3b8; border-color: #334155; }
+html.dark td { border-color: #334155; }
+html.dark tr:hover { background-color: rgba(51, 65, 85, 0.3); }
+
+/* Specific admin patterns */
+html.dark .bg-white.rounded-custom,
+html.dark .bg-white.rounded-\[10px\],
+html.dark .bg-white.rounded-lg,
+html.dark .bg-white.rounded-xl {
+  background-color: #1e293b;
+}
+
+/* Footer adjustments */
+html.dark footer {
+  background-color: #0f172a;
+  border-color: #334155;
+}
+</style>
+
+</head>
+<body class="flex min-h-screen bg-background-light text-slate-900 font-display">
+<aside class="fixed left-0 top-0 z-40 h-screen w-64 border-r border-slate-200/40 bg-surface flex flex-col justify-between p-4">
+<div class="flex flex-col gap-8">
+<div class="flex items-center gap-3 px-2">
+<div class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white shadow-sm">
+<span class="material-symbols-outlined">map</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-base font-bold text-slate-900 leading-tight">Roadmaps Faciles</h1>
+<p class="text-slate-500 text-xs font-normal">Administration</p>
+</div>
+</div>
+<nav class="flex flex-col gap-1.5">
+<div class="px-3 py-2">
+<p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Modération</p>
+<a class="flex items-center justify-between rounded-lg bg-primary/10 px-3 py-2.5 text-primary transition-colors focus-visible-ring" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[20px]">hourglass_empty</span>
+<span class="text-sm font-medium">En attente</span>
+</div>
+<span class="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-white">3</span>
+</a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-600 hover:bg-slate-50 transition-colors focus-visible-ring mt-1" href="#">
+<span class="material-symbols-outlined text-[20px] text-slate-500">block</span>
+<span class="text-sm font-medium">Rejetés</span>
+</a>
+</div>
+<div class="px-3 py-2 mt-4">
+<p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Système</p>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-600 hover:bg-slate-50 transition-colors focus-visible-ring" href="#">
+<span class="material-symbols-outlined text-[20px] text-slate-500">settings</span>
+<span class="text-sm font-medium">Paramètres</span>
+</a>
+</div>
+</nav>
+</div>
+<div class="border-t border-slate-100 pt-4 px-2">
+<button class="flex w-full items-center gap-3 rounded-lg p-2 hover:bg-slate-50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary">
+<div class="h-9 w-9 rounded-full bg-slate-200 overflow-hidden border border-slate-200">
+<img alt="Admin Avatar" class="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3FGLQMPDktWuNmG_lAhU7OIf2RBoNm_EsZuzYLlEQSZZKseP8Xe5kZfKILNcgCBeXkJDIgogkbDeQxIz97gYKf5kgFar1agKI1m7mx7cy_P3XpymyVzM2HUxTbp9MEEgatnkFFGXZrwKt6pd-09Q3Hm9jHWFo_nZuB0dSSeldYM1kElemMxCZ7NCAdtxqKZosiPQrKdYOaTIWR_ReMncwEkDI356VBzZY-Yd8lW1TR17Q6qV2UOw6NibO7NID6ZCefqehlWtiRa06"/>
+</div>
+<div class="flex flex-col items-start text-left">
+<span class="text-sm font-medium text-slate-900">Admin Mod.</span>
+<span class="text-xs text-slate-500">admin@roadmaps.so</span>
+</div>
+<span class="material-symbols-outlined ml-auto text-slate-400">expand_more</span>
+</button>
+</div>
+</aside>
+<main class="ml-64 flex-1 p-8 lg:px-12 lg:py-10 bg-background-light min-h-screen">
+<header class="mb-10 flex items-center justify-between">
+<div>
+<h1 class="text-3xl font-bold tracking-tight text-slate-900 mb-2">Modération des posts</h1>
+<p class="text-sm text-slate-600">Gérez les suggestions et retours de la communauté avant publication.</p>
+</div>
+<div class="flex gap-3">
+<button class="inline-flex items-center gap-2 rounded-lg bg-white border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition-colors">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+                Actualiser
+            </button>
+</div>
+</header>
+<div class="space-y-12">
+<section>
+<div class="flex items-center gap-2 mb-4">
+<div class="h-2 w-2 rounded-full bg-amber-500"></div>
+<h2 class="text-lg font-bold text-slate-900">En attente de validation (3)</h2>
+</div>
+<div class="rounded-xl border border-slate-200/40 bg-white overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-sm text-left">
+<thead class="text-xs text-slate-500 uppercase bg-slate-50/50 border-b border-slate-100">
+<tr>
+<th class="px-6 py-4 font-semibold w-[40%]" scope="col">Titre du post</th>
+<th class="px-6 py-4 font-semibold" scope="col">Auteur</th>
+<th class="px-6 py-4 font-semibold" scope="col">Board</th>
+<th class="px-6 py-4 font-semibold" scope="col">Date</th>
+<th class="px-6 py-4 font-semibold text-right" scope="col">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100">
+<tr class="group hover:bg-slate-50/50 transition-colors">
+<td class="px-6 py-4">
+<a class="font-semibold text-primary hover:underline hover:text-primary-hover block mb-1" href="#">Amélioration du mode sombre</a>
+<p class="text-xs text-slate-500 line-clamp-1">Les contrastes sont un peu faibles sur certains écrans OLED...</p>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img alt="Alice" class="h-8 w-8 rounded-full border border-slate-200" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsLCrsy-Wgy7J7PRgld52L6ntPGWrx5_kYkVjy2SS_LyRPyPs5KtZmB5M4hsoyLnQjppKPQIDyYlhbeXqgwDc0s0UXkOMu9D3FMYzZfpwxvkSg696yIBr_Z0jbYAmFFSAkSbSazR_a2bK1JuFa6YuUZN7Xp7vQ70wa69hy1aIW48s-SAodZNGR6Vu4keOCWRK0vz6AthSUgh0ML8cNklTl-Pt4U2vV1njaD0baOUx2M0_w5R4TKDzZwocnTfvf2xUhsIOhscbGqJ2u"/>
+<div class="flex flex-col">
+<span class="font-medium text-slate-900">Alice D.</span>
+<span class="text-[10px] text-slate-400">Pro</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 border border-indigo-100">
+                                        Design System
+                                    </span>
+</td>
+<td class="px-6 py-4 text-slate-500">Il y a 2h</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="h-9 w-9 flex items-center justify-center bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg transition-colors focus-visible-ring" title="Approuver">
+<span class="material-symbols-outlined text-[20px]">check</span>
+</button>
+<button class="h-9 w-9 flex items-center justify-center bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors focus-visible-ring" title="Rejeter">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="group hover:bg-slate-50/50 transition-colors">
+<td class="px-6 py-4">
+<a class="font-semibold text-primary hover:underline hover:text-primary-hover block mb-1" href="#">Export PDF des factures</a>
+<p class="text-xs text-slate-500 line-clamp-1">Besoin urgent pour la comptabilité de fin d'année.</p>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold border border-orange-200">MK</div>
+<div class="flex flex-col">
+<span class="font-medium text-slate-900">Marc K.</span>
+<span class="text-[10px] text-slate-400">User</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 border border-blue-100">
+                                        Facturation
+                                    </span>
+</td>
+<td class="px-6 py-4 text-slate-500">Il y a 5h</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="h-9 w-9 flex items-center justify-center bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg transition-colors focus-visible-ring" title="Approuver">
+<span class="material-symbols-outlined text-[20px]">check</span>
+</button>
+<button class="h-9 w-9 flex items-center justify-center bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors focus-visible-ring" title="Rejeter">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="group hover:bg-slate-50/50 transition-colors">
+<td class="px-6 py-4">
+<a class="font-semibold text-primary hover:underline hover:text-primary-hover block mb-1" href="#">Intégration Slack</a>
+<p class="text-xs text-slate-500 line-clamp-1">Avoir les notifs directement dans un channel dédié.</p>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img alt="Sarah" class="h-8 w-8 rounded-full border border-slate-200" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrJPNKvjkkONobKjQ7y-53y5vuCOKx2xbm7t-lmnN2ADxawRgMzmrUkH1VCuWIVp7rCUZAmTEv_TedF2Zl_ogWWLL4ZSpooLxkNYA5kiW4vlKYh9OAgsTrInDeV7_2lAyWBjj1uylpkZMAVT8AwV-uakoD24wiAqlLzPFxWKmQQhpJpjWLZfkx9nNU5bopcDwV1uURdqIJPIBAIS78UgVVKOLRqMAvinNh-oFr8EFI9tY0_x12M5N7Nq2-j66gz8eOxSPf7R0HixAc"/>
+<div class="flex flex-col">
+<span class="font-medium text-slate-900">Sarah L.</span>
+<span class="text-[10px] text-slate-400">Admin</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center rounded-full bg-purple-50 px-2.5 py-1 text-xs font-medium text-purple-700 border border-purple-100">
+                                        Intégrations
+                                    </span>
+</td>
+<td class="px-6 py-4 text-slate-500">Hier</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="h-9 w-9 flex items-center justify-center bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg transition-colors focus-visible-ring" title="Approuver">
+<span class="material-symbols-outlined text-[20px]">check</span>
+</button>
+<button class="h-9 w-9 flex items-center justify-center bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors focus-visible-ring" title="Rejeter">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section>
+<div class="flex items-center gap-2 mb-4">
+<div class="h-2 w-2 rounded-full bg-red-500"></div>
+<h2 class="text-lg font-bold text-slate-900">Derniers rejets</h2>
+</div>
+<div class="rounded-xl border border-slate-200/40 bg-white overflow-hidden opacity-80">
+<div class="overflow-x-auto">
+<table class="w-full text-sm text-left">
+<thead class="text-xs text-slate-500 uppercase bg-slate-50/50 border-b border-slate-100">
+<tr>
+<th class="px-6 py-4 font-semibold w-[30%]" scope="col">Titre du post</th>
+<th class="px-6 py-4 font-semibold" scope="col">Auteur</th>
+<th class="px-6 py-4 font-semibold" scope="col">Board</th>
+<th class="px-6 py-4 font-semibold" scope="col">Raison du rejet</th>
+<th class="px-6 py-4 font-semibold" scope="col">Date</th>
+<th class="px-6 py-4 font-semibold text-right" scope="col">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100">
+<tr class="group hover:bg-slate-50/50 transition-colors">
+<td class="px-6 py-4">
+<span class="font-medium text-slate-600 block mb-1">Spam cryptomonnaie</span>
+<p class="text-xs text-slate-400 line-clamp-1">Buy Bitcoin now ! Best price...</p>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3 opacity-60">
+<div class="h-8 w-8 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold border border-slate-300">?</div>
+<div class="flex flex-col">
+<span class="font-medium text-slate-700">Unknown</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 border border-slate-200">
+                                        Général
+                                    </span>
+</td>
+<td class="px-6 py-4">
+<div class="relative group/tooltip inline-block cursor-help">
+<span class="text-red-600 bg-red-50 px-2 py-1 rounded text-xs border border-red-100 truncate max-w-[150px] inline-block">Contenu inapproprié ou sp...</span>
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-3 py-1.5 bg-slate-800 text-white text-xs rounded shadow-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none z-50">
+                                            Contenu inapproprié ou spam détecté.
+                                            <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-400">04/11/2023</td>
+<td class="px-6 py-4 text-right">
+<button class="h-8 px-3 text-xs font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 hover:text-primary rounded-lg transition-colors focus-visible-ring">
+                                        Remettre en attente
+                                    </button>
+</td>
+</tr>
+<tr class="group hover:bg-slate-50/50 transition-colors">
+<td class="px-6 py-4">
+<span class="font-medium text-slate-600 block mb-1">Test post 123</span>
+<p class="text-xs text-slate-400 line-clamp-1">Just testing the form.</p>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3 opacity-60">
+<div class="h-8 w-8 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold border border-slate-300">JD</div>
+<div class="flex flex-col">
+<span class="font-medium text-slate-700">John D.</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 border border-slate-200">
+                                        Bugs
+                                    </span>
+</td>
+<td class="px-6 py-4">
+<div class="relative group/tooltip inline-block cursor-help">
+<span class="text-red-600 bg-red-50 px-2 py-1 rounded text-xs border border-red-100 truncate max-w-[150px] inline-block">Doublon ou test</span>
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-3 py-1.5 bg-slate-800 text-white text-xs rounded shadow-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none z-50">
+                                            Doublon ou test
+                                            <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-400">02/11/2023</td>
+<td class="px-6 py-4 text-right">
+<button class="h-8 px-3 text-xs font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 hover:text-primary rounded-lg transition-colors focus-visible-ring">
+                                        Remettre en attente
+                                    </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</div>
+</main>
+<div class="fixed inset-0 z-50 flex items-center justify-center dialog-backdrop">
+<div class="w-full max-w-[480px] bg-white rounded-xl shadow-2xl border border-slate-200 p-6 m-4 animate-[pulse_0.1s_ease-out_1]">
+<div class="flex items-start justify-between mb-4">
+<h3 class="text-lg font-bold text-slate-900">Rejeter le post</h3>
+<button class="text-slate-400 hover:text-slate-600 transition-colors">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="mb-6">
+<div class="bg-slate-50 border border-slate-100 rounded-lg p-3 mb-4">
+<p class="text-sm font-medium text-slate-700">Post concerné :</p>
+<p class="text-sm text-slate-600 italic">"Intégration Slack"</p>
+</div>
+<label class="block text-sm font-medium text-slate-700 mb-2" for="rejection-reason">
+                Raison du rejet <span class="text-red-500">*</span>
+</label>
+<textarea class="w-full rounded-lg border-slate-300 bg-white px-3 py-2 text-sm min-h-[100px] focus:outline-none focus:ring-2 focus:ring-error/20 focus:border-error transition-shadow placeholder:text-slate-400" id="rejection-reason" placeholder="Expliquez pourquoi ce post est rejeté (ex: doublon, hors sujet, spam...)"></textarea>
+<p class="text-xs text-slate-500 mt-2">Cette raison sera visible par les autres administrateurs.</p>
+</div>
+<div class="flex items-center justify-end gap-3">
+<button class="h-10 px-4 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg font-medium text-sm transition-colors focus-visible-ring">
+                Annuler
+            </button>
+<button class="h-10 px-4 bg-error hover:bg-red-700 text-white rounded-lg font-medium text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error focus-visible:ring-offset-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">gavel</span>
+                Confirmer le rejet
+            </button>
+</div>
+</div>
+</div>
+
+
+<script id="stitch-dark-toggle">
+(function() {
+  var html = document.documentElement;
+  var stored = localStorage.getItem('stitch-theme');
+  if (stored === 'dark') html.classList.add('dark');
+  else if (stored === 'light') html.classList.remove('dark');
+
+  var btn = document.createElement('button');
+  btn.id = 'theme-toggle';
+  btn.setAttribute('aria-label', 'Toggle dark mode');
+  Object.assign(btn.style, {
+    position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: '9999',
+    width: '3rem', height: '3rem', borderRadius: '50%',
+    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'all 0.2s ease', fontSize: '1.25rem', border: 'none',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.15)'
+  });
+
+  function update() {
+    var isDark = html.classList.contains('dark');
+    var icon = document.createElement('span');
+    icon.className = 'material-symbols-outlined';
+    icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+    icon.style.fontSize = '1.4rem';
+    btn.textContent = '';
+    btn.appendChild(icon);
+    btn.style.backgroundColor = isDark ? '#1e293b' : '#ffffff';
+    btn.style.color = isDark ? '#fbbf24' : '#64748b';
+    btn.style.boxShadow = isDark
+      ? '0 2px 12px rgba(0,0,0,0.4), 0 0 0 1px rgba(100,116,139,0.2)'
+      : '0 2px 12px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05)';
+  }
+
+  btn.addEventListener('click', function() {
+    html.classList.toggle('dark');
+    localStorage.setItem('stitch-theme', html.classList.contains('dark') ? 'dark' : 'light');
+    update();
+  });
+
+  document.body.appendChild(btn);
+  update();
+})();
+</script>
+
+</body></html>

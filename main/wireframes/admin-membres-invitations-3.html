@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html class="" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin - Authentification (Light)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "sidebar-bg": "#E5EAF4",
+                        "error": "#E7000B",
+                        primary: "#163C90",
+                        "primary-hover": "#102a66",
+                        "primary-focus": "#1e4bb3",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#121620",
+                        "surface": "#ffffff",
+                        "border": "#e2e8f0",
+                        error: "#E7000B",
+                        "disabled-bg": "#E5EAF4",
+                    },
+                    fontFamily: {
+                        sans: ['"Public Sans"', "sans-serif"],
+                        display: ['"Public Sans"', "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "10px",
+                        lg: "10px",
+                        xl: "12px",
+                        full: "9999px",
+                    },
+                    animation: {
+                        pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                font-family: "Public Sans", sans-serif;
+                background-color: #f6f6f8;
+                color: #111317;
+            }
+        }
+        .focus-visible-ring:focus-visible {
+            outline: 2px solid #163C90;
+            outline-offset: 2px;
+        }.toggle-checkbox:checked {
+            right: 0;
+            border-color: #163C90;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #163C90;
+        }
+    </style>
+
+<style id="stitch-dark-overrides">
+/* === Dark Mode Global Overrides === */
+/* Unlayered styles beat @layer base/utilities from Tailwind CDN */
+
+/* Page backgrounds */
+html.dark body {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+html.dark .bg-white,
+html.dark .bg-surface {
+  background-color: #1e293b;
+}
+html.dark .bg-background-light,
+html.dark .bg-\[\#f6f6f8\],
+html.dark .bg-background {
+  background-color: #0f172a;
+}
+html.dark .bg-slate-50,
+html.dark .bg-slate-100 {
+  background-color: #1e293b;
+}
+html.dark .bg-slate-50\/50,
+html.dark .bg-slate-100\/50,
+html.dark .bg-slate-50\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-sidebar-bg {
+  background-color: #1a2035;
+}
+html.dark .bg-white\/50,
+html.dark .bg-white\/60,
+html.dark .bg-white\/80 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+html.dark .bg-background\/95,
+html.dark .bg-background\/60 {
+  background-color: rgba(15, 23, 42, 0.95);
+}
+
+/* Text colors */
+html.dark .text-slate-900 { color: #f1f5f9; }
+html.dark .text-slate-800 { color: #e2e8f0; }
+html.dark .text-slate-700 { color: #cbd5e1; }
+html.dark .text-slate-600 { color: #94a3b8; }
+html.dark .text-slate-500 { color: #64748b; }
+html.dark .text-slate-400 { color: #64748b; }
+html.dark .text-foreground { color: #e2e8f0; }
+html.dark .text-muted-foreground { color: #8b9ec8; }
+html.dark h1, html.dark h2, html.dark h3, html.dark h4 {
+  color: #f1f5f9;
+}
+
+/* Border colors */
+html.dark .border-slate-200,
+html.dark .border-slate-300,
+html.dark .border-border,
+html.dark .border-slate-200\/40,
+html.dark .border-slate-200\/60,
+html.dark .border-slate-300\/40 {
+  border-color: #334155;
+}
+html.dark .border-slate-100 {
+  border-color: #1e293b;
+}
+html.dark .border-primary\/40,
+html.dark .border-primary\/20 {
+  border-color: rgba(93, 131, 212, 0.3);
+}
+html.dark .border-border\/40 {
+  border-color: rgba(51, 65, 85, 0.4);
+}
+
+/* Dividers */
+html.dark .divide-slate-100 > * + *,
+html.dark .divide-slate-200 > * + * {
+  border-color: #334155;
+}
+html.dark .border-t { border-top-color: #334155; }
+html.dark .border-b { border-bottom-color: #334155; }
+html.dark .border-r { border-right-color: #334155; }
+html.dark .border-l { border-left-color: #334155; }
+
+/* Form elements */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b;
+}
+
+/* Cards and surfaces */
+html.dark .shadcn-card {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+html.dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+
+/* Badges, pills */
+html.dark .bg-green-100 { background-color: rgba(34, 197, 94, 0.15); }
+html.dark .bg-blue-100, html.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.15); }
+html.dark .bg-orange-100, html.dark .bg-orange-50 { background-color: rgba(249, 115, 22, 0.15); }
+html.dark .bg-purple-100 { background-color: rgba(168, 85, 247, 0.15); }
+html.dark .bg-red-100, html.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.15); }
+html.dark .bg-amber-100 { background-color: rgba(245, 158, 11, 0.15); }
+html.dark .bg-emerald-100 { background-color: rgba(16, 185, 129, 0.15); }
+
+/* Hover states */
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-100:hover {
+  background-color: rgba(51, 65, 85, 0.5);
+}
+html.dark .hover\:bg-slate-200\/50:hover {
+  background-color: rgba(51, 65, 85, 0.3);
+}
+
+/* Ring */
+html.dark .ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+html.dark .ring-1.ring-black\/5 { --tw-ring-color: rgba(255,255,255,0.1); }
+
+/* Glass / backdrop */
+html.dark .glass-header {
+  background-color: rgba(15, 23, 42, 0.85);
+}
+html.dark .backdrop-blur-md {
+  background-color: rgba(15, 23, 42, 0.8);
+}
+
+/* Scrollbar line in h-px */
+html.dark .h-px { background-color: #334155; }
+html.dark .bg-slate-200 { background-color: #334155; }
+
+/* Primary adjustments for dark */
+html.dark .bg-primary\/10 { background-color: rgba(93, 131, 212, 0.15); }
+html.dark .bg-primary\/5 { background-color: rgba(93, 131, 212, 0.08); }
+html.dark .text-primary { color: #7ba3e8; }
+html.dark .bg-primary { background-color: #4a73c4; }
+html.dark .hover\:bg-primary\/5:hover { background-color: rgba(93, 131, 212, 0.1); }
+html.dark .hover\:bg-primary\/10:hover { background-color: rgba(93, 131, 212, 0.15); }
+
+/* Table */
+html.dark table { color: #e2e8f0; }
+html.dark thead { background-color: #1e293b; }
+html.dark th { color: #94a3b8; border-color: #334155; }
+html.dark td { border-color: #334155; }
+html.dark tr:hover { background-color: rgba(51, 65, 85, 0.3); }
+
+/* Specific admin patterns */
+html.dark .bg-white.rounded-custom,
+html.dark .bg-white.rounded-\[10px\],
+html.dark .bg-white.rounded-lg,
+html.dark .bg-white.rounded-xl {
+  background-color: #1e293b;
+}
+
+/* Footer adjustments */
+html.dark footer {
+  background-color: #0f172a;
+  border-color: #334155;
+}
+</style>
+
+</head>
+<body class="flex min-h-screen bg-background-light text-slate-900 font-display">
+<aside class="fixed left-0 top-0 z-40 h-screen w-[250px] border-r border-slate-300/40 bg-sidebar-bg flex flex-col justify-between p-4 transition-colors">
+  <div class="flex flex-col gap-8">
+    <div class="flex items-center gap-3 px-2 pt-2">
+      <div class="h-9 w-9 rounded-lg bg-primary flex items-center justify-center text-white shadow-sm">
+        <span class="material-symbols-outlined text-[20px]">map</span>
+      </div>
+      <div class="flex flex-col">
+        <h1 class="text-sm font-bold text-slate-900 leading-tight">Roadmaps Faciles</h1>
+        <p class="text-slate-500 text-[10px] font-medium">Administration</p>
+      </div>
+    </div>
+    <nav class="flex flex-col gap-1">
+      <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Configuration</p>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">settings</span>
+        <span class="text-sm font-medium">Général</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">dashboard</span>
+        <span class="text-sm font-medium">Boards</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">radio_button_checked</span>
+        <span class="text-sm font-medium">Statuts</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">map</span>
+        <span class="text-sm font-medium">Roadmap</span>
+      </a>
+      <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-4 mb-2">Sécurité & Accès</p>
+      <a class="flex items-center gap-3 rounded-lg bg-white/60 px-3 py-2 text-primary shadow-sm ring-1 ring-black/5 transition-colors focus-visible-ring" href="#">
+        <span class="material-symbols-outlined text-[20px]">group</span>
+        <span class="text-sm font-bold">Utilisateurs</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">shield</span>
+        <span class="text-sm font-medium">Authentification</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">key</span>
+        <span class="text-sm font-medium">Clés API</span>
+      </a>
+      <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-4 mb-2">Développeurs</p>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">webhook</span>
+        <span class="text-sm font-medium">Webhooks</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">power</span>
+        <span class="text-sm font-medium">Intégrations</span>
+      </a>
+      <a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group" href="#">
+        <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary">receipt_long</span>
+        <span class="text-sm font-medium">Journal d'audit</span>
+      </a>
+      <div class="my-2 h-px bg-slate-200"></div>
+      <a class="flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 transition-colors focus-visible-ring group mt-2" href="#">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-[20px] text-slate-500 group-hover:text-primary group-hover:text-error">gpp_maybe</span>
+          <span class="text-sm font-medium">Modération</span>
+        </div>
+        <span class="flex h-5 w-5 items-center justify-center rounded-full bg-error text-[10px] font-bold text-white shadow-sm">3</span>
+      </a>
+    </nav>
+  </div>
+  <div class="px-2 pb-2">
+    <div class="rounded-lg bg-white/50 p-3 border border-slate-200/60">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
+        <span class="text-[10px] font-bold text-slate-700 uppercase tracking-wide">Système Opérationnel</span>
+      </div>
+      <p class="text-[10px] text-slate-500">v4.2.0</p>
+    </div>
+  </div>
+</aside>
+<main class="ml-[250px] flex-1 p-8 lg:px-12 lg:py-10">
+<header class="mb-10">
+<div class="flex items-center gap-2 text-sm text-slate-500 mb-2">
+<span>Administration</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-primary font-medium">Sécurité</span>
+</div>
+<h1 class="text-3xl font-bold tracking-tight text-slate-900">Authentification &amp; Sécurité</h1>
+<p class="text-slate-600 mt-2 max-w-2xl">
+                Gérez les méthodes de connexion et les politiques de sécurité pour l'ensemble de votre organisation.
+            </p>
+</header>
+<div class="space-y-8 max-w-5xl">
+<section>
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">hub</span>
+                    Fournisseurs d'Identité (SSO)
+                </h2>
+<span class="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded">3 connecteurs disponibles</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-white rounded-[10px] border border-primary/40 p-6 flex flex-col justify-between h-full transition-all hover:border-primary/60">
+<div class="flex justify-between items-start mb-4">
+<div class="h-12 w-12 flex items-center justify-center rounded-lg bg-slate-50 border border-slate-100">
+<img alt="GitHub Logo" class="h-8 w-8 opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyioj4tt_PEkXnm-m8Vx1ptbb2du8O2WTyGNXFVi_oMpMOx95Wuy9aVeSzA0oUt6kT6h0NYg_Ty-OoVqhrgK3keNVKVFbZJsYE5d7MYGZMeqiZqxfxTIm2xEfCfopV8R8-rGC-71CLPvSUDRp0e0OyLvdBtNXPpqhByo7SK-TkjjYlGyh2tLiGt4Tr5fk0hsVe-AhZ4ndjsUUrv-SBCHeDAcb_4azUOod4Hqc-qnFsckGGxRQG2Czd4hF0yMiqZyJsp5GMk3bgz-ag"/>
+</div>
+<span class="inline-flex items-center rounded-full bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
+                                Configuré
+                            </span>
+</div>
+<div class="mb-6">
+<h3 class="font-bold text-slate-900 text-base">GitHub</h3>
+<p class="text-sm text-slate-500 mt-1">Permettre la connexion via compte GitHub organisation.</p>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-slate-100">
+<span class="text-sm font-medium text-slate-700">Statut</span>
+<label class="relative inline-flex cursor-pointer items-center">
+<input checked="" class="peer sr-only" type="checkbox" value=""/>
+<div class="peer h-6 w-11 rounded-full bg-slate-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50"></div>
+</label>
+</div>
+</div>
+<div class="bg-white rounded-[10px] border border-primary/40 p-6 flex flex-col justify-between h-full transition-all hover:border-primary/60">
+<div class="flex justify-between items-start mb-4">
+<div class="h-12 w-12 flex items-center justify-center rounded-lg bg-slate-50 border border-slate-100">
+<img alt="Google Logo" class="h-8 w-8" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQ31PBfaPzVea_ztS3I0ocMwa63g5i_mP_VLXNKlDuxwFCD95l8qmyTfMLhXCJbGzhZCjBu3Zr121mU13FkQf3AXpcQLVANG0W4IXrE4wq3Z5EnGg9qzEWOvbFEdgIWWFb6EVXUsiOhruWuSiTwVNDIC5MOf5oc0UT1wp5CnsAfQoNlb_4i3QaBhSUp2gTiqkQ4D8jmSo0dyb8CZDhFHSUNucNjBI40f_K312SW_WSpq-e4JAAxkBr2gh99VrymrOffdb0yr99rufy"/>
+</div>
+<span class="inline-flex items-center rounded-full bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
+                                Configuré
+                            </span>
+</div>
+<div class="mb-6">
+<h3 class="font-bold text-slate-900 text-base">Google Workspace</h3>
+<p class="text-sm text-slate-500 mt-1">Connexion pour les domaines @entreprise.com autorisés.</p>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-slate-100">
+<span class="text-sm font-medium text-slate-700">Statut</span>
+<label class="relative inline-flex cursor-pointer items-center">
+<input checked="" class="peer sr-only" type="checkbox" value=""/>
+<div class="peer h-6 w-11 rounded-full bg-slate-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50"></div>
+</label>
+</div>
+</div>
+<div class="bg-white rounded-[10px] border border-primary/40 p-6 flex flex-col justify-between h-full transition-all hover:border-primary/60">
+<div class="flex justify-between items-start mb-4">
+<div class="h-12 w-12 flex items-center justify-center rounded-lg bg-slate-50 border border-slate-100">
+<span class="material-symbols-outlined text-primary text-3xl">verified_user</span>
+</div>
+<span class="inline-flex items-center rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-500/10">
+                                Non configuré
+                            </span>
+</div>
+<div class="mb-6">
+<h3 class="font-bold text-slate-900 text-base">ProConnect</h3>
+<p class="text-sm text-slate-500 mt-1">Authentification unifiée pour les agents de l'État.</p>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-slate-100">
+<span class="text-sm font-medium text-slate-700">Statut</span>
+<label class="relative inline-flex cursor-pointer items-center">
+<input class="peer sr-only" type="checkbox" value=""/>
+<div class="peer h-6 w-11 rounded-full bg-slate-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50"></div>
+</label>
+</div>
+</div>
+</div>
+</section>
+<section>
+<h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">lock</span>
+                    Politique de Double Authentification (2FA)
+                </h2>
+<div class="bg-white rounded-[10px] border border-primary/40 p-6">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100">
+<div class="flex gap-4">
+<div class="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 text-primary">
+<span class="material-symbols-outlined">phonelink_lock</span>
+</div>
+<div>
+<h3 class="font-bold text-slate-900 text-sm md:text-base">Forcer la double authentification (2FA)</h3>
+<p class="text-sm text-slate-500 mt-1 max-w-xl">
+                                Une fois activé, tous les utilisateurs administrateurs et éditeurs devront configurer une méthode 2FA (TOTP ou SMS) lors de leur prochaine connexion.
+                            </p>
+</div>
+</div>
+<div class="flex items-center flex-shrink-0">
+<label class="relative inline-flex cursor-pointer items-center">
+<input class="peer sr-only" type="checkbox" value=""/>
+<div class="peer h-6 w-11 rounded-full bg-slate-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50"></div>
+</label>
+</div>
+</div>
+<div class="pt-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="flex gap-4">
+<div class="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 text-slate-500">
+<span class="material-symbols-outlined">timer</span>
+</div>
+<div>
+<h3 class="font-medium text-slate-900 text-sm md:text-base">Délai de grâce</h3>
+<p class="text-sm text-slate-500 mt-1">
+                                Période pendant laquelle les utilisateurs peuvent ignorer la configuration 2FA.
+                            </p>
+</div>
+</div>
+<div class="w-full md:w-48">
+<div class="relative">
+<select class="w-full appearance-none rounded-[10px] border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary pr-8">
+<option value="0">Immédiat (0 jour)</option>
+<option selected="" value="3">3 jours</option>
+<option value="7">7 jours</option>
+<option value="14">14 jours</option>
+<option value="30">30 jours</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+<span class="material-symbols-outlined text-[20px]">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section>
+<h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">admin_panel_settings</span>
+                    Sessions &amp; Accès
+                </h2>
+<div class="bg-white rounded-[10px] border border-primary/40 p-0 overflow-hidden">
+<div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between hover:bg-slate-50 transition-colors">
+<div>
+<h3 class="text-sm font-semibold text-slate-900">Durée de session inactive</h3>
+<p class="text-xs text-slate-500 mt-0.5">Déconnecter automatiquement les utilisateurs après une période d'inactivité.</p>
+</div>
+<div class="text-sm font-medium text-slate-700 bg-slate-100 px-3 py-1 rounded border border-slate-200">
+                        30 minutes
+                    </div>
+</div>
+<div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between hover:bg-slate-50 transition-colors">
+<div>
+<h3 class="text-sm font-semibold text-slate-900">Tentatives de connexion échouées</h3>
+<p class="text-xs text-slate-500 mt-0.5">Verrouiller le compte après X tentatives infructueuses.</p>
+</div>
+<div class="text-sm font-medium text-slate-700 bg-slate-100 px-3 py-1 rounded border border-slate-200">
+                        5 tentatives
+                    </div>
+</div>
+<div class="px-6 py-4 bg-slate-50 flex justify-end">
+<button class="text-sm text-primary font-medium hover:text-primary-hover transition-colors flex items-center gap-1">
+                        Configurer les règles de session
+                        <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+</main>
+
+
+<script id="stitch-dark-toggle">
+(function() {
+  var html = document.documentElement;
+  var stored = localStorage.getItem('stitch-theme');
+  if (stored === 'dark') html.classList.add('dark');
+  else if (stored === 'light') html.classList.remove('dark');
+
+  var btn = document.createElement('button');
+  btn.id = 'theme-toggle';
+  btn.setAttribute('aria-label', 'Toggle dark mode');
+  Object.assign(btn.style, {
+    position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: '9999',
+    width: '3rem', height: '3rem', borderRadius: '50%',
+    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'all 0.2s ease', fontSize: '1.25rem', border: 'none',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.15)'
+  });
+
+  function update() {
+    var isDark = html.classList.contains('dark');
+    var icon = document.createElement('span');
+    icon.className = 'material-symbols-outlined';
+    icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+    icon.style.fontSize = '1.4rem';
+    btn.textContent = '';
+    btn.appendChild(icon);
+    btn.style.backgroundColor = isDark ? '#1e293b' : '#ffffff';
+    btn.style.color = isDark ? '#fbbf24' : '#64748b';
+    btn.style.boxShadow = isDark
+      ? '0 2px 12px rgba(0,0,0,0.4), 0 0 0 1px rgba(100,116,139,0.2)'
+      : '0 2px 12px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05)';
+  }
+
+  btn.addEventListener('click', function() {
+    html.classList.toggle('dark');
+    localStorage.setItem('stitch-theme', html.classList.contains('dark') ? 'dark' : 'light');
+    update();
+  });
+
+  document.body.appendChild(btn);
+  update();
+})();
+</script>
+
+</body></html>
