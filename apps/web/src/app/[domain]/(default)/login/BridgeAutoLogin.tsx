@@ -3,6 +3,8 @@
 import { useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
 
+import { resolveSameOriginPath } from "@/app/(default)/login/loginHrefs";
+
 import { bridgeSignIn } from "./bridgeSignIn";
 
 export interface BridgeAutoLoginProps {
@@ -25,10 +27,8 @@ export const BridgeAutoLogin = ({ token }: BridgeAutoLoginProps) => {
     }
 
     // `next` est posé par /api/auth-bridge pour préserver la destination d'origine
-    // (puisqu'on force le path à /login pour faire tourner ce composant). On
-    // accepte uniquement les URLs relatives same-host pour éviter open redirect.
-    const nextRaw = params.get("next");
-    const safeNext = nextRaw && nextRaw.startsWith("/") && !nextRaw.startsWith("//") ? nextRaw : "/";
+    // (puisqu'on force le path à /login pour faire tourner ce composant).
+    const safeNext = resolveSameOriginPath(params.get("next"), window.location.origin);
 
     void bridgeSignIn(form).then(result => {
       if ("ok" in result) {

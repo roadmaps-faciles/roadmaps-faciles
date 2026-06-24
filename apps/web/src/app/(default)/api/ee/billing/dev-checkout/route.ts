@@ -1,6 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import { type NextRequest, NextResponse } from "next/server";
 
+import { isSafeRelativeCallbackUrl } from "@/app/(default)/login/loginHrefs";
 import { config } from "@/config";
 import { prisma } from "@/lib/db/prisma";
 import { isSelfHost } from "@/lib/deployment";
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Validate successUrl is relative (no open redirect)
-  if (!successUrl.startsWith("/") || successUrl.startsWith("//")) {
+  if (!isSafeRelativeCallbackUrl(successUrl)) {
     return NextResponse.json({ error: "successUrl must be a relative path" }, { status: StatusCodes.BAD_REQUEST });
   }
 
