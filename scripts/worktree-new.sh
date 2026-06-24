@@ -9,7 +9,7 @@
 # Options :
 #   --port <port>    Port custom (modifie PORT + NEXT_PUBLIC_SITE_URL)
 #   --db             Crée une DB dédiée + prisma db push + seed
-#   --from <branch>  Branche de base (défaut: dev)
+#   --from <branch>  Branche de base (défaut: main)
 #   --code, --vscode Ouvre VS Code dans le worktree
 #   --skip-claude    Ne pas lancer Claude à la fin (lancé par défaut)
 #
@@ -32,7 +32,7 @@ set -euo pipefail
 BRANCH=""
 PORT=""
 ISOLATED_DB=false
-BASE_BRANCH="dev"
+BASE_BRANCH="main"
 OPEN_VSCODE=false
 SKIP_CLAUDE=false
 
