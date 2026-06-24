@@ -50,6 +50,7 @@ export class TenantRepoPrisma implements ITenantRepo {
   public findBySubdomain(subdomain: string): Promise<null | Tenant> {
     return prisma.tenant.findFirst({
       where: {
+        deletedAt: null,
         settings: {
           subdomain,
         },
@@ -60,6 +61,7 @@ export class TenantRepoPrisma implements ITenantRepo {
   public findByCustomDomain(customDomain: string): Promise<null | Tenant> {
     return prisma.tenant.findFirst({
       where: {
+        deletedAt: null,
         settings: {
           customDomain,
         },
@@ -70,6 +72,7 @@ export class TenantRepoPrisma implements ITenantRepo {
   public findByVerifiedCustomDomain(customDomain: string): Promise<null | Tenant> {
     return prisma.tenant.findFirst({
       where: {
+        deletedAt: null,
         settings: {
           customDomain,
           customDomainVerifiedAt: { not: null },

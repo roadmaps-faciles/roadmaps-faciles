@@ -9,6 +9,7 @@ import { isGouvDomain } from "@/lib/ee/domain-verification";
 import { orgAddonRepo, orgDomainRepo, organizationRepo } from "@/lib/repo";
 import { type AddonType, type OrgPlan } from "@/prisma/enums";
 import { ToggleOrgAddon } from "@/useCases/ee/organization/ToggleOrgAddon";
+import { GetTenantForDomain } from "@/useCases/tenant/GetTenantForDomain";
 import { audit, AuditAction, getRequestContext } from "@/utils/audit";
 import { assertAdmin } from "@/utils/auth";
 import { type ServerActionResponse } from "@/utils/next";
@@ -209,6 +210,10 @@ export const deleteOrganizationAdmin = async (data: {
       },
       reqCtx,
     );
+
+    // Les tenants de l'org viennent d'être soft-deleted : on invalide le cache de routing
+    // (GetTenantForDomain, TTL 1h) pour qu'ils cessent d'être routables immédiatement.
+    GetTenantForDomain.revalidate("GetTenantForDomain");
     revalidatePath("/admin/organizations");
     return { ok: true };
   } catch (error) {

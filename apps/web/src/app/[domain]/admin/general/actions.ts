@@ -103,6 +103,12 @@ export const deleteTenant = async (): Promise<ServerActionResponse> => {
       },
       reqCtx,
     );
+
+    // Le routing résout les domaines via GetTenantForDomain (cache 1h) : on l'invalide pour que le
+    // tenant soft-deleted cesse d'être routable sans attendre l'expiration.
+    // NB : cache LRU process-local. En multi-instance, les autres process gardent l'ancien
+    // résultat jusqu'à expiration (acceptable single-instance Coolify ; sinon Redis pub/sub).
+    GetTenantForDomain.revalidate("GetTenantForDomain");
     return { ok: true };
   } catch (error) {
     const message = (error as Error).message;
