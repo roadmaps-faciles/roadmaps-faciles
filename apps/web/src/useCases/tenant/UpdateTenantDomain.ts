@@ -4,6 +4,7 @@ import { config } from "@/config";
 import { prisma } from "@/lib/db/prisma";
 import { getDnsProvider } from "@/lib/ee/dns-provider";
 import { getDomainProvider } from "@/lib/ee/domain-provider";
+import { generateVerificationToken } from "@/lib/ee/domain-verification";
 import { logger } from "@/lib/logger";
 import { type ITenantSettingsRepo } from "@/lib/repo/ITenantSettingsRepo";
 import { type TenantSettings } from "@/prisma/client";
@@ -56,15 +57,28 @@ export class UpdateTenantDomain implements UseCase<UpdateTenantDomainInput, Upda
           "Le thème DSFR requiert un domaine .gouv.fr : repassez en thème par défaut avant de retirer ou changer ce domaine.",
         );
       }
-      if (input.customDomain) {
-        const domainConflict = await prisma.tenantSettings.findFirst({
-          where: { customDomain: input.customDomain, id: { not: input.settingsId } },
-        });
-        if (domainConflict) {
-          throw new Error("Ce domaine personnalisé est déjà utilisé par un autre tenant.");
+
+      // On enregistre le domaine en NON vérifié + on émet un token TXT ; la propriété est prouvée
+      // ensuite via VerifyTenantCustomDomain (verifiedAt). Le re-save du même domaine ne touche ni
+      // au token ni au statut (sinon on invaliderait une vérif déjà acquise à la moindre édition).
+      if (input.customDomain !== existing.customDomain) {
+        if (input.customDomain) {
+          const domainConflict = await prisma.tenantSettings.findFirst({
+            where: { customDomain: input.customDomain, id: { not: input.settingsId } },
+          });
+          if (domainConflict) {
+            throw new Error("Ce domaine personnalisé est déjà utilisé par un autre tenant.");
+          }
+
+          data.customDomain = input.customDomain;
+          data.customDomainVerificationToken = generateVerificationToken();
+          data.customDomainVerifiedAt = null;
+        } else {
+          data.customDomain = null;
+          data.customDomainVerificationToken = null;
+          data.customDomainVerifiedAt = null;
         }
       }
-      data.customDomain = input.customDomain;
     }
 
     const result = await this.tenantSettingsRepo.update(input.settingsId, data);

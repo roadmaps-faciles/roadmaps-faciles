@@ -13,7 +13,8 @@ interface DsfrHeaderProps {
   boards: Board[];
   homeHref: string;
   pendingModerationCount: number;
-  tenantSettings: TenantSettings;
+  // Token de vérification de domaine exclu : header public, jamais dans le payload client.
+  tenantSettings: Omit<TenantSettings, "customDomainVerificationToken">;
   userMenu?: UserMenuData;
 }
 

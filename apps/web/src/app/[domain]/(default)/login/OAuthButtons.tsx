@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { type ComponentType, type SVGProps } from "react";
 
+import { isSafeRelativeCallbackUrl } from "@/app/(default)/login/loginHrefs";
 import { UIButton } from "@/ui/bridge";
 
 import { ProConnectIcon } from "./oauthIcons";
@@ -31,7 +32,7 @@ export const OAuthButtons = ({ providers }: OAuthButtonsProps) => {
   const searchParams = useSearchParams();
   const callbackUrlRaw = searchParams.get("callbackUrl");
   // URL relative same-host only ; NextAuth fallback "/" pour les autres.
-  const callbackUrl = callbackUrlRaw?.startsWith("/") && !callbackUrlRaw.startsWith("//") ? callbackUrlRaw : undefined;
+  const callbackUrl = isSafeRelativeCallbackUrl(callbackUrlRaw) ? callbackUrlRaw : undefined;
 
   if (providers.length === 0) return null;
 

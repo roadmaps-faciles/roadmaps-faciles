@@ -67,6 +67,17 @@ export class TenantRepoPrisma implements ITenantRepo {
     });
   }
 
+  public findByVerifiedCustomDomain(customDomain: string): Promise<null | Tenant> {
+    return prisma.tenant.findFirst({
+      where: {
+        settings: {
+          customDomain,
+          customDomainVerifiedAt: { not: null },
+        },
+      },
+    });
+  }
+
   public create(data: Prisma.TenantUncheckedCreateInput): Promise<Tenant> {
     return prisma.tenant.create({ data });
   }

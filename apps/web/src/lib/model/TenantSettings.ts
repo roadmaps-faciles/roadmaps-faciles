@@ -23,6 +23,8 @@ export const TenantSettings = z.object({
   name: z.string(),
   subdomain: z.string(),
   customDomain: z.string().nullable(),
+  customDomainVerificationToken: z.string().nullable(),
+  customDomainVerifiedAt: z.coerce.date().nullable(),
   locale: localeSchema,
   isPrivate: z.boolean(),
   allowVoting: z.boolean(),

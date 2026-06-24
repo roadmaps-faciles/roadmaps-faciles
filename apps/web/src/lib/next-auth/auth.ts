@@ -15,7 +15,7 @@ import { getEmailTranslations } from "@/emails/getEmailTranslations";
 import { renderMagicLinkEmail } from "@/emails/renderEmails";
 import { verifyBridgeToken } from "@/lib/authBridge";
 import { createMailTransporter } from "@/lib/mailer";
-import { getDomainFromHost, getTenantSubdomain } from "@/lib/utils/tenant";
+import { getDomainFromHost } from "@/lib/utils/tenant";
 import { type UserRole, type UserStatus } from "@/prisma/enums";
 import { type UiTheme } from "@/ui/types";
 import { GetTenantSettings } from "@/useCases/tenant_settings/GetTenantSettings";
@@ -35,6 +35,7 @@ import {
 } from "../repo";
 import { refreshAccessToken } from "./refresh";
 import { revalidateSessionUser } from "./revalidateSessionUser";
+import { resolveTrustedRedirect, toTrustedAuthUrl } from "./trustedHost";
 
 type CustomUser = {
   currentTenantRole?: UserRole;
@@ -121,16 +122,21 @@ const nodemailerProvider = Nodemailer({
     const locale = (cookieStore.get("NEXT_LOCALE")?.value as Locale) || "fr";
 
     let theme: UiTheme = "Default";
+    let trustedCustomHost: null | string = null;
     try {
       const domain = await getDomainFromHost();
-      if (getTenantSubdomain(domain)) {
-        const tenant = await new GetTenantForDomain(tenantRepo).execute({ domain });
-        const settings = await new GetTenantSettings(tenantSettingsRepo).execute({ tenantId: tenant.id });
-        theme = settings.uiTheme;
+      const tenant = await new GetTenantForDomain(tenantRepo).execute({ domain });
+      const settings = await new GetTenantSettings(tenantSettingsRepo).execute({ tenantId: tenant.id });
+      theme = settings.uiTheme;
+      // Un customDomain vérifié est de confiance pour porter l'URL du token (sinon réécrite sur le host canonique).
+      if (settings.customDomainVerifiedAt && settings.customDomain) {
+        trustedCustomHost = settings.customDomain;
       }
     } catch {
-      // Fall back to Default on any resolution error
+      // Root domain or unresolved host: Default theme, no custom host trusted
     }
+
+    const safeUrl = toTrustedAuthUrl(url, trustedCustomHost);
 
     const [t, tFooter] = await Promise.all([
       getEmailTranslations(locale, "emails.magicLink", ["subject", "title", "body", "button", "expiry", "ignore"]),
@@ -142,7 +148,7 @@ const nodemailerProvider = Nodemailer({
       locale,
       theme,
       translations: { ...t, footer: tFooter.footer },
-      url,
+      url: safeUrl,
     });
 
     const transporter = createMailTransporter();
@@ -151,7 +157,7 @@ const nodemailerProvider = Nodemailer({
       to: identifier,
       subject: t.subject,
       html,
-      text: `${t.body}\n\n${url}\n\n${t.expiry}`,
+      text: `${t.body}\n\n${safeUrl}\n\n${t.expiry}`,
     });
   },
 });
@@ -317,27 +323,11 @@ const {
     ],
     callbacks: espaceMembreProvider.CallbacksWrapper({
       redirect({ url }) {
-        const fallback = `${protocol}://${host}/`;
-
-        if (url.startsWith("/")) return `${protocol}://${host}${url}`;
-
-        try {
-          const parsed = new URL(url);
-          if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return fallback;
-
-          const rootHost = new URL(config.host).host;
-          if (
-            parsed.host === rootHost ||
-            parsed.host.endsWith(`.${config.rootDomain}`) ||
-            config.additionalRootDomains.some(alt => parsed.host === alt || parsed.host.endsWith(`.${alt}`))
-          ) {
-            return url;
-          }
-        } catch {
-          // invalid URL - fall through
-        }
-
-        return fallback;
+        return resolveTrustedRedirect(url, {
+          protocol,
+          host,
+          customDomainVerified: !!tenantSettings?.customDomainVerifiedAt,
+        });
       },
       async signIn(params) {
         // Pre-login OTP check: block magic link if user has OTP configured but no pre-login proof

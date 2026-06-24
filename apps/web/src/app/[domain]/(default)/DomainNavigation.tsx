@@ -9,7 +9,8 @@ import { dirtySafePathname } from "@/utils/dirtyDomain/pathnameDirtyCheck";
 
 interface DomainNavigationProps {
   boards: Board[];
-  tenantSettings: TenantSettings;
+  // Le token de vérification de domaine est exclu : composant public, jamais dans le payload client.
+  tenantSettings: Omit<TenantSettings, "customDomainVerificationToken">;
 }
 
 export const DomainNavigation = ({ boards, tenantSettings }: DomainNavigationProps) => {
