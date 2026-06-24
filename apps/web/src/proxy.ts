@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 
 import { responseWithAnonymousId } from "@/utils/anonymousId/responseWithAnonymousId";
+import { buildCanonicalRedirectUrl } from "@/utils/canonicalRedirect";
 import { DIRTY_DOMAIN_HEADER } from "@/utils/dirtyDomain/config";
 import { getDomainPathname, pathnameDirtyCheck } from "@/utils/dirtyDomain/pathnameDirtyCheck";
 
@@ -15,7 +16,7 @@ function withCorrelationId(req: NextRequest, response: NextResponse): NextRespon
   return response;
 }
 
-export function proxy(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const url = req.nextUrl;
   const pathname = url.pathname;
 
@@ -24,6 +25,7 @@ export function proxy(req: NextRequest) {
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set(CORRELATION_ID_HEADER, correlationId);
   requestHeaders.set("x-pathname", pathname);
+  requestHeaders.set("x-search", url.search);
 
   // Ensure x-forwarded-proto is set (missing in local dev without reverse proxy)
   if (!requestHeaders.has("x-forwarded-proto")) {
@@ -105,6 +107,35 @@ export function proxy(req: NextRequest) {
         }),
       ),
     );
+  }
+
+  // Canonical redirect (308) : un tenant peut forcer la redirection de son subdomain vers son
+  // customDomain. Le proxy (Edge) n'a pas Prisma/cache, donc le lookup est delegue a une route Node
+  // (cache 1h). On ne paie ce hop que sur les GET de navigation d'un subdomain tenant (jamais sur
+  // /api, /admin, /embed, ni sur les requetes RSC/prefetch). Fail-open : toute erreur => routing
+  // normal. Le 308 emis ici est un vrai redirect HTTP (vs le meta-refresh soft d'un redirect throw
+  // depuis un layout sous le <Suspense> du root layout).
+  const isTenantSubdomain = hostname.endsWith(`.${appConfig.rootDomain}`);
+  const isRedirectablePath =
+    !pathname.startsWith("/api") && !pathname.startsWith("/admin") && !pathname.startsWith("/embed");
+  const isPlainNavigation = req.method === "GET" && !req.headers.get("rsc") && !req.headers.get("next-router-prefetch");
+  if (isTenantSubdomain && isRedirectablePath && isPlainNavigation) {
+    try {
+      const lookup = await fetch(
+        new URL(`/api/internal/canonical-redirect?host=${encodeURIComponent(hostname)}`, appConfig.host),
+      );
+      if (lookup.ok) {
+        const { target } = (await lookup.json()) as { target: null | string };
+        if (target) {
+          return withCorrelationId(
+            req,
+            NextResponse.redirect(buildCanonicalRedirectUrl(target, pathname, url.search), 308),
+          );
+        }
+      }
+    } catch {
+      // fail-open : le visiteur reste sur le subdomain, le routing normal continue.
+    }
   }
 
   // Custom domains in dev: strip port so [domain] param matches DB customDomain without port.

@@ -14,6 +14,7 @@ import {
   AlertTriangle,
   Check,
   Globe,
+  Info,
   Lock,
   MessageSquare,
   Palette,
@@ -33,6 +34,7 @@ import { getTxtRecordName } from "@/lib/ee/domain-verification-constants";
 import { useFeatureFlag } from "@/lib/feature-flags/client";
 import { UI_THEME } from "@/lib/model/TenantSettings";
 import { type TenantSettings } from "@/prisma/client";
+import { UISwitch, UITooltip } from "@/ui/bridge";
 import { WELCOME_DATA_PREVIEW } from "@/workflows/welcomeDataPreview";
 
 import {
@@ -41,6 +43,7 @@ import {
   purgeTenantData,
   saveTenantSettings,
   seedDefaultData,
+  setForceCustomDomainRedirect,
   updateTenantDomain,
   verifyTenantCustomDomain,
 } from "./actions";
@@ -595,6 +598,8 @@ const DomainSection = ({ tenantSettings }: { tenantSettings: TenantSettings }) =
   const subdomain = useWatch({ control, name: "subdomain" });
 
   const [savedCustomDomain, setSavedCustomDomain] = useState(tenantSettings.customDomain);
+  const [forceRedirect, setForceRedirect] = useState(tenantSettings.forceCustomDomainRedirect);
+  const [forceRedirectPending, setForceRedirectPending] = useState(false);
 
   const runDNSCheck = useCallback(async () => {
     if (!savedCustomDomain) return;
@@ -656,6 +661,19 @@ const DomainSection = ({ tenantSettings }: { tenantSettings: TenantSettings }) =
       setError(result.error);
     }
     setDomainPending(false);
+  };
+
+  const handleForceRedirectToggle = async (checked: boolean) => {
+    setError(null);
+    setForceRedirectPending(true);
+    const previous = forceRedirect;
+    setForceRedirect(checked);
+    const result = await setForceCustomDomainRedirect(checked);
+    if (!result.ok) {
+      setForceRedirect(previous);
+      setError(result.error);
+    }
+    setForceRedirectPending(false);
   };
 
   const onVerifyOwnership = async () => {
@@ -808,6 +826,21 @@ const DomainSection = ({ tenantSettings }: { tenantSettings: TenantSettings }) =
               )}
             </div>
           )}
+
+          <div className="space-y-2 border-t pt-4">
+            <div className="flex items-center gap-2">
+              <UISwitch
+                label={t("forceCustomDomainRedirect")}
+                checked={forceRedirect}
+                disabled={forceRedirectPending || (!forceRedirect && (!savedCustomDomain || dnsStatus !== "valid"))}
+                onCheckedChangeAction={checked => void handleForceRedirectToggle(checked)}
+              />
+              <UITooltip title={t("forceCustomDomainRedirectTooltip")}>
+                <Info className="size-4 text-muted-foreground" />
+              </UITooltip>
+            </div>
+            <p className="text-sm text-muted-foreground">{t("forceCustomDomainRedirectHelper")}</p>
+          </div>
 
           {error && (
             <Alert variant="destructive">

@@ -26,4 +26,18 @@ test.describe("Routing & Pages", () => {
 
     await expect(page.locator("main")).toBeVisible();
   });
+
+  // #25 - forcer le redirect canonical vers le custom domain
+  test("redirects the subdomain to the custom domain (308) when the flag is on", async ({ request }) => {
+    const res = await request.get("http://canon.localhost:3000/", { maxRedirects: 0 });
+
+    expect(res.status()).toBe(308);
+    expect(res.headers()["location"]).toContain("canonical.example.com");
+  });
+
+  test("does not redirect a tenant without a custom domain", async ({ request }) => {
+    const res = await request.get(`${E2E_TENANT_URL}/`, { maxRedirects: 0 });
+
+    expect(res.status()).not.toBe(308);
+  });
 });

@@ -19,6 +19,7 @@ import { boardRepo, postStatusRepo, tenantRepo, tenantSettingsRepo, userOnTenant
 import { DeleteTenant } from "@/useCases/tenant/DeleteTenant";
 import { GetTenantForDomain } from "@/useCases/tenant/GetTenantForDomain";
 import { SaveTenantWithSettings, SaveTenantWithSettingsInput } from "@/useCases/tenant/SaveTenantWithSettings";
+import { SetTenantForceCustomDomainRedirect } from "@/useCases/tenant/SetTenantForceCustomDomainRedirect";
 import { UpdateTenantDomain, UpdateTenantDomainInput } from "@/useCases/tenant/UpdateTenantDomain";
 import { VerifyTenantCustomDomain } from "@/useCases/tenant/VerifyTenantCustomDomain";
 import { audit, AuditAction, getRequestContext } from "@/utils/audit";
@@ -160,6 +161,75 @@ export const updateTenantDomain = async (data: unknown): Promise<ServerActionRes
     audit(
       {
         action: AuditAction.TENANT_DOMAIN_UPDATE,
+        success: false,
+        error: (error as Error).message,
+        userId: session.user.uuid,
+        tenantId: tenant.id,
+      },
+      reqCtx,
+    );
+    return { ok: false, error: (error as Error).message };
+  }
+};
+
+export const setForceCustomDomainRedirect = async (enabled: unknown): Promise<ServerActionResponse> => {
+  const domain = await getDomainFromHost();
+  const session = await assertTenantOwner(domain);
+  const tenant = await getTenantFromDomain(domain);
+  await assertEntitlement(tenant.id, ADDON_TYPE.CUSTOM_DOMAIN);
+  const reqCtx = await getRequestContext();
+
+  const validated = z.boolean().safeParse(enabled);
+  if (!validated.success) {
+    audit(
+      {
+        action: AuditAction.TENANT_FORCE_CUSTOM_DOMAIN_REDIRECT_UPDATE,
+        success: false,
+        error: "Invalid payload",
+        userId: session.user.uuid,
+        tenantId: tenant.id,
+      },
+      reqCtx,
+    );
+    return { ok: false, error: z.prettifyError(validated.error) };
+  }
+
+  const settings = await tenantSettingsRepo.findByTenantId(tenant.id);
+  if (!settings) {
+    audit(
+      {
+        action: AuditAction.TENANT_FORCE_CUSTOM_DOMAIN_REDIRECT_UPDATE,
+        success: false,
+        error: "TenantSettings not found",
+        userId: session.user.uuid,
+        tenantId: tenant.id,
+      },
+      reqCtx,
+    );
+    return { ok: false, error: "Configuration du tenant introuvable." };
+  }
+
+  try {
+    const useCase = new SetTenantForceCustomDomainRedirect(tenantSettingsRepo);
+    await useCase.execute({ settingsId: settings.id, forceCustomDomainRedirect: validated.data });
+    audit(
+      {
+        action: AuditAction.TENANT_FORCE_CUSTOM_DOMAIN_REDIRECT_UPDATE,
+        userId: session.user.uuid,
+        tenantId: tenant.id,
+        targetType: "TenantSettings",
+        targetId: String(tenant.id),
+        metadata: { forceCustomDomainRedirect: validated.data },
+      },
+      reqCtx,
+    );
+
+    revalidatePath("/admin/general");
+    return { ok: true };
+  } catch (error) {
+    audit(
+      {
+        action: AuditAction.TENANT_FORCE_CUSTOM_DOMAIN_REDIRECT_UPDATE,
         success: false,
         error: (error as Error).message,
         userId: session.user.uuid,

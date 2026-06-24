@@ -74,6 +74,21 @@ async function main() {
 
   console.log("Tenant created:", tenant.id);
 
+  // Tenant dedie au test de redirection canonique (#25) : subdomain "canon" avec customDomain
+  // (non-plateforme) + flag actif. Isole pour ne pas faire rediriger le tenant "e2e" principal.
+  const redirectTenant = await prisma.tenant.create({ data: { organizationId: organization.id } });
+  await prisma.tenantSettings.create({
+    data: {
+      tenantId: redirectTenant.id,
+      name: "Canonical Redirect Tenant",
+      subdomain: "canon",
+      customDomain: "canonical.example.com",
+      forceCustomDomainRedirect: true,
+    },
+  });
+
+  console.log("Redirect tenant created:", redirectTenant.id);
+
   // ---------------------------------------------------------------------------
   // 3. AppSettings singleton
   // ---------------------------------------------------------------------------

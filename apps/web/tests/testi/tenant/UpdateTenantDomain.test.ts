@@ -102,8 +102,13 @@ describe("UpdateTenantDomain", () => {
     expect(mockAddDomain).toHaveBeenCalledWith("new.com", "custom");
   });
 
-  it("clears domain + token + verification when the custom domain is removed", async () => {
-    const existing = fakeTenantSettings({ id: 1, subdomain: "sub", customDomain: "old.com" });
+  it("clears domain + token + verification and disables the canonical redirect when the custom domain is removed", async () => {
+    const existing = fakeTenantSettings({
+      id: 1,
+      subdomain: "sub",
+      customDomain: "acme.com",
+      forceCustomDomainRedirect: true,
+    });
     mockSettingsRepo.findById.mockResolvedValue(existing);
     mockSettingsRepo.update.mockResolvedValue(fakeTenantSettings({ customDomain: null }));
     mockRemoveDomain.mockResolvedValue(undefined);
@@ -114,7 +119,8 @@ describe("UpdateTenantDomain", () => {
     expect(updateData.customDomain).toBeNull();
     expect(updateData.customDomainVerificationToken).toBeNull();
     expect(updateData.customDomainVerifiedAt).toBeNull();
-    expect(mockRemoveDomain).toHaveBeenCalledWith("old.com");
+    expect(updateData.forceCustomDomainRedirect).toBe(false);
+    expect(mockRemoveDomain).toHaveBeenCalledWith("acme.com");
   });
 
   it("does not re-issue a token nor reset verification when the custom domain is unchanged", async () => {
@@ -143,6 +149,40 @@ describe("UpdateTenantDomain", () => {
     await expect(useCase.execute({ settingsId: 1, customDomain: "taken.com" })).rejects.toThrow(
       "Ce domaine personnalisé est déjà utilisé par un autre tenant.",
     );
+  });
+
+  it("rejects a custom domain that is itself a platform host", async () => {
+    mockSettingsRepo.findById.mockResolvedValue(fakeTenantSettings({ id: 1, customDomain: null }));
+
+    await expect(useCase.execute({ settingsId: 1, customDomain: "other.localhost" })).rejects.toThrow(
+      "Domaine personnalisé invalide",
+    );
+    expect(mockSettingsRepo.update).not.toHaveBeenCalled();
+  });
+
+  it("rejects an unparseable custom domain", async () => {
+    mockSettingsRepo.findById.mockResolvedValue(fakeTenantSettings({ id: 1, customDomain: null }));
+
+    await expect(useCase.execute({ settingsId: 1, customDomain: "not a domain" })).rejects.toThrow(
+      "Domaine personnalisé invalide",
+    );
+    expect(mockSettingsRepo.update).not.toHaveBeenCalled();
+  });
+
+  it("normalizes a custom domain entered with a scheme and path", async () => {
+    mockSettingsRepo.findById.mockResolvedValue(fakeTenantSettings({ id: 1, customDomain: null }));
+    mockFindFirst.mockResolvedValue(null);
+    mockSettingsRepo.update.mockResolvedValue(fakeTenantSettings({ customDomain: "feedback.acme.com" }));
+    mockAddDomain.mockResolvedValue(undefined);
+
+    await useCase.execute({ settingsId: 1, customDomain: "https://feedback.acme.com/roadmap" });
+
+    expect(mockSettingsRepo.update).toHaveBeenCalledWith(1, {
+      customDomain: "feedback.acme.com",
+      customDomainVerificationToken: "roadmaps-faciles-verify=testtoken",
+      customDomainVerifiedAt: null,
+    });
+    expect(mockAddDomain).toHaveBeenCalledWith("feedback.acme.com", "custom");
   });
 
   it("blocks removing the custom domain while the DSFR theme is active", async () => {
@@ -183,5 +223,22 @@ describe("UpdateTenantDomain", () => {
     expect(updateData.customDomainVerificationToken).toBe("roadmaps-faciles-verify=testtoken");
     expect(updateData.customDomainVerifiedAt).toBeNull();
     expect(mockAddDomain).toHaveBeenCalledWith("new.gouv.fr", "custom");
+  });
+
+  it("accepts a .gouv.fr domain entered with a scheme and path while the DSFR theme is active", async () => {
+    mockSettingsRepo.findById.mockResolvedValue(
+      fakeTenantSettings({ id: 1, uiTheme: "Dsfr", customDomain: "old.gouv.fr" }),
+    );
+    mockFindFirst.mockResolvedValue(null);
+    mockSettingsRepo.update.mockResolvedValue(fakeTenantSettings({ customDomain: "feedback.gouv.fr" }));
+    mockAddDomain.mockResolvedValue(undefined);
+
+    // Le check DSFR doit porter sur le hostname sanitizé, pas sur le raw : sans ça ce input passerait
+    // à la trappe (le raw ne finit pas par ".gouv.fr").
+    await useCase.execute({ settingsId: 1, customDomain: "https://feedback.gouv.fr/roadmap" });
+
+    const [, updateData] = mockSettingsRepo.update.mock.calls[0];
+    expect(updateData.customDomain).toBe("feedback.gouv.fr");
+    expect(mockAddDomain).toHaveBeenCalledWith("feedback.gouv.fr", "custom");
   });
 });

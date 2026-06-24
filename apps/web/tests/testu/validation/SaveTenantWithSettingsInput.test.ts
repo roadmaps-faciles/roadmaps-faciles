@@ -15,6 +15,7 @@ describe("SaveTenantWithSettingsInput schema", () => {
     allowAnonymousVoting: true,
     requirePostApproval: false,
     allowEmbedding: false,
+    allowIndexing: true,
   };
 
   it("accepts valid data with all fields", () => {
@@ -24,6 +25,20 @@ describe("SaveTenantWithSettingsInput schema", () => {
   it("accepts allowEmbedding set to true", () => {
     const data = expectZodSuccess(SaveTenantWithSettingsInput, { ...valid, allowEmbedding: true });
     expect(data.allowEmbedding).toBe(true);
+  });
+
+  it("accepts allowIndexing set to false", () => {
+    const data = expectZodSuccess(SaveTenantWithSettingsInput, { ...valid, allowIndexing: false });
+    expect(data.allowIndexing).toBe(false);
+  });
+
+  it("rejects missing allowIndexing", () => {
+    const { allowIndexing: _, ...data } = valid;
+    expectZodFailure(SaveTenantWithSettingsInput, data);
+  });
+
+  it("rejects non-boolean allowIndexing", () => {
+    expectZodFailure(SaveTenantWithSettingsInput, { ...valid, allowIndexing: "yes" });
   });
 
   it("rejects missing id", () => {

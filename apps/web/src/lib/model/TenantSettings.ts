@@ -25,6 +25,7 @@ export const TenantSettings = z.object({
   customDomain: z.string().nullable(),
   customDomainVerificationToken: z.string().nullable(),
   customDomainVerifiedAt: z.coerce.date().nullable(),
+  forceCustomDomainRedirect: z.boolean(),
   locale: localeSchema,
   isPrivate: z.boolean(),
   allowVoting: z.boolean(),

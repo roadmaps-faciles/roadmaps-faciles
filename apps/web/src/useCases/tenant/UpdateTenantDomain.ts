@@ -8,6 +8,7 @@ import { generateVerificationToken } from "@/lib/ee/domain-verification";
 import { logger } from "@/lib/logger";
 import { type ITenantSettingsRepo } from "@/lib/repo/ITenantSettingsRepo";
 import { type TenantSettings } from "@/prisma/client";
+import { isValidCustomDomain, sanitizeCustomDomain } from "@/utils/customDomain";
 import { isReservedSubdomain } from "@/utils/reservedSubdomains";
 
 import { type UseCase } from "../types";
@@ -51,33 +52,48 @@ export class UpdateTenantDomain implements UseCase<UpdateTenantDomainInput, Upda
       data.subdomain = input.subdomain;
     }
 
+    let nextCustomDomain: null | string | undefined;
     if (input.customDomain !== undefined) {
-      if (existing.uiTheme === "Dsfr" && !input.customDomain?.endsWith(".gouv.fr")) {
+      // Sanitize d'abord : le check DSFR .gouv.fr ET la validation portent sur le hostname normalisé,
+      // jamais sur le raw (sinon un input valide comme `https://feedback.gouv.fr/x` serait rejeté).
+      // Le choix set/clear reste piloté par l'intention brute (input.customDomain) : un input non
+      // parsable ("not a domain") sanitize en "" mais ne doit PAS être interprété comme un clear.
+      const sanitized = input.customDomain ? sanitizeCustomDomain(input.customDomain) : "";
+      if (existing.uiTheme === "Dsfr" && !sanitized.endsWith(".gouv.fr")) {
         throw new Error(
           "Le thème DSFR requiert un domaine .gouv.fr : repassez en thème par défaut avant de retirer ou changer ce domaine.",
         );
       }
-
-      // On enregistre le domaine en NON vérifié + on émet un token TXT ; la propriété est prouvée
-      // ensuite via VerifyTenantCustomDomain (verifiedAt). Le re-save du même domaine ne touche ni
-      // au token ni au statut (sinon on invaliderait une vérif déjà acquise à la moindre édition).
-      if (input.customDomain !== existing.customDomain) {
-        if (input.customDomain) {
+      if (input.customDomain) {
+        if (!isValidCustomDomain(sanitized, config.rootDomain)) {
+          throw new Error(
+            "Domaine personnalisé invalide : indiquez un nom de domaine complet (ex: feedback.exemple.com), différent du domaine de la plateforme.",
+          );
+        }
+        nextCustomDomain = sanitized;
+        // On enregistre le domaine en NON vérifié + on émet un token TXT ; la propriété est prouvée
+        // ensuite via VerifyTenantCustomDomain (verifiedAt). On compare la forme sanitized (pas le raw)
+        // pour qu'un re-save du même domaine (casse/dot/www différent) ne régénère ni le token ni le
+        // statut : sinon on invaliderait une vérif déjà acquise à la moindre édition.
+        if (sanitized !== existing.customDomain) {
           const domainConflict = await prisma.tenantSettings.findFirst({
-            where: { customDomain: input.customDomain, id: { not: input.settingsId } },
+            where: { customDomain: sanitized, id: { not: input.settingsId } },
           });
           if (domainConflict) {
             throw new Error("Ce domaine personnalisé est déjà utilisé par un autre tenant.");
           }
-
-          data.customDomain = input.customDomain;
+          data.customDomain = sanitized;
           data.customDomainVerificationToken = generateVerificationToken();
           data.customDomainVerifiedAt = null;
-        } else {
-          data.customDomain = null;
-          data.customDomainVerificationToken = null;
-          data.customDomainVerifiedAt = null;
         }
+      } else {
+        nextCustomDomain = null;
+        data.customDomain = null;
+        data.customDomainVerificationToken = null;
+        data.customDomainVerifiedAt = null;
+        // Retirer le custom domain doit desactiver la redirection canonique, sinon le flag reste actif
+        // sans domaine cible (dormant cote redirect, mais reactive en silence si le meme domaine revient).
+        data.forceCustomDomainRedirect = false;
       }
     }
 
@@ -98,9 +114,9 @@ export class UpdateTenantDomain implements UseCase<UpdateTenantDomainInput, Upda
       }
     }
 
-    if (input.customDomain !== undefined && input.customDomain !== existing.customDomain) {
+    if (nextCustomDomain !== undefined && nextCustomDomain !== existing.customDomain) {
       if (existing.customDomain) await provider.removeDomain(existing.customDomain);
-      if (input.customDomain) await provider.addDomain(input.customDomain, "custom");
+      if (nextCustomDomain) await provider.addDomain(nextCustomDomain, "custom");
     }
 
     return result;
