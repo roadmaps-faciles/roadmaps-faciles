@@ -1,9 +1,4 @@
 # syntax=docker/dockerfile:1
-# check=skip=SecretsUsedInArgOrEnv
-#
-# check=skip ci-dessus : ESPACE_MEMBRE_API_KEY (plus bas) est un placeholder build
-# (fakesecret), la vraie clé est injectée au runtime — faux positif. Vrai fix = lazy-init
-# du client pour ne plus dépendre de l'env var au build (cf TODO sur le ARG).
 #
 # Image multi-usage :
 #   - SaaS prod (roadmaps-faciles.fr) : déployée avec Dockerfile.licensing à côté
@@ -47,10 +42,6 @@ ARG NEXT_PUBLIC_APP_VERSION
 # SOURCE_COMMIT pour GHA/Coolify (cf next.config.ts qui accepte les 2).
 ARG SOURCE_COMMIT
 ENV SOURCE_COMMIT=${SOURCE_COMMIT}
-
-# TODO: lazy-init du client pour ne pas dépendre d'env var au build.
-ARG ESPACE_MEMBRE_API_KEY=fakesecret
-ENV ESPACE_MEMBRE_API_KEY=${ESPACE_MEMBRE_API_KEY}
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules

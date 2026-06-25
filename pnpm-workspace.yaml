@@ -53,3 +53,5 @@ allowBuilds:
   protobufjs: true
   sharp: true
   unrs-resolver: true
+minimumReleaseAgeExclude:
+  - '@incubateur-ademe/next-auth-espace-membre-provider@0.3.4'

@@ -59,6 +59,4 @@ jobs:
           restore-keys: |
             turbo-build-${{ runner.os }}-
       - name: Build and export
-        env:
-          ESPACE_MEMBRE_API_KEY: fakesecret
         run: pnpm build

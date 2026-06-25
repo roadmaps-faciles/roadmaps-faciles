@@ -44,7 +44,7 @@
     "@github/text-expander-element": "^2.9.4",
     "@hookform/resolvers": "^5.2.2",
     "@icons-pack/react-simple-icons": "^13.13.0",
-    "@incubateur-ademe/next-auth-espace-membre-provider": "^0.3.3",
+    "@incubateur-ademe/next-auth-espace-membre-provider": "^0.3.4",
     "@mdx-js/react": "^3.1.1",
     "@mui/lab": "7.0.1-beta.23",
     "@mui/material": "^7.3.11",
