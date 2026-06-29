@@ -2,6 +2,7 @@ import { type Metadata } from "next";
 
 import { config } from "@/config";
 import { prisma } from "@/lib/db/prisma";
+import { POST_APPROVAL_STATUS } from "@/lib/model/Post";
 import { getTenantFromDomain } from "@/utils/tenant";
 
 /**
@@ -137,6 +138,7 @@ export const generatePostMetadata = async (domain: string, postId: string): Prom
       select: {
         title: true,
         description: true,
+        approvalStatus: true,
         board: { select: { name: true } },
         user: { select: { name: true } },
         createdAt: true,
@@ -144,7 +146,7 @@ export const generatePostMetadata = async (domain: string, postId: string): Prom
     }),
   ]);
 
-  if (!settings || !post) return {};
+  if (!settings || !post || post.approvalStatus !== POST_APPROVAL_STATUS.APPROVED) return {};
 
   const description = truncateDescription(post.description) || `${post.title} - ${settings.name}`;
   const url = buildTenantUrl(settings.subdomain, settings.customDomain, `/post/${id}`);
